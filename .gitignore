@@ -110,6 +110,11 @@ dist
 # Serverless directories
 .serverless/
 
+# Test files
+test-example.ts
+example.env
+*.env.test
+
 # FuseBox cache
 .fusebox/
 
