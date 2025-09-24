@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { booleanPrompt, isCancel } from "./boolean-prompt";
+import { booleanPrompt, isCancel } from "./BooleanPrompt"
 import color from "picocolors";
 
 async function testBooleanPrompt() {
