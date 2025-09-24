@@ -64,7 +64,7 @@ export default class BooleanPrompt extends SelectPrompt<BooleanOption> {
           } else {
             // Show the selected value in dim color
             const valueText = selectedValue === true ? 'true' : 'false';
-            return `${color.bold(color.white(key))} ${color.dim(valueText)}`;
+            return `${color.bold(color.white(key))}\u00A0${color.dim(valueText)}`;
           }
         }
 
@@ -76,9 +76,9 @@ export default class BooleanPrompt extends SelectPrompt<BooleanOption> {
         // Description in dimmed text if present, with optional indicator
         if (description) {
           const optionalSuffix = optional ? ' (optional)' : '';
-          output += ` ${color.dim(description + optionalSuffix)}`;
+          output += `\u00A0${color.dim(description + optionalSuffix)}`;
         } else if (optional) {
-          output += ` ${color.dim('(optional)')}`;
+          output += `\u00A0${color.dim('(optional)')}`;
         }
         
         output += '\n';
@@ -102,7 +102,7 @@ export default class BooleanPrompt extends SelectPrompt<BooleanOption> {
           
           let annotationText = '';
           if (annotations.length > 0) {
-            annotationText = ` (${annotations.join(', ')})`;
+            annotationText = `\u00A0(${annotations.join(', ')})`;
           }
           
           if (isSelected) {
