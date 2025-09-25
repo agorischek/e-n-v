@@ -9,7 +9,6 @@ type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 export abstract class EnvPrompt<T> extends Prompt<T> {
   cursor = 0;
   isTyping = false;
-  private hasAttemptedSubmit = false;
   protected options: EnvPromptOptions<T>;
 
   constructor(opts: EnvPromptOptions<T>) {

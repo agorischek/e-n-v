@@ -41,7 +41,7 @@ export async function askEnv(
     }
   }
 
-  const defaultThemeColor = color.greenBright;
+  const defaultThemeColor = color.magenta;
 
   const envValues: Record<string, string> = {};
   const schemaEntries = Object.entries(schemas);
