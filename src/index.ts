@@ -6,7 +6,7 @@ import {
   cancel,
   isCancel,
   select,
-} from "@clack/prompts";
+} from "./prompts";
 import { z } from "zod";
 import { writeFileSync, existsSync } from "fs";
 import { join } from "path";
