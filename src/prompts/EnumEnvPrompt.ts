@@ -1,22 +1,24 @@
 import { Prompt, isCancel } from "@clack/core";
 import type { Key } from "node:readline";
-import color from "picocolors";
-import { EnvPromptOptions, defaultThemeColor } from "../EnvPromptOptions";
-import { SKIP_SYMBOL } from "../symbols";
+import * as color from "picocolors";
+import { EnvPromptOptions, defaultThemeColor } from "../EnvPromptOptions.js";
+import { SKIP_SYMBOL } from "../symbols.js";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
-interface BooleanEnvPromptOptions extends EnvPromptOptions<boolean> {}
+interface EnumEnvPromptOptions extends EnvPromptOptions<string> {
+  options: string[];
+}
 
-export class BooleanEnvPrompt extends Prompt<boolean> {
+export class EnumEnvPrompt extends Prompt<string> {
   cursor = 0;
-  protected options: BooleanEnvPromptOptions;
+  protected options: EnumEnvPromptOptions;
 
-  constructor(opts: BooleanEnvPromptOptions) {
+  constructor(opts: EnumEnvPromptOptions) {
     super(
       {
         ...opts,
-        render: function (this: BooleanEnvPrompt) {
+        render: function (this: EnumEnvPrompt) {
           const themeColor = opts.themeColor || defaultThemeColor;
           
           if (this.state === "submit") {
@@ -28,7 +30,7 @@ export class BooleanEnvPrompt extends Prompt<boolean> {
             // User provided a value - show ENV_KEY=value format with hollow diamond
             return `${themeColor("◇")}  ${color.bold(color.white(opts.key))}${color.gray(
               "="
-            )}${color.white(this.value ? "true" : "false")}`;
+            )}${color.white(this.value)}`;
           }
 
           let output = "";
@@ -40,29 +42,24 @@ export class BooleanEnvPrompt extends Prompt<boolean> {
           }
           output += "\n";
 
-          // Create options array for true/false
-          const options = [
-            { value: true, label: "true" },
-            { value: false, label: "false" },
-          ];
-
-          options.forEach((option, index) => {
+          // Display enum options
+          opts.options.forEach((option, index) => {
             const isSelected = index === this.cursor;
             const circle = isSelected ? themeColor("●") : color.dim("○");
 
             // Determine if this option matches current or default
             let annotation = "";
-            if (opts.current === option.value && opts.default === option.value) {
+            if (opts.current === option && opts.default === option) {
               annotation = " (current, default)";
-            } else if (opts.current === option.value) {
+            } else if (opts.current === option) {
               annotation = " (current)";
-            } else if (opts.default === option.value) {
+            } else if (opts.default === option) {
               annotation = " (default)";
             }
 
             const text = isSelected
-              ? color.white(option.label)
-              : color.gray(option.label);
+              ? color.white(option)
+              : color.gray(option);
             const suffix = isSelected ? color.gray(annotation) : "";
             output += `${color.gray("│")}  ${circle} ${text}${suffix}\n`;
           });
@@ -73,7 +70,7 @@ export class BooleanEnvPrompt extends Prompt<boolean> {
           return output;
         },
         validate: (value) => {
-          // For boolean prompts, always validate with custom validation if provided
+          // For enum prompts, validate with custom validation if provided
           if (this.options.validate && typeof this.value !== 'symbol') {
             const customValidation = this.options.validate(this.value);
             if (customValidation) {
@@ -88,8 +85,16 @@ export class BooleanEnvPrompt extends Prompt<boolean> {
 
     this.options = opts;
 
-    // Set initial value to current, or default, or false
-    this.value = this.options.current ?? this.options.default ?? false;
+    // Set initial value to current, or default, or first option
+    this.value = this.options.current ?? this.options.default ?? this.options.options[0];
+    
+    // Set initial cursor position based on current/default value
+    const initialIndex = this.options.current 
+      ? this.options.options.indexOf(this.options.current)
+      : this.options.default
+        ? this.options.options.indexOf(this.options.default)
+        : 0;
+    this.cursor = Math.max(0, initialIndex);
 
     this.on("cursor", (action?: Action) => {
       // Clear error state when user navigates (like base Prompt class does)
@@ -100,10 +105,10 @@ export class BooleanEnvPrompt extends Prompt<boolean> {
       
       switch (action) {
         case "up":
-          this.cursor = this.cursor === 0 ? 1 : 0;
+          this.cursor = this.cursor === 0 ? this.options.options.length - 1 : this.cursor - 1;
           break;
         case "down":
-          this.cursor = this.cursor === 1 ? 0 : 1;
+          this.cursor = this.cursor === this.options.options.length - 1 ? 0 : this.cursor + 1;
           break;
       }
       this.updateValue();
@@ -128,7 +133,6 @@ export class BooleanEnvPrompt extends Prompt<boolean> {
   }
 
   private updateValue() {
-    // cursor 0 = true, cursor 1 = false
-    this.value = this.cursor === 0;
+    this.value = this.options.options[this.cursor];
   }
 }

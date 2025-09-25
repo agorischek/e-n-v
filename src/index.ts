@@ -1,15 +1,13 @@
-import {
-  text,
-  confirm,
-  intro,
-  outro,
-  cancel,
-  isCancel,
-  select,
-} from "./prompts";
+import { confirm, intro, outro, cancel, isCancel } from "@clack/prompts";
 import { z } from "zod";
 import { writeFileSync, existsSync } from "fs";
 import { join } from "path";
+import { StringEnvPrompt } from "./prompts/StringEnvPrompt";
+import { NumberEnvPrompt } from "./prompts/NumberEnvPrompt";
+import { BooleanEnvPrompt } from "./prompts/BooleanEnvPrompt";
+import { EnumEnvPrompt } from "./prompts/EnumEnvPrompt";
+import { SKIP_SYMBOL } from "./symbols";
+import color from "picocolors";
 
 export interface AskEnvOptions {
   envPath?: string;
@@ -43,60 +41,107 @@ export async function askEnv(
     }
   }
 
+  const defaultThemeColor = color.greenBright;
+
   const envValues: Record<string, string> = {};
   const schemaEntries = Object.entries(schemas);
 
   for (const [key, schema] of schemaEntries) {
-    let value: string = "";
-
-    // Check if we should use select for this schema type
-    if (shouldUseSelect(schema)) {
-      const options = getSelectOptions(schema);
-      const defaultValue = getDefaultValue(schema);
-      const input = await select({
-        message: `Select value for ${key}:`,
-        options,
-        initialValue: defaultValue,
-      });
-
-      if (isCancel(input)) {
-        cancel("Operation cancelled.");
-        return;
-      }
-
-      value = input as string;
-    } else {
-      let isValid = false;
-
-      while (!isValid) {
-        const input = await text({
-          message: `Enter value for ${key}:`,
-          placeholder: getPlaceholderForSchema(schema),
-          validate: (value) => {
-            try {
-              schema.parse(value);
-              return undefined; // Valid
-            } catch (error) {
-              if (error instanceof z.ZodError) {
-                return error.errors.map((e) => e.message).join(", ");
-              }
-              return "Invalid value";
-            }
-          },
-        });
-
-        if (isCancel(input)) {
-          cancel("Operation cancelled.");
-          return;
-        }
-
-        value = input as string;
-        isValid = true;
-      }
+    // Add blank line before each prompt for better spacing (except first)
+    if (Object.keys(envValues).length > 0) {
+      console.log(color.gray("│"));
     }
 
-    envValues[key] = value;
+    // Get current value from process.env if it exists and is not empty
+    const current =
+      process.env[key] && process.env[key].trim() !== ""
+        ? process.env[key]
+        : undefined;
+
+    // Get default value from schema if it exists
+    const defaultValue = getDefaultValue(schema);
+
+    // Get the base schema type (unwrapped from optional/default)
+    const baseSchema = getBaseSchema(schema);
+
+    let value: any;
+
+    if (baseSchema instanceof z.ZodBoolean) {
+      const prompt = new BooleanEnvPrompt({
+        key,
+        description: getDescriptionForSchema(schema),
+        current: current !== undefined ? parseBoolean(current) : undefined,
+        default:
+          defaultValue !== undefined ? parseBoolean(defaultValue) : undefined,
+        required: !isOptional(schema),
+        validate: (value) => validateWithSchema(value, schema),
+        themeColor: defaultThemeColor,
+      });
+
+      value = await prompt.prompt();
+    } else if (baseSchema instanceof z.ZodNumber) {
+      const prompt = new NumberEnvPrompt({
+        key,
+        description: getDescriptionForSchema(schema),
+        current: current !== undefined ? parseFloat(current) : undefined,
+        default:
+          defaultValue !== undefined ? parseFloat(defaultValue) : undefined,
+        required: !isOptional(schema),
+        validate: (value) => validateWithSchema(value, schema),
+        themeColor: defaultThemeColor,
+      });
+
+      value = await prompt.prompt();
+    } else if (baseSchema instanceof z.ZodEnum) {
+      // For enums, use EnumEnvPrompt with fixed options
+      const prompt = new EnumEnvPrompt({
+        key,
+        description: getDescriptionForSchema(schema),
+        current,
+        default: defaultValue,
+        required: !isOptional(schema),
+        validate: (value) => validateWithSchema(value, schema),
+        options: baseSchema._def.values,
+        themeColor: defaultThemeColor,
+      });
+
+      value = await prompt.prompt();
+    } else {
+      // Default to string prompt for all other types
+      const prompt = new StringEnvPrompt({
+        key,
+        description: getDescriptionForSchema(schema),
+        current,
+        default: defaultValue,
+        required: !isOptional(schema),
+        validate: (value) => validateWithSchema(value, schema),
+        themeColor: defaultThemeColor,
+      });
+
+      value = await prompt.prompt();
+    }
+
+    // Handle cancellation FIRST - check for clack cancel symbol
+    if (
+      isCancel(value) ||
+      (typeof value === "symbol" &&
+        (value as any).description === "clack:cancel")
+    ) {
+      cancel("Operation cancelled.");
+      return;
+    }
+
+    // Handle skip symbol
+    if (value === SKIP_SYMBOL) {
+      continue; // Skip this environment variable
+    }
+
+    // Convert value to string for .env file
+    envValues[key] = String(value);
   }
+
+  // Add final spacing
+  console.log(color.gray("│"));
 
   // Generate .env content
   const envContent = Object.entries(envValues)
@@ -116,22 +161,24 @@ export async function askEnv(
 }
 
 /**
- * Determine if a schema should use select instead of text input
+ * Get the base schema type (unwrapped from optional/default)
  */
-function shouldUseSelect(schema: z.ZodSchema): boolean {
-  // Check for wrapped schemas (optional, default)
-  let unwrappedSchema = schema;
+function getBaseSchema(schema: z.ZodSchema): z.ZodSchema {
+  let unwrapped = schema;
   if (schema instanceof z.ZodOptional) {
-    unwrappedSchema = schema._def.innerType;
+    unwrapped = schema._def.innerType;
   }
-  if (unwrappedSchema instanceof z.ZodDefault) {
-    unwrappedSchema = unwrappedSchema._def.innerType;
+  if (unwrapped instanceof z.ZodDefault) {
+    unwrapped = unwrapped._def.innerType;
   }
+  return unwrapped;
+}
 
-  return (
-    unwrappedSchema instanceof z.ZodEnum ||
-    unwrappedSchema instanceof z.ZodBoolean
-  );
+/**
+ * Check if a schema is optional
+ */
+function isOptional(schema: z.ZodSchema): boolean {
+  return schema instanceof z.ZodOptional;
 }
 
 /**
@@ -142,69 +189,74 @@ function getDefaultValue(schema: z.ZodSchema): string | undefined {
     const defaultValue = schema._def.defaultValue();
     return String(defaultValue);
   }
+  // Check nested optional/default combinations
+  if (
+    schema instanceof z.ZodOptional &&
+    schema._def.innerType instanceof z.ZodDefault
+  ) {
+    const defaultValue = schema._def.innerType._def.defaultValue();
+    return String(defaultValue);
+  }
   return undefined;
 }
 
 /**
- * Get select options for enum and boolean schemas
+ * Parse boolean from string value
  */
-function getSelectOptions(
-  schema: z.ZodSchema
-): Array<{ value: string; label: string }> {
-  // Check for wrapped schemas (optional, default)
-  let unwrappedSchema = schema;
-  if (schema instanceof z.ZodOptional) {
-    unwrappedSchema = schema._def.innerType;
-  }
-  if (unwrappedSchema instanceof z.ZodDefault) {
-    unwrappedSchema = unwrappedSchema._def.innerType;
-  }
-
-  const defaultValue = getDefaultValue(schema);
-
-  if (unwrappedSchema instanceof z.ZodEnum) {
-    const options = unwrappedSchema._def.values;
-    return options.map((value: string) => ({
-      value,
-      label: value === defaultValue ? `${value} (default)` : value,
-    }));
-  }
-
-  if (unwrappedSchema instanceof z.ZodBoolean) {
-    return [
-      {
-        value: "true",
-        label: "true" === defaultValue ? "true (default)" : "true",
-      },
-      {
-        value: "false",
-        label: "false" === defaultValue ? "false (default)" : "false",
-      },
-    ];
-  }
-
-  return [];
+function parseBoolean(value: string): boolean {
+  const trimmed = value.trim().toLowerCase();
+  return (
+    trimmed === "true" ||
+    trimmed === "1" ||
+    trimmed === "yes" ||
+    trimmed === "y"
+  );
 }
 
 /**
- * Generate a helpful placeholder text based on the Zod schema type
- * Note: Enum and Boolean types now use select instead of text input
+ * Generate description for schema
  */
-function getPlaceholderForSchema(schema: z.ZodSchema): string {
-  if (schema instanceof z.ZodString) {
-    return "Enter a string value";
+function getDescriptionForSchema(schema: z.ZodSchema): string | undefined {
+  // First check if the schema has a description
+  if ((schema as any)._def?.description) {
+    return (schema as any)._def.description;
   }
-  if (schema instanceof z.ZodNumber) {
-    return "Enter a number";
+
+  // Check nested schemas (optional/default wrappers)
+  if (
+    schema instanceof z.ZodOptional &&
+    (schema._def.innerType as any)._def?.description
+  ) {
+    return (schema._def.innerType as any)._def.description;
   }
-  if (schema instanceof z.ZodOptional) {
-    return `${getPlaceholderForSchema(schema._def.innerType)} (optional)`;
+
+  if (
+    schema instanceof z.ZodDefault &&
+    (schema._def.innerType as any)._def?.description
+  ) {
+    return (schema._def.innerType as any)._def.description;
   }
-  if (schema instanceof z.ZodDefault) {
-    const defaultValue = schema._def.defaultValue();
-    return `Default: ${defaultValue}`;
+
+  // If no description is found, return undefined (no generic descriptions)
+  return undefined;
+}
+
+/**
+ * Validate value with Zod schema
+ */
+function validateWithSchema(
+  value: any,
+  schema: z.ZodSchema
+): string | undefined {
+  try {
+    schema.parse(value);
+    return undefined; // Valid
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return error.errors.map((e) => e.message).join(", ");
+    }
+    return "Invalid value";
   }
-  return "Enter a value";
 }
 
 export default askEnv;

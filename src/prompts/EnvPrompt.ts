@@ -1,7 +1,7 @@
 import { Prompt, isCancel } from "@clack/core";
 import type { Key } from "node:readline";
 import color from "picocolors";
-import { EnvPromptOptions } from "../EnvPromptOptions";
+import { EnvPromptOptions, defaultThemeColor } from "../EnvPromptOptions";
 import { SKIP_SYMBOL } from "../symbols";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
@@ -17,22 +17,24 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
       {
         ...opts,
         render: function (this: EnvPrompt<T>) {
+          const themeColor = opts.themeColor || defaultThemeColor;
+          
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
-              // User skipped - show just the key in gray
-              return `${color.gray(color.bold(opts.key))}`;
+              // User skipped - show just the key in gray with hollow diamond
+              return `${themeColor("◇")}  ${color.gray(color.bold(opts.key))}`;
             }
-            // User provided a value - show ENV_KEY=value format
-            return `${color.bold(color.white(opts.key))}${color.gray(
+            // User provided a value - show ENV_KEY=value format with hollow diamond
+            return `${themeColor("◇")}  ${color.bold(color.white(opts.key))}${color.gray(
               "="
             )}${color.white(this.formatValue(this.value))}`;
           }
 
           let output = "";
 
-          // Add header line with key in bold white and description in gray if provided
-          output += color.bold(color.white(opts.key));
+          // Add header line with filled diamond (active) and key in bold white and description in gray if provided
+          output += `${themeColor("◆")}  ${color.bold(color.white(opts.key))}`;
           if (opts.description) {
             output += ` ${color.gray(opts.description)}`;
           }
@@ -42,45 +44,52 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
           if (opts.current === undefined && opts.default === undefined) {
             if (this.isTyping) {
               const displayText = `${this.userInput}█`;
-              output += color.white(displayText);
+              output += `${color.gray("│")}  ${color.white(displayText)}`;
             } else {
-              output += color.white("█");
+              output += `${color.gray("│")}  ${color.white("█")}`;
             }
             
             // Add validation output
-            output += "\n" + (this.error ? color.yellow(this.error) : "");
+            output += "\n" + (this.error ? `${color.gray("│")}  ${color.yellow(this.error)}` : "");
             
             return output;
           }
 
-          // Create options array based on whether current and default are the same
-          const isSame = opts.current === opts.default;
-          const options = isSame
-            ? [
-                { value: opts.current, label: "(current, default)" },
-                "Enter value...",
-              ]
-            : [
-                { value: opts.current, label: "(current)" },
-                { value: opts.default, label: "(default)" },
-                "Enter value...",
-              ];
+          // Create options array dynamically based on what values exist
+          const options: Array<{ value: T | undefined; label: string } | string> = [];
+          
+          // Add current value if it exists
+          if (opts.current !== undefined) {
+            if (opts.default !== undefined && opts.current === opts.default) {
+              options.push({ value: opts.current, label: "(current, default)" });
+            } else {
+              options.push({ value: opts.current, label: "(current)" });
+            }
+          }
+          
+          // Add default value if it exists and is different from current
+          if (opts.default !== undefined && opts.current !== opts.default) {
+            options.push({ value: opts.default, label: "(default)" });
+          }
+          
+          // Always add the custom entry option
+          options.push("Enter value...");
 
           options.forEach((option, index) => {
             const isSelected = index === this.cursor;
-            const circle = isSelected ? color.green("●") : color.dim("○");
+            const circle = isSelected ? themeColor("●") : color.dim("○");
 
             if (typeof option === "string") {
               // "Enter value..." option
               if (this.isTyping) {
                 const displayText = `${this.userInput}█`;
-                output += `${circle} ${color.white(displayText)}\n`;
+                output += `${color.gray("│")}  ${circle} ${color.white(displayText)}\n`;
               } else if (isSelected) {
                 // Show cursor immediately when selected, even before typing
-                output += `${circle} ${color.white("█")}\n`;
+                output += `${color.gray("│")}  ${circle} ${color.white("█")}\n`;
               } else {
                 // "Enter value..." is gray when not selected
-                output += `${circle} ${color.gray(option)}\n`;
+                output += `${color.gray("│")}  ${circle} ${color.gray(option)}\n`;
               }
             } else {
               // Current/Default options
@@ -89,12 +98,12 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
                 ? color.white(displayValue)
                 : color.gray(displayValue);
               const suffix = isSelected ? color.gray(` ${option.label}`) : "";
-              output += `${circle} ${text}${suffix}\n`;
+              output += `${color.gray("│")}  ${circle} ${text}${suffix}\n`;
             }
           });
 
           // Add validation output
-          output += this.error ? color.yellow(this.error) : "";
+          output += this.error ? `${color.gray("│")}  ${color.yellow(this.error)}` : "";
 
           return output;
         },
@@ -123,8 +132,11 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
             return undefined;
           }
 
-          const isSame = this.options.current === this.options.default;
-          const textInputIndex = isSame ? 1 : 2;
+          // Calculate the text input index dynamically
+          let textInputIndex = 0;
+          if (this.options.current !== undefined) textInputIndex++;
+          if (this.options.default !== undefined && this.options.current !== this.options.default) textInputIndex++;
+          // textInputIndex now points to the "Enter value..." option
 
           // If we're on the custom entry option but not typing yet, prevent submission
           if (this.cursor === textInputIndex && !this.isTyping) {
@@ -205,8 +217,12 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
 
       switch (action) {
         case "up":
-          const isSame = this.options.current === this.options.default;
-          const maxIndex = isSame ? 1 : 2;
+          // Calculate max index based on actual options
+          let optionsCount = 0;
+          if (this.options.current !== undefined) optionsCount++;
+          if (this.options.default !== undefined && this.options.current !== this.options.default) optionsCount++;
+          optionsCount++; // For "Enter value..." option
+          const maxIndex = optionsCount - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
           if (this.isTyping || this.cursor === maxIndex) {
@@ -217,8 +233,12 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
           this.cursor = this.cursor === 0 ? maxIndex : this.cursor - 1;
           break;
         case "down":
-          const isSameDown = this.options.current === this.options.default;
-          const maxIndexDown = isSameDown ? 1 : 2;
+          // Calculate max index based on actual options
+          let optionsCountDown = 0;
+          if (this.options.current !== undefined) optionsCountDown++;
+          if (this.options.default !== undefined && this.options.current !== this.options.default) optionsCountDown++;
+          optionsCountDown++; // For "Enter value..." option
+          const maxIndexDown = optionsCountDown - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
           if (this.isTyping || this.cursor === maxIndexDown) {
@@ -299,8 +319,12 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
         );
 
         if (!isArrowKey && !isControlKey) {
-          const isSame = this.options.current === this.options.default;
-          this.cursor = isSame ? 1 : 2; // Jump to the "Enter value..." option
+          // Calculate the text input index dynamically
+          let textInputIndex = 0;
+          if (this.options.current !== undefined) textInputIndex++;
+          if (this.options.default !== undefined && this.options.current !== this.options.default) textInputIndex++;
+          
+          this.cursor = textInputIndex; // Jump to the "Enter value..." option
           this.isTyping = true;
           // Enable value tracking and set the initial character
           (this as any)._track = true;
@@ -310,8 +334,10 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
         }
       }
 
-      const isSame = this.options.current === this.options.default;
-      const textInputIndex = isSame ? 1 : 2;
+      // Calculate the text input index dynamically
+      let textInputIndex = 0;
+      if (this.options.current !== undefined) textInputIndex++;
+      if (this.options.default !== undefined && this.options.current !== this.options.default) textInputIndex++;
 
       if (this.cursor === textInputIndex) {
         // Text input option
@@ -342,16 +368,25 @@ export abstract class EnvPrompt<T> extends Prompt<T> {
     }
 
     if (!this.isTyping) {
-      const isSame = this.options.current === this.options.default;
-
-      if (this.cursor === 0) {
-        this.value = this.options.current ?? this.getDefaultValue();
-      } else if (!isSame && this.cursor === 1) {
-        this.value = this.options.default ?? this.getDefaultValue();
-      } else {
-        // This is the "Enter value..." option (index 1 when same, index 2 when different)
-        this.value = this.getDefaultValue();
+      // Dynamically determine what option the cursor is on
+      let optionIndex = 0;
+      
+      // Check if cursor is on current value
+      if (this.options.current !== undefined && this.cursor === optionIndex) {
+        this.value = this.options.current;
+        return;
       }
+      if (this.options.current !== undefined) optionIndex++;
+      
+      // Check if cursor is on default value (and it's different from current)
+      if (this.options.default !== undefined && this.options.current !== this.options.default && this.cursor === optionIndex) {
+        this.value = this.options.default;
+        return;
+      }
+      if (this.options.default !== undefined && this.options.current !== this.options.default) optionIndex++;
+      
+      // If we get here, cursor is on "Enter value..." option
+      this.value = this.getDefaultValue();
     } else {
       try {
         this.value = this.parseInput(this.userInput) ?? this.getDefaultValue();
