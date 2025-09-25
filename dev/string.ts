@@ -1,4 +1,4 @@
-import { StringEnvPrompt } from "./src/prompts/StringEnvPrompt";
+import { StringEnvPrompt } from "../src/prompts/StringEnvPrompt";
 
 const prompt = new StringEnvPrompt({
   key: "SERVICE_URL",

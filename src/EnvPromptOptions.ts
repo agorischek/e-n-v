@@ -4,4 +4,5 @@ export interface EnvPromptOptions<T> {
     current?: T;
     default?: T;
     required: boolean;
+    validate?: ((value: T | undefined) => string | Error | undefined) | undefined;
 }
