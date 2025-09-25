@@ -25,7 +25,9 @@ export class StringEnvPrompt extends Prompt<string> {
               return `${color.gray(color.bold(opts.key))}`;
             }
             // User provided a value - show ENV_KEY=value format
-            return `${color.bold(color.white(opts.key))}${color.gray("=")}${color.white(this.value)}`;
+            return `${color.bold(color.white(opts.key))}${color.gray(
+              "="
+            )}${color.white(this.value)}`;
           }
 
           let output = "";
@@ -37,14 +39,28 @@ export class StringEnvPrompt extends Prompt<string> {
           }
           output += "\n";
 
+          // If both current and default are undefined, show only text input
+          if (opts.current === undefined && opts.default === undefined) {
+            if (this.isTyping) {
+              const displayText = `${this.userInput}█`;
+              output += color.white(displayText);
+            } else {
+              output += color.white("█");
+            }
+            return output;
+          }
+
           // Create options array based on whether current and default are the same
           const isSame = opts.current === opts.default;
-          const options = isSame 
-            ? [{ value: opts.current, label: "(current, default)" }, "Enter value..."]
+          const options = isSame
+            ? [
+                { value: opts.current, label: "(current, default)" },
+                "Enter value...",
+              ]
             : [
                 { value: opts.current, label: "(current)" },
                 { value: opts.default, label: "(default)" },
-                "Enter value..."
+                "Enter value...",
               ];
 
           options.forEach((option, index) => {
@@ -65,8 +81,10 @@ export class StringEnvPrompt extends Prompt<string> {
               }
             } else {
               // Current/Default options
-              const text = isSelected ? color.white(option.value) : color.gray(option.value);
-              const suffix = color.gray(` ${option.label}`);
+              const text = isSelected
+                ? color.white(option.value)
+                : color.gray(option.value);
+              const suffix = isSelected ? color.gray(` ${option.label}`) : "";
               output += `${circle} ${text}${suffix}\n`;
             }
           });
@@ -74,9 +92,20 @@ export class StringEnvPrompt extends Prompt<string> {
           return output;
         },
         validate: (value) => {
+          // If both current and default are undefined, we're in text-only mode
+          if (
+            this.options.current === undefined &&
+            this.options.default === undefined
+          ) {
+            if (!this.userInput || !this.userInput.trim()) {
+              return "Please enter a value";
+            }
+            return undefined;
+          }
+
           const isSame = this.options.current === this.options.default;
           const textInputIndex = isSame ? 1 : 2;
-          
+
           // If we're on the custom entry option but not typing yet, prevent submission
           if (this.cursor === textInputIndex && !this.isTyping) {
             // Start typing mode instead of submitting
@@ -105,15 +134,30 @@ export class StringEnvPrompt extends Prompt<string> {
 
     this.options = opts;
 
-    // Set initial value to current
-    this.value = this.options.current;
+    // If both current and default are undefined, start in typing mode
+    if (opts.current === undefined && opts.default === undefined) {
+      this.isTyping = true;
+      (this as any)._track = true;
+      this.value = "";
+    } else {
+      // Set initial value to current
+      this.value = this.options.current || "";
+    }
 
     this.on("cursor", (action?: Action) => {
+      // If both current and default are undefined, we're in text-only mode - no cursor navigation
+      if (
+        this.options.current === undefined &&
+        this.options.default === undefined
+      ) {
+        return;
+      }
+
       switch (action) {
         case "up":
           const isSame = this.options.current === this.options.default;
           const maxIndex = isSame ? 1 : 2;
-          
+
           // If we're typing or on the text option, clear input and exit typing mode
           if (this.isTyping || this.cursor === maxIndex) {
             this.isTyping = false;
@@ -125,7 +169,7 @@ export class StringEnvPrompt extends Prompt<string> {
         case "down":
           const isSameDown = this.options.current === this.options.default;
           const maxIndexDown = isSameDown ? 1 : 2;
-          
+
           // If we're typing or on the text option, clear input and exit typing mode
           if (this.isTyping || this.cursor === maxIndexDown) {
             this.isTyping = false;
@@ -152,6 +196,18 @@ export class StringEnvPrompt extends Prompt<string> {
       if (info.name === "tab") {
         this.value = SKIP_SYMBOL as any;
         this.state = "submit";
+        return;
+      }
+
+      // If both current and default are undefined, we're in text-only mode
+      if (
+        this.options.current === undefined &&
+        this.options.default === undefined
+      ) {
+        // Already in typing mode, just update the value as the user types
+        if (this.isTyping) {
+          this.value = this.userInput || "";
+        }
         return;
       }
 
@@ -185,7 +241,7 @@ export class StringEnvPrompt extends Prompt<string> {
 
       const isSame = this.options.current === this.options.default;
       const textInputIndex = isSame ? 1 : 2;
-      
+
       if (this.cursor === textInputIndex) {
         // Text input option
         if (info.name === "escape") {
@@ -201,13 +257,22 @@ export class StringEnvPrompt extends Prompt<string> {
   }
 
   private updateValue() {
+    // If both current and default are undefined, we're in text-only mode
+    if (
+      this.options.current === undefined &&
+      this.options.default === undefined
+    ) {
+      this.value = this.userInput || "";
+      return;
+    }
+
     if (!this.isTyping) {
       const isSame = this.options.current === this.options.default;
-      
+
       if (this.cursor === 0) {
-        this.value = this.options.current;
+        this.value = this.options.current || "";
       } else if (!isSame && this.cursor === 1) {
-        this.value = this.options.default;
+        this.value = this.options.default || "";
       } else {
         // This is the "Enter value..." option (index 1 when same, index 2 when different)
         this.value = "Enter value...";
