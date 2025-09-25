@@ -1,142 +1,132 @@
-import { SelectPrompt, isCancel } from '@clack/core';
-import color from 'picocolors';
+import { Prompt, isCancel } from "@clack/core";
+import type { Key } from "node:readline";
+import color from "picocolors";
+import { EnvPromptOptions } from "../EnvPromptOptions";
+import { SKIP_SYMBOL } from "../symbols";
 
-export interface BooleanSettings {
-  default?: boolean;
-  current?: boolean;
-  optional: boolean;
-  description?: string;
-  key: string;
-}
+type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
-interface BooleanOption {
-  value: boolean | null;
-  label: string;
-  icon: string;
-  colorFn: (text: string) => string;
-}
+interface BooleanEnvPromptOptions extends EnvPromptOptions<boolean> {}
 
-export default class BooleanEnvPrompt extends SelectPrompt<BooleanOption> {
-  settings: BooleanSettings;
+export class BooleanEnvPrompt extends Prompt<boolean> {
+  cursor = 0;
+  protected options: BooleanEnvPromptOptions;
 
-  constructor(settings: BooleanSettings) {
-    // Build options array - always include skip option
-    const options: BooleanOption[] = [
+  constructor(opts: BooleanEnvPromptOptions) {
+    super(
       {
-        value: true,
-        label: 'true',
-        icon: '✓',
-        colorFn: color.green
+        ...opts,
+        render: function (this: BooleanEnvPrompt) {
+          if (this.state === "submit") {
+            // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
+            if (typeof this.value === "symbol") {
+              // User skipped - show just the key in gray
+              return `${color.gray(color.bold(opts.key))}`;
+            }
+            // User provided a value - show ENV_KEY=value format
+            return `${color.bold(color.white(opts.key))}${color.gray(
+              "="
+            )}${color.white(this.value ? "true" : "false")}`;
+          }
+
+          let output = "";
+
+          // Add header line with key in bold white and description in gray if provided
+          output += color.bold(color.white(opts.key));
+          if (opts.description) {
+            output += ` ${color.gray(opts.description)}`;
+          }
+          output += "\n";
+
+          // Create options array for true/false
+          const options = [
+            { value: true, label: "true" },
+            { value: false, label: "false" },
+          ];
+
+          options.forEach((option, index) => {
+            const isSelected = index === this.cursor;
+            const circle = isSelected ? color.green("●") : color.dim("○");
+
+            // Determine if this option matches current or default
+            let annotation = "";
+            if (opts.current === option.value && opts.default === option.value) {
+              annotation = " (current, default)";
+            } else if (opts.current === option.value) {
+              annotation = " (current)";
+            } else if (opts.default === option.value) {
+              annotation = " (default)";
+            }
+
+            const text = isSelected
+              ? color.white(option.label)
+              : color.gray(option.label);
+            const suffix = isSelected ? color.gray(annotation) : "";
+            output += `${circle} ${text}${suffix}\n`;
+          });
+
+          // Add validation output
+          output += this.error ? color.yellow(this.error) : "";
+
+          return output;
+        },
+        validate: (value) => {
+          // For boolean prompts, always validate with custom validation if provided
+          if (this.options.validate && typeof this.value !== 'symbol') {
+            const customValidation = this.options.validate(this.value);
+            if (customValidation) {
+              return customValidation instanceof Error ? customValidation.message : customValidation;
+            }
+          }
+          return undefined;
+        },
       },
-      {
-        value: false,
-        label: 'false',
-        icon: '✗',
-        colorFn: color.red
-      },
-      {
-        value: null,
-        label: 'skip',
-        icon: '⏭',
-        colorFn: color.white
+      false
+    );
+
+    this.options = opts;
+
+    // Set initial value to current, or default, or false
+    this.value = this.options.current ?? this.options.default ?? false;
+
+    this.on("cursor", (action?: Action) => {
+      // Clear error state when user navigates (like base Prompt class does)
+      if (this.state === "error") {
+        this.state = "active";
+        this.error = "";
       }
-    ];
-
-    // Find initial value by finding the matching option's value
-    let initialValue: boolean | null = true;
-    if (settings.current !== undefined) {
-      initialValue = settings.current;
-    } else if (settings.default !== undefined) {
-      initialValue = settings.default;
-    }
-
-    super({
-      options,
-      initialValue,
-      render() {
-        const { key, description, current, default: defaultValue, optional } = settings;
-        
-        if (this.state === 'submit') {
-          const selectedValue = this.value;
-          if (selectedValue === null) {
-            // If skipped, show only the key with no value
-            return `${color.bold(color.white(key))}`;
-          } else {
-            // Show the selected value in dim color
-            const valueText = selectedValue === true ? 'true' : 'false';
-            return `${color.bold(color.white(key))}\u00A0${color.dim(valueText)}`;
-          }
-        }
-
-        let output = '';
-        
-        // Key in bold white
-        output += color.bold(color.white(key));
-        
-        // Description in dimmed text if present, with optional indicator
-        if (description) {
-          const optionalSuffix = optional ? ' (optional)' : '';
-          output += `\u00A0${color.dim(description + optionalSuffix)}`;
-        } else if (optional) {
-          output += `\u00A0${color.dim('(optional)')}`;
-        }
-        
-        output += '\n';
-
-        // Render options
-        this.options.forEach((option, index) => {
-          const isSelected = index === this.cursor;
-          const { label, icon, colorFn } = option;
-          
-          let annotations = [];
-          
-          // Check for current annotation
-          if (current === option.value && option.value !== null) {
-            annotations.push('current');
-          }
-          
-          // Check for default annotation
-          if (defaultValue === option.value && option.value !== null) {
-            annotations.push('default');
-          }
-          
-          let annotationText = '';
-          if (annotations.length > 0) {
-            annotationText = `\u00A0(${annotations.join(', ')})`;
-          }
-          
-          if (isSelected) {
-            output += `${colorFn(icon)} ${colorFn(label)}${color.dim(annotationText)}\n`;
-          } else {
-            // Use a transparent/invisible character to maintain alignment
-            output += `\u00A0\u00A0${color.dim(label)}${color.dim(annotationText)}\n`;
-          }
-        });
-
-        if (this.error) {
-          output += `\n${color.red(this.error)}`;
-        }
-
-        return output;
+      
+      switch (action) {
+        case "up":
+          this.cursor = this.cursor === 0 ? 1 : 0;
+          break;
+        case "down":
+          this.cursor = this.cursor === 1 ? 0 : 1;
+          break;
       }
+      this.updateValue();
     });
 
-    this.settings = settings;
+    this.on("key", (char: string | undefined, info: Key) => {
+      if (!info) return; // Guard against undefined info
+
+      // Clear error state when user types (like base Prompt class does)
+      if (this.state === "error") {
+        this.state = "active";
+        this.error = "";
+      }
+
+      // Handle tab key specifically - return SKIP_SYMBOL immediately
+      if (info.name === "tab") {
+        this.value = SKIP_SYMBOL as any;
+        this.state = "submit";
+        return;
+      }
+    });
+  }
+
+  private updateValue() {
+    // cursor 0 = true, cursor 1 = false
+    this.value = this.cursor === 0;
   }
 }
-
-// Convenience function
-export async function booleanPrompt(settings: BooleanSettings): Promise<boolean | null | symbol> {
-  const prompt = new BooleanEnvPrompt(settings);
-  const result = await prompt.prompt();
-  
-  if (isCancel(result)) {
-    return result;
-  }
-  
-  // SelectPrompt returns the value, but we need to convert properly
-  return result as unknown as boolean | null;
-}
-
-// Re-export isCancel from core for convenience
-export { isCancel };
