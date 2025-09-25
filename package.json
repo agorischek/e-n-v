@@ -12,11 +12,19 @@
     "dev": "bun run src/index.ts",
     "prepublishOnly": "bun run build"
   },
-  "keywords": ["env", "environment", "zod", "cli", "interactive", "prompts"],
+  "keywords": [
+    "env",
+    "environment",
+    "zod",
+    "cli",
+    "interactive",
+    "prompts"
+  ],
   "author": "Alex Gorischek",
   "license": "MIT",
   "dependencies": {
-    "@clack/prompts": "^0.7.0",
+    "@clack/core": "1.0.0-alpha.5",
+    "picocolors": "^1.1.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
