@@ -16,7 +16,7 @@ interface BooleanOption {
   colorFn: (text: string) => string;
 }
 
-export default class BooleanPrompt extends SelectPrompt<BooleanOption> {
+export default class BooleanEnvPrompt extends SelectPrompt<BooleanOption> {
   settings: BooleanSettings;
 
   constructor(settings: BooleanSettings) {
@@ -127,7 +127,7 @@ export default class BooleanPrompt extends SelectPrompt<BooleanOption> {
 
 // Convenience function
 export async function booleanPrompt(settings: BooleanSettings): Promise<boolean | null | symbol> {
-  const prompt = new BooleanPrompt(settings);
+  const prompt = new BooleanEnvPrompt(settings);
   const result = await prompt.prompt();
   
   if (isCancel(result)) {
