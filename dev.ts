@@ -1,9 +1,10 @@
 import { StringEnvPrompt } from "./src/prompts/StringEnvPrompt";
 
 const prompt = new StringEnvPrompt({
-  key: "MY_SETTING",
+  key: "SERVICE_URL",
+  description: "Root URL of the target service",
   current: "awesome",
-  default: "pretty-cool",
+  default: "cool",
   required: true,
 });
 
