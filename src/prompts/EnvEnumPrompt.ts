@@ -26,11 +26,11 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return this.renderSkipped();
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
             return `${this.getSymbol()}  ${this.colors.bold(
-              this.colors.white(opts.key)
+              this.colors.white(this.key)
             )}${this.colors.subtle("=")}${this.colors.white(this.value)}`;
           }
 
@@ -54,11 +54,11 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
 
             // Determine if this option matches current or default
             let annotation = "";
-            if (opts.current === option && opts.default === option) {
+            if (this.current === option && this.default === option) {
               annotation = " (current, default)";
-            } else if (opts.current === option) {
+            } else if (this.current === option) {
               annotation = " (current)";
-            } else if (opts.default === option) {
+            } else if (this.default === option) {
               annotation = " (default)";
             }
 
@@ -98,13 +98,13 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
 
     // Set initial value to current, or default, or first option
     this.value =
-      this.options.current ?? this.options.default ?? this.options.options[0];
+      this.current ?? this.default ?? this.options.options[0];
 
     // Set initial cursor position based on current/default value
-    const initialIndex = this.options.current
-      ? this.options.options.indexOf(this.options.current)
-      : this.options.default
-      ? this.options.options.indexOf(this.options.default)
+    const initialIndex = this.current
+      ? this.options.options.indexOf(this.current)
+      : this.default
+      ? this.options.options.indexOf(this.default)
       : 0;
     this.cursor = Math.max(0, initialIndex);
 

@@ -25,7 +25,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(this.key))}`;
+              return this.renderSkipped();
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
             return `${this.getSymbol()}  ${this.colors.bold(
@@ -61,13 +61,13 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
             // Determine if this option matches current or default
             let annotation = "";
             if (
-              opts.current === option.value &&
-              opts.default === option.value
+              this.current === option.value &&
+              this.default === option.value
             ) {
               annotation = " (current, default)";
-            } else if (opts.current === option.value) {
+            } else if (this.current === option.value) {
               annotation = " (current)";
-            } else if (opts.default === option.value) {
+            } else if (this.default === option.value) {
               annotation = " (default)";
             }
 
@@ -106,7 +106,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
     this.options = opts;
 
     // Set initial value to current, or default, or false
-    this.value = this.options.current ?? this.options.default ?? false;
+    this.value = this.current ?? this.default ?? false;
 
     this.on("cursor", (action?: Action) => {
       // Clear error state when user navigates (like base Prompt class does)

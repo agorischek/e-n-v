@@ -27,11 +27,11 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return this.renderSkipped();
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
             return `${this.getSymbol()}  ${this.colors.bold(
-              this.colors.white(opts.key)
+              this.colors.white(this.key)
             )}${this.colors.subtle("=")}${this.colors.white(
               this.formatValue(this.value)
             )}`;
@@ -41,7 +41,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided
           output += `${this.getSymbol()}  ${this.colors.bold(
-            this.colors.white(opts.key)
+            this.colors.white(this.key)
           )}`;
           if (opts.description) {
             output += ` ${this.colors.subtle(opts.description)}`;
@@ -49,7 +49,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           output += "\n";
 
           // If both current and default are undefined, show only text input
-          if (opts.current === undefined && opts.default === undefined) {
+          if (this.current === undefined && this.default === undefined) {
             if (this.isTyping) {
               const displayText = `${this.userInput}█`;
               output += `${this.getBar()}  ${this.colors.white(displayText)}`;
@@ -76,20 +76,20 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           > = [];
 
           // Add current value if it exists
-          if (opts.current !== undefined) {
-            if (opts.default !== undefined && opts.current === opts.default) {
+          if (this.current !== undefined) {
+            if (this.default !== undefined && this.current === this.default) {
               options.push({
-                value: opts.current,
+                value: this.current,
                 label: "(current, default)",
               });
             } else {
-              options.push({ value: opts.current, label: "(current)" });
+              options.push({ value: this.current, label: "(current)" });
             }
           }
 
           // Add default value if it exists and is different from current
-          if (opts.default !== undefined && opts.current !== opts.default) {
-            options.push({ value: opts.default, label: "(default)" });
+          if (this.default !== undefined && this.current !== this.default) {
+            options.push({ value: this.default, label: "(default)" });
           }
 
           // Always add the custom entry option
@@ -241,13 +241,13 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
     this.options = opts;
 
     // If both current and default are undefined, start in typing mode
-    if (opts.current === undefined && opts.default === undefined) {
+    if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
       (this as any)._track = true;
       this.value = this.getDefaultValue();
     } else {
       // Set initial value to current
-      this.value = this.options.current ?? this.getDefaultValue();
+      this.value = this.current ?? this.getDefaultValue();
     }
 
     this.on("cursor", (action?: Action) => {
