@@ -29,12 +29,10 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.theme.primary(
-                S_STEP_ACTIVE
-              )}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
-            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(
+            return `${this.getSymbol()}  ${this.colors.bold(
               this.colors.white(opts.key)
             )}${this.colors.subtle("=")}${this.colors.white(
               this.formatValue(this.value)

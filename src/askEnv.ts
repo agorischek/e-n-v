@@ -3,7 +3,6 @@ import {
   SchemaMap,
   AskEnvOptions,
   intro,
-  isCancel,
   cancel,
   getDefaultValue,
   getBaseSchema,
@@ -22,6 +21,7 @@ import { SKIP_SYMBOL } from "./visuals/symbols";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { writeFileSync, existsSync } from "fs";
+import { isCancel } from "@clack/core";
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation

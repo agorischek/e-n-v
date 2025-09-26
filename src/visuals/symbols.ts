@@ -4,8 +4,8 @@ export const SKIP_SYMBOL = Symbol('ask-env:skip');
 export const S_BAR = "│";           // Vertical bar (pipe)
 export const S_BAR_END = "└";       // Bottom-left corner
 export const S_BAR_START = "┌";     // Top-left corner
-export const S_STEP_ACTIVE = "◇";   // Diamond outline (active state)
-export const S_STEP_SUBMIT = "◆";   // Diamond filled (submit state)
+export const S_STEP_ACTIVE = "◆";   // Diamond filled (active state)
+export const S_STEP_SUBMIT = "◇";   // Diamond outline (submit state)
 export const S_STEP_CANCEL = "✕";   // X mark (cancel state)
 export const S_STEP_ERROR = "▲";
 

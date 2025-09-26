@@ -1,5 +1,4 @@
 import { cursor } from 'sisteransi';
-import color from 'picocolors';
 import { ThemedPrompt, ThemedPromptOptions } from "./ThemedPrompt";
 import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 
@@ -25,21 +24,21 @@ export class OverwritePrompt extends ThemedPrompt<boolean> {
         switch (this.state) {
           case 'submit':
             const actionMessage = this.value ? 'Overwriting' : 'Exiting';
-            return `${this.getSymbol()}  ${actionMessage}\n${color.gray(this.getBar())}`;
+            return `${this.getSymbol()}  ${actionMessage}\n${this.colors.subtle(this.getBar())}`;
           case 'cancel':
             const value = this.value ? 'Overwrite' : 'Exit';
-            return `${title}${color.gray(this.getBar())}  ${color.strikethrough(
-              color.dim(value)
-            )}\n${color.gray(this.getBar())}`;
+            return `${title}${this.colors.subtle(this.getBar())}  ${this.colors.strikethrough(
+              this.colors.dim(value)
+            )}\n${this.colors.subtle(this.getBar())}`;
           default: {
             return `${title}${this.getBar()}  ${
               this.value
-                ? `${color.green(S_RADIO_ACTIVE)} Overwrite`
-                : `${color.dim(S_RADIO_INACTIVE)} ${color.dim('Overwrite')}`
-            } ${color.dim('/')} ${
+                ? `${this.theme.primary(S_RADIO_ACTIVE)} Overwrite`
+                : `${this.colors.dim(S_RADIO_INACTIVE)} ${this.colors.dim('Overwrite')}`
+            } ${this.colors.dim('/')} ${
               !this.value
-                ? `${color.green(S_RADIO_ACTIVE)} Exit`
-                : `${color.dim(S_RADIO_INACTIVE)} ${color.dim('Exit')}`
+                ? `${this.theme.primary(S_RADIO_ACTIVE)} Exit`
+                : `${this.colors.dim(S_RADIO_INACTIVE)} ${this.colors.dim('Exit')}`
             }\n${this.getBarEnd()}\n`;
           }
         }

@@ -27,16 +27,6 @@ export const outro = (message = "", opts?: CommonOptions) => {
   );
 };
 
-// Simple check for cancellation - checks for common cancel symbols
-export const isCancel = (value: any): boolean => {
-  if (value === null || value === undefined) return false;
-  if (typeof value === "symbol") {
-    const description = (value as any).description;
-    return description === "clack:cancel" || description === "ask-env:skip";
-  }
-  return false;
-};
-
 export interface AskEnvOptions {
   envPath?: string;
   overwrite?: boolean;
