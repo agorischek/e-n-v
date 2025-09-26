@@ -6,8 +6,7 @@ import {
   S_RADIO_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-
-type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
+import type { Action } from "./types";
 
 interface EnvBooleanPromptOptions extends EnvPromptOptions<boolean> {}
 
