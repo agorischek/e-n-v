@@ -40,7 +40,7 @@ export async function askEnv(
   intro(
     `${theme.bgPrimary(
       color.black(" Environment Variable Setup ")
-    )}\n${color.gray("│")}  `
+    )} ${color.gray("(Skip with tab)")}\n${color.gray("│")}  `
   );
 
   // Check if .env file exists
@@ -53,7 +53,7 @@ export async function askEnv(
     const shouldOverwrite = await confirmPrompt.prompt();
 
     if (isCancel(shouldOverwrite) || !shouldOverwrite) {
-      cancel("Operation cancelled.");
+      cancel("Setup cancelled.");
       return;
     }
   }
@@ -142,7 +142,7 @@ export async function askEnv(
       (typeof value === "symbol" &&
         (value as any).description === "clack:cancel")
     ) {
-      cancel("Operation cancelled.");
+      cancel("Setup cancelled.");
       return;
     }
 

@@ -1,7 +1,6 @@
 import { EnvPrompt, EnvPromptOptions } from "./EnvPrompt";
 import {
   SKIP_SYMBOL,
-  S_STEP_ACTIVE,
   S_RADIO_ACTIVE,
   S_RADIO_INACTIVE,
 } from "../visuals/symbols";
@@ -11,7 +10,7 @@ import type { Action } from "./types";
 interface EnvBooleanPromptOptions extends EnvPromptOptions<boolean> {}
 
 export class EnvBooleanPrompt extends EnvPrompt<boolean> {
-  cursor = 0;
+  cursor: number;
   protected options: EnvBooleanPromptOptions;
 
   constructor(opts: EnvBooleanPromptOptions) {
@@ -103,6 +102,18 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
     );
 
     this.options = opts;
+
+    // Set cursor based on priority: current → default → true
+    // cursor 0 = true, cursor 1 = false
+    let initialValue: boolean;
+    if (this.current !== undefined) {
+      initialValue = this.current;
+    } else if (this.default !== undefined) {
+      initialValue = this.default;
+    } else {
+      initialValue = true;
+    }
+    this.cursor = initialValue ? 0 : 1;
 
     // Set initial value to current, or default, or false
     this.value = this.current ?? this.default ?? false;
