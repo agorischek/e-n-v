@@ -18,7 +18,7 @@ import { OverwritePrompt } from "./prompts/OverwritePrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import { SKIP_SYMBOL } from "./symbols";
+import { SKIP_SYMBOL } from "./visuals/symbols";
 import { Theme } from "./Theme";
 import * as color from "picocolors";
 import { writeFileSync, existsSync } from "fs";

@@ -1,8 +1,13 @@
 import { ThemedPrompt } from "./ThemedPrompt";
-import { EnvPromptOptions, defaultTheme } from "../EnvPromptOptions";
-import { SKIP_SYMBOL, S_STEP_ACTIVE, S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
-import { symbol } from "../symbolUtils";
+import { EnvPromptOptions } from "../EnvPromptOptions";
+import {
+  SKIP_SYMBOL,
+  S_STEP_ACTIVE,
+  S_RADIO_ACTIVE,
+  S_RADIO_INACTIVE,
+} from "../visuals/symbols";
 import type { Key } from "node:readline";
+import { Theme } from "../Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
@@ -16,24 +21,30 @@ export class EnvBooleanPrompt extends ThemedPrompt<boolean> {
     super(
       {
         ...opts,
-        theme: opts.theme || defaultTheme,
+        theme: opts.theme || Theme.default,
         render: function (this: EnvBooleanPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return `${this.theme.primary(
+                S_STEP_ACTIVE
+              )}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
-            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(this.colors.white(opts.key))}${this.colors.subtle(
-              "="
-            )}${this.colors.white(this.value ? "true" : "false")}`;
+            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(
+              this.colors.white(opts.key)
+            )}${this.colors.subtle("=")}${this.colors.white(
+              this.value ? "true" : "false"
+            )}`;
           }
 
           let output = "";
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided
-          output += `${this.getSymbol()}  ${this.colors.bold(this.colors.white(opts.key))}`;
+          output += `${this.getSymbol()}  ${this.colors.bold(
+            this.colors.white(opts.key)
+          )}`;
           if (opts.description) {
             output += ` ${this.colors.subtle(opts.description)}`;
           }
@@ -47,11 +58,16 @@ export class EnvBooleanPrompt extends ThemedPrompt<boolean> {
 
           options.forEach((option, index) => {
             const isSelected = index === this.cursor;
-            const circle = isSelected ? this.theme.primary(S_RADIO_ACTIVE) : this.colors.dim(S_RADIO_INACTIVE);
+            const circle = isSelected
+              ? this.theme.primary(S_RADIO_ACTIVE)
+              : this.colors.dim(S_RADIO_INACTIVE);
 
             // Determine if this option matches current or default
             let annotation = "";
-            if (opts.current === option.value && opts.default === option.value) {
+            if (
+              opts.current === option.value &&
+              opts.default === option.value
+            ) {
               annotation = " (current, default)";
             } else if (opts.current === option.value) {
               annotation = " (current)";
@@ -77,10 +93,12 @@ export class EnvBooleanPrompt extends ThemedPrompt<boolean> {
         },
         validate: (value: boolean | symbol) => {
           // For boolean prompts, always validate with custom validation if provided
-          if (this.options.validate && typeof this.value !== 'symbol') {
+          if (this.options.validate && typeof this.value !== "symbol") {
             const customValidation = this.options.validate(this.value);
             if (customValidation) {
-              return customValidation instanceof Error ? customValidation.message : customValidation;
+              return customValidation instanceof Error
+                ? customValidation.message
+                : customValidation;
             }
           }
           return undefined;
@@ -100,7 +118,7 @@ export class EnvBooleanPrompt extends ThemedPrompt<boolean> {
         this.state = "active";
         this.error = "";
       }
-      
+
       switch (action) {
         case "up":
           this.cursor = this.cursor === 0 ? 1 : 0;

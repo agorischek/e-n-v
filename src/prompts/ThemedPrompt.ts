@@ -1,8 +1,14 @@
 import { Prompt } from "@clack/core";
 import color from "picocolors";
-import { Theme, ColorFunction } from "../Theme";
-import { S_BAR, S_BAR_END } from "../symbols";
-import { symbol } from "../symbolUtils";
+import { Theme } from "../Theme";
+import {
+  S_BAR,
+  S_BAR_END,
+  S_STEP_ACTIVE,
+  S_STEP_CANCEL,
+  S_STEP_ERROR,
+  S_STEP_SUBMIT,
+} from "../visuals/symbols";
 
 export interface ThemedPromptOptions {
   theme?: Theme;
@@ -21,14 +27,28 @@ export abstract class ThemedPrompt<T> extends Prompt<T> {
    * Get the appropriate symbol based on prompt state
    */
   protected getSymbol(): string {
-    return symbol(this.state, this.theme.primary);
+    switch (this.state) {
+      case "initial":
+      case "active":
+        return this.theme.primary(S_STEP_ACTIVE);
+      case "error":
+        return this.theme.warn(S_STEP_ERROR);
+      case "submit":
+        return this.theme.primary(S_STEP_SUBMIT);
+      case "cancel":
+        return this.theme.error(S_STEP_CANCEL);
+      default:
+        return this.theme.primary(S_STEP_ACTIVE);
+    }
   }
 
   /**
    * Get bar color based on error state - yellow for errors, theme primary otherwise
    */
   protected getBarColor(barSymbol: string): string {
-    return this.state === "error" ? this.theme.warn(barSymbol) : this.theme.primary(barSymbol);
+    return this.state === "error"
+      ? this.theme.warn(barSymbol)
+      : this.theme.primary(barSymbol);
   }
 
   /**

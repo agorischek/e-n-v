@@ -1,8 +1,14 @@
 import { ThemedPrompt } from "./ThemedPrompt";
-import { EnvPromptOptions, defaultTheme } from "../EnvPromptOptions";
-import { SKIP_SYMBOL, S_STEP_ACTIVE, S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../symbols";
-import { symbol } from "../symbolUtils";
+import { EnvPromptOptions } from "../EnvPromptOptions";
+import {
+  SKIP_SYMBOL,
+  S_STEP_ACTIVE,
+  S_RADIO_ACTIVE,
+  S_RADIO_INACTIVE,
+  S_CURSOR,
+} from "../visuals/symbols";
 import type { Key } from "node:readline";
+import { Theme } from "../Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
@@ -17,24 +23,30 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
     super(
       {
         ...opts,
-        theme: opts.theme || defaultTheme,
+        theme: opts.theme || Theme.default,
         render: function (this: EnvNumberPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return `${this.theme.primary(
+                S_STEP_ACTIVE
+              )}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
-            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(this.colors.white(opts.key))}${this.colors.subtle(
-              "="
-            )}${this.colors.white(this.formatValue(this.value))}`;
+            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(
+              this.colors.white(opts.key)
+            )}${this.colors.subtle("=")}${this.colors.white(
+              this.formatValue(this.value)
+            )}`;
           }
 
           let output = "";
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided
-          output += `${this.getSymbol()}  ${this.colors.bold(this.colors.white(opts.key))}`;
+          output += `${this.getSymbol()}  ${this.colors.bold(
+            this.colors.white(opts.key)
+          )}`;
           if (opts.description) {
             output += ` ${this.colors.subtle(opts.description)}`;
           }
@@ -48,53 +60,68 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
             } else {
               output += `${this.getBar()}  ${this.colors.white(S_CURSOR)}`;
             }
-            
+
             // Add validation output or placeholder text with L-shaped pipe
             output += "\n";
             if (this.error) {
               output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
             } else {
-              output += `${this.getBarEnd()}  ${this.colors.subtle("Enter a number")}`;
+              output += `${this.getBarEnd()}  ${this.colors.subtle(
+                "Enter a number"
+              )}`;
             }
-            
+
             return output;
           }
 
           // Create options array dynamically based on what values exist
-          const options: Array<{ value: number | undefined; label: string } | string> = [];
-          
+          const options: Array<
+            { value: number | undefined; label: string } | string
+          > = [];
+
           // Add current value if it exists
           if (opts.current !== undefined) {
             if (opts.default !== undefined && opts.current === opts.default) {
-              options.push({ value: opts.current, label: "(current, default)" });
+              options.push({
+                value: opts.current,
+                label: "(current, default)",
+              });
             } else {
               options.push({ value: opts.current, label: "(current)" });
             }
           }
-          
+
           // Add default value if it exists and is different from current
           if (opts.default !== undefined && opts.current !== opts.default) {
             options.push({ value: opts.default, label: "(default)" });
           }
-          
+
           // Always add the custom entry option
           options.push("Other");
 
           options.forEach((option, index) => {
             const isSelected = index === this.cursor;
-            const circle = isSelected ? this.theme.primary(S_RADIO_ACTIVE) : this.colors.dim(S_RADIO_INACTIVE);
+            const circle = isSelected
+              ? this.theme.primary(S_RADIO_ACTIVE)
+              : this.colors.dim(S_RADIO_INACTIVE);
 
             if (typeof option === "string") {
               // "Other" option
               if (this.isTyping) {
                 const displayText = `${this.userInput}█`;
-                output += `${this.getBar()}  ${circle} ${this.colors.white(displayText)}\n`;
+                output += `${this.getBar()}  ${circle} ${this.colors.white(
+                  displayText
+                )}\n`;
               } else if (isSelected) {
                 // Show cursor immediately when selected, even before typing
-                output += `${this.getBar()}  ${circle} ${this.colors.white(S_CURSOR)}\n`;
+                output += `${this.getBar()}  ${circle} ${this.colors.white(
+                  S_CURSOR
+                )}\n`;
               } else {
                 // "Other" is gray when not selected
-                output += `${this.getBar()}  ${circle} ${this.colors.subtle(option)}\n`;
+                output += `${this.getBar()}  ${circle} ${this.colors.subtle(
+                  option
+                )}\n`;
               }
             } else {
               // Current/Default options
@@ -102,7 +129,9 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
               const text = isSelected
                 ? this.colors.white(displayValue)
                 : this.colors.subtle(displayValue);
-              const suffix = isSelected ? this.colors.subtle(` ${option.label}`) : "";
+              const suffix = isSelected
+                ? this.colors.subtle(` ${option.label}`)
+                : "";
               output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
             }
           });
@@ -111,7 +140,9 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
           if (this.error) {
             output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
           } else {
-            output += `${this.getBarEnd()}  ${this.colors.subtle("Enter a number")}`;
+            output += `${this.getBarEnd()}  ${this.colors.subtle(
+              "Enter a number"
+            )}`;
           }
 
           return output;
@@ -135,7 +166,9 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
               const parsedValue = this.parseInput(this.userInput);
               const customValidation = this.options.validate(parsedValue);
               if (customValidation) {
-                return customValidation instanceof Error ? customValidation.message : customValidation;
+                return customValidation instanceof Error
+                  ? customValidation.message
+                  : customValidation;
               }
             }
             return undefined;
@@ -144,7 +177,11 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
           // Calculate the text input index dynamically
           let textInputIndex = 0;
           if (this.options.current !== undefined) textInputIndex++;
-          if (this.options.default !== undefined && this.options.current !== this.options.default) textInputIndex++;
+          if (
+            this.options.default !== undefined &&
+            this.options.current !== this.options.default
+          )
+            textInputIndex++;
           // textInputIndex now points to the "Other" option
 
           // If we're on the custom entry option but not typing yet, start typing mode
@@ -154,7 +191,7 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
             (this as any)._track = true;
             this._setUserInput("");
             this.updateValue();
-            return undefined; // No error message, just start typing mode
+            return "Please enter a number"; // Show error since no input provided yet
           }
 
           // If we're typing on the custom option but haven't entered anything, prevent submission
@@ -177,16 +214,24 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
               const parsedValue = this.parseInput(this.userInput);
               const customValidation = this.options.validate(parsedValue);
               if (customValidation) {
-                return customValidation instanceof Error ? customValidation.message : customValidation;
+                return customValidation instanceof Error
+                  ? customValidation.message
+                  : customValidation;
               }
             }
           }
 
           // For non-typing cases (selecting current/default), validate the selected value
-          if (!this.isTyping && this.options.validate && typeof this.value !== 'symbol') {
+          if (
+            !this.isTyping &&
+            this.options.validate &&
+            typeof this.value !== "symbol"
+          ) {
             const customValidation = this.options.validate(this.value);
             if (customValidation) {
-              return customValidation instanceof Error ? customValidation.message : customValidation;
+              return customValidation instanceof Error
+                ? customValidation.message
+                : customValidation;
             }
           }
 
@@ -215,7 +260,7 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
         this.state = "active";
         this.error = "";
       }
-      
+
       // If both current and default are undefined, we're in text-only mode - no cursor navigation
       if (
         this.options.current === undefined &&
@@ -229,7 +274,11 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
           // Calculate max index based on actual options
           let optionsCount = 0;
           if (this.options.current !== undefined) optionsCount++;
-          if (this.options.default !== undefined && this.options.current !== this.options.default) optionsCount++;
+          if (
+            this.options.default !== undefined &&
+            this.options.current !== this.options.default
+          )
+            optionsCount++;
           optionsCount++; // For "Other" option
           const maxIndex = optionsCount - 1;
 
@@ -245,7 +294,11 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
           // Calculate max index based on actual options
           let optionsCountDown = 0;
           if (this.options.current !== undefined) optionsCountDown++;
-          if (this.options.default !== undefined && this.options.current !== this.options.default) optionsCountDown++;
+          if (
+            this.options.default !== undefined &&
+            this.options.current !== this.options.default
+          )
+            optionsCountDown++;
           optionsCountDown++; // For "Other" option
           const maxIndexDown = optionsCountDown - 1;
 
@@ -268,7 +321,7 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
         this.state = "active";
         this.error = "";
       }
-      
+
       if (this.isTyping) {
         try {
           this.value = this.parseInput(input) ?? this.getDefaultValue();
@@ -303,7 +356,8 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
         // Already in typing mode, just update the value as the user types
         if (this.isTyping) {
           try {
-            this.value = this.parseInput(this.userInput) ?? this.getDefaultValue();
+            this.value =
+              this.parseInput(this.userInput) ?? this.getDefaultValue();
           } catch {
             // Keep current value if parsing fails
           }
@@ -331,8 +385,12 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
           // Calculate the text input index dynamically
           let textInputIndex = 0;
           if (this.options.current !== undefined) textInputIndex++;
-          if (this.options.default !== undefined && this.options.current !== this.options.default) textInputIndex++;
-          
+          if (
+            this.options.default !== undefined &&
+            this.options.current !== this.options.default
+          )
+            textInputIndex++;
+
           this.cursor = textInputIndex; // Jump to the "Other" option
           this.isTyping = true;
           // Enable value tracking and set the initial character
@@ -346,7 +404,11 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
       // Calculate the text input index dynamically
       let textInputIndex = 0;
       if (this.options.current !== undefined) textInputIndex++;
-      if (this.options.default !== undefined && this.options.current !== this.options.default) textInputIndex++;
+      if (
+        this.options.default !== undefined &&
+        this.options.current !== this.options.default
+      )
+        textInputIndex++;
 
       if (this.cursor === textInputIndex) {
         // Text input option
@@ -379,21 +441,29 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
     if (!this.isTyping) {
       // Dynamically determine what option the cursor is on
       let optionIndex = 0;
-      
+
       // Check if cursor is on current value
       if (this.options.current !== undefined && this.cursor === optionIndex) {
         this.value = this.options.current;
         return;
       }
       if (this.options.current !== undefined) optionIndex++;
-      
+
       // Check if cursor is on default value (and it's different from current)
-      if (this.options.default !== undefined && this.options.current !== this.options.default && this.cursor === optionIndex) {
+      if (
+        this.options.default !== undefined &&
+        this.options.current !== this.options.default &&
+        this.cursor === optionIndex
+      ) {
         this.value = this.options.default;
         return;
       }
-      if (this.options.default !== undefined && this.options.current !== this.options.default) optionIndex++;
-      
+      if (
+        this.options.default !== undefined &&
+        this.options.current !== this.options.default
+      )
+        optionIndex++;
+
       // If we get here, cursor is on "Other" option
       this.value = this.getDefaultValue();
     } else {
@@ -413,12 +483,12 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
     if (!input || !input.trim()) {
       return undefined;
     }
-    
+
     const parsed = Number(input.trim());
     if (isNaN(parsed)) {
       return undefined;
     }
-    
+
     return parsed;
   }
 
@@ -426,12 +496,12 @@ export class EnvNumberPrompt extends ThemedPrompt<number> {
     if (!input || !input.trim()) {
       return "Please enter a number";
     }
-    
+
     const parsed = Number(input.trim());
     if (isNaN(parsed)) {
       return "Please enter a valid number";
     }
-    
+
     return undefined;
   }
 

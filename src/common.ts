@@ -1,6 +1,6 @@
 import color from "picocolors";
 import { Prompt } from "@clack/core";
-import { S_BAR, S_BAR_END } from "./symbols";
+import { S_BAR, S_BAR_END } from "./visuals/symbols";
 import { symbol as symbolWithTheme } from "./symbolUtils";
 
 // Re-export symbol function with the original color scheme for backward compatibility

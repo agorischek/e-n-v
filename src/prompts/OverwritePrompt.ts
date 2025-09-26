@@ -1,7 +1,7 @@
 import { cursor } from 'sisteransi';
 import color from 'picocolors';
 import { ThemedPrompt, ThemedPromptOptions } from "./ThemedPrompt";
-import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
+import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 
 interface OverwriteOptions extends ThemedPromptOptions {
   message: string;

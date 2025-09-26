@@ -1,8 +1,13 @@
 import { ThemedPrompt } from "./ThemedPrompt";
-import { EnvPromptOptions, defaultTheme } from "../EnvPromptOptions";
-import { SKIP_SYMBOL, S_STEP_ACTIVE, S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
-import { symbol } from "../symbolUtils";
+import { EnvPromptOptions } from "../EnvPromptOptions";
+import {
+  SKIP_SYMBOL,
+  S_STEP_ACTIVE,
+  S_RADIO_ACTIVE,
+  S_RADIO_INACTIVE,
+} from "../visuals/symbols";
 import type { Key } from "node:readline";
+import { Theme } from "../Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
@@ -18,24 +23,28 @@ export class EnvEnumPrompt extends ThemedPrompt<string> {
     super(
       {
         ...opts,
-        theme: opts.theme || defaultTheme,
+        theme: opts.theme || Theme.default,
         render: function (this: EnvEnumPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return `${this.theme.primary(
+                S_STEP_ACTIVE
+              )}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
-            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(this.colors.white(opts.key))}${this.colors.subtle(
-              "="
-            )}${this.colors.white(this.value)}`;
+            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(
+              this.colors.white(opts.key)
+            )}${this.colors.subtle("=")}${this.colors.white(this.value)}`;
           }
 
           let output = "";
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided
-          output += `${this.getSymbol()}  ${this.colors.bold(this.colors.white(opts.key))}`;
+          output += `${this.getSymbol()}  ${this.colors.bold(
+            this.colors.white(opts.key)
+          )}`;
           if (opts.description) {
             output += ` ${this.colors.subtle(opts.description)}`;
           }
@@ -44,7 +53,9 @@ export class EnvEnumPrompt extends ThemedPrompt<string> {
           // Display enum options
           opts.options.forEach((option, index) => {
             const isSelected = index === this.cursor;
-            const circle = isSelected ? this.theme.primary(S_RADIO_ACTIVE) : this.colors.dim(S_RADIO_INACTIVE);
+            const circle = isSelected
+              ? this.theme.primary(S_RADIO_ACTIVE)
+              : this.colors.dim(S_RADIO_INACTIVE);
 
             // Determine if this option matches current or default
             let annotation = "";
@@ -74,10 +85,12 @@ export class EnvEnumPrompt extends ThemedPrompt<string> {
         },
         validate: (value: string | symbol) => {
           // For enum prompts, validate with custom validation if provided
-          if (this.options.validate && typeof this.value !== 'symbol') {
+          if (this.options.validate && typeof this.value !== "symbol") {
             const customValidation = this.options.validate(this.value);
             if (customValidation) {
-              return customValidation instanceof Error ? customValidation.message : customValidation;
+              return customValidation instanceof Error
+                ? customValidation.message
+                : customValidation;
             }
           }
           return undefined;
@@ -89,14 +102,15 @@ export class EnvEnumPrompt extends ThemedPrompt<string> {
     this.options = opts;
 
     // Set initial value to current, or default, or first option
-    this.value = this.options.current ?? this.options.default ?? this.options.options[0];
-    
+    this.value =
+      this.options.current ?? this.options.default ?? this.options.options[0];
+
     // Set initial cursor position based on current/default value
-    const initialIndex = this.options.current 
+    const initialIndex = this.options.current
       ? this.options.options.indexOf(this.options.current)
       : this.options.default
-        ? this.options.options.indexOf(this.options.default)
-        : 0;
+      ? this.options.options.indexOf(this.options.default)
+      : 0;
     this.cursor = Math.max(0, initialIndex);
 
     this.on("cursor", (action?: Action) => {
@@ -105,13 +119,19 @@ export class EnvEnumPrompt extends ThemedPrompt<string> {
         this.state = "active";
         this.error = "";
       }
-      
+
       switch (action) {
         case "up":
-          this.cursor = this.cursor === 0 ? this.options.options.length - 1 : this.cursor - 1;
+          this.cursor =
+            this.cursor === 0
+              ? this.options.options.length - 1
+              : this.cursor - 1;
           break;
         case "down":
-          this.cursor = this.cursor === this.options.options.length - 1 ? 0 : this.cursor + 1;
+          this.cursor =
+            this.cursor === this.options.options.length - 1
+              ? 0
+              : this.cursor + 1;
           break;
       }
       this.updateValue();

@@ -3,6 +3,8 @@ import color from "picocolors";
 export type ColorFunction = (text: string) => string;
 
 export class Theme {
+  public static default = new Theme(color.magenta);
+  
   primary: ColorFunction;
   bgPrimary: ColorFunction;
   subtle: ColorFunction;
