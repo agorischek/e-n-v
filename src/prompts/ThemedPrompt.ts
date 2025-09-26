@@ -1,6 +1,6 @@
 import { Prompt } from "@clack/core";
 import color from "picocolors";
-import { Theme } from "../Theme";
+import { Theme } from "../visuals/Theme";
 import {
   S_BAR,
   S_BAR_END,

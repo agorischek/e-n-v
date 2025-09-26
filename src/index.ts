@@ -2,10 +2,7 @@ import { z } from "zod";
 import { writeFileSync, existsSync } from "fs";
 import { join } from "path";
 import type { Writable } from "node:stream";
-import { StringEnvPrompt } from "./prompts/StringEnvPrompt";
-import { NumberEnvPrompt } from "./prompts/NumberEnvPrompt";
-import { BooleanEnvPrompt } from "./prompts/BooleanEnvPrompt";
-import { EnumEnvPrompt } from "./prompts/EnumEnvPrompt";
+
 import { SKIP_SYMBOL, S_BAR, S_BAR_END, S_BAR_START } from "./visuals/symbols";
 import color from "picocolors";
 

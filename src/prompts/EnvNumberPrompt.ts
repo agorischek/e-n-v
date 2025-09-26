@@ -8,7 +8,7 @@ import {
   S_CURSOR,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import { Theme } from "../Theme";
+import { Theme } from "../visuals/Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
