@@ -19,6 +19,7 @@ import { EnumEnvPrompt } from "./prompts/EnumEnvPrompt";
 import { NumberEnvPrompt } from "./prompts/NumberEnvPrompt";
 import { StringEnvPrompt } from "./prompts/StringEnvPrompt";
 import { SKIP_SYMBOL } from "./symbols";
+import { Theme } from "./Theme";
 import * as color from "picocolors";
 import { writeFileSync, existsSync } from "fs";
 
@@ -32,10 +33,12 @@ export async function askEnv(
   options: AskEnvOptions = {}
 ): Promise<void> {
   const { envPath = ".env", overwrite = false } = options;
-  const defaultThemeColor = color.magenta;
+  
+    // Create theme object using magenta as the primary color
+  const theme = new Theme(color.magenta);
 
   intro(
-    `${color.bgMagenta(
+    `${theme.bgPrimary(
       color.black(" Environment Variable Setup ")
     )}\n${color.gray("│")}  `
   );
@@ -46,7 +49,7 @@ export async function askEnv(
       message: `${envPath} already exists. Do you want to overwrite it?`,
       activeAction: `Overwriting ${envPath}`,
       inactiveAction: "Operation cancelled",
-      themeColor: defaultThemeColor,
+      themeColor: theme.primary,
     });
 
     if (isCancel(shouldOverwrite) || !shouldOverwrite) {
@@ -87,7 +90,7 @@ export async function askEnv(
           defaultValue !== undefined ? parseBoolean(defaultValue) : undefined,
         required: !isOptional(schema),
         validate: (value) => validateWithSchema(value, schema),
-        themeColor: defaultThemeColor,
+        theme: theme,
       });
 
       value = await prompt.prompt();
@@ -100,7 +103,7 @@ export async function askEnv(
           defaultValue !== undefined ? parseFloat(defaultValue) : undefined,
         required: !isOptional(schema),
         validate: (value) => validateWithSchema(value, schema),
-        themeColor: defaultThemeColor,
+        theme: theme,
       });
 
       value = await prompt.prompt();
@@ -114,7 +117,7 @@ export async function askEnv(
         required: !isOptional(schema),
         validate: (value) => validateWithSchema(value, schema),
         options: baseSchema._def.values,
-        themeColor: defaultThemeColor,
+        theme: theme,
       });
 
       value = await prompt.prompt();
@@ -127,7 +130,7 @@ export async function askEnv(
         default: defaultValue,
         required: !isOptional(schema),
         validate: (value) => validateWithSchema(value, schema),
-        themeColor: defaultThemeColor,
+        theme: theme,
       });
 
       value = await prompt.prompt();
