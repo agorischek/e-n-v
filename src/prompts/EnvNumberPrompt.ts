@@ -1,4 +1,4 @@
-import { ThemedPrompt } from "../ThemedPrompt";
+import { ThemedPrompt } from "./ThemedPrompt";
 import { EnvPromptOptions, defaultTheme } from "../EnvPromptOptions";
 import { SKIP_SYMBOL, S_STEP_ACTIVE, S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../symbols";
 import { symbol } from "../symbolUtils";
@@ -6,19 +6,19 @@ import type { Key } from "node:readline";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
-interface NumberEnvPromptOptions extends EnvPromptOptions<number> {}
+interface EnvNumberPromptOptions extends EnvPromptOptions<number> {}
 
-export class NumberEnvPrompt extends ThemedPrompt<number> {
+export class EnvNumberPrompt extends ThemedPrompt<number> {
   cursor = 0;
   isTyping = false;
-  protected options: NumberEnvPromptOptions;
+  protected options: EnvNumberPromptOptions;
 
-  constructor(opts: NumberEnvPromptOptions) {
+  constructor(opts: EnvNumberPromptOptions) {
     super(
       {
         ...opts,
         theme: opts.theme || defaultTheme,
-        render: function (this: NumberEnvPrompt) {
+        render: function (this: EnvNumberPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
@@ -147,14 +147,14 @@ export class NumberEnvPrompt extends ThemedPrompt<number> {
           if (this.options.default !== undefined && this.options.current !== this.options.default) textInputIndex++;
           // textInputIndex now points to the "Other" option
 
-          // If we're on the custom entry option but not typing yet, prevent submission
+          // If we're on the custom entry option but not typing yet, start typing mode
           if (this.cursor === textInputIndex && !this.isTyping) {
             // Start typing mode instead of submitting
             this.isTyping = true;
             (this as any)._track = true;
             this._setUserInput("");
             this.updateValue();
-            return "Starting input mode"; // This will cause validation to fail and stay active
+            return undefined; // No error message, just start typing mode
           }
 
           // If we're typing on the custom option but haven't entered anything, prevent submission

@@ -6,7 +6,7 @@ import { StringEnvPrompt } from "./prompts/StringEnvPrompt";
 import { NumberEnvPrompt } from "./prompts/NumberEnvPrompt";
 import { BooleanEnvPrompt } from "./prompts/BooleanEnvPrompt";
 import { EnumEnvPrompt } from "./prompts/EnumEnvPrompt";
-import { confirmOverwrite } from "./prompts/ConfirmOverwritePrompt";
+import { confirmOverwrite } from "./prompts/OverwritePrompt";
 import { SKIP_SYMBOL, S_BAR, S_BAR_END, S_BAR_START } from "./symbols";
 import color from "picocolors";
 

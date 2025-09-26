@@ -13,11 +13,11 @@ import {
   validateWithSchema,
   outro,
 } from ".";
-import { BooleanEnvPrompt } from "./prompts/BooleanEnvPrompt";
-import { ConfirmOverwritePrompt } from "./prompts/ConfirmOverwritePrompt";
-import { EnumEnvPrompt } from "./prompts/EnumEnvPrompt";
-import { NumberEnvPrompt } from "./prompts/NumberEnvPrompt";
-import { StringEnvPrompt } from "./prompts/StringEnvPrompt";
+import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
+import { OverwritePrompt } from "./prompts/OverwritePrompt";
+import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
+import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
+import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
 import { SKIP_SYMBOL } from "./symbols";
 import { Theme } from "./Theme";
 import * as color from "picocolors";
@@ -45,7 +45,7 @@ export async function askEnv(
 
   // Check if .env file exists
   if (existsSync(envPath) && !overwrite) {
-    const confirmPrompt = new ConfirmOverwritePrompt({
+    const confirmPrompt = new OverwritePrompt({
       message: `${envPath} already exists. Do you want to overwrite it?`,
       themeColor: theme.primary,
     });
@@ -82,7 +82,7 @@ export async function askEnv(
     let value: any;
 
     if (baseSchema instanceof z.ZodBoolean) {
-      const prompt = new BooleanEnvPrompt({
+      const prompt = new EnvBooleanPrompt({
         key,
         description: getDescriptionForSchema(schema),
         current: current !== undefined ? parseBoolean(current) : undefined,
@@ -95,7 +95,7 @@ export async function askEnv(
 
       value = await prompt.prompt();
     } else if (baseSchema instanceof z.ZodNumber) {
-      const prompt = new NumberEnvPrompt({
+      const prompt = new EnvNumberPrompt({
         key,
         description: getDescriptionForSchema(schema),
         current: current !== undefined ? parseFloat(current) : undefined,
@@ -109,7 +109,7 @@ export async function askEnv(
       value = await prompt.prompt();
     } else if (baseSchema instanceof z.ZodEnum) {
       // For enums, use EnumEnvPrompt with fixed options
-      const prompt = new EnumEnvPrompt({
+      const prompt = new EnvEnumPrompt({
         key,
         description: getDescriptionForSchema(schema),
         current,
@@ -123,7 +123,7 @@ export async function askEnv(
       value = await prompt.prompt();
     } else {
       // Default to string prompt for all other types
-      const prompt = new StringEnvPrompt({
+      const prompt = new EnvStringPrompt({
         key,
         description: getDescriptionForSchema(schema),
         current,

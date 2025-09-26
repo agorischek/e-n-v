@@ -1,4 +1,4 @@
-import { ThemedPrompt } from "../ThemedPrompt";
+import { ThemedPrompt } from "./ThemedPrompt";
 import { EnvPromptOptions, defaultTheme } from "../EnvPromptOptions";
 import { SKIP_SYMBOL, S_STEP_ACTIVE, S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
 import { symbol } from "../symbolUtils";
@@ -6,20 +6,20 @@ import type { Key } from "node:readline";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
-interface EnumEnvPromptOptions extends EnvPromptOptions<string> {
+interface EnvEnumPromptOptions extends EnvPromptOptions<string> {
   options: string[];
 }
 
-export class EnumEnvPrompt extends ThemedPrompt<string> {
+export class EnvEnumPrompt extends ThemedPrompt<string> {
   cursor = 0;
-  protected options: EnumEnvPromptOptions;
+  protected options: EnvEnumPromptOptions;
 
-  constructor(opts: EnumEnvPromptOptions) {
+  constructor(opts: EnvEnumPromptOptions) {
     super(
       {
         ...opts,
         theme: opts.theme || defaultTheme,
-        render: function (this: EnumEnvPrompt) {
+        render: function (this: EnvEnumPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {

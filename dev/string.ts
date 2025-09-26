@@ -1,6 +1,6 @@
-import { StringEnvPrompt } from "../src/prompts/StringEnvPrompt";
+import { EnvStringPrompt } from "../src/prompts/EnvStringPrompt";
 
-const prompt = new StringEnvPrompt({
+const prompt = new EnvStringPrompt({
   key: "SERVICE_URL",
   description: "Root URL of the target service",
   current: "awesome",

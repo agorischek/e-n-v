@@ -1,24 +1,25 @@
-import { ThemedPrompt } from "../ThemedPrompt";
-import { EnvPromptOptions, defaultTheme } from "../EnvPromptOptions";
-import { SKIP_SYMBOL, S_STEP_ACTIVE, S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../symbols";
-import { symbol } from "../symbolUtils";
+import { isCancel } from "@clack/core";
 import type { Key } from "node:readline";
+import color from "picocolors";
+import { EnvPromptOptions, defaultThemeColor, defaultTheme } from "../EnvPromptOptions";
+import { SKIP_SYMBOL, S_STEP_ACTIVE, S_STEP_SUBMIT, S_BAR, S_BAR_END, S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../symbols";
+import { symbol } from "../symbolUtils";
+import { ThemedPrompt } from "./ThemedPrompt";
+import { Theme } from "../Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
-interface StringEnvPromptOptions extends EnvPromptOptions<string> {}
-
-export class StringEnvPrompt extends ThemedPrompt<string> {
+export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   cursor = 0;
   isTyping = false;
-  protected options: StringEnvPromptOptions;
+  protected options: EnvPromptOptions<T>;
 
-  constructor(opts: StringEnvPromptOptions) {
+  constructor(opts: EnvPromptOptions<T>) {
     super(
       {
         ...opts,
         theme: opts.theme || defaultTheme,
-        render: function (this: StringEnvPrompt) {
+        render: function (this: EnvPrompt<T>) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
@@ -49,19 +50,19 @@ export class StringEnvPrompt extends ThemedPrompt<string> {
               output += `${this.getBar()}  ${this.colors.white(S_CURSOR)}`;
             }
             
-            // Add validation output or placeholder text with L-shaped pipe
+            // Add validation output with L-shaped pipe
             output += "\n";
             if (this.error) {
               output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
             } else {
-              output += `${this.getBarEnd()}  ${this.colors.subtle("Enter a value")}`;
+              output += `${this.getBarEnd()}`;
             }
             
             return output;
           }
 
           // Create options array dynamically based on what values exist
-          const options: Array<{ value: string | undefined; label: string } | string> = [];
+          const options: Array<{ value: T | undefined; label: string } | string> = [];
           
           // Add current value if it exists
           if (opts.current !== undefined) {
@@ -107,26 +108,23 @@ export class StringEnvPrompt extends ThemedPrompt<string> {
             }
           });
 
-          // Add validation output or placeholder text with L-shaped pipe
+          // Add validation output with L-shaped pipe
           if (this.error) {
             output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
           } else {
-            output += `${this.getBarEnd()}  ${this.colors.subtle("Enter a value")}`;
+            output += `${this.getBarEnd()}`;
           }
 
           return output;
         },
-        validate: (value: string | symbol) => {
+        validate: (value: T | symbol) => {
           // If both current and default are undefined, we're in text-only mode
           if (
             this.options.current === undefined &&
             this.options.default === undefined
           ) {
             if (!this.userInput || !this.userInput.trim()) {
-              if (this.options.required) {
-                return "Please enter a value";
-              }
-              return undefined;
+              return "Please enter a value";
             }
             // Validate the user input format first
             const inputValidation = this.validateInput(this.userInput);
@@ -166,10 +164,7 @@ export class StringEnvPrompt extends ThemedPrompt<string> {
             this.isTyping &&
             (!this.userInput || !this.userInput.trim())
           ) {
-            if (this.options.required) {
-              return "Please enter a value";
-            }
-            return undefined;
+            return "Please enter a value or press Escape to cancel";
           }
 
           // If we're typing, validate the input
@@ -411,21 +406,9 @@ export class StringEnvPrompt extends ThemedPrompt<string> {
     }
   }
 
-  protected formatValue(value: string | undefined): string {
-    return value || "";
-  }
-
-  protected parseInput(input: string): string | undefined {
-    return input || undefined;
-  }
-
-  protected validateInput(input: string): string | undefined {
-    // For strings, any non-empty input is valid by default
-    // Custom validation will be handled separately
-    return undefined;
-  }
-
-  protected getDefaultValue(): string {
-    return "";
-  }
+  // Abstract methods that subclasses must implement
+  protected abstract formatValue(value: T | undefined): string;
+  protected abstract parseInput(input: string): T | undefined;
+  protected abstract validateInput(input: string): string | undefined;
+  protected abstract getDefaultValue(): T;
 }

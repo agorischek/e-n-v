@@ -1,6 +1,6 @@
-import { NumberEnvPrompt } from "../src/prompts/NumberEnvPrompt";
+import { EnvNumberPrompt } from "../src/prompts/EnvNumberPrompt";
 
-const prompt = new NumberEnvPrompt({
+const prompt = new EnvNumberPrompt({
   key: "API_PORT",
   description: "API server port (must be between 1024-65535)",
   current: 3000,

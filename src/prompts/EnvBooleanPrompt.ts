@@ -1,4 +1,4 @@
-import { ThemedPrompt } from "../ThemedPrompt";
+import { ThemedPrompt } from "./ThemedPrompt";
 import { EnvPromptOptions, defaultTheme } from "../EnvPromptOptions";
 import { SKIP_SYMBOL, S_STEP_ACTIVE, S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
 import { symbol } from "../symbolUtils";
@@ -6,18 +6,18 @@ import type { Key } from "node:readline";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
-interface BooleanEnvPromptOptions extends EnvPromptOptions<boolean> {}
+interface EnvBooleanPromptOptions extends EnvPromptOptions<boolean> {}
 
-export class BooleanEnvPrompt extends ThemedPrompt<boolean> {
+export class EnvBooleanPrompt extends ThemedPrompt<boolean> {
   cursor = 0;
-  protected options: BooleanEnvPromptOptions;
+  protected options: EnvBooleanPromptOptions;
 
-  constructor(opts: BooleanEnvPromptOptions) {
+  constructor(opts: EnvBooleanPromptOptions) {
     super(
       {
         ...opts,
         theme: opts.theme || defaultTheme,
-        render: function (this: BooleanEnvPrompt) {
+        render: function (this: EnvBooleanPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {

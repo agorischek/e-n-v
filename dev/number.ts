@@ -1,6 +1,6 @@
-import { NumberEnvPrompt } from "../src/prompts/NumberEnvPrompt";
+import { EnvNumberPrompt } from "../src/prompts/EnvNumberPrompt";
 
-const prompt = new NumberEnvPrompt({
+const prompt = new EnvNumberPrompt({
   key: "PORT",
   description: "Server port number",
   current: 3000,

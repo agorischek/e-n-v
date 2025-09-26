@@ -1,6 +1,6 @@
-import { NumberEnvPrompt } from "../src/prompts/NumberEnvPrompt";
+import { EnvNumberPrompt } from "../src/prompts/EnvNumberPrompt";
 
-const prompt = new NumberEnvPrompt({
+const prompt = new EnvNumberPrompt({
   key: "MAX_CONNECTIONS",
   description: "Maximum number of concurrent connections",
   required: true,

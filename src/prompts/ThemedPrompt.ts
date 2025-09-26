@@ -1,8 +1,8 @@
 import { Prompt } from "@clack/core";
 import color from "picocolors";
-import { Theme, ColorFunction } from "./Theme";
-import { S_BAR, S_BAR_END } from "./symbols";
-import { symbol } from "./symbolUtils";
+import { Theme, ColorFunction } from "../Theme";
+import { S_BAR, S_BAR_END } from "../symbols";
+import { symbol } from "../symbolUtils";
 
 export interface ThemedPromptOptions {
   theme?: Theme;

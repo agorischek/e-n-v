@@ -1,13 +1,13 @@
 import { cursor } from 'sisteransi';
 import color from 'picocolors';
-import { ThemedPrompt, ThemedPromptOptions } from "../ThemedPrompt";
+import { ThemedPrompt, ThemedPromptOptions } from "./ThemedPrompt";
 import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
 
-interface ConfirmOverwriteOptions extends ThemedPromptOptions {
+interface OverwriteOptions extends ThemedPromptOptions {
   message: string;
 }
 
-export class ConfirmOverwritePrompt extends ThemedPrompt<boolean> {
+export class OverwritePrompt extends ThemedPrompt<boolean> {
   get cursor() {
     return this.value ? 0 : 1;
   }
@@ -16,10 +16,10 @@ export class ConfirmOverwritePrompt extends ThemedPrompt<boolean> {
     return this.cursor === 0;
   }
 
-  constructor(opts: ConfirmOverwriteOptions) {
+  constructor(opts: OverwriteOptions) {
     super({
       ...opts,
-      render: function (this: ConfirmOverwritePrompt) {
+      render: function (this: OverwritePrompt) {
         const title = `${this.getSymbol()}  ${opts.message}\n`;
         
         switch (this.state) {

@@ -1,6 +1,6 @@
-import { EnumEnvPrompt } from "../src/prompts/EnumEnvPrompt";
+import { EnvEnumPrompt } from "../src/prompts/EnvEnumPrompt";
 
-const prompt = new EnumEnvPrompt({
+const prompt = new EnvEnumPrompt({
   key: "NODE_ENV",
   description: "Select the environment",
   options: ["development", "production", "test"],

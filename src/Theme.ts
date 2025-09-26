@@ -7,14 +7,18 @@ export class Theme {
   bgPrimary: ColorFunction;
   subtle: ColorFunction;
   warn: ColorFunction;
+  bgWarn: ColorFunction;
   error: ColorFunction;
+  bgError: ColorFunction;
   
   constructor(main: ColorFunction) {
     this.primary = main;
     this.bgPrimary = this.getBackgroundColor(main);
     this.subtle = color.gray;
     this.warn = color.yellow;
+    this.bgWarn = this.getBackgroundColor(color.yellow);
     this.error = color.red;
+    this.bgError = this.getBackgroundColor(color.red);
   }
 
   /**
