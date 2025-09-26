@@ -1,43 +1,49 @@
-import { isCancel } from "@clack/core";
-import type { Key } from "node:readline";
+import { Prompt } from "@clack/core";
+import { EnvPromptOptions, defaultThemeColor } from "../EnvPromptOptions";
 import color from "picocolors";
-import { EnvPromptOptions, defaultThemeColor, defaultTheme } from "../EnvPromptOptions";
 import { SKIP_SYMBOL, S_STEP_ACTIVE, S_STEP_SUBMIT, S_BAR, S_BAR_END, S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../symbols";
 import { symbol } from "../symbolUtils";
-import { ThemedPrompt } from "../ThemedPrompt";
-import { Theme } from "../Theme";
+import type { Key } from "node:readline";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
-export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
+interface NumberEnvPromptOptions extends EnvPromptOptions<number> {}
+
+export class NumberEnvPrompt extends Prompt<number> {
   cursor = 0;
   isTyping = false;
-  protected options: EnvPromptOptions<T>;
+  protected options: NumberEnvPromptOptions;
 
-  constructor(opts: EnvPromptOptions<T>) {
+  constructor(opts: NumberEnvPromptOptions) {
     super(
       {
         ...opts,
-        theme: opts.theme || defaultTheme,
-        render: function (this: EnvPrompt<T>) {
+        render: function (this: NumberEnvPrompt) {
+          const themeColor = opts.themeColor || defaultThemeColor;
+          
+          // Helper function to get bar color based on error state
+          const getBarColor = (barSymbol: string) => {
+            return this.state === "error" ? color.yellow(barSymbol) : themeColor(barSymbol);
+          };
+          
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return `${themeColor(S_STEP_ACTIVE)}  ${color.gray(color.bold(opts.key))}`;
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
-            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(this.colors.white(opts.key))}${this.colors.subtle(
+            return `${themeColor(S_STEP_ACTIVE)}  ${color.bold(color.white(opts.key))}${color.gray(
               "="
-            )}${this.colors.white(this.formatValue(this.value))}`;
+            )}${color.white(this.formatValue(this.value))}`;
           }
 
           let output = "";
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided
-          output += `${this.getSymbol()}  ${this.colors.bold(this.colors.white(opts.key))}`;
+          output += `${symbol(this.state, themeColor)}  ${color.bold(color.white(opts.key))}`;
           if (opts.description) {
-            output += ` ${this.colors.subtle(opts.description)}`;
+            output += ` ${color.gray(opts.description)}`;
           }
           output += "\n";
 
@@ -45,24 +51,24 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
           if (opts.current === undefined && opts.default === undefined) {
             if (this.isTyping) {
               const displayText = `${this.userInput}█`;
-              output += `${this.getBar()}  ${this.colors.white(displayText)}`;
+              output += `${getBarColor(S_BAR)}  ${color.white(displayText)}`;
             } else {
-              output += `${this.getBar()}  ${this.colors.white(S_CURSOR)}`;
+              output += `${getBarColor(S_BAR)}  ${color.white(S_CURSOR)}`;
             }
             
-            // Add validation output with L-shaped pipe
+            // Add validation output or placeholder text with L-shaped pipe
             output += "\n";
             if (this.error) {
-              output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
+              output += `${getBarColor(S_BAR_END)}  ${color.yellow(this.error)}`;
             } else {
-              output += `${this.getBarEnd()}`;
+              output += `${getBarColor(S_BAR_END)}  ${color.gray("Enter a number")}`;
             }
             
             return output;
           }
 
           // Create options array dynamically based on what values exist
-          const options: Array<{ value: T | undefined; label: string } | string> = [];
+          const options: Array<{ value: number | undefined; label: string } | string> = [];
           
           // Add current value if it exists
           if (opts.current !== undefined) {
@@ -83,48 +89,48 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
 
           options.forEach((option, index) => {
             const isSelected = index === this.cursor;
-            const circle = isSelected ? this.theme.primary(S_RADIO_ACTIVE) : this.colors.dim(S_RADIO_INACTIVE);
+            const circle = isSelected ? themeColor(S_RADIO_ACTIVE) : color.dim(S_RADIO_INACTIVE);
 
             if (typeof option === "string") {
               // "Other" option
               if (this.isTyping) {
                 const displayText = `${this.userInput}█`;
-                output += `${this.getBar()}  ${circle} ${this.colors.white(displayText)}\n`;
+                output += `${getBarColor(S_BAR)}  ${circle} ${color.white(displayText)}\n`;
               } else if (isSelected) {
                 // Show cursor immediately when selected, even before typing
-                output += `${this.getBar()}  ${circle} ${this.colors.white(S_CURSOR)}\n`;
+                output += `${getBarColor(S_BAR)}  ${circle} ${color.white(S_CURSOR)}\n`;
               } else {
                 // "Other" is gray when not selected
-                output += `${this.getBar()}  ${circle} ${this.colors.subtle(option)}\n`;
+                output += `${getBarColor(S_BAR)}  ${circle} ${color.gray(option)}\n`;
               }
             } else {
               // Current/Default options
               const displayValue = this.formatValue(option.value);
               const text = isSelected
-                ? this.colors.white(displayValue)
-                : this.colors.subtle(displayValue);
-              const suffix = isSelected ? this.colors.subtle(` ${option.label}`) : "";
-              output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
+                ? color.white(displayValue)
+                : color.gray(displayValue);
+              const suffix = isSelected ? color.gray(` ${option.label}`) : "";
+              output += `${getBarColor(S_BAR)}  ${circle} ${text}${suffix}\n`;
             }
           });
 
-          // Add validation output with L-shaped pipe
+          // Add validation output or placeholder text with L-shaped pipe
           if (this.error) {
-            output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
+            output += `${getBarColor(S_BAR_END)}  ${color.yellow(this.error)}`;
           } else {
-            output += `${this.getBarEnd()}`;
+            output += `${getBarColor(S_BAR_END)}  ${color.gray("Enter a number")}`;
           }
 
           return output;
         },
-        validate: (value: T | symbol) => {
+        validate: (value) => {
           // If both current and default are undefined, we're in text-only mode
           if (
             this.options.current === undefined &&
             this.options.default === undefined
           ) {
             if (!this.userInput || !this.userInput.trim()) {
-              return "Please enter a value";
+              return "Please enter a number";
             }
             // Validate the user input format first
             const inputValidation = this.validateInput(this.userInput);
@@ -164,7 +170,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
             this.isTyping &&
             (!this.userInput || !this.userInput.trim())
           ) {
-            return "Please enter a value or press Escape to cancel";
+            return "Please enter a number";
           }
 
           // If we're typing, validate the input
@@ -406,9 +412,37 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     }
   }
 
-  // Abstract methods that subclasses must implement
-  protected abstract formatValue(value: T | undefined): string;
-  protected abstract parseInput(input: string): T | undefined;
-  protected abstract validateInput(input: string): string | undefined;
-  protected abstract getDefaultValue(): T;
+  protected formatValue(value: number | undefined): string {
+    return value !== undefined ? value.toString() : "";
+  }
+
+  protected parseInput(input: string): number | undefined {
+    if (!input || !input.trim()) {
+      return undefined;
+    }
+    
+    const parsed = Number(input.trim());
+    if (isNaN(parsed)) {
+      return undefined;
+    }
+    
+    return parsed;
+  }
+
+  protected validateInput(input: string): string | undefined {
+    if (!input || !input.trim()) {
+      return "Please enter a number";
+    }
+    
+    const parsed = Number(input.trim());
+    if (isNaN(parsed)) {
+      return "Please enter a valid number";
+    }
+    
+    return undefined;
+  }
+
+  protected getDefaultValue(): number {
+    return 0;
+  }
 }

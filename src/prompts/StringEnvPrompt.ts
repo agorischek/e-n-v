@@ -1,5 +1,5 @@
-import { EnvPrompt } from "./EnvPrompt";
 import { EnvPromptOptions } from "../EnvPromptOptions";
+import { EnvPrompt } from "./EnvPrompt";
 
 interface StringEnvPromptOptions extends EnvPromptOptions<string> {}
 
@@ -9,7 +9,7 @@ export class StringEnvPrompt extends EnvPrompt<string> {
   }
 
   protected formatValue(value: string | undefined): string {
-    return value ?? "";
+    return value || "";
   }
 
   protected parseInput(input: string): string | undefined {

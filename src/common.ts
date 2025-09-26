@@ -1,28 +1,17 @@
 import color from "picocolors";
 import { Prompt } from "@clack/core";
+import { S_BAR, S_BAR_END } from "./symbols";
+import { symbol as symbolWithTheme } from "./symbolUtils";
 
-// Clack symbols
-export const S_BAR = "│";
-export const S_BAR_END = "└";
-export const S_STEP_ACTIVE = "◇";
-export const S_STEP_SUBMIT = "◆";
-export const S_STEP_CANCEL = "✕";
-
-// Get the appropriate symbol based on prompt state
-export function symbol(state: "initial" | "active" | "submit" | "cancel" | "error") {
+// Re-export symbol function with the original color scheme for backward compatibility
+export const symbol = (state: "initial" | "active" | "submit" | "cancel" | "error") => {
   switch (state) {
-    case "initial":
-    case "active":
-    case "error":
-      return color.cyan(S_STEP_ACTIVE);
     case "submit":
-      return color.green(S_STEP_SUBMIT);
-    case "cancel":
-      return color.red(S_STEP_CANCEL);
+      return symbolWithTheme(state, color.green);
     default:
-      return color.cyan(S_STEP_ACTIVE);
+      return symbolWithTheme(state, color.cyan);
   }
-}
+};
 
 export interface CommonOptions {
   output?: NodeJS.WritableStream;

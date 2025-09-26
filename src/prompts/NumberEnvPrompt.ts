@@ -9,28 +9,22 @@ export class NumberEnvPrompt extends EnvPrompt<number> {
   }
 
   protected formatValue(value: number | undefined): string {
-    return value !== undefined ? value.toString() : "";
+    return value?.toString() ?? "";
   }
 
   protected parseInput(input: string): number | undefined {
-    if (!input || !input.trim()) {
-      return undefined;
-    }
+    const trimmed = input.trim();
+    if (!trimmed) return undefined;
     
-    const parsed = Number(input.trim());
-    if (isNaN(parsed)) {
-      return undefined;
-    }
-    
-    return parsed;
+    const parsed = Number(trimmed);
+    return isNaN(parsed) ? undefined : parsed;
   }
 
   protected validateInput(input: string): string | undefined {
-    if (!input || !input.trim()) {
-      return "Please enter a number";
-    }
+    const trimmed = input.trim();
+    if (!trimmed) return undefined;
     
-    const parsed = Number(input.trim());
+    const parsed = Number(trimmed);
     if (isNaN(parsed)) {
       return "Please enter a valid number";
     }
