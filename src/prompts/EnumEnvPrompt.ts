@@ -1,8 +1,8 @@
-import { Prompt, isCancel } from "@clack/core";
+import { ThemedPrompt } from "../ThemedPrompt";
+import { EnvPromptOptions, defaultTheme } from "../EnvPromptOptions";
+import { SKIP_SYMBOL, S_STEP_ACTIVE, S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
+import { symbol } from "../symbolUtils";
 import type { Key } from "node:readline";
-import * as color from "picocolors";
-import { EnvPromptOptions, defaultThemeColor } from "../EnvPromptOptions.js";
-import { SKIP_SYMBOL } from "../symbols.js";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
@@ -10,7 +10,7 @@ interface EnumEnvPromptOptions extends EnvPromptOptions<string> {
   options: string[];
 }
 
-export class EnumEnvPrompt extends Prompt<string> {
+export class EnumEnvPrompt extends ThemedPrompt<string> {
   cursor = 0;
   protected options: EnumEnvPromptOptions;
 
@@ -18,34 +18,33 @@ export class EnumEnvPrompt extends Prompt<string> {
     super(
       {
         ...opts,
+        theme: opts.theme || defaultTheme,
         render: function (this: EnumEnvPrompt) {
-          const themeColor = opts.themeColor || defaultThemeColor;
-          
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${themeColor("◇")}  ${color.gray(color.bold(opts.key))}`;
+              return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
-            return `${themeColor("◇")}  ${color.bold(color.white(opts.key))}${color.gray(
+            return `${this.theme.primary(S_STEP_ACTIVE)}  ${this.colors.bold(this.colors.white(opts.key))}${this.colors.subtle(
               "="
-            )}${color.white(this.value)}`;
+            )}${this.colors.white(this.value)}`;
           }
 
           let output = "";
 
-          // Add header line with filled diamond (active) and key in bold white and description in gray if provided
-          output += `${themeColor("◆")}  ${color.bold(color.white(opts.key))}`;
+          // Add header line with symbol based on state and key in bold white and description in gray if provided
+          output += `${this.getSymbol()}  ${this.colors.bold(this.colors.white(opts.key))}`;
           if (opts.description) {
-            output += ` ${color.gray(opts.description)}`;
+            output += ` ${this.colors.subtle(opts.description)}`;
           }
           output += "\n";
 
           // Display enum options
           opts.options.forEach((option, index) => {
             const isSelected = index === this.cursor;
-            const circle = isSelected ? themeColor("●") : color.dim("○");
+            const circle = isSelected ? this.theme.primary(S_RADIO_ACTIVE) : this.colors.dim(S_RADIO_INACTIVE);
 
             // Determine if this option matches current or default
             let annotation = "";
@@ -58,18 +57,22 @@ export class EnumEnvPrompt extends Prompt<string> {
             }
 
             const text = isSelected
-              ? color.white(option)
-              : color.gray(option);
-            const suffix = isSelected ? color.gray(annotation) : "";
-            output += `${color.gray("│")}  ${circle} ${text}${suffix}\n`;
+              ? this.colors.white(option)
+              : this.colors.subtle(option);
+            const suffix = isSelected ? this.colors.subtle(annotation) : "";
+            output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
           });
 
-          // Add validation output
-          output += this.error ? `${color.gray("│")}  ${color.yellow(this.error)}` : "";
+          // Add validation output with L-shaped pipe
+          if (this.error) {
+            output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
+          } else {
+            output += `${this.getBarEnd()}`;
+          }
 
           return output;
         },
-        validate: (value) => {
+        validate: (value: string | symbol) => {
           // For enum prompts, validate with custom validation if provided
           if (this.options.validate && typeof this.value !== 'symbol') {
             const customValidation = this.options.validate(this.value);

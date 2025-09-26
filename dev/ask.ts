@@ -1,7 +1,5 @@
 import { z } from "zod";
-import { askEnv } from "../src/index";
-import pc from "picocolors"
-
+import { askEnv } from "../src/askEnv";
 
 const schemas = {
   DATABASE_URL: z.string().describe("Database connection URL"),
@@ -12,4 +10,4 @@ const schemas = {
 };
 
 // Test the askEnv function
-askEnv(schemas, { envPath: ".env.test" }).catch(console.error);
+await askEnv(schemas, { envPath: ".env.test" }).catch(console.error);
