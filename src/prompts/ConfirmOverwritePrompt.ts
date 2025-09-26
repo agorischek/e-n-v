@@ -1,36 +1,38 @@
-import { ConfirmPrompt } from '@clack/core';
+import { cursor } from 'sisteransi';
 import color from 'picocolors';
-import { defaultThemeColor } from "../EnvPromptOptions";
-import { S_BAR, S_BAR_END, S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
-import { symbol } from "../symbolUtils";
+import { ThemedPrompt, ThemedPromptOptions } from "../ThemedPrompt";
+import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../symbols";
 
-interface ConfirmOverwriteOptions {
+interface ConfirmOverwriteOptions extends ThemedPromptOptions {
   message: string;
-  themeColor?: (text: string) => string;
 }
 
-export class ConfirmOverwritePrompt extends ConfirmPrompt {
-  constructor(opts: ConfirmOverwriteOptions) {
-    const themeColor = opts.themeColor || defaultThemeColor;
+export class ConfirmOverwritePrompt extends ThemedPrompt<boolean> {
+  get cursor() {
+    return this.value ? 0 : 1;
+  }
 
+  private get _value() {
+    return this.cursor === 0;
+  }
+
+  constructor(opts: ConfirmOverwriteOptions) {
     super({
-      active: 'Overwrite',
-      inactive: 'Exit',
-      initialValue: true,
+      ...opts,
       render: function (this: ConfirmOverwritePrompt) {
-        const title = `${symbol(this.state, themeColor)}  ${opts.message}\n`;
+        const title = `${this.getSymbol()}  ${opts.message}\n`;
         
         switch (this.state) {
           case 'submit':
             const actionMessage = this.value ? 'Overwriting' : 'Exiting';
-            return `${symbol(this.state, themeColor)}  ${actionMessage}\n${color.gray(S_BAR)}`;
+            return `${this.getSymbol()}  ${actionMessage}\n${color.gray(this.getBar())}`;
           case 'cancel':
             const value = this.value ? 'Overwrite' : 'Exit';
-            return `${title}${color.gray(S_BAR)}  ${color.strikethrough(
+            return `${title}${color.gray(this.getBar())}  ${color.strikethrough(
               color.dim(value)
-            )}\n${color.gray(S_BAR)}`;
+            )}\n${color.gray(this.getBar())}`;
           default: {
-            return `${title}${themeColor(S_BAR)}  ${
+            return `${title}${this.getBar()}  ${
               this.value
                 ? `${color.green(S_RADIO_ACTIVE)} Overwrite`
                 : `${color.dim(S_RADIO_INACTIVE)} ${color.dim('Overwrite')}`
@@ -38,10 +40,27 @@ export class ConfirmOverwritePrompt extends ConfirmPrompt {
               !this.value
                 ? `${color.green(S_RADIO_ACTIVE)} Exit`
                 : `${color.dim(S_RADIO_INACTIVE)} ${color.dim('Exit')}`
-            }\n${themeColor(S_BAR_END)}\n`;
+            }\n${this.getBarEnd()}\n`;
           }
         }
-      },
+      }
+    }, false);
+    
+    this.value = true; // Default to 'Overwrite' (true)
+
+    this.on('userInput', () => {
+      this.value = this._value;
+    });
+
+    this.on('confirm', (confirm) => {
+      this.output.write(cursor.move(0, -1));
+      this.value = confirm;
+      this.state = 'submit';
+      this.close();
+    });
+
+    this.on('cursor', () => {
+      this.value = !this.value;
     });
   }
 }
