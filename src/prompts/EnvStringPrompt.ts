@@ -1,13 +1,11 @@
 import { EnvPrompt, EnvPromptOptions } from "./EnvPrompt";
 import {
   SKIP_SYMBOL,
-  S_STEP_ACTIVE,
   S_RADIO_ACTIVE,
   S_RADIO_INACTIVE,
   S_CURSOR,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import { Theme } from "../visuals/Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
@@ -22,7 +20,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
     super(
       {
         ...opts,
-        theme: opts.theme || Theme.default,
+        theme: opts.theme,
         render: function (this: EnvStringPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string

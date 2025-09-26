@@ -6,7 +6,6 @@ import {
   S_RADIO_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import { Theme } from "../visuals/Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
@@ -20,7 +19,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
     super(
       {
         ...opts,
-        theme: opts.theme || Theme.default,
+        theme: opts.theme,
         render: function (this: EnvBooleanPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string

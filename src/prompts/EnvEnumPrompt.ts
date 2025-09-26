@@ -5,7 +5,6 @@ import {
   S_RADIO_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import { Theme } from "../visuals/Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
@@ -21,7 +20,7 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
     super(
       {
         ...opts,
-        theme: opts.theme || Theme.default,
+        theme: opts.theme,
         render: function (this: EnvEnumPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string

@@ -7,7 +7,6 @@ import {
   S_CURSOR,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import { Theme } from "../visuals/Theme";
 
 type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
@@ -22,7 +21,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
     super(
       {
         ...opts,
-        theme: opts.theme || Theme.default,
+        theme: opts.theme,
         render: function (this: EnvNumberPrompt) {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
