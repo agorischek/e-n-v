@@ -1,5 +1,4 @@
-import { ThemedPrompt } from "./ThemedPrompt";
-import { EnvPromptOptions } from "../EnvPromptOptions";
+import { EnvPrompt, EnvPromptOptions } from "./EnvPrompt";
 import {
   SKIP_SYMBOL,
   S_STEP_ACTIVE,
@@ -14,7 +13,7 @@ type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
 interface EnvNumberPromptOptions extends EnvPromptOptions<number> {}
 
-export class EnvNumberPrompt extends ThemedPrompt<number> {
+export class EnvNumberPrompt extends EnvPrompt<number> {
   cursor = 0;
   isTyping = false;
   protected options: EnvNumberPromptOptions;

@@ -1,8 +1,6 @@
-import { ThemedPrompt } from "./ThemedPrompt";
-import { EnvPromptOptions } from "../EnvPromptOptions";
+import { EnvPrompt, EnvPromptOptions } from "./EnvPrompt";
 import {
   SKIP_SYMBOL,
-  S_STEP_ACTIVE,
   S_RADIO_ACTIVE,
   S_RADIO_INACTIVE,
 } from "../visuals/symbols";
@@ -15,7 +13,7 @@ interface EnvEnumPromptOptions extends EnvPromptOptions<string> {
   options: string[];
 }
 
-export class EnvEnumPrompt extends ThemedPrompt<string> {
+export class EnvEnumPrompt extends EnvPrompt<string> {
   cursor = 0;
   protected options: EnvEnumPromptOptions;
 

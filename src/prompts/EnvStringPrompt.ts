@@ -1,5 +1,4 @@
-import { ThemedPrompt } from "./ThemedPrompt";
-import { EnvPromptOptions } from "../EnvPromptOptions";
+import { EnvPrompt, EnvPromptOptions } from "./EnvPrompt";
 import {
   SKIP_SYMBOL,
   S_STEP_ACTIVE,
@@ -14,7 +13,7 @@ type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
 interface EnvStringPromptOptions extends EnvPromptOptions<string> {}
 
-export class EnvStringPrompt extends ThemedPrompt<string> {
+export class EnvStringPrompt extends EnvPrompt<string> {
   cursor = 0;
   isTyping = false;
   protected options: EnvStringPromptOptions;
@@ -29,11 +28,11 @@ export class EnvStringPrompt extends ThemedPrompt<string> {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(this.key))}`;
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
             return `${this.getSymbol()}  ${this.colors.bold(
-              this.colors.white(opts.key)
+              this.colors.white(this.key)
             )}${this.colors.subtle("=")}${this.colors.white(
               this.formatValue(this.value)
             )}`;
@@ -43,7 +42,7 @@ export class EnvStringPrompt extends ThemedPrompt<string> {
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided
           output += `${this.getSymbol()}  ${this.colors.bold(
-            this.colors.white(opts.key)
+            this.colors.white(this.key)
           )}`;
           if (opts.description) {
             output += ` ${this.colors.subtle(opts.description)}`;

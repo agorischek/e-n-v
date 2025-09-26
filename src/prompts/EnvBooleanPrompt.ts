@@ -1,5 +1,4 @@
-import { ThemedPrompt } from "./ThemedPrompt";
-import { EnvPromptOptions } from "../EnvPromptOptions";
+import { EnvPrompt, EnvPromptOptions } from "./EnvPrompt";
 import {
   SKIP_SYMBOL,
   S_STEP_ACTIVE,
@@ -13,7 +12,7 @@ type Action = "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";
 
 interface EnvBooleanPromptOptions extends EnvPromptOptions<boolean> {}
 
-export class EnvBooleanPrompt extends ThemedPrompt<boolean> {
+export class EnvBooleanPrompt extends EnvPrompt<boolean> {
   cursor = 0;
   protected options: EnvBooleanPromptOptions;
 
@@ -27,11 +26,11 @@ export class EnvBooleanPrompt extends ThemedPrompt<boolean> {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
               // User skipped - show just the key in gray with hollow diamond
-              return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(opts.key))}`;
+              return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(this.key))}`;
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
             return `${this.getSymbol()}  ${this.colors.bold(
-              this.colors.white(opts.key)
+              this.colors.white(this.key)
             )}${this.colors.subtle("=")}${this.colors.white(
               this.value ? "true" : "false"
             )}`;
@@ -41,7 +40,7 @@ export class EnvBooleanPrompt extends ThemedPrompt<boolean> {
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided
           output += `${this.getSymbol()}  ${this.colors.bold(
-            this.colors.white(opts.key)
+            this.colors.white(this.key)
           )}`;
           if (opts.description) {
             output += ` ${this.colors.subtle(opts.description)}`;
