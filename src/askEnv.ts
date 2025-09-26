@@ -14,7 +14,7 @@ import {
   outro,
 } from ".";
 import { BooleanEnvPrompt } from "./prompts/BooleanEnvPrompt";
-import { confirmOverwrite } from "./prompts/ConfirmOverwritePrompt";
+import { ConfirmOverwritePrompt } from "./prompts/ConfirmOverwritePrompt";
 import { EnumEnvPrompt } from "./prompts/EnumEnvPrompt";
 import { NumberEnvPrompt } from "./prompts/NumberEnvPrompt";
 import { StringEnvPrompt } from "./prompts/StringEnvPrompt";
@@ -45,12 +45,12 @@ export async function askEnv(
 
   // Check if .env file exists
   if (existsSync(envPath) && !overwrite) {
-    const shouldOverwrite = await confirmOverwrite({
+    const confirmPrompt = new ConfirmOverwritePrompt({
       message: `${envPath} already exists. Do you want to overwrite it?`,
-      activeAction: `Overwriting ${envPath}`,
-      inactiveAction: "Operation cancelled",
       themeColor: theme.primary,
     });
+
+    const shouldOverwrite = await confirmPrompt.prompt();
 
     if (isCancel(shouldOverwrite) || !shouldOverwrite) {
       cancel("Operation cancelled.");
