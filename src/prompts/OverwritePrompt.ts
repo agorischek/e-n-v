@@ -1,8 +1,8 @@
 import { cursor } from 'sisteransi';
 import { ThemedPrompt, ThemedPromptOptions } from "./ThemedPrompt";
-import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
+import { S_BAR, S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 
-interface OverwriteOptions extends ThemedPromptOptions {
+interface OverwriteOptions extends ThemedPromptOptions<boolean, OverwritePrompt> {
   message: string;
 }
 
@@ -24,7 +24,7 @@ export class OverwritePrompt extends ThemedPrompt<boolean> {
         switch (this.state) {
           case 'submit':
             const actionMessage = this.value ? 'Overwriting' : 'Exiting';
-            return `${this.getSymbol()}  ${actionMessage}\n${this.colors.subtle(this.getBar())}`;
+            return `${this.getSymbol()}  ${actionMessage}\n${this.colors.subtle(S_BAR)}`;
           case 'cancel':
             const value = this.value ? 'Overwrite' : 'Exit';
             return `${title}${this.colors.subtle(this.getBar())}  ${this.colors.strikethrough(

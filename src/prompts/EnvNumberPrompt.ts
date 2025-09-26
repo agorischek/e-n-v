@@ -246,8 +246,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
       (this as any)._track = true;
       this.value = this.getDefaultValue();
     } else {
-      // Set initial value to current
-      this.value = this.current ?? this.getDefaultValue();
+      // Set initial value based on cursor position
+      this.updateValue();
     }
 
     this.on("cursor", (action?: Action) => {

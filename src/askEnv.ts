@@ -155,9 +155,6 @@ export async function askEnv(
     envValues[key] = String(value);
   }
 
-  // Add final spacing
-  console.log(color.gray("│"));
-
   // Generate .env content
   const envContent = Object.entries(envValues)
     .map(([key, value]) => `${key}=${value}`)
@@ -166,7 +163,7 @@ export async function askEnv(
   try {
     writeFileSync(envPath, envContent + "\n");
     outro(
-      `✅ Successfully wrote ${
+      `Successfully wrote ${
         Object.keys(envValues).length
       } environment variables to ${envPath}`
     );
