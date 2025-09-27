@@ -4,7 +4,7 @@ import dotenvx from "@dotenvx/dotenvx";
  
 
 const schemas = {
-  DATABASE_URL: z.string().describe("Database connection URL").default("hey"),
+  DATABASE_URL: z.string().describe("Database connection URL").default("newvalue123"),
 };
 
 // Test the askEnv function
