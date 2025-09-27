@@ -24,6 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "@clack/core": "1.0.0-alpha.5",
+    "@dotenvx/dotenvx": "^1.51.0",
     "dotenv": "^17.2.2",
     "picocolors": "^1.1.1",
     "zod": "^3.22.4"

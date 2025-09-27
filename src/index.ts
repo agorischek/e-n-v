@@ -47,3 +47,14 @@ export function validateFromSchema(schema: z.ZodSchema) {
     return result.error.errors.map((e) => e.message).join(", ");
   };
 }
+
+// Export environment file utilities
+export { loadEnvFromFile } from "./io/loadEnv";
+export { writeEnvToFile } from "./io/writeEnv";
+export { updateEnvValue, updateEnvContentValue, updateEnvValues } from "./io/updateEnv";
+
+// Export accessor types and implementations
+export type { EnvAccessor } from "./types/EnvAccessor";
+export { DefaultEnvAccessor } from "./accessors/DefaultEnvAccessor";
+export { DotEnvXAccessor } from "./accessors/DotEnvXAccessor";
+export type { DotEnvXAccessorOptions } from "./accessors/DotEnvXAccessor";

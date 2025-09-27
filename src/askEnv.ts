@@ -20,10 +20,14 @@ import { isCancel } from "@clack/core";
 import { loadEnvFromFile } from "./io/loadEnv";
 import { writeEnvToFile } from "./io/writeEnv";
 import { EnvPrompt } from "./prompts/EnvPrompt";
+import { EnvAccessor } from "./types/EnvAccessor";
+import { DefaultEnvAccessor } from "./accessors/DefaultEnvAccessor";
+import dotenvx from "@dotenvx/dotenvx";
 
 type AskEnvOptions = {
   envPath?: string;
   overwrite?: boolean;
+  accessor?: EnvAccessor;
 };
 
 /**
@@ -35,7 +39,10 @@ export async function askEnv(
   schemas: SchemaMap,
   options: AskEnvOptions = {}
 ): Promise<void> {
-  const { envPath = ".env", overwrite = false } = options;
+  const { envPath = ".env", overwrite = false, accessor } = options;
+  
+  // Create accessor if not provided
+  const envAccessor = accessor || new DefaultEnvAccessor(envPath);
 
   // Create theme object using magenta as the primary color
   const theme = new Theme(color.magenta);
@@ -46,8 +53,8 @@ export async function askEnv(
     )} ${color.gray("(Skip with tab)")}\n${color.gray("│")}  `
   );
 
-  // Check if .env file exists
-  if (existsSync(envPath) && !overwrite) {
+  // Check if .env file exists (for DefaultEnvAccessor only)
+  if (envAccessor instanceof DefaultEnvAccessor && existsSync(envPath) && !overwrite) {
     const confirmPrompt = new OverwritePrompt({
       message: `${envPath} already exists. Do you want to overwrite it?`,
       theme: theme,
@@ -63,13 +70,14 @@ export async function askEnv(
 
   const envValues: Record<string, string> = {};
   const schemaEntries = Object.entries(schemas);
+  let savedCount = 0;
 
-  // Load current values from the .env file
-  const currentEnvValues = loadEnvFromFile(envPath);
+  // Load current values from the accessor
+  const currentEnvValues = envAccessor.getAll();
 
   for (const [key, schema] of schemaEntries) {
     // Add blank line before each prompt for better spacing (except first)
-    if (Object.keys(envValues).length > 0) {
+    if (savedCount > 0) {
       console.log(color.gray("│"));
     }
 
@@ -156,18 +164,26 @@ export async function askEnv(
     }
 
     // Convert value to string for .env file
-    envValues[key] = String(value);
+    const stringValue = String(value);
+    envValues[key] = stringValue;
+
+    // Save the environment variable immediately
+    try {
+      await envAccessor.set(key, stringValue);
+      savedCount++;
+      console.log(color.gray("│") + "  " + color.green("✔") + " " + color.dim(`${key} saved`));
+    } catch (error) {
+      cancel(`❌ Failed to save ${key}: ${error}`);
+      return;
+    }
   }
 
-  // Generate .env content and write to file
+  // Final success message
   try {
-    writeEnvToFile(envValues, envPath);
     outro(
-      `Successfully wrote ${
-        Object.keys(envValues).length
-      } environment variables to ${envPath}`
+      `Successfully saved ${savedCount} environment variable${savedCount !== 1 ? 's' : ''}${envAccessor instanceof DefaultEnvAccessor ? ` to ${envPath}` : ""}`
     );
   } catch (error) {
-    cancel(`❌ Failed to write to ${envPath}: ${error}`);
+    cancel(`❌ Error displaying final message: ${error}`);
   }
 }
