@@ -5,7 +5,8 @@ export const S_BAR = "│";           // Vertical bar (pipe)
 export const S_BAR_END = "└";       // Bottom-left corner
 export const S_BAR_START = "┌";     // Top-left corner
 export const S_STEP_ACTIVE = "◆";   // Diamond filled (active state)
-export const S_STEP_SUBMIT = "◇";   // Diamond outline (submit state)
+export const S_STEP_SUBMIT = "✔";   // Checkmark (submit/saved state)
+export const S_STEP_SKIP = "⏭";     // Skip symbol (skipped state)
 export const S_STEP_CANCEL = "✕";   // X mark (cancel state)
 export const S_STEP_ERROR = "▲";
 

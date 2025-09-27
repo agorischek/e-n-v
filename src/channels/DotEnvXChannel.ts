@@ -1,5 +1,9 @@
 import { EnvChannel } from "./EnvChannel";
-import type { FilteredGetOptions, FilteredSetOptions, DotEnvXInstance } from "./types";
+import type {
+  DotEnvXGetOptions,
+  DotEnvXSetOptions,
+  DotEnvXInstance,
+} from "./types";
 import { existsSync, writeFileSync } from "fs";
 
 /**
@@ -8,11 +12,11 @@ import { existsSync, writeFileSync } from "fs";
  */
 export class DotEnvXChannel implements EnvChannel {
   private dotenvx: DotEnvXInstance;
-  private getOptions: FilteredGetOptions;
-  private setOptions: FilteredSetOptions;
+  private getOptions: DotEnvXGetOptions;
+  private setOptions: DotEnvXSetOptions;
   private defaultPath: string;
 
-  /** 
+  /**
    * Create a new DotEnvXChannel
    * @param dotenvx - The dotenvx instance to use
    * @param defaultPath - Default path for env files
@@ -22,8 +26,8 @@ export class DotEnvXChannel implements EnvChannel {
   constructor(
     dotenvx: DotEnvXInstance,
     defaultPath: string = ".env",
-    getOptions: FilteredGetOptions = {},
-    setOptions: FilteredSetOptions = {}
+    getOptions: DotEnvXGetOptions = {},
+    setOptions: DotEnvXSetOptions = {}
   ) {
     this.dotenvx = dotenvx;
     this.defaultPath = defaultPath;
@@ -43,15 +47,15 @@ export class DotEnvXChannel implements EnvChannel {
       const result = this.dotenvx.config({
         processEnv: myEnv,
         quiet: true,
-        ignore: ['MISSING_ENV_FILE'],
+        ignore: ["MISSING_ENV_FILE"],
         path: this.defaultPath,
-        ...this.getOptions
+        ...this.getOptions,
       });
-      
+
       if (result.parsed && result.parsed[key]) {
         return result.parsed[key];
       }
-      
+
       return undefined;
     } catch {
       // If there's an error (e.g., missing file), return undefined
@@ -70,13 +74,13 @@ export class DotEnvXChannel implements EnvChannel {
     if (!existsSync(this.defaultPath)) {
       writeFileSync(this.defaultPath, "", "utf8");
     }
-    
+
     try {
       const options = {
         path: this.defaultPath,
-        ...this.setOptions
+        ...this.setOptions,
       };
-      
+
       this.dotenvx.set(key, value, options);
     } catch (error) {
       throw new Error(`Failed to set environment variable ${key}: ${error}`);

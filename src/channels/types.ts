@@ -4,12 +4,12 @@ import type { GetOptions, SetOptions, DotenvConfigOptions, DotenvConfigOutput } 
 /**
  * Get options without envKeysFile since we manage that ourselves
  */
-export type FilteredGetOptions = Omit<GetOptions, 'envKeysFile'>;
+export type DotEnvXGetOptions = Omit<GetOptions, 'envKeysFile'>;
 
 /**
  * Set options without envKeysFile since we manage that ourselves
  */
-export type FilteredSetOptions = Omit<SetOptions, 'envKeysFile'>;
+export type DotEnvXSetOptions = Omit<SetOptions, 'envKeysFile'>;
 
 /**
  * Minimal interface for dotenvx functionality that we require
@@ -25,8 +25,8 @@ export interface DotEnvXInstance {
  */
 export interface DotEnvXChannelConfig {
   dotenvx: DotEnvXInstance;
-  get?: FilteredGetOptions & { [key: string]: unknown };
-  set?: FilteredSetOptions & { [key: string]: unknown };
+  get?: DotEnvXGetOptions & { [key: string]: unknown };
+  set?: DotEnvXSetOptions & { [key: string]: unknown };
 }
 
 /**

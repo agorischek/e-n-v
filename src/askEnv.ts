@@ -69,10 +69,11 @@ export async function askEnv(
   const schemaEntries = Object.entries(schemas);
   let savedCount = 0;
 
-  for (const [key, schema] of schemaEntries) {
-    // Add blank line before each prompt for better spacing (except first)
-    if (savedCount > 0) {
-      console.log(color.gray("│"));
+  for (let index = 0; index < schemaEntries.length; index++) {
+  const [key, schema] = schemaEntries[index]!;
+
+    if (index > 0) {
+      console.log(`${color.gray("│")}  `);
     }
 
     const { type, defaultValue, description, required, values } =
@@ -160,8 +161,8 @@ export async function askEnv(
 
     // Save the environment variable immediately
     try {
-      await envChannel.set(key, stringValue);
-      savedCount++;
+  await envChannel.set(key, stringValue);
+  savedCount++;
     } catch (error) {
       cancel(`❌ Failed to save ${key}: ${error}`);
       return;
@@ -170,6 +171,9 @@ export async function askEnv(
 
   // Final success message
   try {
+    if (schemaEntries.length > 0) {
+      console.log(`${color.gray("│")}  `);
+    }
     outro(
       `Successfully saved ${savedCount} environment variable${savedCount !== 1 ? 's' : ''}${envChannel instanceof DefaultEnvChannel ? ` to ${envPath}` : ""}`
     );

@@ -1,5 +1,7 @@
 import { ThemedPrompt } from "./ThemedPrompt";
 import { Theme } from "../visuals/Theme";
+import { S_STEP_SKIP } from "../visuals/symbols";
+import color from "picocolors";
 
 export interface EnvPromptOptions<T> {
   key: string;
@@ -24,6 +26,9 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   }
 
   protected renderSkipped(): string {
-    return `${this.getSymbol()}  ${this.colors.subtle(this.colors.bold(this.key))}`;
+    const skipSymbol = this.colors.dim(this.theme.primary(S_STEP_SKIP));
+    const keyText = this.colors.subtle(this.colors.bold(this.key));
+
+    return `${skipSymbol}  ${keyText}`;
   }
 }
