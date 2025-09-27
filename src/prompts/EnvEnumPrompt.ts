@@ -5,7 +5,7 @@ import {
   S_RADIO_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import type { Action } from "./types";
+import type { PromptAction } from "./types/PromptAction";
 
 interface EnvEnumPromptOptions extends EnvPromptOptions<string> {
   options: string[];
@@ -107,7 +107,7 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
       : 0;
     this.cursor = Math.max(0, initialIndex);
 
-    this.on("cursor", (action?: Action) => {
+    this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
       if (this.state === "error") {
         this.state = "active";

@@ -6,7 +6,7 @@ import {
   S_CURSOR,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import type { Action } from "./types";
+import type { PromptAction } from "./types/PromptAction";
 
 interface EnvStringPromptOptions extends EnvPromptOptions<string> {}
 
@@ -254,7 +254,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
       this.value = this.current ?? this.getDefaultValue();
     }
 
-    this.on("cursor", (action?: Action) => {
+    this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
       if (this.state === "error") {
         this.state = "active";

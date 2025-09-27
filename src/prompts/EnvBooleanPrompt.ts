@@ -5,7 +5,7 @@ import {
   S_RADIO_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import type { Action } from "./types";
+import type { PromptAction } from "./types/PromptAction";
 
 interface EnvBooleanPromptOptions extends EnvPromptOptions<boolean> {}
 
@@ -118,7 +118,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
     // Set initial value to current, or default, or false
     this.value = this.current ?? this.default ?? false;
 
-    this.on("cursor", (action?: Action) => {
+    this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
       if (this.state === "error") {
         this.state = "active";

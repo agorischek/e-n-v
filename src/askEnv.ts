@@ -4,14 +4,11 @@ import {
   AskEnvOptions,
   intro,
   cancel,
-  getDefaultValue,
-  getBaseSchema,
-  getDescriptionForSchema,
   parseBoolean,
-  isOptional,
   validateWithSchema,
   outro,
 } from ".";
+import { EnvVarSpec } from "./schemas/EnvVarSpec";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { OverwritePrompt } from "./prompts/OverwritePrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
@@ -47,8 +44,8 @@ export async function askEnv(
   if (existsSync(envPath) && !overwrite) {
     const confirmPrompt = new OverwritePrompt({
       message: `${envPath} already exists. Do you want to overwrite it?`,
-      themeColor: theme.primary,
-    });
+      theme: theme,
+    } as any); // ThemedPromptOptions requires render function but OverwritePrompt provides its own
 
     const shouldOverwrite = await confirmPrompt.prompt();
 
@@ -67,56 +64,56 @@ export async function askEnv(
       console.log(color.gray("│"));
     }
 
+    // Create EnvVarSpec to extract schema metadata
+    const spec = new EnvVarSpec(schema);
+
     // Get current value from process.env if it exists and is not empty
     const current =
       process.env[key] && process.env[key].trim() !== ""
         ? process.env[key]
         : undefined;
 
-    // Get default value from schema if it exists
-    const defaultValue = getDefaultValue(schema);
-
-    // Get the base schema type (unwrapped from optional/default)
-    const baseSchema = getBaseSchema(schema);
+    // Get default value from spec
+    const defaultValue = spec.getDefaultValueAsString();
 
     let value: any;
 
-    if (baseSchema instanceof z.ZodBoolean) {
+    if (spec.type === "boolean") {
       const prompt = new EnvBooleanPrompt({
         key,
-        description: getDescriptionForSchema(schema),
+        description: spec.description,
         current: current !== undefined ? parseBoolean(current) : undefined,
         default:
           defaultValue !== undefined ? parseBoolean(defaultValue) : undefined,
-        required: !isOptional(schema),
+        required: !spec.optional,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
       });
 
       value = await prompt.prompt();
-    } else if (baseSchema instanceof z.ZodNumber) {
+    } else if (spec.type === "number") {
       const prompt = new EnvNumberPrompt({
         key,
-        description: getDescriptionForSchema(schema),
+        description: spec.description,
         current: current !== undefined ? parseFloat(current) : undefined,
         default:
           defaultValue !== undefined ? parseFloat(defaultValue) : undefined,
-        required: !isOptional(schema),
+        required: !spec.optional,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
       });
 
       value = await prompt.prompt();
-    } else if (baseSchema instanceof z.ZodEnum) {
-      // For enums, use EnumEnvPrompt with fixed options
+    } else if (spec.type === "enum") {
+      // For enums, use EnumEnvPrompt with options from spec
       const prompt = new EnvEnumPrompt({
         key,
-        description: getDescriptionForSchema(schema),
+        description: spec.description,
         current,
         default: defaultValue,
-        required: !isOptional(schema),
+        required: !spec.optional,
         validate: (value) => validateWithSchema(value, schema),
-        options: baseSchema._def.values,
+        options: spec.enumOptions || [],
         theme: theme,
       });
 
@@ -125,10 +122,10 @@ export async function askEnv(
       // Default to string prompt for all other types
       const prompt = new EnvStringPrompt({
         key,
-        description: getDescriptionForSchema(schema),
+        description: spec.description,
         current,
         default: defaultValue,
-        required: !isOptional(schema),
+        required: !spec.optional,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
       });

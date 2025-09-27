@@ -7,7 +7,7 @@ import {
   S_CURSOR,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import type { Action } from "./types";
+import type { PromptAction } from "./types/PromptAction";
 
 interface EnvNumberPromptOptions extends EnvPromptOptions<number> {}
 
@@ -249,7 +249,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
       this.updateValue();
     }
 
-    this.on("cursor", (action?: Action) => {
+    this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
       if (this.state === "error") {
         this.state = "active";

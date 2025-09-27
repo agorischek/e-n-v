@@ -19,6 +19,7 @@ export class EnvVarSpec {
   public readonly min?: number;
   public readonly max?: number;
   public readonly description?: string;
+  public readonly enumOptions?: string[];
 
   constructor(schema: ZodTypeAny) {
     let current: ZodTypeAny = schema;
@@ -58,11 +59,17 @@ export class EnvVarSpec {
 
     this.type = this.resolveType(unwrapped);
 
+    // Extract constraints for string and number types
     if (unwrapped instanceof ZodString || unwrapped instanceof ZodNumber) {
       for (const check of unwrapped._def.checks ?? []) {
         if (check.kind === "min") this.min = check.value;
         if (check.kind === "max") this.max = check.value;
       }
+    }
+
+    // Extract enum options
+    if (unwrapped instanceof ZodEnum) {
+      this.enumOptions = unwrapped._def.values;
     }
   }
 
@@ -79,5 +86,12 @@ export class EnvVarSpec {
       // For any other types, default to string
       return "string";
     }
+  }
+
+  /**
+   * Get the default value as a string, matching the old getDefaultValue behavior
+   */
+  public getDefaultValueAsString(): string | undefined {
+    return this.defaultValue !== undefined ? String(this.defaultValue) : undefined;
   }
 }

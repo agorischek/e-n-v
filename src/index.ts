@@ -1,10 +1,14 @@
 import { z } from "zod";
-import { writeFileSync, existsSync } from "fs";
-import { join } from "path";
 import type { Writable } from "node:stream";
 
 import { SKIP_SYMBOL, S_BAR, S_BAR_END, S_BAR_START } from "./visuals/symbols";
 import color from "picocolors";
+
+// Re-export core classes and types
+export { EnvVarSpec } from "./schemas/EnvVarSpec";
+export { EnvVarType } from "./schemas/EnvVarType";
+export { AskEnvOptions } from "./AskEnvOption";
+export { askEnv } from "./askEnv";
 
 interface CommonOptions {
   output?: Writable;
@@ -30,46 +34,6 @@ export const outro = (message = "", opts?: CommonOptions) => {
 export type SchemaMap = Record<string, z.ZodSchema>;
 
 /**
- * Get the base schema type (unwrapped from optional/default)
- */
-export function getBaseSchema(schema: z.ZodSchema): z.ZodSchema {
-  let unwrapped = schema;
-  if (schema instanceof z.ZodOptional) {
-    unwrapped = schema._def.innerType;
-  }
-  if (unwrapped instanceof z.ZodDefault) {
-    unwrapped = unwrapped._def.innerType;
-  }
-  return unwrapped;
-}
-
-/**
- * Check if a schema is optional
- */
-export function isOptional(schema: z.ZodSchema): boolean {
-  return schema instanceof z.ZodOptional;
-}
-
-/**
- * Get the default value from a schema if it exists
- */
-export function getDefaultValue(schema: z.ZodSchema): string | undefined {
-  if (schema instanceof z.ZodDefault) {
-    const defaultValue = schema._def.defaultValue();
-    return String(defaultValue);
-  }
-  // Check nested optional/default combinations
-  if (
-    schema instanceof z.ZodOptional &&
-    schema._def.innerType instanceof z.ZodDefault
-  ) {
-    const defaultValue = schema._def.innerType._def.defaultValue();
-    return String(defaultValue);
-  }
-  return undefined;
-}
-
-/**
  * Parse boolean from string value
  */
 export function parseBoolean(value: string): boolean {
@@ -80,36 +44,6 @@ export function parseBoolean(value: string): boolean {
     trimmed === "yes" ||
     trimmed === "y"
   );
-}
-
-/**
- * Generate description for schema
- */
-export function getDescriptionForSchema(
-  schema: z.ZodSchema
-): string | undefined {
-  // First check if the schema has a description
-  if ((schema as any)._def?.description) {
-    return (schema as any)._def.description;
-  }
-
-  // Check nested schemas (optional/default wrappers)
-  if (
-    schema instanceof z.ZodOptional &&
-    (schema._def.innerType as any)._def?.description
-  ) {
-    return (schema._def.innerType as any)._def.description;
-  }
-
-  if (
-    schema instanceof z.ZodDefault &&
-    (schema._def.innerType as any)._def?.description
-  ) {
-    return (schema._def.innerType as any)._def.description;
-  }
-
-  // If no description is found, return undefined (no generic descriptions)
-  return undefined;
 }
 
 /**
