@@ -26,10 +26,11 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
               return this.renderSkipped();
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
+            const valueStr = this.value ? "true" : "false";
             return `${this.getSymbol()}  ${this.colors.bold(
               this.colors.white(this.key)
             )}${this.colors.subtle("=")}${this.colors.white(
-              this.value ? "true" : "false"
+              this.truncateValue(valueStr)
             )}`;
           }
 

@@ -11,18 +11,21 @@ export interface EnvPromptOptions<T> {
   required: boolean;
   validate?: ((value: T | undefined) => string | Error | undefined) | undefined;
   theme?: Theme;
+  maxDisplayLength?: number;
 }
 
 export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected key: string;
   protected current?: T;
   protected default?: T;
+  protected maxDisplayLength: number;
 
   constructor(opts: EnvPromptOptions<T> & any, render?: boolean) {
     super(opts, render);
     this.key = opts.key;
     this.current = opts.current;
     this.default = opts.default;
+    this.maxDisplayLength = opts.maxDisplayLength ?? 40;
   }
 
   protected buildSkipHint(base?: string): string {
@@ -34,6 +37,13 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     }
 
     return skipCapitalized;
+  }
+
+  protected truncateValue(value: string): string {
+    if (value.length <= this.maxDisplayLength) {
+      return value;
+    }
+    return value.substring(0, this.maxDisplayLength) + "...";
   }
 
   protected renderSkipped(): string {

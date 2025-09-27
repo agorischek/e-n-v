@@ -478,7 +478,8 @@ export class EnvStringPrompt extends EnvPrompt<string> {
   }
 
   protected formatValue(value: string | undefined): string {
-    return value || "";
+    const str = value || "";
+    return this.truncateValue(str);
   }
 
   protected parseInput(input: string): string | undefined {

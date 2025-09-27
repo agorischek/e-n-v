@@ -27,6 +27,7 @@ import { resolveChannel } from "./channels/resolveChannel";
 type AskEnvOptions = {
   path?: string;
   channel?: ChannelOptions;
+  maxDisplayLength?: number;
 };
 
 /**
@@ -38,7 +39,7 @@ export async function askEnv(
   schemas: SchemaMap,
   options: AskEnvOptions = {}
 ): Promise<void> {
-  const { path: envPath = ".env",  channel } = options;
+  const { path: envPath = ".env", channel, maxDisplayLength = 40 } = options;
 
   // Create channel using the resolver
   const envChannel = resolveChannel(channel, envPath);
@@ -96,6 +97,7 @@ export async function askEnv(
           required,
           validate: validateFromSchema(schema),
           theme: theme,
+          maxDisplayLength,
         });
         break;
       }
@@ -109,6 +111,7 @@ export async function askEnv(
           required,
           validate: validateFromSchema(schema),
           theme: theme,
+          maxDisplayLength,
         });
         break;
       }
@@ -123,6 +126,7 @@ export async function askEnv(
           validate: validateFromSchema(schema),
           options: values || [],
           theme: theme,
+          maxDisplayLength,
         });
         break;
       }
@@ -136,6 +140,7 @@ export async function askEnv(
           required,
           validate: validateFromSchema(schema),
           theme: theme,
+          maxDisplayLength,
         });
         break;
       }

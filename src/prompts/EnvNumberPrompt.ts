@@ -473,7 +473,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
   }
 
   protected formatValue(value: number | undefined): string {
-    return value !== undefined ? value.toString() : "";
+    const str = value !== undefined ? value.toString() : "";
+    return this.truncateValue(str);
   }
 
   protected parseInput(input: string): number | undefined {

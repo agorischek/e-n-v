@@ -30,7 +30,7 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
             // User provided a value - show ENV_KEY=value format with hollow diamond
             return `${this.getSymbol()}  ${this.colors.bold(
               this.colors.white(this.key)
-            )}${this.colors.subtle("=")}${this.colors.white(this.value)}`;
+            )}${this.colors.subtle("=")}${this.colors.white(this.truncateValue(this.value || ""))}`;
           }
 
           if (this.state === "cancel") {
