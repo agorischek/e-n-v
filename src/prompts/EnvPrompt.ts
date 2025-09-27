@@ -1,6 +1,6 @@
 import { ThemedPrompt } from "./ThemedPrompt";
 import { Theme } from "../visuals/Theme";
-import { S_STEP_SKIP } from "../visuals/symbols";
+import { S_STEP_SKIP, S_STEP_CANCEL } from "../visuals/symbols";
 import color from "picocolors";
 
 export interface EnvPromptOptions<T> {
@@ -41,5 +41,12 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     const keyText = this.colors.subtle(this.colors.bold(this.key));
 
     return `${skipSymbol}  ${keyText}`;
+  }
+
+  protected renderCancelled(): string {
+    const cancelSymbol = this.theme.error(S_STEP_CANCEL);
+    const keyText = this.colors.subtle(this.colors.bold(this.key));
+
+    return `${cancelSymbol}  ${keyText}`;
   }
 }

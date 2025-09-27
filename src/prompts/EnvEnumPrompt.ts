@@ -33,6 +33,10 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
             )}${this.colors.subtle("=")}${this.colors.white(this.value)}`;
           }
 
+          if (this.state === "cancel") {
+            return this.renderCancelled();
+          }
+
           let output = "";
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided

@@ -148,7 +148,10 @@ export async function askEnv(
       (typeof value === "symbol" &&
         (value as any).description === "clack:cancel")
     ) {
-      cancel("Setup cancelled.");
+      // Show red vertical pipe and then red L-pipe with cancellation message
+      console.log(`${color.red("│")}  `);
+      console.log(`${color.red("└")}  ${color.red("Setup cancelled.")}`);
+      console.log(); // Add blank line for spacing
       return;
     }
 
