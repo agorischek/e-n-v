@@ -20,11 +20,13 @@ import { isCancel } from "@clack/core";
 import { EnvPrompt } from "./prompts/EnvPrompt";
 import { EnvChannel } from "./channels/EnvChannel";
 import { DefaultEnvChannel } from "./channels/DefaultEnvChannel";
+import type { ChannelOptions } from "./channels/types";
+import { resolveChannel } from "./channels/resolveChannel";
 
 type AskEnvOptions = {
   envPath?: string;
   overwrite?: boolean;
-  channel?: EnvChannel;
+  channel?: ChannelOptions;
 };
 
 /**
@@ -38,8 +40,8 @@ export async function askEnv(
 ): Promise<void> {
   const { envPath = ".env", overwrite = false, channel } = options;
 
-  // Create channel if not provided
-  const envChannel = channel || new DefaultEnvChannel(envPath);
+  // Create channel using the resolver
+  const envChannel = resolveChannel(channel, envPath);
 
   // Create theme object using magenta as the primary color
   const theme = new Theme(color.magenta);
@@ -161,7 +163,6 @@ export async function askEnv(
     try {
       await envChannel.set(key, stringValue);
       savedCount++;
-      console.log(color.gray("│") + "  " + color.green("✔") + " " + color.dim(`${key} saved`));
     } catch (error) {
       cancel(`❌ Failed to save ${key}: ${error}`);
       return;

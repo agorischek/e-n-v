@@ -57,4 +57,7 @@ export { updateEnvValue, updateEnvContentValue, updateEnvValues } from "./channe
 export type { EnvChannel as EnvAccessor } from "./channels/EnvChannel";
 export { DefaultEnvChannel as DefaultEnvAccessor } from "./channels/DefaultEnvChannel";
 export { DotEnvXChannel as DotEnvXAccessor } from "./channels/DotEnvXChannel";
-export type { DotEnvXChannelOptions as DotEnvXAccessorOptions } from "./channels/DotEnvXChannel";
+
+// Export channel types and utilities
+export type { ChannelOptions, DotEnvXChannelConfig, DefaultChannelConfig } from "./channels/types";
+export { resolveChannel } from "./channels/resolveChannel";
