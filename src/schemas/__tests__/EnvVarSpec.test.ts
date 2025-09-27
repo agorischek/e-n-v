@@ -7,7 +7,7 @@ describe("EnvVarSpec", () => {
     it("should resolve string type", () => {
       const spec = new EnvVarSpec(z.string());
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(false);
+      expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
       expect(spec.defaultValue).toBeUndefined();
     });
@@ -15,7 +15,7 @@ describe("EnvVarSpec", () => {
     it("should resolve number type", () => {
       const spec = new EnvVarSpec(z.number());
       expect(spec.type).toBe("number");
-      expect(spec.optional).toBe(false);
+      expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
       expect(spec.defaultValue).toBeUndefined();
     });
@@ -23,7 +23,7 @@ describe("EnvVarSpec", () => {
     it("should resolve boolean type", () => {
       const spec = new EnvVarSpec(z.boolean());
       expect(spec.type).toBe("boolean");
-      expect(spec.optional).toBe(false);
+      expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
       expect(spec.defaultValue).toBeUndefined();
     });
@@ -31,7 +31,7 @@ describe("EnvVarSpec", () => {
     it("should resolve enum type", () => {
       const spec = new EnvVarSpec(z.enum(["dev", "prod", "test"]));
       expect(spec.type).toBe("enum");
-      expect(spec.optional).toBe(false);
+      expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
       expect(spec.defaultValue).toBeUndefined();
     });
@@ -42,32 +42,32 @@ describe("EnvVarSpec", () => {
     });
   });
 
-  describe("Optional handling", () => {
-    it("should detect optional strings", () => {
+  describe("Required handling", () => {
+    it("should detect optional strings as not required", () => {
       const spec = new EnvVarSpec(z.string().optional());
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(false);
     });
 
-    it("should detect optional numbers", () => {
+    it("should detect optional numbers as not required", () => {
       const spec = new EnvVarSpec(z.number().optional());
       expect(spec.type).toBe("number");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(false);
     });
 
-    it("should detect optional booleans", () => {
+    it("should detect optional booleans as not required", () => {
       const spec = new EnvVarSpec(z.boolean().optional());
       expect(spec.type).toBe("boolean");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(false);
     });
 
-    it("should detect optional enums", () => {
+    it("should detect optional enums as not required", () => {
       const spec = new EnvVarSpec(z.enum(["a", "b"]).optional());
       expect(spec.type).toBe("enum");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(false);
     });
   });
@@ -76,14 +76,14 @@ describe("EnvVarSpec", () => {
     it("should detect nullable strings", () => {
       const spec = new EnvVarSpec(z.string().nullable());
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(false);
+      expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(true);
     });
 
     it("should detect nullable numbers", () => {
       const spec = new EnvVarSpec(z.number().nullable());
       expect(spec.type).toBe("number");
-      expect(spec.optional).toBe(false);
+      expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(true);
     });
   });
@@ -93,7 +93,7 @@ describe("EnvVarSpec", () => {
       const spec = new EnvVarSpec(z.string().default("hello"));
       expect(spec.type).toBe("string");
       expect(spec.defaultValue).toBe("hello");
-      expect(spec.optional).toBe(false);
+      expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
     });
 
@@ -126,7 +126,7 @@ describe("EnvVarSpec", () => {
     it("should handle optional with default", () => {
       const spec = new EnvVarSpec(z.string().default("hello").optional());
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.defaultValue).toBe("hello");
       expect(spec.nullable).toBe(false);
     });
@@ -134,7 +134,7 @@ describe("EnvVarSpec", () => {
     it("should handle default with optional (reversed order)", () => {
       const spec = new EnvVarSpec(z.string().optional().default("hello"));
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.defaultValue).toBe("hello");
       expect(spec.nullable).toBe(false);
     });
@@ -142,7 +142,7 @@ describe("EnvVarSpec", () => {
     it("should handle nullable with optional", () => {
       const spec = new EnvVarSpec(z.string().nullable().optional());
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(true);
       expect(spec.defaultValue).toBeUndefined();
     });
@@ -150,7 +150,7 @@ describe("EnvVarSpec", () => {
     it("should handle optional with nullable (reversed order)", () => {
       const spec = new EnvVarSpec(z.string().optional().nullable());
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(true);
       expect(spec.defaultValue).toBeUndefined();
     });
@@ -160,7 +160,7 @@ describe("EnvVarSpec", () => {
         z.string().default("test").nullable().optional()
       );
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(true);
       expect(spec.defaultValue).toBe("test");
     });
@@ -170,7 +170,7 @@ describe("EnvVarSpec", () => {
         z.number().optional().default(100).nullable()
       );
       expect(spec.type).toBe("number");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(true);
       expect(spec.defaultValue).toBe(100);
     });
@@ -185,7 +185,7 @@ describe("EnvVarSpec", () => {
     it("should extract description from optional schema", () => {
       const spec = new EnvVarSpec(z.string().describe("A string").optional());
       expect(spec.description).toBe("A string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
     });
 
     it("should extract description from outer wrapper", () => {
@@ -193,7 +193,7 @@ describe("EnvVarSpec", () => {
         z.string().optional().describe("Optional string")
       );
       expect(spec.description).toBe("Optional string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
     });
 
     it("should use first description found (outermost takes precedence)", () => {
@@ -213,7 +213,7 @@ describe("EnvVarSpec", () => {
       );
       expect(spec.description).toBe("Base");
       expect(spec.defaultValue).toBe("test");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(true);
     });
   });
@@ -247,7 +247,7 @@ describe("EnvVarSpec", () => {
       expect(spec.type).toBe("string");
       expect(spec.min).toBe(2);
       expect(spec.max).toBe(8);
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.defaultValue).toBe("test");
     });
   });
@@ -303,7 +303,7 @@ describe("EnvVarSpec", () => {
       const spec = new EnvVarSpec(schema);
       expect(spec.type).toBe("string");
       expect(spec.min).toBe(3);
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.defaultValue).toBe("test");
     });
 
@@ -315,7 +315,7 @@ describe("EnvVarSpec", () => {
         .optional();
       const spec = new EnvVarSpec(schema);
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
     });
   });
 
@@ -323,7 +323,7 @@ describe("EnvVarSpec", () => {
     it("should handle schemas with no constraints", () => {
       const spec = new EnvVarSpec(z.string());
       expect(spec.type).toBe("string");
-      expect(spec.optional).toBe(false);
+      expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
       expect(spec.defaultValue).toBeUndefined();
       expect(spec.min).toBeUndefined();
@@ -354,7 +354,7 @@ describe("EnvVarSpec", () => {
       expect(spec.min).toBe(1);
       expect(spec.max).toBe(100);
       expect(spec.defaultValue).toBe("deep");
-      expect(spec.optional).toBe(true);
+      expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(true);
     });
   });

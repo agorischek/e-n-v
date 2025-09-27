@@ -13,7 +13,7 @@ import { EnvVarType } from "./EnvVarType";
 
 export class EnvVarSpec {
   public readonly type: EnvVarType;
-  public readonly optional: boolean = false;
+  public readonly required: boolean = true;
   public readonly nullable: boolean = false;
   public readonly defaultValue?: unknown;
   public readonly min?: number;
@@ -40,7 +40,7 @@ export class EnvVarSpec {
       }
 
       if (current instanceof ZodOptional) {
-        this.optional = true;
+        this.required = false;
         current = current._def.innerType;
       } else if (current instanceof ZodNullable) {
         this.nullable = true;

@@ -64,7 +64,6 @@ export async function askEnv(
       console.log(color.gray("│"));
     }
 
-    // Create EnvVarSpec to extract schema metadata
     const spec = new EnvVarSpec(schema);
 
     // Get current value from process.env if it exists and is not empty
@@ -85,7 +84,7 @@ export async function askEnv(
         current: current !== undefined ? parseBoolean(current) : undefined,
         default:
           defaultValue !== undefined ? parseBoolean(defaultValue) : undefined,
-        required: !spec.optional,
+        required: spec.required,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
       });
@@ -98,7 +97,7 @@ export async function askEnv(
         current: current !== undefined ? parseFloat(current) : undefined,
         default:
           defaultValue !== undefined ? parseFloat(defaultValue) : undefined,
-        required: !spec.optional,
+        required: spec.required,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
       });
@@ -111,7 +110,7 @@ export async function askEnv(
         description: spec.description,
         current,
         default: defaultValue,
-        required: !spec.optional,
+        required: spec.required,
         validate: (value) => validateWithSchema(value, schema),
         options: spec.enumOptions || [],
         theme: theme,
@@ -125,7 +124,7 @@ export async function askEnv(
         description: spec.description,
         current,
         default: defaultValue,
-        required: !spec.optional,
+        required: spec.required,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
       });
