@@ -1,7 +1,5 @@
-import z from "zod";
 import {
   SchemaMap,
-  AskEnvOptions,
   intro,
   cancel,
   parseBoolean,
@@ -17,8 +15,15 @@ import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
 import { SKIP_SYMBOL } from "./visuals/symbols";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
-import { writeFileSync, existsSync } from "fs";
+import { existsSync } from "fs";
 import { isCancel } from "@clack/core";
+import { loadEnvFromFile } from "./io/loadEnv";
+import { writeEnvToFile } from "./io/writeEnv";
+
+type AskEnvOptions = {
+  envPath?: string;
+  overwrite?: boolean;
+}
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
@@ -57,6 +62,9 @@ export async function askEnv(
 
   const envValues: Record<string, string> = {};
   const schemaEntries = Object.entries(schemas);
+  
+  // Load current values from the .env file
+  const currentEnvValues = loadEnvFromFile(envPath);
 
   for (const [key, schema] of schemaEntries) {
     // Add blank line before each prompt for better spacing (except first)
@@ -67,13 +75,13 @@ export async function askEnv(
     const { type, defaultValue, description, required, values } =
       EnvVarSpec.FromZodSchema(schema);
 
-    // Get current value from process.env if it exists and is not empty
+    // Get current value from the .env file if it exists and is not empty
     const current =
-      process.env[key] && process.env[key].trim() !== ""
-        ? process.env[key]
+      currentEnvValues[key] && currentEnvValues[key].trim() !== ""
+        ? currentEnvValues[key]
         : undefined;
 
-    let value: any;
+    let value: unknown;
 
     switch (type) {
       case "boolean": {
@@ -157,13 +165,9 @@ export async function askEnv(
     envValues[key] = String(value);
   }
 
-  // Generate .env content
-  const envContent = Object.entries(envValues)
-    .map(([key, value]) => `${key}=${value}`)
-    .join("\n");
-
+  // Generate .env content and write to file
   try {
-    writeFileSync(envPath, envContent + "\n");
+    writeEnvToFile(envValues, envPath);
     outro(
       `Successfully wrote ${
         Object.keys(envValues).length

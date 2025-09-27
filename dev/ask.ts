@@ -10,4 +10,4 @@ const schemas = {
 };
 
 // Test the askEnv function
-await askEnv(schemas, { envPath: ".env.test", }).catch(console.error);
+await askEnv(schemas).catch(console.error);

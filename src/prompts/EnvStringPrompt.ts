@@ -188,7 +188,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
             (this as any)._track = true;
             this._setUserInput("");
             this.updateValue();
-            return "Starting input mode"; // This will cause validation to fail and stay active
+            return "Value cannot be empty"; // This will cause validation to fail and stay active
           }
 
           // If we're typing on the custom option but haven't entered anything, prevent submission

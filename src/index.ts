@@ -1,14 +1,8 @@
 import { z } from "zod";
 import type { Writable } from "node:stream";
 
-import { SKIP_SYMBOL, S_BAR, S_BAR_END, S_BAR_START } from "./visuals/symbols";
+import { S_BAR, S_BAR_END, S_BAR_START } from "./visuals/symbols";
 import color from "picocolors";
-
-// Re-export core classes and types
-export { EnvVarSpec } from "./schemas/EnvVarSpec";
-export { EnvVarType } from "./schemas/EnvVarType";
-export { AskEnvOptions } from "./AskEnvOption";
-export { askEnv } from "./askEnv";
 
 interface CommonOptions {
   output?: Writable;
@@ -38,12 +32,7 @@ export type SchemaMap = Record<string, z.ZodSchema>;
  */
 export function parseBoolean(value: string): boolean {
   const trimmed = value.trim().toLowerCase();
-  return (
-    trimmed === "true" ||
-    trimmed === "1" ||
-    trimmed === "yes" ||
-    trimmed === "y"
-  );
+  return trimmed === "true";
 }
 
 /**
