@@ -60,9 +60,8 @@ export class EnvStringPrompt extends EnvPrompt<string> {
             if (this.error) {
               output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
             } else {
-              output += `${this.getBarEnd()}  ${this.colors.subtle(
-                "Enter a value"
-              )}`;
+              const hint = this.buildSkipHint("Enter a value");
+              output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
             }
 
             return output;
@@ -134,9 +133,8 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           if (this.error) {
             output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
           } else {
-            output += `${this.getBarEnd()}  ${this.colors.subtle(
-              "Enter a value"
-            )}`;
+            const hint = this.buildSkipHint("Enter a value");
+            output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
           }
 
           return output;

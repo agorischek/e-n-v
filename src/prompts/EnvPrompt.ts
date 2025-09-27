@@ -25,6 +25,17 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.default = opts.default;
   }
 
+  protected buildSkipHint(base?: string): string {
+    const skipLower = "tab to skip";
+    const skipCapitalized = "Tab to skip";
+
+    if (base && base.trim().length > 0) {
+      return `${base} or ${skipLower}`;
+    }
+
+    return skipCapitalized;
+  }
+
   protected renderSkipped(): string {
     const skipSymbol = this.colors.dim(this.theme.primary(S_STEP_SKIP));
     const keyText = this.colors.subtle(this.colors.bold(this.key));

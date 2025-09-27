@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { askEnv } from "../src/askEnv";
 
-const schemas = {
+const envMap = {
   DATABASE_URL: z.string().describe("Database connection URL").default("hey"),
   UNSET_STRING: z.string().optional(),
   PORT: z.number().min(1024).max(65535).default(3000),
@@ -10,5 +10,4 @@ const schemas = {
   MAX_CONNECTIONS: z.number().optional(),
 };
 
-// Test the askEnv function
-await askEnv(schemas).catch(console.error);
+await askEnv(envMap);

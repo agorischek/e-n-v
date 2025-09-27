@@ -72,7 +72,8 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
           if (this.error) {
             output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
           } else {
-            output += `${this.getBarEnd()}`;
+            const hint = this.buildSkipHint();
+            output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
           }
 
           return output;

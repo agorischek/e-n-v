@@ -48,7 +48,7 @@ export async function askEnv(
   intro(
     `${theme.bgPrimary(
       color.black(" Environment Variable Setup ")
-    )} ${color.gray("(Skip with tab)")}\n${color.gray("│")}  `
+    )}\n${color.gray("│")}  `
   );
 
   // Check if .env file exists (for DefaultEnvChannel only)

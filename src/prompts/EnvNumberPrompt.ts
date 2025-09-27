@@ -61,9 +61,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
             if (this.error) {
               output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
             } else {
-              output += `${this.getBarEnd()}  ${this.colors.subtle(
-                "Enter a number"
-              )}`;
+              const hint = this.buildSkipHint("Enter a number");
+              output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
             }
 
             return output;
@@ -135,9 +134,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           if (this.error) {
             output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
           } else {
-            output += `${this.getBarEnd()}  ${this.colors.subtle(
-              "Enter a number"
-            )}`;
+            const hint = this.buildSkipHint("Enter a number");
+            output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
           }
 
           return output;
