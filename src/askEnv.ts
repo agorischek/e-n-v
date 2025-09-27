@@ -30,8 +30,8 @@ export async function askEnv(
   options: AskEnvOptions = {}
 ): Promise<void> {
   const { envPath = ".env", overwrite = false } = options;
-  
-    // Create theme object using magenta as the primary color
+
+  // Create theme object using magenta as the primary color
   const theme = new Theme(color.magenta);
 
   intro(
@@ -64,7 +64,8 @@ export async function askEnv(
       console.log(color.gray("│"));
     }
 
-    const spec = new EnvVarSpec(schema);
+    const { type, defaultValue, description, required, values } =
+      EnvVarSpec.FromZodSchema(schema);
 
     // Get current value from process.env if it exists and is not empty
     const current =
@@ -74,55 +75,67 @@ export async function askEnv(
 
     let value: any;
 
-    if (spec.type === "boolean") {
-      const prompt = new EnvBooleanPrompt({
-        key,
-        description: spec.description,
-        current: current !== undefined ? parseBoolean(current) : undefined,
-        default: typeof spec.defaultValue === "boolean" ? spec.defaultValue : undefined,
-        required: spec.required,
-        validate: (value) => validateWithSchema(value, schema),
-        theme: theme,
-      });
+    switch (type) {
+      case "boolean": {
+        const prompt = new EnvBooleanPrompt({
+          key,
+          description,
+          current: current !== undefined ? parseBoolean(current) : undefined,
+          default: typeof defaultValue === "boolean" ? defaultValue : undefined,
+          required,
+          validate: (value) => validateWithSchema(value, schema),
+          theme: theme,
+        });
 
-      value = await prompt.prompt();
-    } else if (spec.type === "number") {
-      const prompt = new EnvNumberPrompt({
-        key,
-        description: spec.description,
-        current: current !== undefined ? parseFloat(current) : undefined,
-        default: typeof spec.defaultValue === "number" ? spec.defaultValue : undefined,
-        required: spec.required,
-        validate: (value) => validateWithSchema(value, schema),
-        theme: theme,
-      });
+        value = await prompt.prompt();
+        break;
+      }
 
-      value = await prompt.prompt();
-    } else if (spec.type === "enum") {
-      const prompt = new EnvEnumPrompt({
-        key,
-        description: spec.description,
-        current,
-        default: typeof spec.defaultValue === "string" ? spec.defaultValue : undefined,
-        required: spec.required,
-        validate: (value) => validateWithSchema(value, schema),
-        options: spec.enumOptions || [],
-        theme: theme,
-      });
+      case "number": {
+        const prompt = new EnvNumberPrompt({
+          key,
+          description,
+          current: current !== undefined ? parseFloat(current) : undefined,
+          default: typeof defaultValue === "number" ? defaultValue : undefined,
+          required,
+          validate: (value) => validateWithSchema(value, schema),
+          theme: theme,
+        });
 
-      value = await prompt.prompt();
-    } else {
-      const prompt = new EnvStringPrompt({
-        key,
-        description: spec.description,
-        current,
-        default: typeof spec.defaultValue === "string" ? spec.defaultValue : undefined,
-        required: spec.required,
-        validate: (value) => validateWithSchema(value, schema),
-        theme: theme,
-      });
+        value = await prompt.prompt();
+        break;
+      }
 
-      value = await prompt.prompt();
+      case "enum": {
+        const prompt = new EnvEnumPrompt({
+          key,
+          description,
+          current,
+          default: typeof defaultValue === "string" ? defaultValue : undefined,
+          required,
+          validate: (value) => validateWithSchema(value, schema),
+          options: values || [],
+          theme: theme,
+        });
+
+        value = await prompt.prompt();
+        break;
+      }
+
+      default: {
+        const prompt = new EnvStringPrompt({
+          key,
+          description,
+          current,
+          default: typeof defaultValue === "string" ? defaultValue : undefined,
+          required,
+          validate: (value) => validateWithSchema(value, schema),
+          theme: theme,
+        });
+
+        value = await prompt.prompt();
+        break;
+      }
     }
 
     // Handle cancellation FIRST - check for clack cancel symbol

@@ -5,7 +5,7 @@ import { describe, it, expect } from "bun:test";
 describe("EnvVarSpec", () => {
   describe("Basic type resolution", () => {
     it("should resolve string type", () => {
-      const spec = new EnvVarSpec(z.string());
+      const spec = EnvVarSpec.FromZodSchema(z.string());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
@@ -13,7 +13,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should resolve number type", () => {
-      const spec = new EnvVarSpec(z.number());
+      const spec = EnvVarSpec.FromZodSchema(z.number());
       expect(spec.type).toBe("number");
       expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
@@ -21,7 +21,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should resolve boolean type", () => {
-      const spec = new EnvVarSpec(z.boolean());
+      const spec = EnvVarSpec.FromZodSchema(z.boolean());
       expect(spec.type).toBe("boolean");
       expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
@@ -29,7 +29,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should resolve enum type", () => {
-      const spec = new EnvVarSpec(z.enum(["dev", "prod", "test"]));
+      const spec = EnvVarSpec.FromZodSchema(z.enum(["dev", "prod", "test"]));
       expect(spec.type).toBe("enum");
       expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
@@ -37,35 +37,35 @@ describe("EnvVarSpec", () => {
     });
 
     it("should default unknown types to string", () => {
-      const spec = new EnvVarSpec(z.object({ key: z.string() }));
+      const spec = EnvVarSpec.FromZodSchema(z.object({ key: z.string() }));
       expect(spec.type).toBe("string");
     });
   });
 
   describe("Required handling", () => {
     it("should detect optional strings as not required", () => {
-      const spec = new EnvVarSpec(z.string().optional());
+      const spec = EnvVarSpec.FromZodSchema(z.string().optional());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(false);
     });
 
     it("should detect optional numbers as not required", () => {
-      const spec = new EnvVarSpec(z.number().optional());
+      const spec = EnvVarSpec.FromZodSchema(z.number().optional());
       expect(spec.type).toBe("number");
       expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(false);
     });
 
     it("should detect optional booleans as not required", () => {
-      const spec = new EnvVarSpec(z.boolean().optional());
+      const spec = EnvVarSpec.FromZodSchema(z.boolean().optional());
       expect(spec.type).toBe("boolean");
       expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(false);
     });
 
     it("should detect optional enums as not required", () => {
-      const spec = new EnvVarSpec(z.enum(["a", "b"]).optional());
+      const spec = EnvVarSpec.FromZodSchema(z.enum(["a", "b"]).optional());
       expect(spec.type).toBe("enum");
       expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(false);
@@ -74,14 +74,14 @@ describe("EnvVarSpec", () => {
 
   describe("Nullable handling", () => {
     it("should detect nullable strings", () => {
-      const spec = new EnvVarSpec(z.string().nullable());
+      const spec = EnvVarSpec.FromZodSchema(z.string().nullable());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(true);
     });
 
     it("should detect nullable numbers", () => {
-      const spec = new EnvVarSpec(z.number().nullable());
+      const spec = EnvVarSpec.FromZodSchema(z.number().nullable());
       expect(spec.type).toBe("number");
       expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(true);
@@ -90,7 +90,7 @@ describe("EnvVarSpec", () => {
 
   describe("Default value handling", () => {
     it("should extract string default values", () => {
-      const spec = new EnvVarSpec(z.string().default("hello"));
+      const spec = EnvVarSpec.FromZodSchema(z.string().default("hello"));
       expect(spec.type).toBe("string");
       expect(spec.defaultValue).toBe("hello");
       expect(spec.required).toBe(true);
@@ -98,25 +98,25 @@ describe("EnvVarSpec", () => {
     });
 
     it("should extract number default values", () => {
-      const spec = new EnvVarSpec(z.number().default(42));
+      const spec = EnvVarSpec.FromZodSchema(z.number().default(42));
       expect(spec.type).toBe("number");
       expect(spec.defaultValue).toBe(42);
     });
 
     it("should extract boolean default values", () => {
-      const spec = new EnvVarSpec(z.boolean().default(true));
+      const spec = EnvVarSpec.FromZodSchema(z.boolean().default(true));
       expect(spec.type).toBe("boolean");
       expect(spec.defaultValue).toBe(true);
     });
 
     it("should extract enum default values", () => {
-      const spec = new EnvVarSpec(z.enum(["dev", "prod"]).default("dev"));
+      const spec = EnvVarSpec.FromZodSchema(z.enum(["dev", "prod"]).default("dev"));
       expect(spec.type).toBe("enum");
       expect(spec.defaultValue).toBe("dev");
     });
 
     it("should handle function default values", () => {
-      const spec = new EnvVarSpec(z.string().default(() => "computed"));
+      const spec = EnvVarSpec.FromZodSchema(z.string().default(() => "computed"));
       expect(spec.type).toBe("string");
       expect(spec.defaultValue).toBe("computed");
     });
@@ -124,7 +124,7 @@ describe("EnvVarSpec", () => {
 
   describe("Complex nested schemas", () => {
     it("should handle optional with default", () => {
-      const spec = new EnvVarSpec(z.string().default("hello").optional());
+      const spec = EnvVarSpec.FromZodSchema(z.string().default("hello").optional());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
       expect(spec.defaultValue).toBe("hello");
@@ -132,7 +132,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should handle default with optional (reversed order)", () => {
-      const spec = new EnvVarSpec(z.string().optional().default("hello"));
+      const spec = EnvVarSpec.FromZodSchema(z.string().optional().default("hello"));
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
       expect(spec.defaultValue).toBe("hello");
@@ -140,7 +140,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should handle nullable with optional", () => {
-      const spec = new EnvVarSpec(z.string().nullable().optional());
+      const spec = EnvVarSpec.FromZodSchema(z.string().nullable().optional());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(true);
@@ -148,7 +148,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should handle optional with nullable (reversed order)", () => {
-      const spec = new EnvVarSpec(z.string().optional().nullable());
+      const spec = EnvVarSpec.FromZodSchema(z.string().optional().nullable());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
       expect(spec.nullable).toBe(true);
@@ -156,7 +156,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should handle all three: optional, nullable, and default", () => {
-      const spec = new EnvVarSpec(
+      const spec = EnvVarSpec.FromZodSchema(
         z.string().default("test").nullable().optional()
       );
       expect(spec.type).toBe("string");
@@ -166,7 +166,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should handle complex nesting order", () => {
-      const spec = new EnvVarSpec(
+      const spec = EnvVarSpec.FromZodSchema(
         z.number().optional().default(100).nullable()
       );
       expect(spec.type).toBe("number");
@@ -178,18 +178,18 @@ describe("EnvVarSpec", () => {
 
   describe("Description handling", () => {
     it("should extract description from base schema", () => {
-      const spec = new EnvVarSpec(z.string().describe("A string value"));
+      const spec = EnvVarSpec.FromZodSchema(z.string().describe("A string value"));
       expect(spec.description).toBe("A string value");
     });
 
     it("should extract description from optional schema", () => {
-      const spec = new EnvVarSpec(z.string().describe("A string").optional());
+      const spec = EnvVarSpec.FromZodSchema(z.string().describe("A string").optional());
       expect(spec.description).toBe("A string");
       expect(spec.required).toBe(false);
     });
 
     it("should extract description from outer wrapper", () => {
-      const spec = new EnvVarSpec(
+      const spec = EnvVarSpec.FromZodSchema(
         z.string().optional().describe("Optional string")
       );
       expect(spec.description).toBe("Optional string");
@@ -197,7 +197,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should use first description found (outermost takes precedence)", () => {
-      const spec = new EnvVarSpec(
+      const spec = EnvVarSpec.FromZodSchema(
         z
           .string()
           .describe("Inner description")
@@ -208,7 +208,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should handle description with complex nesting", () => {
-      const spec = new EnvVarSpec(
+      const spec = EnvVarSpec.FromZodSchema(
         z.string().describe("Base").default("test").nullable().optional()
       );
       expect(spec.description).toBe("Base");
@@ -220,28 +220,28 @@ describe("EnvVarSpec", () => {
 
   describe("String constraints", () => {
     it("should extract min length", () => {
-      const spec = new EnvVarSpec(z.string().min(5));
+      const spec = EnvVarSpec.FromZodSchema(z.string().min(5));
       expect(spec.type).toBe("string");
       expect(spec.min).toBe(5);
       expect(spec.max).toBeUndefined();
     });
 
     it("should extract max length", () => {
-      const spec = new EnvVarSpec(z.string().max(10));
+      const spec = EnvVarSpec.FromZodSchema(z.string().max(10));
       expect(spec.type).toBe("string");
       expect(spec.min).toBeUndefined();
       expect(spec.max).toBe(10);
     });
 
     it("should extract both min and max length", () => {
-      const spec = new EnvVarSpec(z.string().min(3).max(15));
+      const spec = EnvVarSpec.FromZodSchema(z.string().min(3).max(15));
       expect(spec.type).toBe("string");
       expect(spec.min).toBe(3);
       expect(spec.max).toBe(15);
     });
 
     it("should handle min/max with other wrappers", () => {
-      const spec = new EnvVarSpec(
+      const spec = EnvVarSpec.FromZodSchema(
         z.string().min(2).max(8).optional().default("test")
       );
       expect(spec.type).toBe("string");
@@ -254,28 +254,28 @@ describe("EnvVarSpec", () => {
 
   describe("Number constraints", () => {
     it("should extract min value", () => {
-      const spec = new EnvVarSpec(z.number().min(0));
+      const spec = EnvVarSpec.FromZodSchema(z.number().min(0));
       expect(spec.type).toBe("number");
       expect(spec.min).toBe(0);
       expect(spec.max).toBeUndefined();
     });
 
     it("should extract max value", () => {
-      const spec = new EnvVarSpec(z.number().max(100));
+      const spec = EnvVarSpec.FromZodSchema(z.number().max(100));
       expect(spec.type).toBe("number");
       expect(spec.min).toBeUndefined();
       expect(spec.max).toBe(100);
     });
 
     it("should extract both min and max values", () => {
-      const spec = new EnvVarSpec(z.number().min(-10).max(50));
+      const spec = EnvVarSpec.FromZodSchema(z.number().min(-10).max(50));
       expect(spec.type).toBe("number");
       expect(spec.min).toBe(-10);
       expect(spec.max).toBe(50);
     });
 
     it("should handle min/max with other wrappers", () => {
-      const spec = new EnvVarSpec(
+      const spec = EnvVarSpec.FromZodSchema(
         z.number().min(1).max(999).nullable().default(42)
       );
       expect(spec.type).toBe("number");
@@ -289,7 +289,7 @@ describe("EnvVarSpec", () => {
   describe("ZodEffects handling", () => {
     it("should unwrap through ZodEffects", () => {
       const schema = z.string().transform((val) => val.toUpperCase());
-      const spec = new EnvVarSpec(schema);
+      const spec = EnvVarSpec.FromZodSchema(schema);
       expect(spec.type).toBe("string");
     });
 
@@ -300,7 +300,7 @@ describe("EnvVarSpec", () => {
         .transform((val) => val.trim())
         .optional()
         .default("test");
-      const spec = new EnvVarSpec(schema);
+      const spec = EnvVarSpec.FromZodSchema(schema);
       expect(spec.type).toBe("string");
       expect(spec.min).toBe(3);
       expect(spec.required).toBe(false);
@@ -313,7 +313,7 @@ describe("EnvVarSpec", () => {
         .transform((val) => val.toLowerCase())
         .transform((val) => val.trim())
         .optional();
-      const spec = new EnvVarSpec(schema);
+      const spec = EnvVarSpec.FromZodSchema(schema);
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
     });
@@ -321,7 +321,7 @@ describe("EnvVarSpec", () => {
 
   describe("Edge cases", () => {
     it("should handle schemas with no constraints", () => {
-      const spec = new EnvVarSpec(z.string());
+      const spec = EnvVarSpec.FromZodSchema(z.string());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
@@ -332,7 +332,7 @@ describe("EnvVarSpec", () => {
     });
 
     it("should handle single value enum", () => {
-      const spec = new EnvVarSpec(z.enum(["only"]));
+      const spec = EnvVarSpec.FromZodSchema(z.enum(["only"]));
       expect(spec.type).toBe("enum");
     });
 
@@ -348,7 +348,7 @@ describe("EnvVarSpec", () => {
         .optional() // Double optional (shouldn't break)
         .nullable(); // Double nullable (shouldn't break)
 
-      const spec = new EnvVarSpec(schema);
+      const spec = EnvVarSpec.FromZodSchema(schema);
       expect(spec.type).toBe("string");
       expect(spec.description).toBe("Deep");
       expect(spec.min).toBe(1);

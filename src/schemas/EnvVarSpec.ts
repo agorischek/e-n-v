@@ -12,41 +12,50 @@ import {
 import { EnvVarType } from "./EnvVarType";
 
 export class EnvVarSpec {
-  public readonly type: EnvVarType;
-  public readonly required: boolean = true;
-  public readonly nullable: boolean = false;
-  public readonly defaultValue?: unknown;
-  public readonly min?: number;
-  public readonly max?: number;
-  public readonly description?: string;
-  public readonly enumOptions?: string[];
+  private constructor(
+    public readonly type: EnvVarType,
+    public readonly required: boolean = true,
+    public readonly nullable: boolean = false,
+    public readonly defaultValue?: unknown,
+    public readonly min?: number,
+    public readonly max?: number,
+    public readonly description?: string,
+    public readonly values?: string[]
+  ) {}
 
-  constructor(schema: ZodTypeAny) {
+  public static FromZodSchema(schema: ZodTypeAny): EnvVarSpec {
     let current: ZodTypeAny = schema;
+    let required = true;
+    let nullable = false;
+    let defaultValue: unknown = undefined;
+    let description: string | undefined = undefined;
+    let min: number | undefined = undefined;
+    let max: number | undefined = undefined;
+    let values: string[] | undefined = undefined;
 
     while (true) {
-      if (!this.description) {
+      if (!description) {
         if (
           "description" in current &&
           typeof current.description === "string"
         ) {
-          this.description = current.description;
+          description = current.description;
         } else if (
           "description" in current._def &&
           typeof current._def.description === "string"
         ) {
-          this.description = current._def.description;
+          description = current._def.description;
         }
       }
 
       if (current instanceof ZodOptional) {
-        this.required = false;
+        required = false;
         current = current._def.innerType;
       } else if (current instanceof ZodNullable) {
-        this.nullable = true;
+        nullable = true;
         current = current._def.innerType;
       } else if (current instanceof ZodDefault) {
-        this.defaultValue = current._def.defaultValue();
+        defaultValue = current._def.defaultValue();
         current = current._def.innerType;
       } else if (current instanceof ZodEffects) {
         current = current._def.schema;
@@ -57,23 +66,25 @@ export class EnvVarSpec {
 
     const unwrapped = current;
 
-    this.type = this.resolveType(unwrapped);
+    const type = EnvVarSpec.resolveType(unwrapped);
 
     // Extract constraints for string and number types
     if (unwrapped instanceof ZodString || unwrapped instanceof ZodNumber) {
       for (const check of unwrapped._def.checks ?? []) {
-        if (check.kind === "min") this.min = check.value;
-        if (check.kind === "max") this.max = check.value;
+        if (check.kind === "min") min = check.value;
+        if (check.kind === "max") max = check.value;
       }
     }
 
     // Extract enum options
     if (unwrapped instanceof ZodEnum) {
-      this.enumOptions = unwrapped._def.values;
+      values = unwrapped._def.values;
     }
+
+    return new EnvVarSpec(type, required, nullable, defaultValue, min, max, description, values);
   }
 
-  private resolveType(schema: ZodTypeAny): EnvVarType {
+  private static resolveType(schema: ZodTypeAny): EnvVarType {
     if (schema instanceof ZodString) {
       return "string";
     } else if (schema instanceof ZodNumber) {
