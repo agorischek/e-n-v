@@ -15,6 +15,7 @@ export interface EnvPromptOptions<T> {
   maxDisplayLength?: number;
   secret?: boolean;
   mask?: string;
+  secretToggleShortcut?: string;
 }
 
 export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
@@ -24,6 +25,8 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected maxDisplayLength: number;
   protected secret: boolean;
   protected mask: string;
+  protected revealSecret: boolean;
+  protected secretToggleShortcut: string;
 
   constructor(opts: EnvPromptOptions<T> & any, render?: boolean) {
     super(opts, render);
@@ -33,6 +36,12 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.maxDisplayLength = opts.maxDisplayLength ?? 40;
     this.secret = Boolean(opts.secret);
     this.mask = opts.mask ?? SECRET_MASK_CHAR;
+    this.revealSecret = false;
+    this.secretToggleShortcut = opts.secretToggleShortcut ?? "Ctrl+R";
+
+    this.on("finalize", () => {
+      this.resetSecretReveal();
+    });
   }
 
   protected buildSkipHint(base?: string): string {
@@ -65,5 +74,28 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     const keyText = this.colors.subtle(this.colors.bold(this.key));
 
     return `${cancelSymbol}  ${keyText}`;
+  }
+
+  protected toggleSecretReveal(): void {
+    if (!this.secret) {
+      return;
+    }
+    this.revealSecret = !this.revealSecret;
+  }
+
+  protected resetSecretReveal(): void {
+    if (!this.secret) {
+      return;
+    }
+    this.revealSecret = false;
+  }
+
+  protected isSecretRevealed(): boolean {
+    return this.secret && this.revealSecret;
+  }
+
+  protected getSecretToggleHint(): string {
+    const action = this.revealSecret ? "hide" : "reveal";
+    return `${this.secretToggleShortcut} to ${action}`;
   }
 }

@@ -127,7 +127,7 @@ await askEnv(schemas, {
 
 ### Secret Inputs
 
-Variables whose keys or descriptions match the configured `secretPatterns` are collected with a password-style prompt. Input is masked with `•`, current/default values are hidden, and saved output never reveals the secret. Override `secretPatterns` to tailor which variables behave this way.
+Variables whose keys or descriptions match the configured `secretPatterns` are collected with a password-style prompt. Input is masked with `•`, current/default values are hidden, and saved output never reveals the secret. Press `Ctrl+R` at any time to toggle a temporary reveal (the value auto-hides again on submit). Override `secretPatterns` to tailor which variables behave this way.
 
 ## Schema Types & Placeholders
 

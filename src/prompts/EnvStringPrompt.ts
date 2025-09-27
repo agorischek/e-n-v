@@ -344,6 +344,11 @@ export class EnvStringPrompt extends EnvPrompt<string> {
         this.error = "";
       }
 
+      if (this.secret && info.ctrl && info.name === "r") {
+        this.toggleSecretReveal();
+        return;
+      }
+
       // Handle tab key specifically - return SKIP_SYMBOL immediately
       if (info.name === "tab") {
         this.value = SKIP_SYMBOL as any;
@@ -480,11 +485,11 @@ export class EnvStringPrompt extends EnvPrompt<string> {
 
   protected formatValue(value: string | undefined): string {
     const str = value || "";
-    if (this.secret && str) {
-      const masked = this.maskValue(str);
-      return this.truncateValue(masked);
-    }
-    return this.truncateValue(str);
+    const display =
+      this.secret && str && !this.isSecretRevealed()
+        ? this.maskValue(str)
+        : str;
+    return this.truncateValue(display);
   }
 
   protected parseInput(input: string): string | undefined {
@@ -506,7 +511,10 @@ export class EnvStringPrompt extends EnvPrompt<string> {
   }
 
   private getInputDisplay(includeCursor: boolean): string {
-    const base = this.secret ? this.maskValue(this.userInput) : this.userInput;
+    const base =
+      this.secret && !this.isSecretRevealed()
+        ? this.maskValue(this.userInput)
+        : this.userInput;
     if (includeCursor) {
       return `${base}${S_CURSOR}`;
     }
@@ -514,6 +522,9 @@ export class EnvStringPrompt extends EnvPrompt<string> {
   }
 
   private getEntryHint(): string {
-    return this.secret ? "Enter a secret value" : "Enter a value";
+    if (!this.secret) {
+      return "Enter a value";
+    }
+    return `Enter a secret value (${this.getSecretToggleHint()})`;
   }
 }
