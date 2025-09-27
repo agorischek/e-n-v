@@ -24,8 +24,7 @@ import type { ChannelOptions } from "./channels/types";
 import { resolveChannel } from "./channels/resolveChannel";
 
 type AskEnvOptions = {
-  envPath?: string;
-  overwrite?: boolean;
+  path?: string;
   channel?: ChannelOptions;
 };
 
@@ -38,7 +37,7 @@ export async function askEnv(
   schemas: SchemaMap,
   options: AskEnvOptions = {}
 ): Promise<void> {
-  const { envPath = ".env", overwrite = false, channel } = options;
+  const { path: envPath = ".env",  channel } = options;
 
   // Create channel using the resolver
   const envChannel = resolveChannel(channel, envPath);
@@ -53,19 +52,19 @@ export async function askEnv(
   );
 
   // Check if .env file exists (for DefaultEnvChannel only)
-  if (envChannel instanceof DefaultEnvChannel && existsSync(envPath) && !overwrite) {
-    const confirmPrompt = new OverwritePrompt({
-      message: `${envPath} already exists. Do you want to overwrite it?`,
-      theme: theme,
-    } as any); // ThemedPromptOptions requires render function but OverwritePrompt provides its own
+  // if (envChannel instanceof DefaultEnvChannel && existsSync(envPath) && !overwrite) {
+  //   const confirmPrompt = new OverwritePrompt({
+  //     message: `${envPath} already exists. Do you want to overwrite it?`,
+  //     theme: theme,
+  //   } as any); // ThemedPromptOptions requires render function but OverwritePrompt provides its own
 
-    const shouldOverwrite = await confirmPrompt.prompt();
+  //   const shouldOverwrite = await confirmPrompt.prompt();
 
-    if (isCancel(shouldOverwrite) || !shouldOverwrite) {
-      cancel("Setup cancelled.");
-      return;
-    }
-  }
+  //   if (isCancel(shouldOverwrite) || !shouldOverwrite) {
+  //     cancel("Setup cancelled.");
+  //     return;
+  //   }
+  // }
 
   const schemaEntries = Object.entries(schemas);
   let savedCount = 0;

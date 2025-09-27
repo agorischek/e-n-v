@@ -44,6 +44,7 @@ export class DotEnvXChannel implements EnvChannel {
       const result = this.dotenvx.config({
         processEnv: myEnv,
         quiet: true,
+        ignore: ['MISSING_ENV_FILE'],
         path: this.defaultPath,
         ...this.getOptions
       });
