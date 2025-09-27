@@ -67,3 +67,9 @@ export type { ChannelOptions } from "./channels/ChannelOptions";
 export type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
 export type { DefaultChannelConfig } from "./channels/default/DefaultChannelConfig";
 export { resolveChannel } from "./channels/resolveChannel";
+
+// Export pre-built schemas for common environment variables
+export * from "./schemas";
+
+// Export the askEnv function
+export { askEnv } from "./askEnv";

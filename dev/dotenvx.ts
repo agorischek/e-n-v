@@ -1,13 +1,11 @@
 import { z } from "zod";
 import { askEnv } from "../src/askEnv";
+import { APPLICATIONINSIGHTS_CONNECTION_STRING } from "../src/schemas/applicationInsights";
 import dotenvx from "@dotenvx/dotenvx";
 
 await askEnv(
   {
-    DATABASE_URL: z
-      .string()
-      .describe("Database connection URL")
-      .default("my-connection"),
+    APPLICATIONINSIGHTS_CONNECTION_STRING,
   },
   {
     path: ".env.x",
