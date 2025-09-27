@@ -43,7 +43,7 @@ export function resolveChannel(options: ChannelOptions, defaultPath = ".env"): E
       if (options.name === "default") {
         return createDefaultChannel(options as DefaultChannelConfig, defaultPath);
       } else {
-        throw new Error(`Unknown channel name: ${(options as any).name}`);
+        throw new Error(`Unknown channel name: ${(options as { name: unknown }).name}`);
       }
     }
   }

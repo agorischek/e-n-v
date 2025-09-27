@@ -1,6 +1,5 @@
 import { EnvChannel } from "./EnvChannel";
-import type { GetOptions, SetOptions } from "@dotenvx/dotenvx";
-import type { DotEnvXInstance } from "./types";
+import type { FilteredGetOptions, FilteredSetOptions, DotEnvXInstance } from "./types";
 import { existsSync, writeFileSync } from "fs";
 
 /**
@@ -9,11 +8,11 @@ import { existsSync, writeFileSync } from "fs";
  */
 export class DotEnvXChannel implements EnvChannel {
   private dotenvx: DotEnvXInstance;
-  private getOptions: GetOptions;
-  private setOptions: SetOptions;
+  private getOptions: FilteredGetOptions;
+  private setOptions: FilteredSetOptions;
   private defaultPath: string;
 
-  /**
+  /** 
    * Create a new DotEnvXChannel
    * @param dotenvx - The dotenvx instance to use
    * @param defaultPath - Default path for env files
@@ -23,8 +22,8 @@ export class DotEnvXChannel implements EnvChannel {
   constructor(
     dotenvx: DotEnvXInstance,
     defaultPath: string = ".env",
-    getOptions: GetOptions = {},
-    setOptions: SetOptions = {}
+    getOptions: FilteredGetOptions = {},
+    setOptions: FilteredSetOptions = {}
   ) {
     this.dotenvx = dotenvx;
     this.defaultPath = defaultPath;
