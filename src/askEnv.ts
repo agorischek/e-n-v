@@ -17,17 +17,14 @@ import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { existsSync } from "fs";
 import { isCancel } from "@clack/core";
-import { loadEnvFromFile } from "./io/loadEnv";
-import { writeEnvToFile } from "./io/writeEnv";
 import { EnvPrompt } from "./prompts/EnvPrompt";
-import { EnvAccessor } from "./types/EnvAccessor";
-import { DefaultEnvAccessor } from "./accessors/DefaultEnvAccessor";
-import dotenvx from "@dotenvx/dotenvx";
+import { EnvChannel } from "./channels/EnvChannel";
+import { DefaultEnvChannel } from "./channels/DefaultEnvChannel";
 
 type AskEnvOptions = {
   envPath?: string;
   overwrite?: boolean;
-  accessor?: EnvAccessor;
+  channel?: EnvChannel;
 };
 
 /**
@@ -39,10 +36,10 @@ export async function askEnv(
   schemas: SchemaMap,
   options: AskEnvOptions = {}
 ): Promise<void> {
-  const { envPath = ".env", overwrite = false, accessor } = options;
-  
-  // Create accessor if not provided
-  const envAccessor = accessor || new DefaultEnvAccessor(envPath);
+  const { envPath = ".env", overwrite = false, channel } = options;
+
+  // Create channel if not provided
+  const envChannel = channel || new DefaultEnvChannel(envPath);
 
   // Create theme object using magenta as the primary color
   const theme = new Theme(color.magenta);
@@ -53,8 +50,8 @@ export async function askEnv(
     )} ${color.gray("(Skip with tab)")}\n${color.gray("│")}  `
   );
 
-  // Check if .env file exists (for DefaultEnvAccessor only)
-  if (envAccessor instanceof DefaultEnvAccessor && existsSync(envPath) && !overwrite) {
+  // Check if .env file exists (for DefaultEnvChannel only)
+  if (envChannel instanceof DefaultEnvChannel && existsSync(envPath) && !overwrite) {
     const confirmPrompt = new OverwritePrompt({
       message: `${envPath} already exists. Do you want to overwrite it?`,
       theme: theme,
@@ -72,8 +69,8 @@ export async function askEnv(
   const schemaEntries = Object.entries(schemas);
   let savedCount = 0;
 
-  // Load current values from the accessor
-  const currentEnvValues = envAccessor.getAll();
+  // Load current values from the channel
+  const currentEnvValues = envChannel.getAll();
 
   for (const [key, schema] of schemaEntries) {
     // Add blank line before each prompt for better spacing (except first)
@@ -169,7 +166,7 @@ export async function askEnv(
 
     // Save the environment variable immediately
     try {
-      await envAccessor.set(key, stringValue);
+      await envChannel.set(key, stringValue);
       savedCount++;
       console.log(color.gray("│") + "  " + color.green("✔") + " " + color.dim(`${key} saved`));
     } catch (error) {
@@ -181,7 +178,7 @@ export async function askEnv(
   // Final success message
   try {
     outro(
-      `Successfully saved ${savedCount} environment variable${savedCount !== 1 ? 's' : ''}${envAccessor instanceof DefaultEnvAccessor ? ` to ${envPath}` : ""}`
+      `Successfully saved ${savedCount} environment variable${savedCount !== 1 ? 's' : ''}${envChannel instanceof DefaultEnvChannel ? ` to ${envPath}` : ""}`
     );
   } catch (error) {
     cancel(`❌ Error displaying final message: ${error}`);

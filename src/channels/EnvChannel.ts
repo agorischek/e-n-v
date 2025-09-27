@@ -1,7 +1,7 @@
 /**
  * Interface for accessing and modifying environment variables
  */
-export interface EnvAccessor {
+export interface EnvChannel {
   /**
    * Get the value of an environment variable
    * @param key - The environment variable key

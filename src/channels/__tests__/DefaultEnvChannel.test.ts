@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { updateEnvValue, updateEnvContentValue, updateEnvValues } from "../updateEnv";
+import { updateEnvValue, updateEnvContentValue, updateEnvValues } from "../DefaultEnvChannel";
 import { writeFileSync, unlinkSync, existsSync } from "fs";
 
-describe("updateEnv", () => {
+describe("updateEnv functions in DefaultEnvChannel", () => {
   const testFilePath = "./test.env";
 
   afterEach(() => {
@@ -114,6 +114,32 @@ MY+KEY=plus-value`);
         "postgresql://user:pass@host:5432/db?sslmode=require"
       );
       expect(result).toBe(`DATABASE_URL=postgresql://user:pass@host:5432/db?sslmode=require`);
+    });
+
+    it("should preserve trailing comments", () => {
+      const content = `# Config file
+API_KEY=old-key # This is the API key
+PORT=3000 # Server port
+DATABASE_URL=old-url # Database connection string`;
+
+      const result = updateEnvContentValue(content, "API_KEY", "new-secret-key");
+
+      expect(result).toBe(`# Config file
+API_KEY=new-secret-key # This is the API key
+PORT=3000 # Server port
+DATABASE_URL=old-url # Database connection string`);
+    });
+
+    it("should handle quoted values with trailing comments", () => {
+      const content = `MESSAGE="hello world" # Greeting message`;
+      const result = updateEnvContentValue(content, "MESSAGE", "goodbye world");
+      expect(result).toBe(`MESSAGE="goodbye world" # Greeting message`);
+    });
+
+    it("should not treat # inside quotes as comments", () => {
+      const content = `PASSWORD="secret#123" # Real comment`;
+      const result = updateEnvContentValue(content, "PASSWORD", "new#secret");
+      expect(result).toBe(`PASSWORD=new#secret # Real comment`);
     });
   });
 

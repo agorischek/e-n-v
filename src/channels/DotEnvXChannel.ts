@@ -1,11 +1,11 @@
-import { EnvAccessor } from "../types/EnvAccessor";
+import { EnvChannel } from "./EnvChannel";
 import dotenvx from "@dotenvx/dotenvx";
 import { existsSync, writeFileSync } from "fs";
 
 /**
- * Options for configuring DotEnvXAccessor
+ * Options for configuring DotEnvXChannel
  */
-export interface DotEnvXAccessorOptions {
+export interface DotEnvXChannelOptions {
   /**
    * Specify a custom path if your file containing environment variables is located elsewhere.
    * @default ".env"
@@ -60,18 +60,18 @@ export interface DotEnvXAccessorOptions {
 }
 
 /**
- * DotEnvX implementation of EnvAccessor that uses @dotenvx/dotenvx library
+ * DotEnvX implementation of EnvChannel that uses @dotenvx/dotenvx library
  */
-export class DotEnvXAccessor implements EnvAccessor {
-  private options: DotEnvXAccessorOptions;
+export class DotEnvXChannel implements EnvChannel {
+  private options: DotEnvXChannelOptions;
   private cachedValues?: Record<string, string>;
   private primaryPath: string;
 
   /**
-   * Create a new DotEnvXAccessor
+   * Create a new DotEnvXChannel
    * @param options - Configuration options for dotenvx
    */
-  constructor(options: DotEnvXAccessorOptions = {}) {
+  constructor(options: DotEnvXChannelOptions = {}) {
     this.options = {
       path: ".env",
       encoding: "utf8",
@@ -85,7 +85,7 @@ export class DotEnvXAccessor implements EnvAccessor {
     
     // Determine the primary path for file operations
     this.primaryPath = Array.isArray(this.options.path) 
-      ? this.options.path[0] 
+      ? (this.options.path[0] || ".env") 
       : (this.options.path || ".env");
   }
 
@@ -215,9 +215,9 @@ export class DotEnvXAccessor implements EnvAccessor {
 
   /**
    * Get the current configuration options
-   * @returns Current DotEnvXAccessor options
+   * @returns Current DotEnvXChannel options
    */
-  getOptions(): Readonly<DotEnvXAccessorOptions> {
+  getOptions(): Readonly<DotEnvXChannelOptions> {
     return { ...this.options };
   }
 

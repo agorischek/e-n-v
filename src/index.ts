@@ -49,12 +49,12 @@ export function validateFromSchema(schema: z.ZodSchema) {
 }
 
 // Export environment file utilities
-export { loadEnvFromFile } from "./io/loadEnv";
-export { writeEnvToFile } from "./io/writeEnv";
-export { updateEnvValue, updateEnvContentValue, updateEnvValues } from "./io/updateEnv";
+export { loadEnvFromFile } from "./channels/DefaultEnvChannel";
+export { writeEnvToFile } from "./channels/DefaultEnvChannel";
+export { updateEnvValue, updateEnvContentValue, updateEnvValues } from "./channels/DefaultEnvChannel";
 
 // Export accessor types and implementations
-export type { EnvAccessor } from "./types/EnvAccessor";
-export { DefaultEnvAccessor } from "./accessors/DefaultEnvAccessor";
-export { DotEnvXAccessor } from "./accessors/DotEnvXAccessor";
-export type { DotEnvXAccessorOptions } from "./accessors/DotEnvXAccessor";
+export type { EnvChannel as EnvAccessor } from "./channels/EnvChannel";
+export { DefaultEnvChannel as DefaultEnvAccessor } from "./channels/DefaultEnvChannel";
+export { DotEnvXChannel as DotEnvXAccessor } from "./channels/DotEnvXChannel";
+export type { DotEnvXChannelOptions as DotEnvXAccessorOptions } from "./channels/DotEnvXChannel";

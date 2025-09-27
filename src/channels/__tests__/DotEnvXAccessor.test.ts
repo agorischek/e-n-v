@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { DotEnvXAccessor, DotEnvXAccessorOptions } from "../DotEnvXAccessor";
+import { DotEnvXChannel, DotEnvXChannelOptions } from "../DotEnvXChannel";
 import { writeFileSync, unlinkSync, existsSync } from "fs";
 
-describe("DotEnvXAccessor", () => {
+describe("DotEnvXChannel", () => {
   const testFilePath = "./test-dotenvx.env";
-  let accessor: DotEnvXAccessor;
+  let accessor: DotEnvXChannel;
 
   beforeEach(() => {
     // Clean up any existing test files
@@ -21,7 +21,7 @@ describe("DotEnvXAccessor", () => {
 
   describe("constructor", () => {
     it("should create accessor with default options", () => {
-      accessor = new DotEnvXAccessor();
+      accessor = new DotEnvXChannel();
       const options = accessor.getOptions();
       
       expect(options.path).toBe(".env");
@@ -34,7 +34,7 @@ describe("DotEnvXAccessor", () => {
     });
 
     it("should create accessor with custom options", () => {
-      const customOptions: DotEnvXAccessorOptions = {
+      const customOptions: DotEnvXChannelOptions = {
         path: testFilePath,
         encoding: "latin1",
         overload: true,
@@ -46,7 +46,7 @@ describe("DotEnvXAccessor", () => {
         envKeysFile: ".env.keys"
       };
 
-      accessor = new DotEnvXAccessor(customOptions);
+      accessor = new DotEnvXChannel(customOptions);
       const options = accessor.getOptions();
       
       expect(options.path).toBe(testFilePath);
@@ -61,14 +61,14 @@ describe("DotEnvXAccessor", () => {
     });
 
     it("should handle array paths and use first as primary", () => {
-      accessor = new DotEnvXAccessor({ path: [testFilePath, ".env.backup"] });
+      accessor = new DotEnvXChannel({ path: [testFilePath, ".env.backup"] });
       expect(accessor.getPrimaryPath()).toBe(testFilePath);
     });
   });
 
   describe("get method", () => {
     beforeEach(() => {
-      accessor = new DotEnvXAccessor({ path: testFilePath });
+      accessor = new DotEnvXChannel({ path: testFilePath });
     });
 
     it("should return undefined for missing file", () => {
@@ -100,7 +100,7 @@ describe("DotEnvXAccessor", () => {
 
   describe("set method", () => {
     beforeEach(() => {
-      accessor = new DotEnvXAccessor({ path: testFilePath, encrypt: false });
+      accessor = new DotEnvXChannel({ path: testFilePath, encrypt: false });
     });
 
     it("should create file and set value", async () => {
@@ -130,7 +130,7 @@ describe("DotEnvXAccessor", () => {
 
   describe("setMany method", () => {
     beforeEach(() => {
-      accessor = new DotEnvXAccessor({ path: testFilePath, encrypt: false });
+      accessor = new DotEnvXChannel({ path: testFilePath, encrypt: false });
     });
 
     it("should set multiple values", async () => {
@@ -164,7 +164,7 @@ describe("DotEnvXAccessor", () => {
 
   describe("getAll method", () => {
     beforeEach(() => {
-      accessor = new DotEnvXAccessor({ path: testFilePath });
+      accessor = new DotEnvXChannel({ path: testFilePath });
     });
 
     it("should return empty object for missing file", () => {
@@ -199,7 +199,7 @@ describe("DotEnvXAccessor", () => {
 
   describe("clearCache method", () => {
     beforeEach(() => {
-      accessor = new DotEnvXAccessor({ path: testFilePath });
+      accessor = new DotEnvXChannel({ path: testFilePath });
     });
 
     it("should reload values after cache clear", () => {
@@ -222,17 +222,17 @@ describe("DotEnvXAccessor", () => {
 
   describe("getPrimaryPath method", () => {
     it("should return single path", () => {
-      accessor = new DotEnvXAccessor({ path: testFilePath });
+      accessor = new DotEnvXChannel({ path: testFilePath });
       expect(accessor.getPrimaryPath()).toBe(testFilePath);
     });
 
     it("should return first path from array", () => {
-      accessor = new DotEnvXAccessor({ path: [testFilePath, ".env.backup"] });
+      accessor = new DotEnvXChannel({ path: [testFilePath, ".env.backup"] });
       expect(accessor.getPrimaryPath()).toBe(testFilePath);
     });
 
     it("should return default path when none provided", () => {
-      accessor = new DotEnvXAccessor();
+      accessor = new DotEnvXChannel();
       expect(accessor.getPrimaryPath()).toBe(".env");
     });
   });
