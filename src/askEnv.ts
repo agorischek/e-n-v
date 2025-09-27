@@ -171,9 +171,7 @@ export async function askEnv(
 
   // Final success message
   try {
-    outro(
-      `Successfully saved ${savedCount} environment variable${savedCount !== 1 ? 's' : ''}${envChannel instanceof DefaultEnvChannel ? ` to ${envPath}` : ""}`
-    );
+    outro(theme.primary("Setup complete"));
   } catch (error) {
     cancel(`❌ Error displaying final message: ${error}`);
   }
