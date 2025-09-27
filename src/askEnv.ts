@@ -3,7 +3,7 @@ import {
   intro,
   cancel,
   parseBoolean,
-  validateWithSchema,
+  validateFromSchema,
   outro,
 } from ".";
 import { EnvVarSpec } from "./schemas/EnvVarSpec";
@@ -19,11 +19,12 @@ import { existsSync } from "fs";
 import { isCancel } from "@clack/core";
 import { loadEnvFromFile } from "./io/loadEnv";
 import { writeEnvToFile } from "./io/writeEnv";
+import { EnvPrompt } from "./prompts/EnvPrompt";
 
 type AskEnvOptions = {
   envPath?: string;
   overwrite?: boolean;
-}
+};
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
@@ -62,7 +63,7 @@ export async function askEnv(
 
   const envValues: Record<string, string> = {};
   const schemaEntries = Object.entries(schemas);
-  
+
   // Load current values from the .env file
   const currentEnvValues = loadEnvFromFile(envPath);
 
@@ -81,70 +82,63 @@ export async function askEnv(
         ? currentEnvValues[key]
         : undefined;
 
-    let value: unknown;
+    let prompt: EnvPrompt<unknown>;
 
     switch (type) {
       case "boolean": {
-        const prompt = new EnvBooleanPrompt({
+        prompt = new EnvBooleanPrompt({
           key,
           description,
           current: current !== undefined ? parseBoolean(current) : undefined,
           default: typeof defaultValue === "boolean" ? defaultValue : undefined,
           required,
-          validate: (value) => validateWithSchema(value, schema),
+          validate: validateFromSchema(schema),
           theme: theme,
         });
-
-        value = await prompt.prompt();
         break;
       }
 
       case "number": {
-        const prompt = new EnvNumberPrompt({
+        prompt = new EnvNumberPrompt({
           key,
           description,
           current: current !== undefined ? parseFloat(current) : undefined,
           default: typeof defaultValue === "number" ? defaultValue : undefined,
           required,
-          validate: (value) => validateWithSchema(value, schema),
+          validate: validateFromSchema(schema),
           theme: theme,
         });
-
-        value = await prompt.prompt();
         break;
       }
 
       case "enum": {
-        const prompt = new EnvEnumPrompt({
+        prompt = new EnvEnumPrompt({
           key,
           description,
           current,
           default: typeof defaultValue === "string" ? defaultValue : undefined,
           required,
-          validate: (value) => validateWithSchema(value, schema),
+          validate: validateFromSchema(schema),
           options: values || [],
           theme: theme,
         });
-
-        value = await prompt.prompt();
         break;
       }
 
       default: {
-        const prompt = new EnvStringPrompt({
+        prompt = new EnvStringPrompt({
           key,
           description,
           current,
           default: typeof defaultValue === "string" ? defaultValue : undefined,
           required,
-          validate: (value) => validateWithSchema(value, schema),
+          validate: validateFromSchema(schema),
           theme: theme,
         });
-
-        value = await prompt.prompt();
         break;
       }
     }
+    const value = await prompt.prompt();
 
     // Handle cancellation FIRST - check for clack cancel symbol
     if (

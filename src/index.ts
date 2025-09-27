@@ -36,19 +36,14 @@ export function parseBoolean(value: string): boolean {
 }
 
 /**
- * Validate value with Zod schema
+ * Higher-order function that returns a validator function for a given schema
  */
-export function validateWithSchema(
-  value: any,
-  schema: z.ZodSchema
-): string | undefined {
-  try {
-    schema.parse(value);
-    return undefined; // Valid
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return error.errors.map((e) => e.message).join(", ");
+export function validateFromSchema(schema: z.ZodSchema) {
+  return (value: unknown): string | undefined => {
+    const result = schema.safeParse(value);
+    if (result.success) {
+      return undefined; // Valid
     }
-    return "Invalid value";
-  }
+    return result.error.errors.map((e) => e.message).join(", ");
+  };
 }

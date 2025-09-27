@@ -12,6 +12,6 @@ export function loadEnvFromFile(filePath: string): Record<string, string> {
   }
 
   // Parse the .env file without modifying process.env
-  const result = dotenvConfig({ path: filePath, processEnv: {} });
+  const result = dotenvConfig({ path: filePath, processEnv: {}, quiet: true });
   return result.parsed || {};
 }
