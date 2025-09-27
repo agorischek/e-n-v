@@ -161,8 +161,8 @@ export async function askEnv(
 
     // Save the environment variable immediately
     try {
-  await envChannel.set(key, stringValue);
-  savedCount++;
+      await envChannel.set(key, stringValue);
+      savedCount++;
     } catch (error) {
       cancel(`❌ Failed to save ${key}: ${error}`);
       return;
@@ -171,9 +171,6 @@ export async function askEnv(
 
   // Final success message
   try {
-    if (schemaEntries.length > 0) {
-      console.log(`${color.gray("│")}  `);
-    }
     outro(
       `Successfully saved ${savedCount} environment variable${savedCount !== 1 ? 's' : ''}${envChannel instanceof DefaultEnvChannel ? ` to ${envPath}` : ""}`
     );
