@@ -136,41 +136,6 @@ export class DotEnvXChannel implements EnvChannel {
   }
 
   /**
-   * Set multiple environment variables at once
-   * @param values - Object containing key-value pairs to set
-   * @returns Promise that resolves when all values have been set
-   */
-  async setMany(values: Record<string, string>): Promise<void> {
-    this.ensureFileExists();
-    
-    try {
-      // Set each value individually since dotenvx.set only handles one at a time
-      for (const [key, value] of Object.entries(values)) {
-        dotenvx.set(key, value, {
-          path: this.primaryPath,
-          encrypt: this.options.encrypt,
-          envKeysFile: this.options.envKeysFile,
-          convention: this.options.convention
-        });
-      }
-      
-      // Clear cache to force reload
-      this.clearCache();
-    } catch (error) {
-      throw new Error(`Failed to set environment variables: ${error}`);
-    }
-  }
-
-  /**
-   * Get all environment variables as a key-value object
-   * @returns Object containing all environment variables
-   */
-  getAll(): Record<string, string> {
-    this.ensureLoaded();
-    return this.cachedValues ? { ...this.cachedValues } : {};
-  }
-
-  /**
    * Clear the cache to force reload on next access
    */
   clearCache(): void {

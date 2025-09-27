@@ -65,12 +65,8 @@ export async function askEnv(
     }
   }
 
-  const envValues: Record<string, string> = {};
   const schemaEntries = Object.entries(schemas);
   let savedCount = 0;
-
-  // Load current values from the channel
-  const currentEnvValues = envChannel.getAll();
 
   for (const [key, schema] of schemaEntries) {
     // Add blank line before each prompt for better spacing (except first)
@@ -81,11 +77,9 @@ export async function askEnv(
     const { type, defaultValue, description, required, values } =
       EnvVarSpec.FromZodSchema(schema);
 
-    // Get current value from the .env file if it exists and is not empty
-    const current =
-      currentEnvValues[key] && currentEnvValues[key].trim() !== ""
-        ? currentEnvValues[key]
-        : undefined;
+    // Get current value from the channel for this specific key
+    const currentValue = envChannel.get(key);
+    const current = currentValue && currentValue.trim() !== "" ? currentValue : undefined;
 
     let prompt: EnvPrompt<unknown>;
 
@@ -162,7 +156,6 @@ export async function askEnv(
 
     // Convert value to string for .env file
     const stringValue = String(value);
-    envValues[key] = stringValue;
 
     // Save the environment variable immediately
     try {

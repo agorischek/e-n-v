@@ -44,30 +44,6 @@ export class DefaultEnvChannel implements EnvChannel {
   }
 
   /**
-   * Set multiple environment variables at once
-   * @param values - Object containing key-value pairs to set
-   * @returns Promise that resolves when all values have been set
-   */
-  async setMany(values: Record<string, string>): Promise<void> {
-    this.ensureFileExists();
-    updateEnvValues(this.filePath, values);
-    // Update cache
-    this.ensureLoaded();
-    if (this.cachedValues) {
-      Object.assign(this.cachedValues, values);
-    }
-  }
-
-  /**
-   * Get all environment variables as a key-value object
-   * @returns Object containing all environment variables
-   */
-  getAll(): Record<string, string> {
-    this.ensureLoaded();
-    return this.cachedValues ? { ...this.cachedValues } : {};
-  }
-
-  /**
    * Clear the cache to force reload on next access
    */
   clearCache(): void {
