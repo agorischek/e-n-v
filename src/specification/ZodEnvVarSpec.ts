@@ -9,21 +9,18 @@ import {
   ZodBoolean,
   ZodEnum,
 } from "zod";
+import { EnvVarSpec } from "./EnvVarSpec";
 import { EnvVarType } from "./EnvVarType";
 
-export class EnvVarSpec {
-  private constructor(
-    public readonly type: EnvVarType,
-    public readonly required: boolean = true,
-    public readonly nullable: boolean = false,
-    public readonly defaultValue?: unknown,
-    public readonly min?: number,
-    public readonly max?: number,
-    public readonly description?: string,
-    public readonly values?: string[]
-  ) {}
+export class ZodEnvVarSpec extends EnvVarSpec {
+  constructor(schema: ZodTypeAny) {
+    const { type, required, nullable, defaultValue, min, max, description, values } = 
+      ZodEnvVarSpec.parseZodSchema(schema);
+    
+    super(type, required, nullable, defaultValue, min, max, description, values);
+  }
 
-  public static FromZodSchema(schema: ZodTypeAny): EnvVarSpec {
+  private static parseZodSchema(schema: ZodTypeAny) {
     let current: ZodTypeAny = schema;
     let required = true;
     let nullable = false;
@@ -66,7 +63,7 @@ export class EnvVarSpec {
 
     const unwrapped = current;
 
-    const type = EnvVarSpec.resolveType(unwrapped);
+    const type = ZodEnvVarSpec.resolveType(unwrapped);
 
     // Extract constraints for string and number types
     if (unwrapped instanceof ZodString || unwrapped instanceof ZodNumber) {
@@ -81,7 +78,7 @@ export class EnvVarSpec {
       values = unwrapped._def.values;
     }
 
-    return new EnvVarSpec(type, required, nullable, defaultValue, min, max, description, values);
+    return { type, required, nullable, defaultValue, min, max, description, values };
   }
 
   private static resolveType(schema: ZodTypeAny): EnvVarType {

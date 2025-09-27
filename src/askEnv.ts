@@ -6,7 +6,8 @@ import {
   validateFromSchema,
   outro,
 } from ".";
-import { EnvVarSpec } from "./specs/EnvVarSpec";
+import { EnvVarSpec } from "./specification/EnvVarSpec";
+import { ZodEnvVarSpec } from "./specification/ZodEnvVarSpec";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { OverwritePrompt } from "./prompts/OverwritePrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
@@ -77,7 +78,7 @@ export async function askEnv(
     }
 
     const { type, defaultValue, description, required, values } =
-      EnvVarSpec.FromZodSchema(schema);
+      new ZodEnvVarSpec(schema);
 
     // Get current value from the channel for this specific key
     const currentValue = envChannel.get(key);
