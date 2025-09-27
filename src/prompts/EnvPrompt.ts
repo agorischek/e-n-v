@@ -1,5 +1,6 @@
 import { ThemedPrompt } from "./ThemedPrompt";
 import { Theme } from "../visuals/Theme";
+import { SECRET_MASK_CHAR } from "../secret";
 import { S_STEP_SKIP, S_STEP_CANCEL } from "../visuals/symbols";
 import color from "picocolors";
 
@@ -12,6 +13,8 @@ export interface EnvPromptOptions<T> {
   validate?: ((value: T | undefined) => string | Error | undefined) | undefined;
   theme?: Theme;
   maxDisplayLength?: number;
+  secret?: boolean;
+  mask?: string;
 }
 
 export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
@@ -19,6 +22,8 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected current?: T;
   protected default?: T;
   protected maxDisplayLength: number;
+  protected secret: boolean;
+  protected mask: string;
 
   constructor(opts: EnvPromptOptions<T> & any, render?: boolean) {
     super(opts, render);
@@ -26,6 +31,8 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.current = opts.current;
     this.default = opts.default;
     this.maxDisplayLength = opts.maxDisplayLength ?? 40;
+    this.secret = Boolean(opts.secret);
+    this.mask = opts.mask ?? SECRET_MASK_CHAR;
   }
 
   protected buildSkipHint(base?: string): string {

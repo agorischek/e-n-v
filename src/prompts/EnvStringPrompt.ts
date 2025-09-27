@@ -7,6 +7,7 @@ import {
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
+import { maskSecretValue } from "../secret";
 
 interface EnvStringPromptOptions extends EnvPromptOptions<string> {}
 
@@ -53,7 +54,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           // If both current and default are undefined, show only text input
           if (this.current === undefined && this.default === undefined) {
             if (this.isTyping) {
-              const displayText = `${this.userInput}█`;
+              const displayText = this.getInputDisplay(true);
               output += `${this.getBar()}  ${this.colors.white(displayText)}`;
             } else {
               output += `${this.getBar()}  ${this.colors.white(S_CURSOR)}`;
@@ -64,7 +65,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
             if (this.error) {
               output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
             } else {
-              const hint = this.buildSkipHint("Enter a value");
+              const hint = this.buildSkipHint(this.getEntryHint());
               output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
             }
 
@@ -105,7 +106,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
             if (typeof option === "string") {
               // "Other" option
               if (this.isTyping) {
-                const displayText = `${this.userInput}█`;
+                const displayText = this.getInputDisplay(true);
                 output += `${this.getBar()}  ${circle} ${this.colors.white(
                   displayText
                 )}\n`;
@@ -137,7 +138,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           if (this.error) {
             output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
           } else {
-            const hint = this.buildSkipHint("Enter a value");
+            const hint = this.buildSkipHint(this.getEntryHint());
             output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
           }
 
@@ -479,6 +480,10 @@ export class EnvStringPrompt extends EnvPrompt<string> {
 
   protected formatValue(value: string | undefined): string {
     const str = value || "";
+    if (this.secret && str) {
+      const masked = this.maskValue(str);
+      return this.truncateValue(masked);
+    }
     return this.truncateValue(str);
   }
 
@@ -494,5 +499,21 @@ export class EnvStringPrompt extends EnvPrompt<string> {
 
   protected getDefaultValue(): string {
     return "";
+  }
+
+  private maskValue(value: string): string {
+    return maskSecretValue(value, this.mask);
+  }
+
+  private getInputDisplay(includeCursor: boolean): string {
+    const base = this.secret ? this.maskValue(this.userInput) : this.userInput;
+    if (includeCursor) {
+      return `${base}${S_CURSOR}`;
+    }
+    return base;
+  }
+
+  private getEntryHint(): string {
+    return this.secret ? "Enter a secret value" : "Enter a value";
   }
 }

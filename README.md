@@ -59,10 +59,14 @@ This will:
 
 ```typescript
 interface AskEnvOptions {
-  envPath?: string;    // Path to .env file (default: '.env')
-  overwrite?: boolean; // Whether to overwrite existing file without prompting (default: false)
+  path?: string; // Path to the .env file (default: '.env')
+  channel?: ChannelOptions; // Configure how values are read/written
+  maxDisplayLength?: number; // Truncate long values in prompts (default: 40)
+  secretPatterns?: Array<string | RegExp>; // Patterns treated as secrets and masked in prompts
 }
 ```
+
+Secret patterns default to common names like `PASSWORD`, `TOKEN`, `API_KEY`, and `DATABASE_URL`. Provide your own patterns to extend or disable masking entirely (pass an empty array).
 
 ## Examples
 
@@ -107,26 +111,30 @@ const schemas = {
   ENABLE_CORS: z.string().default('true'),
 };
 
-await askEnv(schemas, { 
-  envPath: './config/.env',
-  overwrite: true 
+await askEnv(schemas, {
+  path: "./config/.env",
+  secretPatterns: [/^MY_APP_/i],
 });
 ```
 
 ### Custom Output Path
 
 ```typescript
-await askEnv(schemas, { 
-  envPath: './config/production.env' 
+await askEnv(schemas, {
+  path: "./config/production.env",
 });
 ```
+
+### Secret Inputs
+
+Variables whose keys or descriptions match the configured `secretPatterns` are collected with a password-style prompt. Input is masked with `•`, current/default values are hidden, and saved output never reveals the secret. Override `secretPatterns` to tailor which variables behave this way.
 
 ## Schema Types & Placeholders
 
 The library automatically generates helpful placeholder text based on your Zod schema types:
 
 - `z.string()` → "Enter a string value"
-- `z.number()` → "Enter a number" 
+- `z.number()` → "Enter a number"
 - `z.boolean()` → "true or false"
 - `z.enum(['a', 'b'])` → "One of: a, b"
 - `z.string().optional()` → "Enter a string value (optional)"
@@ -136,7 +144,7 @@ The library automatically generates helpful placeholder text based on your Zod s
 
 When validation fails, the library displays clear error messages and re-prompts for input:
 
-```
+```text
 ✔ Enter value for DB_HOST: localhost
 ✖ Enter value for DB_PORT: invalid
   Must be a valid port number

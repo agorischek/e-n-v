@@ -23,11 +23,17 @@ import { EnvChannel } from "./channels/EnvChannel";
 import { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
 import type { ChannelOptions } from "./channels/ChannelOptions";
 import { resolveChannel } from "./channels/resolveChannel";
+import {
+  DEFAULT_SECRET_PATTERNS,
+  isSecretKey,
+  type SecretPattern,
+} from "./secret";
 
 type AskEnvOptions = {
   path?: string;
   channel?: ChannelOptions;
   maxDisplayLength?: number;
+  secretPatterns?: Array<SecretPattern>;
 };
 
 /**
@@ -39,7 +45,12 @@ export async function askEnv(
   schemas: SchemaMap,
   options: AskEnvOptions = {}
 ): Promise<void> {
-  const { path: envPath = ".env", channel, maxDisplayLength = 40 } = options;
+  const {
+    path: envPath = ".env",
+    channel,
+    maxDisplayLength = 40,
+    secretPatterns = DEFAULT_SECRET_PATTERNS,
+  } = options;
 
   // Create channel using the resolver
   const envChannel = resolveChannel(channel, envPath);
@@ -80,6 +91,10 @@ export async function askEnv(
 
     const { type, defaultValue, description, required, values } =
       new ZodEnvVarSpec(schema);
+
+    const shouldMask =
+      type === "string" &&
+      isSecretKey(key, description, secretPatterns);
 
     // Get current value from the channel for this specific key
     const currentValue = envChannel.get(key);
@@ -141,6 +156,7 @@ export async function askEnv(
           validate: validateFromSchema(schema),
           theme: theme,
           maxDisplayLength,
+          secret: shouldMask,
         });
         break;
       }
