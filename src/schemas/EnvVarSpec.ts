@@ -87,11 +87,4 @@ export class EnvVarSpec {
       return "string";
     }
   }
-
-  /**
-   * Get the default value as a string, matching the old getDefaultValue behavior
-   */
-  public getDefaultValueAsString(): string | undefined {
-    return this.defaultValue !== undefined ? String(this.defaultValue) : undefined;
-  }
 }

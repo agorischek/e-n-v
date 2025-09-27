@@ -72,9 +72,6 @@ export async function askEnv(
         ? process.env[key]
         : undefined;
 
-    // Get default value from spec
-    const defaultValue = spec.getDefaultValueAsString();
-
     let value: any;
 
     if (spec.type === "boolean") {
@@ -82,8 +79,7 @@ export async function askEnv(
         key,
         description: spec.description,
         current: current !== undefined ? parseBoolean(current) : undefined,
-        default:
-          defaultValue !== undefined ? parseBoolean(defaultValue) : undefined,
+        default: typeof spec.defaultValue === "boolean" ? spec.defaultValue : undefined,
         required: spec.required,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
@@ -95,8 +91,7 @@ export async function askEnv(
         key,
         description: spec.description,
         current: current !== undefined ? parseFloat(current) : undefined,
-        default:
-          defaultValue !== undefined ? parseFloat(defaultValue) : undefined,
+        default: typeof spec.defaultValue === "number" ? spec.defaultValue : undefined,
         required: spec.required,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
@@ -104,12 +99,11 @@ export async function askEnv(
 
       value = await prompt.prompt();
     } else if (spec.type === "enum") {
-      // For enums, use EnumEnvPrompt with options from spec
       const prompt = new EnvEnumPrompt({
         key,
         description: spec.description,
         current,
-        default: defaultValue,
+        default: typeof spec.defaultValue === "string" ? spec.defaultValue : undefined,
         required: spec.required,
         validate: (value) => validateWithSchema(value, schema),
         options: spec.enumOptions || [],
@@ -118,12 +112,11 @@ export async function askEnv(
 
       value = await prompt.prompt();
     } else {
-      // Default to string prompt for all other types
       const prompt = new EnvStringPrompt({
         key,
         description: spec.description,
         current,
-        default: defaultValue,
+        default: typeof spec.defaultValue === "string" ? spec.defaultValue : undefined,
         required: spec.required,
         validate: (value) => validateWithSchema(value, schema),
         theme: theme,
