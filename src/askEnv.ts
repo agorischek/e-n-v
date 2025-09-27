@@ -6,7 +6,7 @@ import {
   validateFromSchema,
   outro,
 } from ".";
-import { EnvVarSpec } from "./schemas/EnvVarSpec";
+import { EnvVarSpec } from "./specs/EnvVarSpec";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { OverwritePrompt } from "./prompts/OverwritePrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
@@ -19,8 +19,8 @@ import { existsSync } from "fs";
 import { isCancel } from "@clack/core";
 import { EnvPrompt } from "./prompts/EnvPrompt";
 import { EnvChannel } from "./channels/EnvChannel";
-import { DefaultEnvChannel } from "./channels/DefaultEnvChannel";
-import type { ChannelOptions } from "./channels/types";
+import { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
+import type { ChannelOptions } from "./channels/ChannelOptions";
 import { resolveChannel } from "./channels/resolveChannel";
 
 type AskEnvOptions = {

@@ -1,4 +1,4 @@
-import { EnvChannel } from "./EnvChannel";
+import { EnvChannel } from "../EnvChannel";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { config as dotenvConfig } from "dotenv";
 

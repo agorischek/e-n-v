@@ -1,7 +1,10 @@
 import type { EnvChannel } from "./EnvChannel";
-import type { ChannelOptions, DotEnvXChannelConfig, DefaultChannelConfig, DotEnvXInstance } from "./types";
-import { DefaultEnvChannel } from "./DefaultEnvChannel";
-import { DotEnvXChannel } from "./DotEnvXChannel";
+import type { ChannelOptions } from "./ChannelOptions";
+import type { DotEnvXChannelConfig } from "./dotenvx/DotEnvXChannelConfig";
+import type { DefaultChannelConfig } from "./default/DefaultChannelConfig";
+import type { DotEnvXInstance } from "./dotenvx/DotEnvXInstance";
+import { DefaultEnvChannel } from "./default/DefaultEnvChannel";
+import { DotEnvXChannel } from "./dotenvx/DotEnvXChannel";
 
 /**
  * Create a DotEnvX channel with the given configuration

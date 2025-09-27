@@ -1,9 +1,7 @@
-import { EnvChannel } from "./EnvChannel";
-import type {
-  DotEnvXGetOptions,
-  DotEnvXSetOptions,
-  DotEnvXInstance,
-} from "./types";
+import { EnvChannel } from "../EnvChannel";
+import type { DotEnvXGetOptions } from "./DotEnvXGetOptions";
+import type { DotEnvXSetOptions } from "./DotEnvXSetOptions";
+import type { DotEnvXInstance } from "./DotEnvXInstance";
 import { existsSync, writeFileSync } from "fs";
 
 /**
@@ -85,5 +83,20 @@ export class DotEnvXChannel implements EnvChannel {
     } catch (error) {
       throw new Error(`Failed to set environment variable ${key}: ${error}`);
     }
+  }
+
+  /**
+   * Get the primary path being used for env files
+   * @returns The primary path
+   */
+  getPrimaryPath(): string {
+    return this.defaultPath;
+  }
+
+  /**
+   * Clear any cached data (no-op for this implementation since we don't cache)
+   */
+  clearCache(): void {
+    // No-op: This implementation doesn't use caching
   }
 }

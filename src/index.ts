@@ -49,15 +49,17 @@ export function validateFromSchema(schema: z.ZodSchema) {
 }
 
 // Export environment file utilities
-export { loadEnvFromFile } from "./channels/DefaultEnvChannel";
-export { writeEnvToFile } from "./channels/DefaultEnvChannel";
-export { updateEnvValue, updateEnvContentValue, updateEnvValues } from "./channels/DefaultEnvChannel";
+export { loadEnvFromFile } from "./channels/default/DefaultEnvChannel";
+export { writeEnvToFile } from "./channels/default/DefaultEnvChannel";
+export { updateEnvValue, updateEnvContentValue, updateEnvValues } from "./channels/default/DefaultEnvChannel";
 
 // Export accessor types and implementations
 export type { EnvChannel as EnvAccessor } from "./channels/EnvChannel";
-export { DefaultEnvChannel as DefaultEnvAccessor } from "./channels/DefaultEnvChannel";
-export { DotEnvXChannel as DotEnvXAccessor } from "./channels/DotEnvXChannel";
+export { DefaultEnvChannel as DefaultEnvAccessor } from "./channels/default/DefaultEnvChannel";
+export { DotEnvXChannel as DotEnvXAccessor } from "./channels/dotenvx/DotEnvXChannel";
 
 // Export channel types and utilities
-export type { ChannelOptions, DotEnvXChannelConfig, DefaultChannelConfig } from "./channels/types";
+export type { ChannelOptions } from "./channels/ChannelOptions";
+export type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
+export type { DefaultChannelConfig } from "./channels/default/DefaultChannelConfig";
 export { resolveChannel } from "./channels/resolveChannel";
