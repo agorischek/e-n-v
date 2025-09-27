@@ -27,11 +27,6 @@ export const outro = (message = "", opts?: CommonOptions) => {
   );
 };
 
-export interface AskEnvOptions {
-  envPath?: string;
-  overwrite?: boolean;
-}
-
 export type SchemaMap = Record<string, z.ZodSchema>;
 
 /**
