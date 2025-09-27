@@ -7,7 +7,6 @@ import { config as dotenvConfig } from "dotenv";
  */
 export class DefaultEnvChannel implements EnvChannel {
   private filePath: string;
-  private cachedValues?: Record<string, string>;
 
   /**
    * Create a new DefaultEnvAccessor
@@ -23,8 +22,8 @@ export class DefaultEnvChannel implements EnvChannel {
    * @returns The value of the environment variable, or undefined if not found
    */
   get(key: string): string | undefined {
-    this.ensureLoaded();
-    return this.cachedValues?.[key];
+    const envValues = loadEnvFromFile(this.filePath);
+    return envValues[key];
   }
 
   /**
@@ -36,27 +35,6 @@ export class DefaultEnvChannel implements EnvChannel {
   async set(key: string, value: string): Promise<void> {
     this.ensureFileExists();
     updateEnvValue(this.filePath, key, value);
-    // Update cache
-    this.ensureLoaded();
-    if (this.cachedValues) {
-      this.cachedValues[key] = value;
-    }
-  }
-
-  /**
-   * Clear the cache to force reload on next access
-   */
-  clearCache(): void {
-    this.cachedValues = undefined;
-  }
-
-  /**
-   * Ensure the cached values are loaded from file
-   */
-  private ensureLoaded(): void {
-    if (this.cachedValues === undefined) {
-      this.cachedValues = loadEnvFromFile(this.filePath);
-    }
   }
 
   /**
@@ -152,19 +130,28 @@ export function updateEnvContentValue(
       // Extract trailing comment if it exists
       // Look for # that is not escaped and not inside quotes
       let trailingComment = "";
-      const valueAndCommentMatch = line.match(/^[^=]*=([^#]*)(#.*)?$/);
-      if (valueAndCommentMatch && valueAndCommentMatch[2]) {
-        // Check if the # is not inside quotes
-        const valuePartBeforeComment = valueAndCommentMatch[1];
-        if (valuePartBeforeComment) {
-          const openQuotes = (valuePartBeforeComment.match(/"/g) || []).length;
-          // If even number of quotes, the # is outside quotes (it's a comment)
-          if (openQuotes % 2 === 0) {
-            trailingComment = ` ${valueAndCommentMatch[2]}`;
+      
+      // Find the value part after the = sign
+      const equalIndex = line.indexOf('=');
+      if (equalIndex !== -1) {
+        const valuePart = line.substring(equalIndex + 1);
+        
+        // Look for unquoted # character that indicates a comment
+        let inQuotes = false;
+        let commentStart = -1;
+        
+        for (let i = 0; i < valuePart.length; i++) {
+          const char = valuePart[i];
+          if (char === '"' && (i === 0 || valuePart[i - 1] !== '\\')) {
+            inQuotes = !inQuotes;
+          } else if (char === '#' && !inQuotes) {
+            commentStart = i;
+            break;
           }
-        } else {
-          // No value part before comment, so it's definitely a comment
-          trailingComment = ` ${valueAndCommentMatch[2]}`;
+        }
+        
+        if (commentStart !== -1) {
+          trailingComment = ` #${valuePart.substring(commentStart + 1)}`;
         }
       }
       
@@ -201,7 +188,8 @@ function formatEnvValue(value: string): string {
   }
   
   // Check if value needs quotes (contains spaces, quotes, or special chars)
-  const needsQuotes = /[\s"'#$`\\]/.test(value);
+  // Note: # is not included here as it can appear in values without being quoted
+  const needsQuotes = /[\s"'$`\\]/.test(value);
   
   if (needsQuotes) {
     // Escape existing double quotes and backslashes
