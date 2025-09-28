@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --target node",
+  "build": "tsup",
     "test": "bun test",
     "dev": "bun run src/index.ts",
     "prepublishOnly": "bun run build"
@@ -33,6 +33,7 @@
     "@standard-schema/spec": "^1.0.0",
     "@types/bun": "latest",
     "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
     "typescript": "^5"
   },
   "peerDependencies": {

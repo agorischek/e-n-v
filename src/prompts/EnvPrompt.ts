@@ -95,7 +95,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   }
 
   protected getSecretToggleHint(): string {
-    const action = this.revealSecret ? "hide" : "reveal";
+    const action = this.revealSecret ? "hide" : "show";
     return `${this.secretToggleShortcut} to ${action}`;
   }
 }

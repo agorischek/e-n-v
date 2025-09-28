@@ -164,7 +164,7 @@ bun install
 ### Scripts
 
 ```bash
-# Build the library
+# Build the library (tsup)
 bun run build
 
 # Run tests
@@ -173,6 +173,8 @@ bun test
 # Run example
 bun run example.ts
 ```
+
+The build script leverages [`tsup`](https://tsup.egoist.dev) (configured via `tsup.config.ts`) to emit an ESM bundle and TypeScript declarations into `dist/`.
 
 ### Testing
 
