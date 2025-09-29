@@ -32,6 +32,20 @@ await source.write({
   APPNAME: "demo-app",
   URL: "https://example.com",
 });
+
+// Subscribe to changes for the entire file
+const stopAll = await source.listen(() => {
+  console.log(".env changed");
+});
+
+// Subscribe to a specific key
+const stopDebug = await source.listen("DEBUG", (value) => {
+  console.log("DEBUG updated to", value);
+});
+
+// Later, stop listening
+await stopAll();
+await stopDebug();
 ```
 
 All methods are asynchronous. `write` performs surgical, in-place updates to preserve surrounding formatting, comments, and ordering whenever possible.

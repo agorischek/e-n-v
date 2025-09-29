@@ -33,6 +33,20 @@ async function readFileContent(path: string): Promise<string> {
   }
 }
 
+function createDeferred<T = void>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
+function waitFor(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 describe("EnvSource", () => {
   it("writes new keys into a fresh file", async () => {
     const target = filePath("fresh.env");
@@ -132,5 +146,58 @@ describe("EnvSource", () => {
     expect(content).toBe(
       ["APP=1", "URL=https://example.com", "FLAG=true", ""].join("\n")
     );
+  });
+
+  it("invokes listeners on any change", async () => {
+    const target = filePath("listen-all.env");
+    await writeFile(target, "DEBUG=true\n", "utf8");
+
+    const source = new EnvSource(target);
+    const deferred = createDeferred<void>();
+    const dispose = await source.listen(() => {
+      deferred.resolve();
+    });
+
+    const timeout = setTimeout(() => {
+      deferred.reject(new Error("listener timeout"));
+    }, 2_000);
+
+    await source.write("DEBUG", "false");
+
+    await deferred.promise;
+    clearTimeout(timeout);
+    await dispose();
+  });
+
+  it("invokes key-specific listeners only for matching changes", async () => {
+    const target = filePath("listen-key.env");
+    await writeFile(target, ["DEBUG=1", "OTHER=2", ""].join("\n"), "utf8");
+
+    const source = new EnvSource(target);
+    const values: Array<string | undefined> = [];
+    const deferred = createDeferred<string | undefined>();
+    const dispose = await source.listen("DEBUG", (value) => {
+      values.push(value);
+      if (values.length === 1) {
+        deferred.resolve(value);
+      }
+    });
+
+    await source.write("OTHER", "3");
+    await waitFor(200);
+    expect(values).toHaveLength(0);
+
+    const timeout = setTimeout(() => {
+      deferred.reject(new Error("listener timeout"));
+    }, 2_000);
+
+    await source.write("DEBUG", "4");
+
+    const value = await deferred.promise;
+    clearTimeout(timeout);
+    expect(value).toBe("4");
+    expect(values).toEqual(["4"]);
+
+    await dispose();
   });
 });

@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname } from "path";
+import chokidar, { FSWatcher } from "chokidar";
 import {
   EnvDocument,
   ParsedAssignment,
@@ -12,8 +13,19 @@ export interface EnvWriteMap {
   [key: string]: string;
 }
 
+type EnvChangeCallback = () => void | Promise<void>;
+type EnvKeyChangeCallback = (value: string | undefined) => void | Promise<void>;
+export type EnvUnlisten = () => Promise<void>;
+
 export class EnvSource {
   constructor(private readonly filePath: string) {}
+
+  private watcher: FSWatcher | null = null;
+  private watcherReady: Promise<void> | null = null;
+  private lastSnapshot: Map<string, string> | null = null;
+  private changeChain: Promise<void> = Promise.resolve();
+  private allListeners = new Set<EnvChangeCallback>();
+  private keyListeners = new Map<string, Set<EnvKeyChangeCallback>>();
 
   async read(): Promise<Record<string, string>>;
   async read(key: string): Promise<string | undefined>;
@@ -83,6 +95,52 @@ export class EnvSource {
     await writeFile(this.filePath, nextContent, "utf8");
   }
 
+  async listen(callback: EnvChangeCallback): Promise<EnvUnlisten>;
+  async listen(
+    key: string,
+    callback: EnvKeyChangeCallback
+  ): Promise<EnvUnlisten>;
+  async listen(
+    arg1: string | EnvChangeCallback,
+    arg2?: EnvKeyChangeCallback
+  ): Promise<EnvUnlisten> {
+    await this.ensureWatcher();
+
+    if (typeof arg1 === "string") {
+      if (typeof arg2 !== "function") {
+        throw new TypeError("A callback function must be provided when listening to a specific key");
+      }
+
+      const key = arg1;
+      const callback = arg2;
+      let listeners = this.keyListeners.get(key);
+      if (!listeners) {
+        listeners = new Set();
+        this.keyListeners.set(key, listeners);
+      }
+      listeners.add(callback);
+
+      return async () => {
+        const current = this.keyListeners.get(key);
+        if (current) {
+          current.delete(callback);
+          if (current.size === 0) {
+            this.keyListeners.delete(key);
+          }
+        }
+        await this.cleanupWatcherIfIdle();
+      };
+    }
+
+    const callback = arg1;
+    this.allListeners.add(callback);
+
+    return async () => {
+      this.allListeners.delete(callback);
+      await this.cleanupWatcherIfIdle();
+    };
+  }
+
   private async readFile(): Promise<string> {
     try {
       return await readFile(this.filePath, "utf8");
@@ -92,6 +150,143 @@ export class EnvSource {
       }
       throw error;
     }
+  }
+
+  private async ensureWatcher(): Promise<void> {
+    if (this.watcher) {
+      if (this.watcherReady) {
+        await this.watcherReady.catch(() => undefined);
+      }
+      return;
+    }
+
+    if (!this.watcherReady) {
+      this.watcherReady = (async () => {
+        this.lastSnapshot =
+          (await this.loadAssignments()) ?? new Map<string, string>();
+
+        const watcher = chokidar.watch(this.filePath, {
+          ignoreInitial: true,
+          awaitWriteFinish: { stabilityThreshold: 200, pollInterval: 50 },
+        });
+
+        watcher.on("add", () => this.scheduleRefresh());
+        watcher.on("change", () => this.scheduleRefresh());
+        watcher.on("unlink", () => this.scheduleRefresh());
+        watcher.on("error", (error) => {
+          console.error(
+            `[EnvSource] watcher error for ${this.filePath}:`,
+            error
+          );
+        });
+
+        this.watcher = watcher;
+
+        await new Promise<void>((resolve) => watcher.once("ready", resolve));
+      })();
+    }
+
+    if (this.watcherReady) {
+      await this.watcherReady.catch(() => undefined);
+    }
+  }
+
+  private scheduleRefresh(): void {
+    this.changeChain = this.changeChain
+      .then(() => this.processChange())
+      .catch((error) => {
+        console.error(
+          `[EnvSource] failed to process env change for ${this.filePath}:`,
+          error
+        );
+      });
+  }
+
+  private async processChange(): Promise<void> {
+    if (!this.watcher) {
+      return;
+    }
+
+    const nextSnapshot = await this.loadAssignments();
+    if (!nextSnapshot) {
+      return;
+    }
+
+    const previous = this.lastSnapshot
+      ? new Map(this.lastSnapshot.entries())
+      : new Map<string, string>();
+
+    if (this.lastSnapshot && mapsEqual(this.lastSnapshot, nextSnapshot)) {
+      return;
+    }
+
+    this.lastSnapshot = nextSnapshot;
+    await this.emitChanges(previous, nextSnapshot);
+  }
+
+  private async emitChanges(
+    previous: Map<string, string>,
+    next: Map<string, string>
+  ): Promise<void> {
+    if (this.allListeners.size === 0 && this.keyListeners.size === 0) {
+      return;
+    }
+
+    for (const listener of [...this.allListeners]) {
+      await runCallback(listener, this.filePath);
+    }
+
+    if (this.keyListeners.size === 0) {
+      return;
+    }
+
+    for (const [key, listeners] of this.keyListeners.entries()) {
+      if (!listeners || listeners.size === 0) {
+        continue;
+      }
+      const previousValue = previous.has(key)
+        ? previous.get(key)
+        : undefined;
+      const nextValue = next.has(key) ? next.get(key) : undefined;
+
+      if (previousValue === nextValue) {
+        continue;
+      }
+
+      for (const listener of [...listeners]) {
+        await runCallback(() => listener(nextValue), this.filePath);
+      }
+    }
+  }
+
+  private async loadAssignments(): Promise<Map<string, string> | null> {
+    try {
+      const content = await this.readFile();
+      const document = parseEnvDocument(content);
+      return collectAssignments(document);
+    } catch {
+      return null;
+    }
+  }
+
+  private async cleanupWatcherIfIdle(): Promise<void> {
+    if (this.allListeners.size === 0 && this.keyListeners.size === 0) {
+      await this.disposeWatcher();
+      this.lastSnapshot = null;
+    }
+  }
+
+  private async disposeWatcher(): Promise<void> {
+    if (!this.watcher) {
+      this.watcherReady = null;
+      return;
+    }
+
+    const watcher = this.watcher;
+    this.watcher = null;
+    this.watcherReady = null;
+    this.changeChain = Promise.resolve();
+    await watcher.close();
   }
 }
 
@@ -316,6 +511,31 @@ function escapeDoubleQuoted(value: string): string {
     .replace(/\r/g, "\\r")
     .replace(/\t/g, "\\t")
     .replace(/\"/g, '\\"');
+}
+
+function mapsEqual(a: Map<string, string>, b: Map<string, string>): boolean {
+  if (a.size !== b.size) {
+    return false;
+  }
+
+  for (const [key, value] of a.entries()) {
+    if (b.get(key) !== value) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+async function runCallback(
+  callback: () => void | Promise<void>,
+  filePath: string
+): Promise<void> {
+  try {
+    await callback();
+  } catch (error) {
+    console.error(`[EnvSource] listener callback failed for ${filePath}:`, error);
+  }
 }
 
 function splitValueComment(raw: string): { valuePart: string; commentPart: string } {
