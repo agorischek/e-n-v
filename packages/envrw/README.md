@@ -50,6 +50,26 @@ await stopDebug();
 
 All methods are asynchronous. `write` performs surgical, in-place updates to preserve surrounding formatting, comments, and ordering whenever possible.
 
+## Formatting `.env` files
+
+Need to normalize existing files? The formatter removes duplicate keys, preserves section comments, and applies consistent quoting rules.
+
+```ts
+import { formatEnvContent, formatEnvFile, EnvSource } from "envrw";
+
+// Format in-memory content
+const input = `FOO=one\nFOO=two\nAPP_NAME=demo app`;
+const output = formatEnvContent(input);
+// -> APP_NAME="demo app"\nFOO=two\n
+
+// Format a file on disk (no-op when already formatted)
+await formatEnvFile(".env");
+
+// Or format via EnvSource
+const source = new EnvSource(".env");
+await source.format();
+```
+
 ## Development
 
 Install dependencies and run the test suite:

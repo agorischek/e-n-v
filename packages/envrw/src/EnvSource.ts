@@ -6,6 +6,8 @@ import {
   ParsedAssignment,
   parseEnvDocument,
 } from "./envParser";
+import { formatEnvContent } from "./formatEnv";
+import { decodeValue, encodeValue, splitValueComment } from "./valueUtils";
 
 export type EnvReadKey = string | string[] | undefined;
 
@@ -93,6 +95,18 @@ export class EnvSource {
 
     await ensureDirectory(this.filePath);
     await writeFile(this.filePath, nextContent, "utf8");
+  }
+
+  async format(): Promise<void> {
+    const originalContent = await this.readFile();
+    const formattedContent = formatEnvContent(originalContent);
+
+    if (formattedContent === originalContent) {
+      return;
+    }
+
+    await ensureDirectory(this.filePath);
+    await writeFile(this.filePath, formattedContent, "utf8");
   }
 
   async listen(callback: EnvChangeCallback): Promise<EnvUnlisten>;
@@ -418,101 +432,6 @@ function formatAssignmentLine(key: string, value: string): string {
   return `${key}=${value}`;
 }
 
-function decodeValue(raw: string): string {
-  if (!raw) {
-    return "";
-  }
-
-  const { valuePart } = splitValueComment(raw);
-
-  if (valuePart.startsWith("\"") && valuePart.endsWith("\"")) {
-    const inner = valuePart.slice(1, -1);
-    return inner
-      .replace(/\\n/g, "\n")
-      .replace(/\\r/g, "\r")
-      .replace(/\\t/g, "\t")
-      .replace(/\\\\/g, "\\")
-      .replace(/\\\"/g, '"');
-  }
-
-  if (valuePart.startsWith("'") && valuePart.endsWith("'")) {
-    return valuePart.slice(1, -1);
-  }
-
-  return valuePart;
-}
-
-function needsQuoting(value: string): boolean {
-  if (value === "") {
-    return false;
-  }
-  return /\s|#|=|\"|\n|\r/.test(value);
-}
-
-function encodeValue(value: string, existingRaw: string | null): string {
-  const preferredStyle = existingRaw ? detectStyle(existingRaw) : null;
-  const style = chooseStyle(value, preferredStyle);
-
-  if (style === "none") {
-    return value;
-  }
-
-  if (style === "single") {
-    return `'${value.replace(/'/g, "\\'")}'`;
-  }
-
-  return `"${escapeDoubleQuoted(value)}"`;
-}
-
-type QuoteStyle = "single" | "double" | "none";
-
-function detectStyle(raw: string): QuoteStyle {
-  if (raw.startsWith("\"") && raw.endsWith("\"")) {
-    return "double";
-  }
-  if (raw.startsWith("'") && raw.endsWith("'")) {
-    return "single";
-  }
-  return "none";
-}
-
-function chooseStyle(value: string, preferred: QuoteStyle | null): QuoteStyle {
-  if (preferred && canUseStyle(preferred, value)) {
-    return preferred;
-  }
-
-  if (!needsQuoting(value)) {
-    return "none";
-  }
-
-  if (canUseStyle("single", value)) {
-    return "single";
-  }
-
-  return "double";
-}
-
-function canUseStyle(style: QuoteStyle, value: string): boolean {
-  if (style === "none") {
-    return !needsQuoting(value);
-  }
-
-  if (style === "single") {
-    return !value.includes("'") && !value.includes("\n") && !value.includes("\r");
-  }
-
-  return true;
-}
-
-function escapeDoubleQuoted(value: string): string {
-  return value
-    .replace(/\\/g, "\\\\")
-    .replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r")
-    .replace(/\t/g, "\\t")
-    .replace(/\"/g, '\\"');
-}
-
 function mapsEqual(a: Map<string, string>, b: Map<string, string>): boolean {
   if (a.size !== b.size) {
     return false;
@@ -536,44 +455,4 @@ async function runCallback(
   } catch (error) {
     console.error(`[EnvSource] listener callback failed for ${filePath}:`, error);
   }
-}
-
-function splitValueComment(raw: string): { valuePart: string; commentPart: string } {
-  let inSingle = false;
-  let inDouble = false;
-
-  for (let index = 0; index < raw.length; index += 1) {
-    const char = raw[index];
-
-    if (char === "'" && !inDouble) {
-      inSingle = !inSingle;
-    } else if (char === '"' && !inSingle && !isEscaped(raw, index)) {
-      inDouble = !inDouble;
-    }
-
-    if (!inSingle && !inDouble && char === "#") {
-      let commentStart = index;
-      while (
-        commentStart > 0 &&
-        (raw[commentStart - 1] === " " || raw[commentStart - 1] === "\t")
-      ) {
-        commentStart -= 1;
-      }
-
-      return {
-        valuePart: raw.slice(0, commentStart),
-        commentPart: raw.slice(commentStart),
-      };
-    }
-  }
-
-  return { valuePart: raw, commentPart: "" };
-}
-
-function isEscaped(raw: string, index: number): boolean {
-  let backslashes = 0;
-  for (let i = index - 1; i >= 0 && raw[i] === "\\"; i -= 1) {
-    backslashes += 1;
-  }
-  return backslashes % 2 === 1;
 }

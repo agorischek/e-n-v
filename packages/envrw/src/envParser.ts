@@ -85,6 +85,7 @@ const parserInstance = new (class EnvFileParser extends CstParser {
         { ALT: () => this.CONSUME(Identifier) },
         { ALT: () => this.CONSUME(Export) },
         { ALT: () => this.CONSUME(Assign) },
+        { ALT: () => this.CONSUME(Spaces) },
         { ALT: () => this.CONSUME(Unknown) },
         { ALT: () => this.CONSUME(Comment) },
       ]);
@@ -310,6 +311,7 @@ const visitorInstance = new (class EnvVisitor extends BaseVisitor {
     Identifier?: IToken[];
     Export?: IToken[];
     Assign?: IToken[];
+    Spaces?: IToken[];
     Unknown?: IToken[];
     Comment?: IToken[];
   }): IToken[] {
@@ -318,6 +320,7 @@ const visitorInstance = new (class EnvVisitor extends BaseVisitor {
       ...(ctx.Identifier ?? []),
       ...(ctx.Export ?? []),
       ...(ctx.Assign ?? []),
+      ...(ctx.Spaces ?? []),
       ...(ctx.Unknown ?? []),
       ...(ctx.Comment ?? []),
     ].sort((a, b) => tokenStart(a) - tokenStart(b));
