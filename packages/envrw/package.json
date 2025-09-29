@@ -1,0 +1,12 @@
+{
+  "name": "envrw",
+  "module": "src/index.ts",
+  "type": "module",
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "chevrotain": "^11.0.3",
+    "chokidar": "^4.0.3"
+  }
+}

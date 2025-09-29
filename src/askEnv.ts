@@ -6,6 +6,7 @@ import {
   validateFromSchema,
   outro,
 } from ".";
+import { z } from "zod";
 import { EnvVarSpec } from "./specification/EnvVarSpec";
 import { ZodEnvVarSpec } from "./specification/ZodEnvVarSpec";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
@@ -38,11 +39,11 @@ type AskEnvOptions = {
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
- * @param schemas - Object mapping environment variable names to Zod schemas
+ * @param schemas - Object mapping environment variable names to Zod schemas, or a ZodObject
  * @param options - Configuration options
  */
 export async function askEnv(
-  schemas: SchemaMap,
+  schemas: SchemaMap | z.ZodObject<any>,
   options: AskEnvOptions = {}
 ): Promise<void> {
   const {
@@ -64,6 +65,14 @@ export async function askEnv(
     )}\n${color.gray("│")}  `
   );
 
+  // Convert ZodObject to SchemaMap if needed
+  let schemaMap: SchemaMap;
+  if (schemas instanceof z.ZodObject) {
+    schemaMap = schemas.shape as SchemaMap;
+  } else {
+    schemaMap = schemas;
+  }
+
   // Check if .env file exists (for DefaultEnvChannel only)
   // if (envChannel instanceof DefaultEnvChannel && existsSync(envPath) && !overwrite) {
   //   const confirmPrompt = new OverwritePrompt({
@@ -79,11 +88,11 @@ export async function askEnv(
   //   }
   // }
 
-  const schemaEntries = Object.entries(schemas);
+  const schemaEntries = Object.entries(schemaMap);
   let savedCount = 0;
 
   for (let index = 0; index < schemaEntries.length; index++) {
-  const [key, schema] = schemaEntries[index]!;
+    const [key, schema] = schemaEntries[index]!;
 
     if (index > 0) {
       console.log(`${color.gray("│")}  `);
@@ -93,12 +102,12 @@ export async function askEnv(
       new ZodEnvVarSpec(schema);
 
     const shouldMask =
-      type === "string" &&
-      isSecretKey(key, description, secretPatterns);
+      type === "string" && isSecretKey(key, description, secretPatterns);
 
     // Get current value from the channel for this specific key
     const currentValue = envChannel.get(key);
-    const current = currentValue && currentValue.trim() !== "" ? currentValue : undefined;
+    const current =
+      currentValue && currentValue.trim() !== "" ? currentValue : undefined;
 
     let prompt: EnvPrompt<unknown>;
 
