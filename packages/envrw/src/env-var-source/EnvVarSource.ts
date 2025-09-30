@@ -1,10 +1,7 @@
 import { promises as fs } from "node:fs";
 import { dirname, resolve } from "node:path";
 
-export type EnvRecord = Record<string, string>;
-export type EnvSelectionRecord<T extends readonly string[]> = {
-  [K in T[number]]: string | undefined;
-};
+import type { EnvRecord, EnvSelectionRecord } from "../types/index.ts";
 
 type PrimitiveEnvValue = string | number | boolean | bigint;
 
@@ -529,9 +526,4 @@ export class EnvVarSource {
       return segment;
     });
   }
-}
-
-export default EnvVarSource;
-export function source(filePath: string): EnvVarSource {
-  return new EnvVarSource(filePath);
 }
