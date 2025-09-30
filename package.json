@@ -6,8 +6,11 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-  "build": "tsup",
+    "build": "tsup",
     "test": "bun test",
     "dev": "bun run src/index.ts",
     "prepublishOnly": "bun run build"

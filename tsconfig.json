@@ -15,7 +15,7 @@
 
     // Output settings
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "packages/ask-env/src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -32,6 +32,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["src/**/*"],
+  "include": ["packages/ask-env/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
