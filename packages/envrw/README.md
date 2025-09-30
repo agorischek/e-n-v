@@ -12,7 +12,7 @@ bun add envrw
 ## Usage
 
 ```ts
-import EnvVarSource, { source } from "envrw";
+import EnvSource, { source } from "envrw";
 
 const env = source(".env");
 
@@ -44,7 +44,7 @@ await env.write("BANNER", "Line one\nLine two\nLine three");
 
 ### Convenience factory
 
-- `source(path = ".env")` simply returns a new `EnvVarSource(path)` if you prefer a terse helper.
+- `source(path = ".env")` simply returns a new `EnvSource(path)` if you prefer a terse helper.
 
 ### Synchronous helpers
 

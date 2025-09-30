@@ -2,9 +2,9 @@ import { promises as fs } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { get as getEnvContent, set as setEnvContent } from "./EnvContent.ts";
-import type { EnvPrimitiveValue, EnvRecord, EnvSelectionRecord } from "./types/index.ts";
+import type { EnvPrimitiveValue, EnvRecord, EnvSelectionRecord } from "./types.ts";
 
-export class EnvVarSource {
+export class EnvSource {
   private readonly filePath: string;
 
   constructor(filePath: string) {

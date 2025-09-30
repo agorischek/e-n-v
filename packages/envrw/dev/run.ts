@@ -1,4 +1,4 @@
-import { source } from "../src/index.ts";
+import { source } from "../src/source"
 import { join } from "desm";
 
 const path = join(import.meta.url, "../../../.env");
