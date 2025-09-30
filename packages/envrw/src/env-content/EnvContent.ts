@@ -1,9 +1,4 @@
-import { promises as fs } from "node:fs";
-import { dirname, resolve } from "node:path";
-
-import type { EnvRecord, EnvSelectionRecord } from "../types/index.ts";
-
-type PrimitiveEnvValue = string | number | boolean | bigint;
+import type { EnvPrimitiveValue, EnvRecord, EnvSelectionRecord } from "../types/index.ts";
 
 type AssignmentStyle = {
   leading?: string;
@@ -26,71 +21,53 @@ function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-export class EnvVarSource {
-  private readonly filePath: string;
+export class EnvContent {
+  private readonly lines: string[];
 
-  constructor(filePath: string) {
-    this.filePath = resolve(process.cwd(), filePath);
+  public constructor(content: string) {
+    const normalized = content.replace(/\r\n/g, "\n");
+    const lines = normalized === "" ? [] : normalized.split("\n");
+    this.lines = [...lines];
   }
 
-  async read(): Promise<EnvRecord>;
-  async read(name: string): Promise<string | undefined>;
-  async read<const Names extends readonly string[]>(names: Names): Promise<EnvSelectionRecord<Names>>;
-  async read(arg?: string | readonly string[]): Promise<
-    EnvRecord | string | undefined | Record<string, string | undefined>
-  > {
-    const lines = await this.readLines();
-
+  get(): EnvRecord;
+  get(name: string): string | undefined;
+  get<const Names extends readonly string[]>(names: Names): EnvSelectionRecord<Names>;
+  get(arg?: string | readonly string[]): EnvRecord | string | undefined | Record<string, string | undefined> {
     if (typeof arg === "undefined") {
-      const map = this.scanAll(lines);
+      const map = this.scanAll(this.lines);
       return Object.fromEntries(map) as EnvRecord;
     }
 
     if (typeof arg === "string") {
-      return this.scanForSingle(lines, arg);
+      return this.scanForSingle(this.lines, arg);
     }
 
     const normalizedTargets = Array.from(new Set(arg.map((name) => this.validateKey(name))));
-    const lookup = this.scanForMany(lines, new Set(normalizedTargets));
+    const lookup = this.scanForMany(this.lines, new Set(normalizedTargets));
 
     const ordered: [string, string | undefined][] = normalizedTargets.map((key) => [key, lookup.get(key)]);
     return Object.fromEntries(ordered) as Record<string, string | undefined>;
   }
 
-  async write(name: string, value: PrimitiveEnvValue): Promise<void>;
-  async write(values: Record<string, PrimitiveEnvValue>): Promise<void>;
-  async write(arg: string | Record<string, PrimitiveEnvValue>, value?: PrimitiveEnvValue): Promise<void> {
+  set(name: string, value: EnvPrimitiveValue): void;
+  set(values: Record<string, EnvPrimitiveValue>): void;
+  set(arg: string | Record<string, EnvPrimitiveValue>, value?: EnvPrimitiveValue): void {
     const entries = this.normalizeWriteArguments(arg, value);
 
     if (entries.length === 0) {
       return;
     }
 
-    await this.ensureDirectory();
-
-    let originalContent = "";
-    let normalizedContent = "";
-    let lines: string[] = [];
-
-    try {
-      originalContent = await fs.readFile(this.filePath, "utf8");
-      normalizedContent = originalContent.replace(/\r\n/g, "\n");
-      lines = normalizedContent === "" ? [] : normalizedContent.split("\n");
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
-        throw error;
-      }
-    }
-
     const replacements = new Map(entries);
     const touched = new Set<string>();
 
-    for (let i = lines.length - 1; i >= 0; ) {
+    for (let i = this.lines.length - 1; i >= 0; ) {
       if (replacements.size === 0) {
         break;
       }
 
-      const parsed = this.parseAssignmentEndingAt(lines, i);
+      const parsed = this.parseAssignmentEndingAt(this.lines, i);
       if (!parsed) {
         i -= 1;
         continue;
@@ -112,7 +89,7 @@ export class EnvVarSource {
       }
 
       const block = this.buildAssignmentLines(key, nextValue, { leading, exportPrefix, trailing });
-      lines.splice(startIndex, endIndex - startIndex + 1, ...block);
+      this.lines.splice(startIndex, endIndex - startIndex + 1, ...block);
       touched.add(key);
       replacements.delete(key);
       i = startIndex - 1;
@@ -124,34 +101,24 @@ export class EnvVarSource {
       }
 
       const block = this.buildAssignmentLines(key, val);
-      const insertIndex = lines.length > 0 && lines[lines.length - 1] === "" ? lines.length - 1 : lines.length;
-      lines.splice(insertIndex, 0, ...block);
+      const insertIndex = this.lines.length > 0 && this.lines[this.lines.length - 1] === "" ? this.lines.length - 1 : this.lines.length;
+      this.lines.splice(insertIndex, 0, ...block);
       touched.add(key);
     }
-
-    let nextContent = lines.join("\n");
-    if (nextContent.length > 0 && !nextContent.endsWith("\n")) {
-      nextContent += "\n";
-    }
-
-    if (nextContent === normalizedContent) {
-      return;
-    }
-
-    await fs.writeFile(this.filePath, nextContent, "utf8");
   }
 
-  private async ensureDirectory(): Promise<void> {
-    try {
-      await fs.mkdir(dirname(this.filePath), { recursive: true });
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
-        throw error;
-      }
+  toString(): string {
+    const joined = this.lines.join("\n");
+    if (joined.length === 0) {
+      return "";
     }
+    if (!joined.endsWith("\n")) {
+      return `${joined}\n`;
+    }
+    return joined;
   }
 
-  private normalizeWriteArguments(arg: string | Record<string, PrimitiveEnvValue>, value?: PrimitiveEnvValue): [string, string][] {
+  private normalizeWriteArguments(arg: string | Record<string, EnvPrimitiveValue>, value?: EnvPrimitiveValue): [string, string][] {
     if (typeof arg === "string") {
       if (typeof value === "undefined") {
         throw new TypeError(`Value for variable "${arg}" must be provided`);
@@ -184,7 +151,7 @@ export class EnvVarSource {
     return trimmed;
   }
 
-  private formatValueInput(value: PrimitiveEnvValue): string {
+  private formatValueInput(value: EnvPrimitiveValue): string {
     if (typeof value === "bigint") {
       return value.toString();
     }
@@ -217,19 +184,6 @@ export class EnvVarSource {
     }
     result += '"';
     return result;
-  }
-
-  private async readLines(): Promise<string[]> {
-    try {
-      const content = await fs.readFile(this.filePath, "utf8");
-      const normalized = content.replace(/\r\n/g, "\n");
-      return normalized === "" ? [] : normalized.split("\n");
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-        return [];
-      }
-      throw error;
-    }
   }
 
   private scanAll(lines: string[]): Map<string, string> {

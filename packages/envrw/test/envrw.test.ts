@@ -3,18 +3,18 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import EnvVarSource, { source as createSource } from "../src/index.ts";
+import  { EnvSource, EnvContent, source as createSource } from "../src/index.ts";
 
 async function createTempEnvSource() {
   const dir = await mkdtemp(join(tmpdir(), "envrw-"));
   const envPath = join(dir, ".env");
-  const source = new EnvVarSource(envPath);
+  const source = new EnvSource(envPath);
   return { dir, envPath, source } as const;
 }
 
-describe("EnvVarSource", () => {
+describe("EnvSource", () => {
   let envPath: string;
-  let envSource: EnvVarSource;
+  let envSource: EnvSource;
 
   beforeEach(async () => {
     ({ envPath, source: envSource } = await createTempEnvSource());
@@ -28,7 +28,7 @@ describe("EnvVarSource", () => {
 
   it("provides a source convenience factory", async () => {
     const helper = createSource(envPath);
-    expect(helper).toBeInstanceOf(EnvVarSource);
+    expect(helper).toBeInstanceOf(EnvSource);
 
     await helper.write("FOO", "bar");
     const value = await helper.read("FOO");
@@ -123,5 +123,24 @@ describe("EnvVarSource", () => {
     await envSource.write({ FOO: "x\ny", BAR: "z" });
     const content = await readFile(envPath, "utf8");
     expect(content).toBe('FOO="x\ny"\nBAR=z\n');
+  });
+});
+
+describe("EnvContent", () => {
+  it("retrieves values synchronously", () => {
+    const content = new EnvContent("FOO=1\nBAR=two\n");
+
+    expect(content.get()).toEqual({ FOO: "1", BAR: "two" });
+    expect(content.get("BAR")).toBe("two");
+    expect(content.get(["BAR", "BAZ"]).BAR).toBe("two");
+  });
+
+  it("sets values and preserves formatting", () => {
+    const content = new EnvContent("export NAME=old\n\n");
+
+    content.set("NAME", "new value");
+    content.set({ OTHER: "a b" });
+
+    expect(content.toString()).toBe('export NAME="new value"\n\nOTHER="a b"\n');
   });
 });

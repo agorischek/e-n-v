@@ -1,5 +1,5 @@
-import { EnvVarSource } from "../env-var-source/index.ts";
+import { EnvSource } from "../env-var-source/index.ts";
 
-export function source(filePath: string): EnvVarSource {
-  return new EnvVarSource(filePath);
+export function source(filePath: string): EnvSource {
+  return new EnvSource(filePath);
 }
