@@ -5,5 +5,6 @@ export type {
 } from "./types.ts";
 
 export { EnvSource } from "./EnvSource.ts";
-export { get, set } from "./EnvContent.ts";
+export { get } from "./get.ts";
+export { set } from "./set.ts";
 export { source } from "./source.ts";

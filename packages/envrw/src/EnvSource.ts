@@ -1,7 +1,8 @@
 import { promises as fs } from "node:fs";
 import { dirname, resolve } from "node:path";
 
-import { get as getEnvContent, set as setEnvContent } from "./EnvContent.ts";
+import { get } from "./get.ts";
+import { set } from "./set.ts";
 import type { EnvPrimitiveValue, EnvRecord, EnvSelectionRecord } from "./types.ts";
 
 export class EnvSource {
@@ -20,14 +21,14 @@ export class EnvSource {
     const content = await this.readContent();
 
     if (typeof arg === "undefined") {
-      return getEnvContent(content);
+      return get(content);
     }
 
     if (typeof arg === "string") {
-      return getEnvContent(content, arg);
+      return get(content, arg);
     }
 
-    return getEnvContent(content, arg);
+    return get(content, arg);
   }
 
   async write(name: string, value: EnvPrimitiveValue): Promise<void>;
@@ -37,9 +38,9 @@ export class EnvSource {
 
     let nextContent: string;
     if (typeof arg === "string") {
-      nextContent = setEnvContent(originalContent, arg, value!);
+      nextContent = set(originalContent, arg, value!);
     } else {
-      nextContent = setEnvContent(originalContent, arg);
+      nextContent = set(originalContent, arg);
     }
     if (nextContent === originalContent) {
       return;
