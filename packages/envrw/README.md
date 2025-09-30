@@ -1,6 +1,7 @@
 # envrw
 
-`envrw` is a tiny utility for reading and updating `.env` files without a full parser. It walks the file from the bottom up so the most recent assignment of a variable always wins.
+A read/write API for `.env` files.
+
 
 ## Installation
 
@@ -11,29 +12,39 @@ bun add envrw
 ## Usage
 
 ```ts
-import EnvVarSource from "envrw";
+import EnvVarSource, { source } from "envrw";
 
-const source = new EnvVarSource(".env");
+const env = source(".env");
 
-const all = await source.read();
+const all = await env.read();
 // → { APPNAME: "envrw-dev", URL: "https://example.test" }
 
-const name = await source.read("APPNAME");
+const name = await env.read("APPNAME");
 // → "envrw-dev"
 
-const selection = await source.read(["APPNAME", "URL"]);
+const selection = await env.read(["APPNAME", "URL"]);
 // → { APPNAME: "envrw-dev", URL: "https://example.test" }
 
-await source.write("APPNAME", "envrw-prod");
-await source.write({ URL: "https://prod.example" });
+await env.write("APPNAME", "envrw-prod");
+await env.write({ URL: "https://prod.example" });
+
+await env.write("BANNER", "Line one\nLine two\nLine three");
+// File now contains:
+// BANNER="Line one
+// Line two
+// Line three"
 ```
 
 ### Behavior
 
 - Reads scan the file from the end toward the top and short-circuit once they find the requested variable(s).
 - Writes replace the last occurrence of each variable in-place; if a variable does not exist, it is appended to the end of the file.
-- Values containing whitespace, quotes, backslashes, or comment markers are automatically wrapped in double quotes and escaped.
+- Values containing whitespace, quotes, backslashes, comment markers, or literal newlines are automatically wrapped in double quotes. Real newlines are emitted as-is (no `\n` escaping).
 - Files are always written with a trailing newline for POSIX friendliness.
+
+### Convenience factory
+
+- `source(path = ".env")` simply returns `new EnvVarSource(path)` if you prefer a terse helper.
 
 ### Notes
 

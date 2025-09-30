@@ -8,6 +8,23 @@ export type EnvSelectionRecord<T extends readonly string[]> = {
 
 type PrimitiveEnvValue = string | number | boolean | bigint;
 
+type AssignmentStyle = {
+  leading?: string;
+  exportPrefix?: string;
+  trailing?: string;
+};
+
+type ParsedAssignment = {
+  key: string;
+  value: string;
+  startIndex: number;
+  endIndex: number;
+  leading: string;
+  exportPrefix: string;
+  trailing: string;
+  lines: string[];
+};
+
 function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -28,8 +45,8 @@ export class EnvVarSource {
     const lines = await this.readLines();
 
     if (typeof arg === "undefined") {
-  const map = this.scanAll(lines);
-  return Object.fromEntries(map) as EnvRecord;
+      const map = this.scanAll(lines);
+      return Object.fromEntries(map) as EnvRecord;
     }
 
     if (typeof arg === "string") {
@@ -55,51 +72,72 @@ export class EnvVarSource {
     await this.ensureDirectory();
 
     let originalContent = "";
+    let normalizedContent = "";
     let lines: string[] = [];
 
     try {
       originalContent = await fs.readFile(this.filePath, "utf8");
-      lines = originalContent.split(/\n/);
+      normalizedContent = originalContent.replace(/\r\n/g, "\n");
+      lines = normalizedContent === "" ? [] : normalizedContent.split("\n");
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
         throw error;
       }
     }
 
-    const replacements = new Map(entries.map(([key, val]) => [key, val]));
+    const replacements = new Map(entries);
     const touched = new Set<string>();
 
-    for (let i = lines.length - 1; i >= 0; i -= 1) {
-      if (touched.size === replacements.size) break;
-      const line = lines[i]!;
-      const parsed = this.parseLine(line);
-      if (!parsed) continue;
-      const { key } = parsed;
-      if (!replacements.has(key) || touched.has(key)) continue;
+    for (let i = lines.length - 1; i >= 0; ) {
+      if (replacements.size === 0) {
+        break;
+      }
 
-      const serialized = this.serializeValue(replacements.get(key)!);
-      lines[i] = this.buildLineReplacement(line, key, serialized);
+      const parsed = this.parseAssignmentEndingAt(lines, i);
+      if (!parsed) {
+        i -= 1;
+        continue;
+      }
+
+      const { key, startIndex, endIndex, leading, exportPrefix, trailing, value: currentValue } = parsed;
+
+      const nextValue = replacements.get(key);
+      if (typeof nextValue === "undefined" || touched.has(key)) {
+        i = startIndex - 1;
+        continue;
+      }
+
+      if (nextValue === currentValue) {
+        touched.add(key);
+        replacements.delete(key);
+        i = startIndex - 1;
+        continue;
+      }
+
+      const block = this.buildAssignmentLines(key, nextValue, { leading, exportPrefix, trailing });
+      lines.splice(startIndex, endIndex - startIndex + 1, ...block);
+      touched.add(key);
+      replacements.delete(key);
+      i = startIndex - 1;
+    }
+
+    for (const [key, val] of entries) {
+      if (touched.has(key)) {
+        continue;
+      }
+
+      const block = this.buildAssignmentLines(key, val);
+      const insertIndex = lines.length > 0 && lines[lines.length - 1] === "" ? lines.length - 1 : lines.length;
+      lines.splice(insertIndex, 0, ...block);
       touched.add(key);
     }
 
-    const remaining: string[] = [];
-    for (const [key, val] of entries) {
-      if (!touched.has(key)) {
-        remaining.push(`${key}=${this.serializeValue(val)}`);
-      }
-    }
-
     let nextContent = lines.join("\n");
-    if (remaining.length > 0) {
-      if (nextContent.length > 0 && !nextContent.endsWith("\n")) {
-        nextContent += "\n";
-      }
-      nextContent += `${remaining.join("\n")}\n`;
-    } else if (nextContent.length > 0 && !nextContent.endsWith("\n")) {
+    if (nextContent.length > 0 && !nextContent.endsWith("\n")) {
       nextContent += "\n";
     }
 
-    if (remaining.length === 0 && nextContent === originalContent) {
+    if (nextContent === normalizedContent) {
       return;
     }
 
@@ -110,7 +148,6 @@ export class EnvVarSource {
     try {
       await fs.mkdir(dirname(this.filePath), { recursive: true });
     } catch (error) {
-      // ignore directory creation errors; appendFile will surface critical ones
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
         throw error;
       }
@@ -158,23 +195,38 @@ export class EnvVarSource {
   }
 
   private serializeValue(value: string): string {
-    const needsQuotes = /[\s"'\\#]|^$/.test(value) || /[\r\n]/.test(value);
+    const normalized = value.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    const needsQuotes = normalized.length === 0 || /[\s"'\\#]/.test(normalized) || normalized.includes("\n");
+
     if (!needsQuotes) {
-      return value;
+      return normalized;
     }
 
-    const escaped = value
-      .replace(/\\/g, "\\\\")
-      .replace(/\n/g, "\\n")
-      .replace(/\r/g, "\\r")
-      .replace(/"/g, '\\"');
-    return `"${escaped}"`;
+    let result = '"';
+    for (const char of normalized) {
+      if (char === '"') {
+        result += '\\"';
+        continue;
+      }
+      if (char === "\\") {
+        result += "\\\\";
+        continue;
+      }
+      if (char === "\n") {
+        result += "\n";
+        continue;
+      }
+      result += char;
+    }
+    result += '"';
+    return result;
   }
 
   private async readLines(): Promise<string[]> {
     try {
       const content = await fs.readFile(this.filePath, "utf8");
-      return content.split(/\n/);
+      const normalized = content.replace(/\r\n/g, "\n");
+      return normalized === "" ? [] : normalized.split("\n");
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         return [];
@@ -185,125 +237,301 @@ export class EnvVarSource {
 
   private scanAll(lines: string[]): Map<string, string> {
     const result = new Map<string, string>();
-    for (let i = lines.length - 1; i >= 0; i -= 1) {
-      const line = lines[i]!;
-      const parsed = this.parseLine(line);
-      if (!parsed) continue;
-      if (!result.has(parsed.key)) {
-        result.set(parsed.key, parsed.value);
+    this.iterateAssignments(lines, (assignment) => {
+      if (!result.has(assignment.key)) {
+        result.set(assignment.key, assignment.value);
       }
-    }
+    });
     return result;
   }
 
   private scanForSingle(lines: string[], target: string): string | undefined {
     const name = this.validateKey(target);
-    for (let i = lines.length - 1; i >= 0; i -= 1) {
-      const line = lines[i]!;
-      const parsed = this.parseLine(line);
-      if (!parsed) continue;
-      if (parsed.key === name) {
-        return parsed.value;
+    let found: string | undefined;
+    this.iterateAssignments(lines, (assignment) => {
+      if (assignment.key === name) {
+        found = assignment.value;
+        return true;
       }
-    }
-    return undefined;
+      return undefined;
+    });
+    return found;
   }
 
   private scanForMany(lines: string[], targets: Set<string>): Map<string, string> {
-    const normalizedTargets = new Set(targets);
+    const normalizedTargets = new Set<string>();
+    for (const target of targets) {
+      normalizedTargets.add(this.validateKey(target));
+    }
 
     const found = new Map<string, string>();
     const remaining = new Set(normalizedTargets);
 
-    for (let i = lines.length - 1; i >= 0; i -= 1) {
-  if (remaining.size === 0) break;
-      const line = lines[i]!;
-      const parsed = this.parseLine(line);
-      if (!parsed) continue;
-      if (!normalizedTargets.has(parsed.key) || found.has(parsed.key)) continue;
+    this.iterateAssignments(lines, (assignment) => {
+      if (!remaining.has(assignment.key) || found.has(assignment.key)) {
+        return;
+      }
 
-      found.set(parsed.key, parsed.value);
-      remaining.delete(parsed.key);
-    }
+      found.set(assignment.key, assignment.value);
+      remaining.delete(assignment.key);
+
+      if (remaining.size === 0) {
+        return true;
+      }
+      return undefined;
+    });
 
     return found;
   }
 
-  private parseLine(line: string): { key: string; value: string } | null {
-    if (!line || /^\s*$/.test(line)) {
+  private iterateAssignments(
+    lines: string[],
+    callback: (assignment: ParsedAssignment) => boolean | void | undefined,
+  ): void {
+    for (let i = lines.length - 1; i >= 0; ) {
+      const parsed = this.parseAssignmentEndingAt(lines, i);
+      if (!parsed) {
+        i -= 1;
+        continue;
+      }
+
+      const shouldStop = callback(parsed);
+      if (shouldStop === true) {
+        return;
+      }
+
+      i = parsed.startIndex - 1;
+    }
+  }
+
+  private parseAssignmentEndingAt(lines: string[], endIndex: number): ParsedAssignment | null {
+    const lastLine = lines[endIndex];
+    if (typeof lastLine !== "string" || this.isSkippableLine(lastLine)) {
       return null;
     }
 
-    const trimmedRight = line.replace(/\r$/, "");
-    let working = trimmedRight.trim();
+    const block: string[] = [];
+    let start = endIndex;
 
-    if (!working || working.startsWith("#")) {
+    while (start >= 0) {
+      const currentLine = lines[start];
+      if (typeof currentLine !== "string") {
+        break;
+      }
+
+      block.unshift(currentLine);
+
+      if (this.containsAssignmentOperator(currentLine)) {
+        const parsed = this.tryParseAssignmentBlock(block);
+        if (!parsed) {
+          return null;
+        }
+
+        return {
+          ...parsed,
+          startIndex: start,
+          endIndex,
+        };
+      }
+
+      start -= 1;
+    }
+
+    return null;
+  }
+
+  private isSkippableLine(line: string): boolean {
+    const trimmed = line.trim();
+    return trimmed.length === 0 || trimmed.startsWith("#");
+  }
+
+  private containsAssignmentOperator(line: string): boolean {
+    const trimmed = line.trimStart();
+    if (trimmed.length === 0 || trimmed.startsWith("#")) {
+      return false;
+    }
+
+    const commentIndex = trimmed.indexOf("#");
+    const inspect = commentIndex === -1 ? trimmed : trimmed.slice(0, commentIndex);
+    return inspect.includes("=");
+  }
+
+  private tryParseAssignmentBlock(blockLines: string[]): Omit<ParsedAssignment, "startIndex" | "endIndex"> | null {
+    if (blockLines.length === 0) {
       return null;
     }
 
-    if (working.startsWith("export ")) {
-      working = working.slice(7).trim();
+    const firstLine = blockLines[0]!;
+    const leadingMatch = firstLine.match(/^\s*/);
+    const leading = leadingMatch ? leadingMatch[0] : "";
+    let remainder = firstLine.slice(leading.length);
+
+    if (remainder.length === 0 || remainder.startsWith("#")) {
+      return null;
     }
 
-    const equalsIndex = working.indexOf("=");
+    let exportPrefix = "";
+    if (remainder.startsWith("export")) {
+      const afterExport = remainder.slice("export".length);
+      if (/^\s/.test(afterExport)) {
+        const spacingMatch = afterExport.match(/^\s+/);
+        const spacing = spacingMatch ? spacingMatch[0] : " ";
+        exportPrefix = `export${spacing}`;
+        remainder = afterExport.slice(spacing.length);
+      }
+    }
+
+    const equalsIndex = remainder.indexOf("=");
     if (equalsIndex === -1) {
       return null;
     }
 
-    const keyPart = working.slice(0, equalsIndex).trim();
-    if (!keyPart) {
+    const keyPart = remainder.slice(0, equalsIndex);
+    const key = this.validateKey(keyPart.trim());
+
+    const afterEqualsRaw = remainder.slice(equalsIndex + 1);
+    const afterEquals = afterEqualsRaw.replace(/^\s+/, "");
+    const otherLines = blockLines.slice(1);
+    const valueSource = [afterEquals, ...otherLines].join("\n");
+
+    const parsedValue = this.parseValueSource(valueSource);
+    if (!parsedValue) {
       return null;
     }
 
-    const valuePart = working.slice(equalsIndex + 1).trim();
+    const trailingTrimmed = parsedValue.trailing.trim();
+    if (trailingTrimmed.length > 0 && !trailingTrimmed.startsWith("#")) {
+      return null;
+    }
+
     return {
-      key: keyPart,
-      value: this.normalizeValue(valuePart),
+      key,
+      value: parsedValue.value,
+      leading,
+      exportPrefix,
+      trailing: parsedValue.trailing,
+      lines: [...blockLines],
     };
   }
 
-  private buildLineReplacement(original: string, key: string, value: string): string {
-    const leadingMatch = original.match(/^\s*/);
-    const leading = leadingMatch ? leadingMatch[0] : "";
-    let rest = original.slice(leading.length);
-
-    let exportSegment = "";
-    if (rest.startsWith("export")) {
-      const afterExport = rest.slice("export".length);
-      const spacingMatch = afterExport.match(/^\s+/);
-      const spacing = spacingMatch ? spacingMatch[0] : " ";
-      exportSegment = `export${spacing}`;
+  private parseValueSource(source: string): { value: string; trailing: string } | null {
+    if (source.length === 0) {
+      return { value: "", trailing: "" };
     }
 
-    return `${leading}${exportSegment}${key}=${value}`;
+    const firstChar = source[0];
+
+    if (firstChar === '"') {
+      return this.parseDoubleQuotedValue(source);
+    }
+
+    if (firstChar === "'") {
+      return this.parseSingleQuotedValue(source);
+    }
+
+    if (source.includes("\n")) {
+      return null;
+    }
+
+    const commentIndex = source.indexOf(" #");
+    const raw = commentIndex === -1 ? source : source.slice(0, commentIndex);
+    const trailing = commentIndex === -1 ? source.slice(raw.length) : source.slice(commentIndex);
+    return { value: raw.trim(), trailing };
   }
 
-  private normalizeValue(value: string): string {
-    if (value.length === 0) {
-      return "";
+  private parseDoubleQuotedValue(source: string): { value: string; trailing: string } | null {
+    let value = "";
+    let escaping = false;
+
+    for (let i = 1; i < source.length; i += 1) {
+      const char = source[i] ?? "";
+
+      if (escaping) {
+        switch (char) {
+          case "n":
+            value += "\n";
+            break;
+          case "r":
+            value += "\r";
+            break;
+          case "t":
+            value += "\t";
+            break;
+          case '"':
+            value += '"';
+            break;
+          case "\\":
+            value += "\\";
+            break;
+          default:
+            value += char;
+            break;
+        }
+        escaping = false;
+        continue;
+      }
+
+      if (char === "\\") {
+        escaping = true;
+        continue;
+      }
+
+      if (char === '"') {
+        const trailing = source.slice(i + 1);
+        return { value, trailing };
+      }
+
+      if (char === "\n") {
+        value += "\n";
+        continue;
+      }
+
+      value += char;
     }
 
-    const singleQuoted = value.startsWith("'") && value.endsWith("'");
-    const doubleQuoted = value.startsWith('"') && value.endsWith('"');
+    return null;
+  }
 
-    if (doubleQuoted) {
-      const inner = value.slice(1, -1);
-      return inner
-        .replace(/\\n/g, "\n")
-        .replace(/\\r/g, "\r")
-        .replace(/\\t/g, "\t")
-        .replace(/\\"/g, '"')
-        .replace(/\\\\/g, "\\");
+  private parseSingleQuotedValue(source: string): { value: string; trailing: string } | null {
+    let value = "";
+
+    for (let i = 1; i < source.length; i += 1) {
+      const char = source[i] ?? "";
+      if (char === "'") {
+        const trailing = source.slice(i + 1);
+        return { value, trailing };
+      }
+      if (char === "\n") {
+        value += "\n";
+        continue;
+      }
+      value += char;
     }
 
-    if (singleQuoted) {
-      return value.slice(1, -1);
-    }
+    return null;
+  }
 
-    const commentIndex = value.indexOf(" #");
-    const raw = commentIndex !== -1 ? value.slice(0, commentIndex).trimEnd() : value;
-    return raw.trim();
+  private buildAssignmentLines(key: string, value: string, style: AssignmentStyle = {}): string[] {
+    const leading = style.leading ?? "";
+    const exportPrefix = style.exportPrefix ?? "";
+    const trailing = style.trailing ?? "";
+    const serialized = this.serializeValue(value);
+    const segments = serialized.split("\n");
+
+    return segments.map((segment, index) => {
+      if (index === 0) {
+        const suffix = segments.length === 1 ? trailing : "";
+        return `${leading}${exportPrefix}${key}=${segment}${suffix}`;
+      }
+      if (index === segments.length - 1 && trailing && segments.length > 1) {
+        return `${segment}${trailing}`;
+      }
+      return segment;
+    });
   }
 }
 
 export default EnvVarSource;
+export function source(filePath: string): EnvVarSource {
+  return new EnvVarSource(filePath);
+}
