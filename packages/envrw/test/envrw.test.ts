@@ -3,18 +3,18 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import  { EnvSource, EnvContent, source as createSource } from "../src/index.ts";
+import EnvVarSource, { get as getContent, set as setContent, source as createSource } from "../src/index.ts";
 
 async function createTempEnvSource() {
   const dir = await mkdtemp(join(tmpdir(), "envrw-"));
   const envPath = join(dir, ".env");
-  const source = new EnvSource(envPath);
+  const source = new EnvVarSource(envPath);
   return { dir, envPath, source } as const;
 }
 
-describe("EnvSource", () => {
+describe("EnvVarSource", () => {
   let envPath: string;
-  let envSource: EnvSource;
+  let envSource: EnvVarSource;
 
   beforeEach(async () => {
     ({ envPath, source: envSource } = await createTempEnvSource());
@@ -28,7 +28,7 @@ describe("EnvSource", () => {
 
   it("provides a source convenience factory", async () => {
     const helper = createSource(envPath);
-    expect(helper).toBeInstanceOf(EnvSource);
+    expect(helper).toBeInstanceOf(EnvVarSource);
 
     await helper.write("FOO", "bar");
     const value = await helper.read("FOO");
@@ -37,34 +37,34 @@ describe("EnvSource", () => {
 
   it("replaces only the last assignment for an existing variable", async () => {
     await writeFile(envPath, "FOO=1\nBAR=2\nFOO=old\n", "utf8");
-  await envSource.write("FOO", "updated");
+    await envSource.write("FOO", "updated");
     const content = await readFile(envPath, "utf8");
     expect(content).toBe("FOO=1\nBAR=2\nFOO=updated\n");
   });
 
   it("appends variables that are not found", async () => {
     await writeFile(envPath, "FOO=1\n", "utf8");
-  await envSource.write({ BAR: "2", BAZ: "3" });
+    await envSource.write({ BAR: "2", BAZ: "3" });
     const content = await readFile(envPath, "utf8");
     expect(content).toBe("FOO=1\nBAR=2\nBAZ=3\n");
   });
 
   it("reads all, single, and multiple selections", async () => {
-  await envSource.write({ APP: "app", URL: "https://example.com", EMPTY: "" });
-  await envSource.write("URL", "https://override.test");
-  const all = await envSource.read();
+    await envSource.write({ APP: "app", URL: "https://example.com", EMPTY: "" });
+    await envSource.write("URL", "https://override.test");
+    const all = await envSource.read();
     expect(all).toEqual({ APP: "app", URL: "https://override.test", EMPTY: "" });
 
-  const single = await envSource.read("URL");
+    const single = await envSource.read("URL");
     expect(single).toBe("https://override.test");
 
-  const selection = await envSource.read(["URL", "APP", "MISSING"]);
+    const selection = await envSource.read(["URL", "APP", "MISSING"]);
     expect(selection).toEqual({ URL: "https://override.test", APP: "app", MISSING: undefined });
   });
 
   it("quotes values with spaces and preserves export prefix", async () => {
     await writeFile(envPath, "export NAME=old\n", "utf8");
-  await envSource.write({ NAME: "new value", OTHER: "a b" });
+    await envSource.write({ NAME: "new value", OTHER: "a b" });
     const content = await readFile(envPath, "utf8");
     expect(content).toBe('export NAME="new value"\nOTHER="a b"\n');
   });
@@ -73,7 +73,7 @@ describe("EnvSource", () => {
     const initial = "DEBUG=hey # Testing\n";
     await writeFile(envPath, initial, "utf8");
 
-  await envSource.write("DEBUG", "hey");
+    await envSource.write("DEBUG", "hey");
 
     const content = await readFile(envPath, "utf8");
     expect(content).toBe(initial);
@@ -82,7 +82,7 @@ describe("EnvSource", () => {
   it("keeps inline comments when updating values", async () => {
     await writeFile(envPath, "DEBUG=hey # Testing\n", "utf8");
 
-  await envSource.write("DEBUG", "updated");
+    await envSource.write("DEBUG", "updated");
 
     const content = await readFile(envPath, "utf8");
     expect(content).toBe("DEBUG=updated # Testing\n");
@@ -126,21 +126,20 @@ describe("EnvSource", () => {
   });
 });
 
-describe("EnvContent", () => {
+describe("env helpers", () => {
   it("retrieves values synchronously", () => {
-    const content = new EnvContent("FOO=1\nBAR=two\n");
+    const text = "FOO=1\nBAR=two\n";
 
-    expect(content.get()).toEqual({ FOO: "1", BAR: "two" });
-    expect(content.get("BAR")).toBe("two");
-    expect(content.get(["BAR", "BAZ"]).BAR).toBe("two");
+    expect(getContent(text)).toEqual({ FOO: "1", BAR: "two" });
+    expect(getContent(text, "BAR")).toBe("two");
+    expect(getContent(text, ["BAR", "BAZ"]).BAR).toBe("two");
   });
 
   it("sets values and preserves formatting", () => {
-    const content = new EnvContent("export NAME=old\n\n");
+    const initial = "export NAME=old\n\n";
+    const afterName = setContent(initial, "NAME", "new value");
+    const final = setContent(afterName, { OTHER: "a b" });
 
-    content.set("NAME", "new value");
-    content.set({ OTHER: "a b" });
-
-    expect(content.toString()).toBe('export NAME="new value"\n\nOTHER="a b"\n');
+    expect(final).toBe('export NAME="new value"\n\nOTHER="a b"\n');
   });
 });

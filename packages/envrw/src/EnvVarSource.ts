@@ -1,10 +1,10 @@
 import { promises as fs } from "node:fs";
 import { dirname, resolve } from "node:path";
 
-import { EnvContent } from "../env-content/index.ts";
-import type { EnvPrimitiveValue, EnvRecord, EnvSelectionRecord } from "../types/index.ts";
+import { get as getEnvContent, set as setEnvContent } from "./EnvContent.ts";
+import type { EnvPrimitiveValue, EnvRecord, EnvSelectionRecord } from "./types/index.ts";
 
-export class EnvSource {
+export class EnvVarSource {
   private readonly filePath: string;
 
   constructor(filePath: string) {
@@ -17,34 +17,31 @@ export class EnvSource {
   async read(arg?: string | readonly string[]): Promise<
     EnvRecord | string | undefined | Record<string, string | undefined>
   > {
-    const text = await this.readContent();
-    const envContent = new EnvContent(text);
+    const content = await this.readContent();
 
     if (typeof arg === "undefined") {
-      return envContent.get();
+      return getEnvContent(content);
     }
 
     if (typeof arg === "string") {
-      return envContent.get(arg);
+      return getEnvContent(content, arg);
     }
 
-    return envContent.get(arg);
+    return getEnvContent(content, arg);
   }
 
   async write(name: string, value: EnvPrimitiveValue): Promise<void>;
   async write(values: Record<string, EnvPrimitiveValue>): Promise<void>;
   async write(arg: string | Record<string, EnvPrimitiveValue>, value?: EnvPrimitiveValue): Promise<void> {
-    const originalText = await this.readContent();
-    const envContent = new EnvContent(originalText);
+    const originalContent = await this.readContent();
 
+    let nextContent: string;
     if (typeof arg === "string") {
-      envContent.set(arg, value!);
+      nextContent = setEnvContent(originalContent, arg, value!);
     } else {
-      envContent.set(arg);
+      nextContent = setEnvContent(originalContent, arg);
     }
-
-    const nextContent = envContent.toString();
-    if (nextContent === originalText) {
+    if (nextContent === originalContent) {
       return;
     }
 

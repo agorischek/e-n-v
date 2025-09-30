@@ -44,24 +44,24 @@ await env.write("BANNER", "Line one\nLine two\nLine three");
 
 ### Convenience factory
 
-- `source(path = ".env")` simply returns `new EnvVarSource(path)` if you prefer a terse helper.
+- `source(path = ".env")` simply returns a new `EnvVarSource(path)` if you prefer a terse helper.
 
-### Synchronous parsing with `EnvContent`
+### Synchronous helpers
 
-- `EnvContent.from(string)` creates an in-memory representation of `.env` content. The synchronous `get` and `set` methods mirror the `read`/`write` APIs when you don't need filesystem access.
+The package also exposes pure helpers for working with `.env` text without touching the filesystem.
+
+- `get(content, key?)` mirrors the async `read` overloads and returns either the full record, a single value, or a selection.
+- `set(content, key, value)` / `set(content, record)` returns a new string with the requested updates applied.
 
 ```ts
-import { EnvContent } from "envrw";
+import { get, set } from "envrw";
 
-const content = EnvContent.from("FOO=1\nBAR=2\n");
-const record = content.get();
+const text = "FOO=1\nBAR=2\n";
+const record = get(text);
 // → { FOO: "1", BAR: "2" }
 
-content.set({ BAR: "3", BAZ: "4" });
-content.set("EXTRA", "value");
-
-const next = content.toString();
-// → 'FOO=1\nBAR=3\nBAZ=4\nEXTRA=value\n'
+const next = set(text, { BAR: "3", BAZ: "4" });
+// → 'FOO=1\nBAR=3\nBAZ=4\n'
 ```
 
 ### Notes
