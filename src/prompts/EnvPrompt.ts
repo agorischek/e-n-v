@@ -206,8 +206,8 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
       (this as any)._track = true;
       this.value = this.getDefaultValue();
     } else {
-      // Set initial value to current
-      this.value = this.options.current ?? this.getDefaultValue();
+      // Set initial value based on cursor position
+      this.updateValue();
     }
 
     this.on("cursor", (action?: Action) => {
