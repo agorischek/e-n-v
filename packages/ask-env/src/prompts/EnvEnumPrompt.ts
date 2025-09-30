@@ -1,9 +1,6 @@
-import { EnvPrompt, EnvPromptOptions } from "./EnvPrompt";
-import {
-  SKIP_SYMBOL,
-  S_RADIO_ACTIVE,
-  S_RADIO_INACTIVE,
-} from "../visuals/symbols";
+import { EnvPrompt } from "./EnvPrompt";
+import type { EnvPromptOptions } from "./EnvPrompt";
+import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 
@@ -73,12 +70,7 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
           });
 
           // Add validation output with L-shaped pipe
-          if (this.error) {
-            output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
-          } else {
-            const hint = this.buildSkipHint();
-            output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
-          }
+          output += `${this.getBarEnd()}  ${this.renderFooter()}`;
 
           return output;
         },
@@ -145,10 +137,11 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
         this.error = "";
       }
 
-      // Handle tab key specifically - return SKIP_SYMBOL immediately
-      if (info.name === "tab") {
-        this.value = SKIP_SYMBOL as any;
-        this.state = "submit";
+      if (this.handleFooterKey(char, info)) {
+        return;
+      }
+
+      if (this.isOptionPickerOpen()) {
         return;
       }
     });
@@ -156,5 +149,19 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
 
   private updateValue() {
     this.value = this.options.options[this.cursor];
+  }
+
+  protected override onSelectPrevious(value: string | undefined): void {
+    if (value === undefined) {
+      return;
+    }
+
+    const index = this.options.options.indexOf(value);
+    if (index === -1) {
+      return;
+    }
+
+    this.cursor = index;
+    this.value = value;
   }
 }

@@ -1,11 +1,6 @@
-import { EnvPrompt, EnvPromptOptions } from "./EnvPrompt";
-import {
-  SKIP_SYMBOL,
-  S_STEP_ACTIVE,
-  S_RADIO_ACTIVE,
-  S_RADIO_INACTIVE,
-  S_CURSOR,
-} from "../visuals/symbols";
+import { EnvPrompt } from "./EnvPrompt";
+import type { EnvPromptOptions } from "./EnvPrompt";
+import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 
@@ -62,12 +57,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
             // Add validation output or placeholder text with L-shaped pipe
             output += "\n";
-            if (this.error) {
-              output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
-            } else {
-              const hint = this.buildSkipHint("Enter a number");
-              output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
-            }
+            output += `${this.getBarEnd()}  ${this.renderFooter("Enter a number")}`;
 
             return output;
           }
@@ -135,12 +125,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           });
 
           // Add validation output or placeholder text with L-shaped pipe
-          if (this.error) {
-            output += `${this.getBarEnd()}  ${this.colors.warn(this.error)}`;
-          } else {
-            const hint = this.buildSkipHint("Enter a number");
-            output += `${this.getBarEnd()}  ${this.colors.subtle(hint)}`;
-          }
+          output += `${this.getBarEnd()}  ${this.renderFooter("Enter a number")}`;
 
           return output;
         },
@@ -338,10 +323,12 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
         this.error = "";
       }
 
-      // Handle tab key specifically - return SKIP_SYMBOL immediately
-      if (info.name === "tab") {
-        this.value = SKIP_SYMBOL as any;
-        this.state = "submit";
+      // Delegate Tab and footer navigation to the shared handler
+      if (this.handleFooterKey(char, info)) {
+        return;
+      }
+
+      if (this.isOptionPickerOpen()) {
         return;
       }
 
@@ -505,5 +492,53 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
   protected getDefaultValue(): number {
     return 0;
+  }
+
+  protected override onSelectPrevious(value: number | undefined): void {
+    if (value === undefined) {
+      return;
+    }
+
+    const textInputIndex = this.getTextInputIndex();
+
+    if (this.options.current !== undefined && value === this.options.current) {
+      this.isTyping = false;
+      (this as any)._track = false;
+      this._clearUserInput();
+      this.cursor = 0;
+      this.updateValue();
+      return;
+    }
+
+    if (
+      this.options.default !== undefined &&
+      this.options.current !== this.options.default &&
+      value === this.options.default
+    ) {
+      this.isTyping = false;
+      (this as any)._track = false;
+      this._clearUserInput();
+      this.cursor = this.options.current !== undefined ? 1 : 0;
+      this.updateValue();
+      return;
+    }
+
+    this.cursor = textInputIndex;
+    this.isTyping = true;
+    (this as any)._track = true;
+    const valueString = `${value}`;
+    this._setUserInput(valueString);
+    this.updateValue();
+  }
+
+  private getTextInputIndex(): number {
+    let index = 0;
+    if (this.options.current !== undefined) index++;
+    if (
+      this.options.default !== undefined &&
+      this.options.current !== this.options.default
+    )
+      index++;
+    return index;
   }
 }

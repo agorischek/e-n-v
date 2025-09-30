@@ -9,6 +9,11 @@ export const S_STEP_SUBMIT = "✔";   // Checkmark (submit/saved state)
 export const S_STEP_SKIP = "⏭";     // Skip symbol (skipped state)
 export const S_STEP_CANCEL = "✕";   // X mark (cancel state)
 export const S_STEP_ERROR = "▲";
+export const S_STEP_PREVIOUS = "⏮"; // Previous symbol
+
+// Secret controls
+export const S_SECRET_SHOW = "👁";
+export const S_SECRET_HIDE = "🙈";
 
 // Selection circles for multiple choice prompts
 export const S_RADIO_ACTIVE = "●";  // Filled circle (selected)
