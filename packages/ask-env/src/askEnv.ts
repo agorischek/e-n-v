@@ -1,11 +1,11 @@
 import {
-  SchemaMap,
   intro,
   cancel,
   parseBoolean,
   validateFromSchema,
   outro,
 } from ".";
+import type { SchemaMap } from ".";
 import { z } from "zod";
 import { EnvVarSpec } from "./specification/EnvVarSpec";
 import { ZodEnvVarSpec } from "./specification/ZodEnvVarSpec";
@@ -20,7 +20,7 @@ import * as color from "picocolors";
 import { existsSync } from "fs";
 import { isCancel } from "@clack/core";
 import { EnvPrompt } from "./prompts/EnvPrompt";
-import { EnvChannel } from "./channels/EnvChannel";
+import type { EnvChannel } from "./channels/EnvChannel";
 import { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
 import type { ChannelOptions } from "./channels/ChannelOptions";
 import { resolveChannel } from "./channels/resolveChannel";
@@ -62,7 +62,7 @@ export async function askEnv(
   intro(
     `${theme.bgPrimary(
       color.black(" Environment Variable Setup ")
-    )}\n${color.gray("│")}  `
+    )}\n${color.gray("│")}  ${color.gray(`Using file ./${envPath}`)}\n${color.gray("│")}  `
   );
 
   // Convert ZodObject to SchemaMap if needed
@@ -72,6 +72,9 @@ export async function askEnv(
   } else {
     schemaMap = schemas;
   }
+
+  // Get all current values from the channel
+  const currentValues = await envChannel.get();
 
   // Check if .env file exists (for DefaultEnvChannel only)
   // if (envChannel instanceof DefaultEnvChannel && existsSync(envPath) && !overwrite) {
@@ -89,7 +92,7 @@ export async function askEnv(
   // }
 
   const schemaEntries = Object.entries(schemaMap);
-  let savedCount = 0;
+  const newValues: Record<string, string> = {};
 
   for (let index = 0; index < schemaEntries.length; index++) {
     const [key, schema] = schemaEntries[index]!;
@@ -104,8 +107,8 @@ export async function askEnv(
     const shouldMask =
       type === "string" && isSecretKey(key, description, secretPatterns);
 
-    // Get current value from the channel for this specific key
-    const currentValue = envChannel.get(key);
+    // Get current value for this specific key from the loaded values
+    const currentValue = currentValues[key];
     const current =
       currentValue && currentValue.trim() !== "" ? currentValue : undefined;
 
@@ -193,14 +196,16 @@ export async function askEnv(
     // Convert value to string for .env file
     const stringValue = String(value);
 
-    // Save the environment variable immediately
+    // Save the value immediately
     try {
-      await envChannel.set(key, stringValue);
-      savedCount++;
+      await envChannel.set({ [key]: stringValue });
     } catch (error) {
       cancel(`❌ Failed to save ${key}: ${error}`);
       return;
     }
+
+    // Collect the new value for potential future use
+    newValues[key] = stringValue;
   }
 
   // Final success message

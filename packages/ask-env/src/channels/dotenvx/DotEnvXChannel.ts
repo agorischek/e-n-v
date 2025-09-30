@@ -1,4 +1,4 @@
-import { EnvChannel } from "../EnvChannel";
+import type { EnvChannel } from "../EnvChannel";
 import type { DotEnvXGetOptions } from "./DotEnvXGetOptions";
 import type { DotEnvXSetOptions } from "./DotEnvXSetOptions";
 import type { DotEnvXInstance } from "./DotEnvXInstance";
@@ -34,11 +34,10 @@ export class DotEnvXChannel implements EnvChannel {
   }
 
   /**
-   * Get the value of an environment variable
-   * @param key - The environment variable key
-   * @returns The value of the environment variable, or undefined if not found
+   * Get all environment variables
+   * @returns Promise that resolves to object containing all environment variable key-value pairs
    */
-  get(key: string): string | undefined {
+  async get(): Promise<Record<string, string>> {
     try {
       // Use config with a placeholder object to avoid mutating process.env
       const myEnv = {};
@@ -50,24 +49,19 @@ export class DotEnvXChannel implements EnvChannel {
         ...this.getOptions,
       });
 
-      if (result.parsed && result.parsed[key]) {
-        return result.parsed[key];
-      }
-
-      return undefined;
+      return result.parsed || {};
     } catch {
-      // If there's an error (e.g., missing file), return undefined
-      return undefined;
+      // If there's an error (e.g., missing file), return empty object
+      return {};
     }
   }
 
   /**
-   * Set the value of an environment variable
-   * @param key - The environment variable key
-   * @param value - The value to set
-   * @returns Promise that resolves when the value has been set
+   * Set multiple environment variables
+   * @param values - Object containing key-value pairs to set
+   * @returns Promise that resolves when the values have been set
    */
-  async set(key: string, value: string): Promise<void> {
+  async set(values: Record<string, string>): Promise<void> {
     // Ensure the file exists
     if (!existsSync(this.defaultPath)) {
       writeFileSync(this.defaultPath, "", "utf8");
@@ -79,9 +73,12 @@ export class DotEnvXChannel implements EnvChannel {
         ...this.setOptions,
       };
 
-      this.dotenvx.set(key, value, options);
+      // Set each key-value pair
+      for (const [key, value] of Object.entries(values)) {
+        this.dotenvx.set(key, value, options);
+      }
     } catch (error) {
-      throw new Error(`Failed to set environment variable ${key}: ${error}`);
+      throw new Error(`Failed to set environment variables: ${error}`);
     }
   }
 

@@ -3,17 +3,15 @@
  */
 export interface EnvChannel {
   /**
-   * Get the value of an environment variable
-   * @param key - The environment variable key
-   * @returns The value of the environment variable, or undefined if not found
+   * Get all environment variables
+   * @returns Promise that resolves to object containing all environment variable key-value pairs
    */
-  get(key: string): string | undefined;
+  get(): Promise<Record<string, string>>;
 
   /**
-   * Set the value of an environment variable
-   * @param key - The environment variable key
-   * @param value - The value to set
-   * @returns Promise that resolves when the value has been set
+   * Set multiple environment variables
+   * @param values - Object containing key-value pairs to set
+   * @returns Promise that resolves when the values have been set
    */
-  set(key: string, value: string): Promise<void>;
+  set(values: Record<string, string>): Promise<void>;
 }

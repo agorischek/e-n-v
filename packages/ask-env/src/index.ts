@@ -48,14 +48,7 @@ export function validateFromSchema(schema: z.ZodSchema) {
   };
 }
 
-// Export environment file utilities
-export { loadEnvFromFile } from "./channels/default/DefaultEnvChannel";
-export { writeEnvToFile } from "./channels/default/DefaultEnvChannel";
-export {
-  updateEnvValue,
-  updateEnvContentValue,
-  updateEnvValues,
-} from "./channels/default/DefaultEnvChannel";
+// Export environment file utilities (moved to envrw package)
 
 // Export accessor types and implementations
 export type { EnvChannel } from "./channels/EnvChannel";
