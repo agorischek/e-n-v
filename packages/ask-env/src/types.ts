@@ -1,5 +1,5 @@
-import type z from "zod";
+import {type ZodSchema} from "zod";
 
-export type SchemaMap = Record<string, z.ZodSchema>;
+export type SchemaMap = Record<string, ZodSchema>;
 
 export type SecretPattern = string | RegExp;

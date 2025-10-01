@@ -6,6 +6,6 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "zod": "^4"
+    "zod": "^3.25.76"
   }
 }

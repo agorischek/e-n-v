@@ -7,8 +7,9 @@ import {
 } from "../../zod-env-var-schemas/src/schemas";
 import { join } from "desm";
 import { blue } from "picocolors";
+import type { SchemaMap } from "../src/types";
 
-const envMap = {
+const envMap: SchemaMap = {
   DATABASE_PASSWORD,
   RABBITMQ_URL,
   DATABASE_URL: z.string().describe("Database connection URL").default("hey"),

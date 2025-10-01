@@ -9,6 +9,6 @@ export function validateFromSchema(schema: z.ZodSchema) {
     if (result.success) {
       return undefined; // Valid
     }
-    return result.error.errors.map((e) => e.message).join(", ");
+    return result.error.issues.map((issue) => issue.message).join(", "); // Return error messages
   };
 }
