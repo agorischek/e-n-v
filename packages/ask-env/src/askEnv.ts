@@ -14,7 +14,7 @@ import { OverwritePrompt } from "./prompts/OverwritePrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import { SKIP_SYMBOL } from "./visuals/symbols";
+import { PREVIOUS_SYMBOL, SKIP_SYMBOL } from "./visuals/symbols";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { existsSync } from "fs";
@@ -29,6 +29,7 @@ import {
   isSecretKey,
   type SecretPattern,
 } from "./secret";
+import { cursorTo, clearLine, moveCursor } from "node:readline";
 
 type AskEnvOptions = {
   path?: string;
@@ -74,7 +75,7 @@ export async function askEnv(
   }
 
   // Get all current values from the channel
-  const currentValues = await envChannel.get();
+  let currentValues = await envChannel.get();
 
   // Check if .env file exists (for DefaultEnvChannel only)
   // if (envChannel instanceof DefaultEnvChannel && existsSync(envPath) && !overwrite) {
@@ -93,12 +94,17 @@ export async function askEnv(
 
   const schemaEntries = Object.entries(schemaMap);
   const newValues: Record<string, string> = {};
+  const promptLineHistory: number[] = [];
 
-  for (let index = 0; index < schemaEntries.length; index++) {
+  let index = 0;
+  while (index < schemaEntries.length) {
     const [key, schema] = schemaEntries[index]!;
+
+    let addedLines = 0;
 
     if (index > 0) {
       console.log(`${color.gray("│")}  `);
+      addedLines++;
     }
 
     const { type, defaultValue, description, required, values } =
@@ -108,9 +114,9 @@ export async function askEnv(
       type === "string" && isSecretKey(key, description, secretPatterns);
 
     // Get current value for this specific key from the loaded values
-    const currentValue = currentValues[key];
+    const storedValue = newValues[key] ?? currentValues[key];
     const current =
-      currentValue && currentValue.trim() !== "" ? currentValue : undefined;
+      storedValue && storedValue.trim() !== "" ? storedValue : undefined;
 
     let prompt: EnvPrompt<unknown>;
 
@@ -125,6 +131,7 @@ export async function askEnv(
           validate: validateFromSchema(schema),
           theme: theme,
           maxDisplayLength,
+          previousEnabled: index > 0,
         });
         break;
       }
@@ -139,6 +146,7 @@ export async function askEnv(
           validate: validateFromSchema(schema),
           theme: theme,
           maxDisplayLength,
+          previousEnabled: index > 0,
         });
         break;
       }
@@ -154,6 +162,7 @@ export async function askEnv(
           options: values || [],
           theme: theme,
           maxDisplayLength,
+          previousEnabled: index > 0,
         });
         break;
       }
@@ -169,11 +178,13 @@ export async function askEnv(
           theme: theme,
           maxDisplayLength,
           secret: shouldMask,
+          previousEnabled: index > 0,
         });
         break;
       }
     }
-    const value = await prompt.prompt();
+  const value = await prompt.prompt();
+  addedLines++;
 
     // Handle cancellation FIRST - check for clack cancel symbol
     if (
@@ -188,8 +199,21 @@ export async function askEnv(
       return;
     }
 
+    if (value === PREVIOUS_SYMBOL) {
+      clearConsoleLines(addedLines);
+      const previousLines = promptLineHistory.pop() ?? 0;
+      if (previousLines > 0) {
+        clearConsoleLines(previousLines);
+      }
+      index = Math.max(index - 1, 0);
+      continue;
+    }
+
+    promptLineHistory.push(addedLines);
+
     // Handle skip symbol
     if (value === SKIP_SYMBOL) {
+      index++;
       continue; // Skip this environment variable
     }
 
@@ -199,13 +223,13 @@ export async function askEnv(
     // Save the value immediately
     try {
       await envChannel.set({ [key]: stringValue });
+  currentValues = await envChannel.get();
+      newValues[key] = stringValue;
     } catch (error) {
       cancel(`❌ Failed to save ${key}: ${error}`);
       return;
     }
-
-    // Collect the new value for potential future use
-    newValues[key] = stringValue;
+    index++;
   }
 
   // Final success message
@@ -213,5 +237,23 @@ export async function askEnv(
     outro(theme.primary("Setup complete"));
   } catch (error) {
     cancel(`❌ Error displaying final message: ${error}`);
+  }
+}
+
+function clearConsoleLines(lineCount: number): void {
+  const output = process.stdout;
+  if (!output?.isTTY) {
+    return;
+  }
+
+  try {
+    for (let i = 0; i < lineCount; i++) {
+      moveCursor(output, 0, -1);
+      cursorTo(output, 0);
+      clearLine(output, 0);
+    }
+    cursorTo(output, 0);
+  } catch {
+    // If cursor manipulation fails (e.g., non-TTY), ignore and continue.
   }
 }

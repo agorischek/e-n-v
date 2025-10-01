@@ -1,4 +1,5 @@
 export const SKIP_SYMBOL = Symbol('ask-env:skip');
+export const PREVIOUS_SYMBOL = Symbol('ask-env:previous');
 
 // Clack-style Unicode symbols for visual formatting
 export const S_BAR = "│";           // Vertical bar (pipe)
@@ -12,8 +13,12 @@ export const S_STEP_ERROR = "▲";
 export const S_STEP_PREVIOUS = "⏮"; // Previous symbol
 
 // Secret controls
-export const S_SECRET_SHOW = "👁";
-export const S_SECRET_HIDE = "🙈";
+export const S_SECRET_SHOW = "◻";
+export const S_SECRET_HIDE = "■";
+
+// Toolbar controls
+export const S_TOOL_ACTIVE = "■";     // Filled square for active toolbar option
+export const S_TOOL_INACTIVE = "□";   // Outline square for inactive toolbar option
 
 // Selection circles for multiple choice prompts
 export const S_RADIO_ACTIVE = "●";  // Filled circle (selected)

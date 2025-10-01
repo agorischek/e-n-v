@@ -6,8 +6,9 @@ import {
   S_STEP_CANCEL,
   S_STEP_PREVIOUS,
   S_STEP_SKIP,
-  S_SECRET_HIDE,
-  S_SECRET_SHOW,
+  PREVIOUS_SYMBOL,
+  S_TOOL_ACTIVE,
+  S_TOOL_INACTIVE,
 } from "../visuals/symbols";
 import color from "picocolors";
 import type { Key } from "node:readline";
@@ -24,6 +25,7 @@ export interface EnvPromptOptions<T> {
   secret?: boolean;
   mask?: string;
   secretToggleShortcut?: string;
+  previousEnabled?: boolean;
 }
 
 export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
@@ -37,16 +39,15 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected secretToggleShortcut: string;
   protected optionMode: boolean;
   protected optionCursor: number;
+  protected allowSubmitFromOption: boolean;
+  protected consumeNextSubmit: boolean;
+  protected previousEnabled: boolean;
 
   private get hasAnyPreviousValue(): boolean {
-    return this.current !== undefined || this.default !== undefined;
-  }
-
-  private get previousValue(): T | undefined {
-    if (this.current !== undefined) {
-      return this.current;
+    if (!this.previousEnabled) {
+      return false;
     }
-    return this.default;
+    return this.current !== undefined || this.default !== undefined;
   }
 
   constructor(opts: EnvPromptOptions<T> & any, render?: boolean) {
@@ -61,10 +62,27 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.secretToggleShortcut = opts.secretToggleShortcut ?? "Ctrl+R";
     this.optionMode = false;
     this.optionCursor = 0;
+    this.allowSubmitFromOption = false;
+    this.consumeNextSubmit = false;
+    this.previousEnabled = opts.previousEnabled ?? true;
 
     this.on("finalize", () => {
-      this.resetSecretReveal();
+      const shouldConsumeSubmit =
+        this.consumeNextSubmit && !this.allowSubmitFromOption;
+
+      if (!shouldConsumeSubmit) {
+        this.resetSecretReveal();
+      }
+
       this.closeOptions();
+
+      this.consumeNextSubmit = false;
+      this.allowSubmitFromOption = false;
+
+      if (shouldConsumeSubmit) {
+        this.state = "active";
+        this.error = "";
+      }
     });
   }
 
@@ -87,21 +105,22 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
         return this.colors.subtle("");
       }
 
-      const parts = options.map((option, index) => {
-        const label = option.icon ? `${option.icon} ${option.label}` : option.label;
+      const separator = this.colors.subtle(" / ");
+      const optionStrings = options.map((option, index) => {
+        const isFocused = index === this.optionCursor;
+        const icon = isFocused
+          ? option.activeIcon ?? option.icon
+          : option.icon;
+        const label = icon ? `${icon} ${option.label}` : option.label;
 
         if (option.disabled) {
           return this.colors.dim(label);
         }
 
-        if (index === this.optionCursor) {
-          return this.theme.primary(`[${label}]`);
-        }
-
-        return this.colors.subtle(label);
+        return isFocused ? this.theme.primary(label) : this.colors.subtle(label);
       });
 
-      return parts.join(this.colors.subtle("   "));
+      return optionStrings.join(separator);
     }
 
     if (this.error) {
@@ -121,7 +140,9 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
       if (!this.optionMode) {
         this.openOptions();
       } else {
-        this.shiftOptionCursor(info.shift ? -1 : 1);
+        this.consumeNextSubmit = false;
+        this.allowSubmitFromOption = false;
+        this.closeOptions();
       }
       return true;
     }
@@ -132,9 +153,11 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
 
     switch (info.name) {
       case "left":
+      case "up":
         this.shiftOptionCursor(-1);
         return true;
       case "right":
+      case "down":
         this.shiftOptionCursor(1);
         return true;
       case "return":
@@ -142,27 +165,25 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
         this.activateOption();
         return true;
       case "escape":
+        this.consumeNextSubmit = false;
+        this.allowSubmitFromOption = false;
         this.closeOptions();
         return true;
-    }
-
-    if (this.optionMode && (info.name === "up" || info.name === "down")) {
-      this.closeOptions();
-      return false;
+      case "backspace":
+        this.consumeNextSubmit = false;
+        this.allowSubmitFromOption = false;
+        this.closeOptions();
+        return false;
     }
 
     if (
-      this.optionMode &&
       char &&
       char.length === 1 &&
       !info.ctrl &&
       !info.meta
     ) {
-      this.closeOptions();
-      return false;
-    }
-
-    if (this.optionMode && info.name === "backspace") {
+      this.consumeNextSubmit = false;
+      this.allowSubmitFromOption = false;
       this.closeOptions();
       return false;
     }
@@ -170,14 +191,12 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     return false;
   }
 
-  protected isOptionPickerOpen(): boolean {
+  protected shouldDimInputs(): boolean {
     return this.optionMode;
   }
 
-  protected onSelectPrevious(value: T | undefined): void {
-    if (value !== undefined) {
-      this.value = value;
-    }
+  protected isOptionPickerOpen(): boolean {
+    return this.optionMode;
   }
 
   protected truncateValue(value: string): string {
@@ -192,6 +211,25 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     const keyText = this.colors.subtle(this.colors.bold(this.key));
 
     return `${skipSymbol}  ${keyText}`;
+  }
+
+  protected renderPrevious(): string {
+    const previousSymbol = this.colors.dim(this.theme.primary(S_STEP_PREVIOUS));
+    const keyText = this.colors.subtle(this.colors.bold(this.key));
+
+    return `${previousSymbol}  ${keyText}`;
+  }
+
+  protected renderSymbolValue(value: symbol): string {
+    if (value === SKIP_SYMBOL) {
+      return this.renderSkipped();
+    }
+
+    if (value === PREVIOUS_SYMBOL) {
+      return this.renderPrevious();
+    }
+
+    return this.renderSkipped();
   }
 
   protected renderCancelled(): string {
@@ -229,6 +267,8 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
 
   private openOptions(): void {
     this.optionMode = true;
+    this.consumeNextSubmit = false;
+    this.allowSubmitFromOption = false;
     const options = this.getFooterOptions();
     this.optionCursor = this.findInitialCursor(options);
   }
@@ -264,24 +304,29 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
       return;
     }
 
+    this.allowSubmitFromOption = false;
+
     switch (selected.key) {
       case "skip":
+        this.allowSubmitFromOption = true;
+        this.consumeNextSubmit = false;
         this.closeOptions();
         this.value = SKIP_SYMBOL as any;
         this.state = "submit";
         break;
-      case "previous": {
-        const prev = this.previousValue;
-        this.state = "active";
-        this.error = "";
-        this.onSelectPrevious(prev);
+      case "previous":
+        this.allowSubmitFromOption = true;
+        this.consumeNextSubmit = false;
         this.closeOptions();
+        this.value = PREVIOUS_SYMBOL as any;
+        this.state = "submit";
         break;
-      }
       case "toggleSecret":
+        this.consumeNextSubmit = true;
         this.toggleSecretReveal();
         break;
       case "close":
+        this.consumeNextSubmit = true;
         this.closeOptions();
         break;
     }
@@ -326,28 +371,35 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
       {
         key: "skip",
         label: "Skip",
-        icon: S_STEP_SKIP,
-      },
-      {
-        key: "previous",
-        label: "Previous",
-        icon: S_STEP_PREVIOUS,
-        disabled: !this.hasAnyPreviousValue,
+        icon: S_TOOL_INACTIVE,
+        activeIcon: S_TOOL_ACTIVE,
       },
     ];
+
+    if (this.previousEnabled) {
+      options.push({
+        key: "previous",
+        label: "Previous",
+        icon: S_TOOL_INACTIVE,
+        activeIcon: S_TOOL_ACTIVE,
+        disabled: !this.hasAnyPreviousValue,
+      });
+    }
 
     if (this.secret) {
       options.push({
         key: "toggleSecret",
         label: this.isSecretRevealed() ? "Hide" : "Show",
-        icon: this.isSecretRevealed() ? S_SECRET_HIDE : S_SECRET_SHOW,
+        icon: S_TOOL_INACTIVE,
+        activeIcon: S_TOOL_ACTIVE,
       });
     }
 
     options.push({
       key: "close",
       label: "Close",
-      icon: S_STEP_CANCEL,
+      icon: S_TOOL_INACTIVE,
+      activeIcon: S_TOOL_ACTIVE,
     });
 
     return options;
@@ -358,5 +410,6 @@ interface FooterOption {
   key: "skip" | "previous" | "toggleSecret" | "close";
   label: string;
   icon?: string;
+  activeIcon?: string;
   disabled?: boolean;
 }

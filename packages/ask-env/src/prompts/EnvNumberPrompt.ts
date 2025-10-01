@@ -20,8 +20,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
-              // User skipped - show just the key in gray with hollow diamond
-              return this.renderSkipped();
+              return this.renderSymbolValue(this.value);
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
             return `${this.getSymbol()}  ${this.colors.bold(
@@ -46,13 +45,22 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           }
           output += "\n";
 
+          const dimInputs = this.shouldDimInputs();
+
           // If both current and default are undefined, show only text input
           if (this.current === undefined && this.default === undefined) {
+            const typedValue = this.userInput ?? "";
+
             if (this.isTyping) {
-              const displayText = `${this.userInput}█`;
-              output += `${this.getBar()}  ${this.colors.white(displayText)}`;
+              const displayText = dimInputs
+                ? this.colors.dim(typedValue)
+                : this.colors.white(`${typedValue}${S_CURSOR}`);
+              output += `${this.getBar()}  ${displayText}`;
             } else {
-              output += `${this.getBar()}  ${this.colors.white(S_CURSOR)}`;
+              const cursorDisplay = dimInputs
+                ? this.colors.dim(typedValue)
+                : this.colors.white(S_CURSOR);
+              output += `${this.getBar()}  ${cursorDisplay}`;
             }
 
             // Add validation output or placeholder text with L-shaped pipe
@@ -89,37 +97,50 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
           options.forEach((option, index) => {
             const isSelected = index === this.cursor;
-            const circle = isSelected
+            const circle = dimInputs
+              ? this.colors.dim(
+                  isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE
+                )
+              : isSelected
               ? this.theme.primary(S_RADIO_ACTIVE)
               : this.colors.dim(S_RADIO_INACTIVE);
 
             if (typeof option === "string") {
               // "Other" option
               if (this.isTyping) {
-                const displayText = `${this.userInput}█`;
-                output += `${this.getBar()}  ${circle} ${this.colors.white(
-                  displayText
-                )}\n`;
+                const typedValue = this.userInput ?? "";
+                const displayText = dimInputs
+                  ? this.colors.dim(typedValue)
+                  : this.colors.white(`${typedValue}${S_CURSOR}`);
+                output += `${this.getBar()}  ${circle} ${displayText}\n`;
               } else if (isSelected) {
                 // Show cursor immediately when selected, even before typing
-                output += `${this.getBar()}  ${circle} ${this.colors.white(
-                  S_CURSOR
-                )}\n`;
+                const selectedDisplay = dimInputs
+                  ? this.colors.dim(option)
+                  : this.colors.white(S_CURSOR);
+                output += `${this.getBar()}  ${circle} ${selectedDisplay}\n`;
               } else {
                 // "Other" is gray when not selected
-                output += `${this.getBar()}  ${circle} ${this.colors.subtle(
-                  option
-                )}\n`;
+                const text = dimInputs
+                  ? this.colors.dim(option)
+                  : this.colors.subtle(option);
+                output += `${this.getBar()}  ${circle} ${text}\n`;
               }
             } else {
               // Current/Default options
               const displayValue = this.formatValue(option.value);
-              const text = isSelected
+              const text = dimInputs
+                ? this.colors.dim(displayValue)
+                : isSelected
                 ? this.colors.white(displayValue)
                 : this.colors.subtle(displayValue);
-              const suffix = isSelected
-                ? this.colors.subtle(` ${option.label}`)
-                : "";
+              const annotation = ` ${option.label}`;
+              let suffix = "";
+              if (isSelected) {
+                suffix = dimInputs
+                  ? this.colors.dim(annotation)
+                  : this.colors.subtle(annotation);
+              }
               output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
             }
           });
@@ -130,6 +151,9 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           return output;
         },
         validate: (value: number | symbol) => {
+          if (typeof value === "symbol") {
+            return undefined;
+          }
           // If both current and default are undefined, we're in text-only mode
           if (
             this.options.current === undefined &&
@@ -248,6 +272,10 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
         this.options.current === undefined &&
         this.options.default === undefined
       ) {
+        return;
+      }
+
+      if (this.isOptionPickerOpen()) {
         return;
       }
 
@@ -492,43 +520,6 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
   protected getDefaultValue(): number {
     return 0;
-  }
-
-  protected override onSelectPrevious(value: number | undefined): void {
-    if (value === undefined) {
-      return;
-    }
-
-    const textInputIndex = this.getTextInputIndex();
-
-    if (this.options.current !== undefined && value === this.options.current) {
-      this.isTyping = false;
-      (this as any)._track = false;
-      this._clearUserInput();
-      this.cursor = 0;
-      this.updateValue();
-      return;
-    }
-
-    if (
-      this.options.default !== undefined &&
-      this.options.current !== this.options.default &&
-      value === this.options.default
-    ) {
-      this.isTyping = false;
-      (this as any)._track = false;
-      this._clearUserInput();
-      this.cursor = this.options.current !== undefined ? 1 : 0;
-      this.updateValue();
-      return;
-    }
-
-    this.cursor = textInputIndex;
-    this.isTyping = true;
-    (this as any)._track = true;
-    const valueString = `${value}`;
-    this._setUserInput(valueString);
-    this.updateValue();
   }
 
   private getTextInputIndex(): number {

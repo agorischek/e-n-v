@@ -19,8 +19,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
           if (this.state === "submit") {
             // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
             if (typeof this.value === "symbol") {
-              // User skipped - show just the key in gray with hollow diamond
-              return this.renderSkipped();
+              return this.renderSymbolValue(this.value);
             }
             // User provided a value - show ENV_KEY=value format with hollow diamond
             const valueStr = this.value ? "true" : "false";
@@ -52,9 +51,15 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
             { value: false, label: "false" },
           ];
 
+          const dimInputs = this.shouldDimInputs();
+
           options.forEach((option, index) => {
             const isSelected = index === this.cursor;
-            const circle = isSelected
+            const circle = dimInputs
+              ? this.colors.dim(
+                  isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE
+                )
+              : isSelected
               ? this.theme.primary(S_RADIO_ACTIVE)
               : this.colors.dim(S_RADIO_INACTIVE);
 
@@ -71,10 +76,19 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
               annotation = " (default)";
             }
 
-            const text = isSelected
+            const text = dimInputs
+              ? this.colors.dim(option.label)
+              : isSelected
               ? this.colors.white(option.label)
               : this.colors.subtle(option.label);
-            const suffix = isSelected ? this.colors.subtle(annotation) : "";
+            let suffix = "";
+            if (annotation) {
+              suffix = dimInputs
+                ? this.colors.dim(annotation)
+                : isSelected
+                ? this.colors.subtle(annotation)
+                : "";
+            }
             output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
           });
 
@@ -123,6 +137,10 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
         this.error = "";
       }
 
+      if (this.isOptionPickerOpen()) {
+        return;
+      }
+
       switch (action) {
         case "up":
           this.cursor = this.cursor === 0 ? 1 : 0;
@@ -158,12 +176,4 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
     this.value = this.cursor === 0;
   }
 
-  protected override onSelectPrevious(value: boolean | undefined): void {
-    if (value === undefined) {
-      return;
-    }
-
-    this.value = value;
-    this.cursor = value ? 0 : 1;
-  }
 }

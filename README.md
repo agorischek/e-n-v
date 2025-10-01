@@ -128,7 +128,7 @@ await askEnv(schemas, {
 
 ### Secret Inputs
 
-Variables whose keys or descriptions match the configured `secretPatterns` are collected with a password-style prompt. Input is masked with `•`, current/default values are hidden, and saved output never reveals the secret. Press `Tab` to open the action bar, then use `Tab` or the arrow keys to move between **Skip**, **Previous**, **Show/Hide**, and **Close** (press `Enter` to apply). **Skip** submits without a value, **Previous** restores the last saved value when one exists, **Show/Hide** toggles masking for secrets, and **Close** returns to normal editing. You can still press `Ctrl+R` at any time for a quick temporary reveal (the value auto-hides again on submit). Override `secretPatterns` to tailor which variables behave this way.
+Variables whose keys or descriptions match the configured `secretPatterns` are collected with a password-style prompt. Input is masked with `•`, current/default values are hidden, and saved output never reveals the secret. Press `Tab` to open the action bar, then use the arrow keys (←/→ or ↑/↓) to move between **Skip**, **Previous**, **Show/Hide**, and **Close**; press `Enter` to apply, or press `Tab` again to return to the input. **Skip** submits without a value, **Previous** jumps back to the prior variable (prefilling the last value you saved), **Show/Hide** toggles masking for secrets, and **Close** returns to normal editing. You can still press `Ctrl+R` at any time for a quick temporary reveal (the value auto-hides again on submit). Override `secretPatterns` to tailor which variables behave this way.
 
 ## Schema Types & Placeholders
 
