@@ -1,6 +1,6 @@
 import { ThemedPrompt } from "./ThemedPrompt";
 import { Theme } from "../visuals/Theme";
-import { SECRET_MASK_CHAR } from "../utils/secrets";
+import { SECRET_MASK } from "../visuals/symbols";
 import {
   SKIP_SYMBOL,
   S_STEP_CANCEL,
@@ -57,7 +57,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.default = opts.default;
     this.maxDisplayLength = opts.maxDisplayLength ?? 40;
     this.secret = Boolean(opts.secret);
-    this.mask = opts.mask ?? SECRET_MASK_CHAR;
+    this.mask = opts.mask ?? SECRET_MASK;
     this.revealSecret = false;
     this.secretToggleShortcut = opts.secretToggleShortcut ?? "Ctrl+R";
     this.optionMode = false;

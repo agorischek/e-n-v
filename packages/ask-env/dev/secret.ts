@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { askEnv } from "../src/askEnv";
-import { DEFAULT_SECRET_PATTERNS } from "../src/utils/secrets";
+import { DEFAULT_SECRET_PATTERNS } from "../src";
 
 await askEnv(
   {
@@ -18,6 +18,6 @@ await askEnv(
       .describe("Custom secret value that relies on the extended pattern list"),
   },
   {
-    secretPatterns: [...DEFAULT_SECRET_PATTERNS, /CUSTOM_SENSITIVE/i],
+    secrets: [...DEFAULT_SECRET_PATTERNS, /CUSTOM_SENSITIVE/i],
   }
 );

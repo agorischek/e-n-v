@@ -1,14 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import {
-  DEFAULT_SECRET_PATTERNS,
   maskSecretValue,
   isSecretKey,
-  SECRET_MASK_CHAR,
 } from "../utils/secrets";
+import { SECRET_MASK } from "../visuals/symbols";
+import { DEFAULT_SECRET_PATTERNS } from "../constants";
 
 describe("secret utilities", () => {
   it("masks values using the default mask", () => {
-    expect(maskSecretValue("hunter2")).toBe(SECRET_MASK_CHAR.repeat(7));
+    expect(maskSecretValue("hunter2")).toBe(SECRET_MASK.repeat(7));
   });
 
   it("masks values using a custom mask character", () => {

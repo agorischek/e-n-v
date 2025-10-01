@@ -15,5 +15,5 @@ await askEnv(schemas, {
 console.log("\nTesting with custom 20 character limit:");
 await askEnv(schemas, {
   path: ".env.test-truncation-20",
-  maxDisplayLength: 20
+  truncate: 20
 });

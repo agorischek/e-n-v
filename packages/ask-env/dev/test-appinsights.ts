@@ -19,5 +19,5 @@ await askEnv(schemas, {
 console.log("\nTesting with custom 30 character limit:");
 await askEnv(schemas, {
   path: ".env.test-appinsights-30",
-  maxDisplayLength: 30
+  truncate: 30
 });
