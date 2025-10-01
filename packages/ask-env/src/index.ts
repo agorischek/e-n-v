@@ -8,4 +8,6 @@ export { resolveChannel } from "./channels/resolveChannel";
 
 export * from "../../zod-env-var-schemas/src/schemas";
 
+export { DEFAULT_SECRET_PATTERNS } from "./constants";
+
 export { askEnv } from "./askEnv";

@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { askEnv } from "../src/askEnv";
-import { DATABASE_PASSWORD, PORT, RABBITMQ_URL } from "../../zod-env-var-schemas/src/schemas";
+import {
+  DATABASE_PASSWORD,
+  PORT,
+  RABBITMQ_URL,
+} from "../../zod-env-var-schemas/src/schemas";
 import { join } from "desm";
+import { blue } from "picocolors";
 
 const envMap = {
   DATABASE_PASSWORD,
@@ -16,4 +21,4 @@ const envMap = {
 
 const path = join(import.meta.url, ".env");
 
-await askEnv(envMap, { path });
+await askEnv(envMap, { path, theme: blue });

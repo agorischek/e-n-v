@@ -4,7 +4,7 @@ import {
   maskSecretValue,
   isSecretKey,
   SECRET_MASK_CHAR,
-} from "../secret";
+} from "../utils/secrets";
 
 describe("secret utilities", () => {
   it("masks values using the default mask", () => {

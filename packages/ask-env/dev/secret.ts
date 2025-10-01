@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { askEnv } from "../src/askEnv";
-import { DEFAULT_SECRET_PATTERNS } from "../src/secret";
+import { DEFAULT_SECRET_PATTERNS } from "../src/utils/secrets";
 
 await askEnv(
   {

@@ -3,7 +3,7 @@ import type { EnvPromptOptions } from "./EnvPrompt";
 import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
-import { maskSecretValue } from "../secret";
+import { maskSecretValue } from "../utils/secrets";
 
 interface EnvStringPromptOptions extends EnvPromptOptions<string> {}
 

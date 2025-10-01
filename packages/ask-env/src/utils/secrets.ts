@@ -1,22 +1,10 @@
-export type SecretPattern = string | RegExp;
+import type { SecretPattern } from "../types";
+import { SECRET_MASK } from "../visuals/symbols";
 
-export const SECRET_MASK_CHAR = "•";
-
-export const DEFAULT_SECRET_PATTERNS: ReadonlyArray<SecretPattern> = Object.freeze([
-  /password/i,
-  /passphrase/i,
-  /secret/i,
-  /token/i,
-  /api[_-]?key/i,
-  /client[_-]?secret/i,
-  /private[_-]?key/i,
-  /connection(?:[_-]?string)?/i,
-  /database(?:[_-]?url)?/i,
-  /access[_-]?key/i,
-  /credential/i,
-]);
-
-function isSecretMatch(value: string | undefined, pattern: SecretPattern): boolean {
+function isSecretMatch(
+  value: string | undefined,
+  pattern: SecretPattern
+): boolean {
   if (!value) {
     return false;
   }
@@ -53,7 +41,10 @@ export function isSecretKey(
   return false;
 }
 
-export function maskSecretValue(value: string, maskChar: string = SECRET_MASK_CHAR): string {
+export function maskSecretValue(
+  value: string,
+  maskChar: string = SECRET_MASK
+): string {
   if (!value) {
     return value;
   }

@@ -26,3 +26,6 @@ export const S_RADIO_INACTIVE = "○"; // Empty circle (unselected)
 
 // Cursor symbol
 export const S_CURSOR = "█";        // Block cursor
+
+export const SECRET_MASK = "•";
+

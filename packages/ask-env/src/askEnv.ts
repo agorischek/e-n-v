@@ -1,5 +1,4 @@
 import type { SchemaMap } from "./types";
-import { z } from "zod";
 import { ZodEnvVarSpec } from "./specification/ZodEnvVarSpec";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
@@ -16,25 +15,15 @@ import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { isCancel } from "@clack/core";
 import { EnvPrompt } from "./prompts/EnvPrompt";
-import type { EnvChannelOptions } from "./channels/EnvChannelOptions";
 import { resolveChannel } from "./channels/resolveChannel";
-import {
-  DEFAULT_SECRET_PATTERNS,
-  isSecretKey,
-  type SecretPattern,
-} from "./secret";
 import { cursorTo, clearLine, moveCursor } from "node:readline";
 import { relative } from "node:path";
 import { parseBoolean } from "./utils/parseBoolean";
 import { validateFromSchema } from "./utils/validateFromSchema";
 import { stdin, stdout } from "node:process";
-
-type AskEnvOptions = {
-  path?: string;
-  channel?: EnvChannelOptions;
-  maxDisplayLength?: number;
-  secretPatterns?: Array<SecretPattern>;
-};
+import { DEFAULT_SECRET_PATTERNS } from "./constants";
+import { isSecretKey } from "./utils/secrets";
+import type { AskEnvOptions } from "./AskEnvOptions";
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
@@ -42,23 +31,22 @@ type AskEnvOptions = {
  * @param options - Configuration options
  */
 export async function askEnv(
-  schemas: SchemaMap | z.ZodObject<any>,
+  schemas: SchemaMap,
   options: AskEnvOptions = {}
 ): Promise<void> {
   const {
     path: envPath = ".env",
     channel,
-    maxDisplayLength = 40,
-    secretPatterns = DEFAULT_SECRET_PATTERNS,
+    truncate = 40,
+    secrets = DEFAULT_SECRET_PATTERNS,
+    theme,
   } = options;
 
   const output = stdout;
 
-  // Create channel using the resolver
   const envChannel = resolveChannel(channel, envPath);
 
-  // Create theme object using magenta as the primary color
-  const theme = new Theme(color.magenta);
+  const resolvedTheme = new Theme(theme ?? color.magenta);
 
   const relativeEnvPath = relative(process.cwd(), envPath);
   const displayEnvPath =
@@ -69,40 +57,17 @@ export async function askEnv(
       : `./${relativeEnvPath}`;
 
   output.write(
-    `${color.gray(S_BAR_START)}  ${`${theme.bgPrimary(
+    `${color.gray(S_BAR_START)}  ${`${resolvedTheme.bgPrimary(
       color.black(" Environment Variable Setup ")
     )}\n${color.gray("│")}  ${color.gray(`${displayEnvPath}`)}\n${color.gray(
       "│"
     )}  `}\n`
   );
 
-  // Convert ZodObject to SchemaMap if needed
-  let schemaMap: SchemaMap;
-  if (schemas instanceof z.ZodObject) {
-    schemaMap = schemas.shape as SchemaMap;
-  } else {
-    schemaMap = schemas;
-  }
-
   // Get all current values from the channel
   let currentValues = await envChannel.get();
 
-  // Check if .env file exists (for DefaultEnvChannel only)
-  // if (envChannel instanceof DefaultEnvChannel && existsSync(envPath) && !overwrite) {
-  //   const confirmPrompt = new OverwritePrompt({
-  //     message: `${envPath} already exists. Do you want to overwrite it?`,
-  //     theme: theme,
-  //   } as any); // ThemedPromptOptions requires render function but OverwritePrompt provides its own
-
-  //   const shouldOverwrite = await confirmPrompt.prompt();
-
-  //   if (isCancel(shouldOverwrite) || !shouldOverwrite) {
-  //     cancel("Setup cancelled.");
-  //     return;
-  //   }
-  // }
-
-  const schemaEntries = Object.entries(schemaMap);
+  const schemaEntries = Object.entries(schemas);
   const newValues: Record<string, string> = {};
   const promptLineHistory: number[] = [];
 
@@ -121,7 +86,7 @@ export async function askEnv(
       new ZodEnvVarSpec(schema);
 
     const shouldMask =
-      type === "string" && isSecretKey(key, description, secretPatterns);
+      type === "string" && isSecretKey(key, description, secrets);
 
     // Get current value for this specific key from the loaded values
     const storedValue = newValues[key] ?? currentValues[key];
@@ -139,8 +104,8 @@ export async function askEnv(
           default: typeof defaultValue === "boolean" ? defaultValue : undefined,
           required,
           validate: validateFromSchema(schema),
-          theme: theme,
-          maxDisplayLength,
+          theme: resolvedTheme,
+          maxDisplayLength: truncate,
           previousEnabled: index > 0,
         });
         break;
@@ -154,8 +119,8 @@ export async function askEnv(
           default: typeof defaultValue === "number" ? defaultValue : undefined,
           required,
           validate: validateFromSchema(schema),
-          theme: theme,
-          maxDisplayLength,
+          theme: resolvedTheme,
+          maxDisplayLength: truncate,
           previousEnabled: index > 0,
         });
         break;
@@ -170,8 +135,8 @@ export async function askEnv(
           required,
           validate: validateFromSchema(schema),
           options: values || [],
-          theme: theme,
-          maxDisplayLength,
+          theme: resolvedTheme,
+          maxDisplayLength: truncate,
           previousEnabled: index > 0,
         });
         break;
@@ -185,8 +150,8 @@ export async function askEnv(
           default: typeof defaultValue === "string" ? defaultValue : undefined,
           required,
           validate: validateFromSchema(schema),
-          theme: theme,
-          maxDisplayLength,
+          theme: resolvedTheme,
+          maxDisplayLength: truncate,
           secret: shouldMask,
           previousEnabled: index > 0,
         });
@@ -236,7 +201,11 @@ export async function askEnv(
       currentValues = await envChannel.get();
       newValues[key] = stringValue;
     } catch (error) {
-      output.write(`${color.gray(S_BAR_END)}  ${color.red(`Failed to save ${key}: ${error}`)}\n\n`);
+      output.write(
+        `${color.gray(S_BAR_END)}  ${color.red(
+          `Failed to save ${key}: ${error}`
+        )}\n\n`
+      );
       return;
     }
     index++;

@@ -1,6 +1,6 @@
 import { ThemedPrompt } from "./ThemedPrompt";
 import { Theme } from "../visuals/Theme";
-import { SECRET_MASK_CHAR } from "../secret";
+import { SECRET_MASK_CHAR } from "../utils/secrets";
 import {
   SKIP_SYMBOL,
   S_STEP_CANCEL,
