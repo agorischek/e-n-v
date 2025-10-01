@@ -1,28 +1,22 @@
-import {
-  intro,
-  cancel,
-  parseBoolean,
-  validateFromSchema,
-  outro,
-} from ".";
-import type { SchemaMap } from ".";
+import type { SchemaMap } from "./types";
 import { z } from "zod";
-import { EnvVarSpec } from "./specification/EnvVarSpec";
 import { ZodEnvVarSpec } from "./specification/ZodEnvVarSpec";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
-import { OverwritePrompt } from "./prompts/OverwritePrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import { PREVIOUS_SYMBOL, SKIP_SYMBOL } from "./visuals/symbols";
+import {
+  PREVIOUS_SYMBOL,
+  S_BAR,
+  S_BAR_END,
+  S_BAR_START,
+  SKIP_SYMBOL,
+} from "./visuals/symbols";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
-import { existsSync } from "fs";
 import { isCancel } from "@clack/core";
 import { EnvPrompt } from "./prompts/EnvPrompt";
-import type { EnvChannel } from "./channels/EnvChannel";
-import { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
-import type { ChannelOptions } from "./channels/ChannelOptions";
+import type { EnvChannelOptions } from "./channels/EnvChannelOptions";
 import { resolveChannel } from "./channels/resolveChannel";
 import {
   DEFAULT_SECRET_PATTERNS,
@@ -30,10 +24,14 @@ import {
   type SecretPattern,
 } from "./secret";
 import { cursorTo, clearLine, moveCursor } from "node:readline";
+import { relative } from "node:path";
+import { parseBoolean } from "./utils/parseBoolean";
+import { validateFromSchema } from "./utils/validateFromSchema";
+import { stdin, stdout } from "node:process";
 
 type AskEnvOptions = {
   path?: string;
-  channel?: ChannelOptions;
+  channel?: EnvChannelOptions;
   maxDisplayLength?: number;
   secretPatterns?: Array<SecretPattern>;
 };
@@ -54,16 +52,28 @@ export async function askEnv(
     secretPatterns = DEFAULT_SECRET_PATTERNS,
   } = options;
 
+  const output = stdout;
+
   // Create channel using the resolver
   const envChannel = resolveChannel(channel, envPath);
 
   // Create theme object using magenta as the primary color
   const theme = new Theme(color.magenta);
 
-  intro(
-    `${theme.bgPrimary(
+  const relativeEnvPath = relative(process.cwd(), envPath);
+  const displayEnvPath =
+    relativeEnvPath === ""
+      ? "."
+      : relativeEnvPath.startsWith(".")
+      ? relativeEnvPath
+      : `./${relativeEnvPath}`;
+
+  output.write(
+    `${color.gray(S_BAR_START)}  ${`${theme.bgPrimary(
       color.black(" Environment Variable Setup ")
-    )}\n${color.gray("│")}  ${color.gray(`Using file ./${envPath}`)}\n${color.gray("│")}  `
+    )}\n${color.gray("│")}  ${color.gray(`${displayEnvPath}`)}\n${color.gray(
+      "│"
+    )}  `}\n`
   );
 
   // Convert ZodObject to SchemaMap if needed
@@ -183,8 +193,8 @@ export async function askEnv(
         break;
       }
     }
-  const value = await prompt.prompt();
-  addedLines++;
+    const value = await prompt.prompt();
+    addedLines++;
 
     // Handle cancellation FIRST - check for clack cancel symbol
     if (
@@ -223,21 +233,18 @@ export async function askEnv(
     // Save the value immediately
     try {
       await envChannel.set({ [key]: stringValue });
-  currentValues = await envChannel.get();
+      currentValues = await envChannel.get();
       newValues[key] = stringValue;
     } catch (error) {
-      cancel(`❌ Failed to save ${key}: ${error}`);
+      output.write(`${color.gray(S_BAR_END)}  ${color.red(`Failed to save ${key}: ${error}`)}\n\n`);
       return;
     }
     index++;
   }
 
-  // Final success message
-  try {
-    outro(theme.primary("Setup complete"));
-  } catch (error) {
-    cancel(`❌ Error displaying final message: ${error}`);
-  }
+  output.write(
+    `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  Setup complete\n\n`
+  );
 }
 
 function clearConsoleLines(lineCount: number): void {

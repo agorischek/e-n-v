@@ -1,0 +1,11 @@
+{
+  "name": "zod-env-var-schemas",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "zod": "^4"
+  }
+}

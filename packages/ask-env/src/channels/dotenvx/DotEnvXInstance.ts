@@ -1,7 +1,7 @@
 import type { GetOptions, SetOptions, DotenvConfigOptions, DotenvConfigOutput } from "@dotenvx/dotenvx";
 
 /**
- * Minimal interface for dotenvx functionality that we require
+ * Minimal interface for dotenvx functionality used in ask-env.
  */
 export interface DotEnvXInstance {
   get(key: string, options?: GetOptions): string;

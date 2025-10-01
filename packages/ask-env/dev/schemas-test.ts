@@ -6,7 +6,7 @@ import {
   PORT,
   NODE_ENV,
   API_KEY
-} from "../src/schemas";
+} from "../../zod-env-var-schemas/src/schemas";
 
 // Example of using the pre-built schemas
 await askEnv({

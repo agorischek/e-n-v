@@ -1,5 +1,5 @@
 import { cursor } from 'sisteransi';
-import { ThemedPrompt, ThemedPromptOptions } from "./ThemedPrompt";
+import { ThemedPrompt, type ThemedPromptOptions } from "./ThemedPrompt";
 import { S_BAR, S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 
 interface OverwriteOptions extends ThemedPromptOptions<boolean, OverwritePrompt> {

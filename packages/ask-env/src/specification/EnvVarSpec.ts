@@ -1,5 +1,5 @@
 
-import { EnvVarType } from "./EnvVarType";
+import { type EnvVarType } from "./EnvVarType";
 
 /**
  * Specification for an environment variable.

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { askEnv } from "../src/askEnv";
-import { DATABASE_PASSWORD, PORT, RABBITMQ_URL } from "../src/schemas";
+import { DATABASE_PASSWORD, PORT, RABBITMQ_URL } from "../../zod-env-var-schemas/src/schemas";
+import { join } from "desm";
 
 const envMap = {
   DATABASE_PASSWORD,
@@ -13,4 +14,6 @@ const envMap = {
   MAX_CONNECTIONS: z.number().optional(),
 };
 
-await askEnv(envMap);
+const path = join(import.meta.url, ".env");
+
+await askEnv(envMap, { path });

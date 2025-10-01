@@ -1,5 +1,5 @@
 import {
-  ZodTypeAny,
+  type ZodTypeAny,
   ZodEffects,
   ZodDefault,
   ZodNullable,
@@ -10,7 +10,7 @@ import {
   ZodEnum,
 } from "zod";
 import { EnvVarSpec } from "./EnvVarSpec";
-import { EnvVarType } from "./EnvVarType";
+import { type EnvVarType } from "./EnvVarType";
 
 export class ZodEnvVarSpec extends EnvVarSpec {
   constructor(schema: ZodTypeAny) {

@@ -1,5 +1,5 @@
 import type { EnvChannel } from "./EnvChannel";
-import type { ChannelOptions } from "./ChannelOptions";
+import type { EnvChannelOptions } from "./EnvChannelOptions";
 import type { DotEnvXChannelConfig } from "./dotenvx/DotEnvXChannelConfig";
 import type { DefaultChannelConfig } from "./default/DefaultChannelConfig";
 import type { DotEnvXInstance } from "./dotenvx/DotEnvXInstance";
@@ -32,7 +32,7 @@ function createDefaultChannel(config: DefaultChannelConfig, defaultPath: string)
  * @param defaultPath - Default path to use for env files (default: ".env")
  * @returns An EnvChannel instance
  */
-export function resolveChannel(options: ChannelOptions, defaultPath = ".env"): EnvChannel {
+export function resolveChannel(options: EnvChannelOptions, defaultPath = ".env"): EnvChannel {
   // undefined or "default" string -> use default channel
   if (options === undefined || options === "default") {
     return new DefaultEnvChannel(defaultPath);

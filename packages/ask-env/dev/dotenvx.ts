@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { askEnv } from "../src/askEnv";
-import { APPLICATIONINSIGHTS_CONNECTION_STRING } from "../src/schemas/applicationInsights";
+import { APPLICATIONINSIGHTS_CONNECTION_STRING } from "../../zod-env-var-schemas/src/schemas/applicationInsights";
 import dotenvx from "@dotenvx/dotenvx";
 
 await askEnv(

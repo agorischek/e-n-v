@@ -10,7 +10,7 @@ import type { DefaultChannelConfig } from "./default/DefaultChannelConfig";
  * - DotEnvXChannelConfig (uses dotenvx with custom options)
  * - DefaultChannelConfig (uses default with custom options)
  */
-export type ChannelOptions = 
+export type EnvChannelOptions = 
   | undefined 
   | "default"
   | DotEnvXInstance // dotenvx singleton import
