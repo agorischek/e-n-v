@@ -4,6 +4,16 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { EnvSource, get, set, source as createSource } from "../src/index.ts";
+import type { EnvPrimitiveValue } from "../src/types.ts";
+
+function captureError(fn: () => unknown): Error | null {
+  try {
+    fn();
+    return null;
+  } catch (error) {
+    return error as Error;
+  }
+}
 
 async function createTempEnvSource() {
   const dir = await mkdtemp(join(tmpdir(), "envrw-"));
@@ -63,6 +73,18 @@ describe("set", () => {
     expect(result).toBe("FOO=1\nBAR=2\nBAZ=3\n");
   });
 
+  it("appends missing variables after existing content when no trailing blank line is present", () => {
+    const initial = "FOO=1\nBAR=2";
+    const result = set(initial, { BAZ: "3" });
+    expect(result).toBe("FOO=1\nBAR=2\nBAZ=3\n");
+  });
+
+  it("preserves a trailing blank separator when appending new variables", () => {
+    const initial = "FOO=1\n\n";
+    const result = set(initial, { BAR: "2" });
+    expect(result).toBe("FOO=1\n\nBAR=2\n");
+  });
+
   it("quotes values with spaces and preserves export prefix", () => {
     const initial = "export NAME=old\n";
     const result = set(initial, { NAME: "new value", OTHER: "a b" });
@@ -88,6 +110,44 @@ describe("set", () => {
 
     content = set(content, "MULTI", "alpha\nbeta\ngamma");
     expect(content).toBe('MULTI="alpha\nbeta\ngamma"\n');
+  });
+
+  it("normalizes carriage return sequences before serializing values", () => {
+    const result = set("", { MULTI: "line1\r\nline2\rline3" });
+    expect(result).toBe('MULTI="line1\nline2\nline3"\n');
+  });
+
+  it("returns canonical content when no assignments are provided", () => {
+    const unchanged = "FOO=1\n";
+    expect(set(unchanged, {} as Record<string, EnvPrimitiveValue>)).toBe("FOO=1\n");
+    expect(set("", {} as Record<string, EnvPrimitiveValue>)).toBe("");
+  });
+
+  it("requires a value when updating a single name", () => {
+    const error = captureError(() => set("", "NAME", undefined as unknown as EnvPrimitiveValue));
+    expect(error).toBeInstanceOf(TypeError);
+    expect(error?.message).toBe('Value for variable "NAME" must be provided');
+  });
+
+  it("requires values for every entry in an object", () => {
+    const error = captureError(() => set("", { NAME: undefined as unknown as EnvPrimitiveValue }));
+    expect(error).toBeInstanceOf(TypeError);
+    expect(error?.message).toBe('Value for variable "NAME" must be provided');
+  });
+
+  it("accepts only plain object records when writing multiple variables", () => {
+    const arrayError = captureError(() => set("", [] as unknown as Record<string, EnvPrimitiveValue>));
+    expect(arrayError).toBeInstanceOf(TypeError);
+    expect(arrayError?.message).toBe("Argument must be a string name or an object of key-value pairs");
+
+    const nullError = captureError(() => set("", null as unknown as Record<string, EnvPrimitiveValue>));
+    expect(nullError).toBeInstanceOf(TypeError);
+    expect(nullError?.message).toBe("Argument must be a string name or an object of key-value pairs");
+  });
+
+  it("formats bigint inputs without losing precision", () => {
+    const result = set("", { COUNT: 9007199254740995n });
+    expect(result).toBe("COUNT=9007199254740995\n");
   });
 
   it("replaces multiline assignments in place", () => {
