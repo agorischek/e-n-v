@@ -12,6 +12,7 @@ import {
 } from "../visuals/symbols";
 import color from "picocolors";
 import type { Key } from "node:readline";
+import type { Readable, Writable } from "node:stream";
 
 export interface EnvPromptOptions<T> {
   key: string;
@@ -26,6 +27,8 @@ export interface EnvPromptOptions<T> {
   mask?: string;
   secretToggleShortcut?: string;
   previousEnabled?: boolean;
+  input?: Readable;
+  output?: Writable;
 }
 
 export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
