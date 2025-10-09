@@ -1,33 +1,14 @@
 import { describe, expect, it } from "bun:test";
-import { Readable, Writable } from "node:stream";
 import type { Key } from "node:readline";
 import { EnvStringPrompt } from "../EnvStringPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
 import { PREVIOUS_SYMBOL, SKIP_SYMBOL } from "../../visuals/symbols";
-
-class TestWritable extends Writable {
-  public readonly writes: Array<string | Buffer> = [];
-
-  override _write(
-    chunk: any,
-    encoding: BufferEncoding,
-    callback: (error?: Error | null) => void
-  ): void {
-    this.writes.push(typeof chunk === "string" ? chunk : Buffer.from(chunk, encoding));
-    callback();
-  }
-}
-
-function createStreams() {
-  const input = new Readable({ read() {} });
-  const output = new TestWritable();
-  return { input, output };
-}
+import { TestWritable, createTestStreams, baseKey } from "./helpers/promptTestUtils";
 
 function createPrompt(
   options: Partial<EnvPromptOptions<string>> & { key?: string } = {}
 ) {
-  const streams = createStreams();
+  const streams = createTestStreams();
   const prompt = new EnvStringPrompt({
     key: options.key ?? "TEST_ENV",
     description: options.description,
@@ -47,17 +28,6 @@ function createPrompt(
 
   return { prompt, ...streams };
 }
-
-const baseKey = (partial: Partial<Key>): Key =>
-  ({
-    name: undefined,
-    ctrl: false,
-    meta: false,
-    shift: false,
-    sequence: undefined,
-    code: undefined,
-    ...partial,
-  } as Key);
 
 describe("EnvStringPrompt", () => {
   it("uses the provided input and output streams", () => {
