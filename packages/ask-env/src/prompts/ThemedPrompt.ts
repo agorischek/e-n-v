@@ -9,27 +9,20 @@ import {
   S_STEP_ERROR,
   S_STEP_SUBMIT,
 } from "../visuals/symbols";
-import { Readable, Writable } from "node:stream";
+import type { PromptOptions } from "../vendor/PromptOptions";
 
-export interface ThemedPromptOptions<TValue, Self extends Prompt<TValue>> {
-  render(this: Omit<Self, "prompt">): string | undefined;
-  initialValue?: any;
-  initialUserInput?: string;
-  validate?:
-    | ((value: TValue | undefined) => string | Error | undefined)
-    | undefined;
-  input?: Readable;
-  output?: Writable;
-  debug?: boolean;
-  signal?: AbortSignal;
+export interface ThemeOptions {
   theme?: Theme;
 }
+
+export type ThemedPromptOptions = ThemeOptions &
+  PromptOptions<unknown, Prompt<unknown>>;
 
 export abstract class ThemedPrompt<T> extends Prompt<T> {
   protected theme: Theme;
 
-  constructor(opts: ThemedPromptOptions<T, ThemedPrompt<T>>, render?: boolean) {
-    super(opts, render);
+  constructor(opts: ThemedPromptOptions, trackValue = false) {
+    super(opts, trackValue);
     this.theme = opts.theme || Theme.default;
   }
 

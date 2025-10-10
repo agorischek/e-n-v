@@ -10,7 +10,6 @@ import {
   S_TOOL_ACTIVE,
   S_TOOL_INACTIVE,
 } from "../visuals/symbols";
-import color from "picocolors";
 import type { Key } from "node:readline";
 
 export interface EnvPromptOptions<T> {
@@ -43,6 +42,14 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
 
+  protected set track(value: boolean) {
+    (this as any)._track = value;
+  }
+
+  protected get track(): boolean {
+    return (this as any)._track;
+  }
+
   private get hasAnyPreviousValue(): boolean {
     if (!this.previousEnabled) {
       return false;
@@ -50,8 +57,10 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     return this.current !== undefined || this.default !== undefined;
   }
 
-  constructor(opts: EnvPromptOptions<T> & any, render?: boolean) {
-    super(opts, render);
+  constructor(opts: EnvPromptOptions<T> & any) {
+    super(opts);
+    // Disable base Prompt input tracking by default; subclasses toggle as needed
+    this.track = false;
     this.key = opts.key;
     this.current = opts.current;
     this.default = opts.default;

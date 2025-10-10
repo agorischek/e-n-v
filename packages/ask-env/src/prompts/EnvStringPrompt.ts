@@ -195,7 +195,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           if (this.cursor === textInputIndex && !this.isTyping) {
             // Start typing mode instead of submitting
             this.isTyping = true;
-            (this as any)._track = true;
+            this.track = true;
             this._setUserInput("");
             this.updateValue();
             return "Value cannot be empty"; // This will cause validation to fail and stay active
@@ -249,7 +249,6 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           return undefined;
         },
       },
-      false
     );
 
     this.options = opts;
@@ -257,7 +256,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
     // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
-      (this as any)._track = true;
+      this.track = true;
       this.value = this.getDefaultValue();
     } else {
       // Set initial value to current
@@ -299,7 +298,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           // If we're typing or on the text option, clear input and exit typing mode
           if (this.isTyping || this.cursor === maxIndex) {
             this.isTyping = false;
-            (this as any)._track = false;
+            this.track = false;
             this._clearUserInput(); // This clears the internal readline state too
           }
           this.cursor = this.cursor === 0 ? maxIndex : this.cursor - 1;
@@ -319,7 +318,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           // If we're typing or on the text option, clear input and exit typing mode
           if (this.isTyping || this.cursor === maxIndexDown) {
             this.isTyping = false;
-            (this as any)._track = false;
+            this.track = false;
             this._clearUserInput(); // This clears the internal readline state too
           }
           this.cursor = this.cursor === maxIndexDown ? 0 : this.cursor + 1;
@@ -414,7 +413,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           this.cursor = textInputIndex; // Jump to the "Other" option
           this.isTyping = true;
           // Enable value tracking and set the initial character
-          (this as any)._track = true;
+          this.track = true;
           this._setUserInput(char);
           this.updateValue();
           return;
@@ -435,7 +434,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
         if (info.name === "escape") {
           // Exit typing mode
           this.isTyping = false;
-          (this as any)._track = false;
+          this.track = false;
           this._clearUserInput(); // Clear the internal readline state
           this.updateValue();
           return; // Prevent default Escape behavior

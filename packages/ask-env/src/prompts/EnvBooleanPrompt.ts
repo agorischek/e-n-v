@@ -109,8 +109,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
           }
           return undefined;
         },
-      },
-      false
+      }
     );
 
     this.options = opts;

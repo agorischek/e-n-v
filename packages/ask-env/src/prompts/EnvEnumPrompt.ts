@@ -99,8 +99,7 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
           }
           return undefined;
         },
-      },
-      false
+      }
     );
 
     this.options = opts;
