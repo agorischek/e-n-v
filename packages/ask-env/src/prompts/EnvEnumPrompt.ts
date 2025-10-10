@@ -94,8 +94,8 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
             return undefined;
           }
 
-          if (this.options.validate) {
-            const customValidation = this.options.validate(value);
+          if (this.validate) {
+            const customValidation = this.validate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message

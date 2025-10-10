@@ -1,23 +1,19 @@
 import type { SchemaMap } from "./types";
 import { ZodEnvVarSpec } from "./specification/ZodEnvVarSpec";
-import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
-import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
-import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
-import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
 import { S_BAR, S_BAR_END, S_BAR_START } from "./visuals/symbols";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { isCancel } from "@clack/core";
-import { EnvPrompt } from "./prompts/EnvPrompt";
 import { resolveChannel } from "./channels/resolveChannel";
 import { cursorTo, clearLine, moveCursor } from "node:readline";
 import { relative } from "node:path";
-import { parseBoolean } from "./utils/parseBoolean";
-import { validateFromSchema } from "./utils/validateFromSchema";
-import { stdin, stdout } from "node:process";
+import { stdout } from "node:process";
 import { DEFAULT_SECRET_PATTERNS } from "./constants";
 import { isSecretKey } from "./utils/secrets";
 import type { AskEnvOptions } from "./AskEnvOptions";
+import type { ZodSchema, ZodTypeDef } from "zod";
+import type { EnvVarType } from "./specification/EnvVarType";
+import { createPrompt } from "./createPrompt";
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
@@ -87,71 +83,20 @@ export async function askEnv(
     const current =
       storedValue && storedValue.trim() !== "" ? storedValue : undefined;
 
-    let prompt: EnvPrompt<unknown>;
-
-    switch (type) {
-      case "boolean": {
-        prompt = new EnvBooleanPrompt({
-          key,
-          description,
-          current: current !== undefined ? parseBoolean(current) : undefined,
-          default: typeof defaultValue === "boolean" ? defaultValue : undefined,
-          required,
-          validate: validateFromSchema(schema),
-          theme: resolvedTheme,
-          maxDisplayLength: truncate,
-          previousEnabled: index > 0,
-        });
-        break;
-      }
-
-      case "number": {
-        prompt = new EnvNumberPrompt({
-          key,
-          description,
-          current: current !== undefined ? parseFloat(current) : undefined,
-          default: typeof defaultValue === "number" ? defaultValue : undefined,
-          required,
-          validate: validateFromSchema(schema),
-          theme: resolvedTheme,
-          maxDisplayLength: truncate,
-          previousEnabled: index > 0,
-        });
-        break;
-      }
-
-      case "enum": {
-        prompt = new EnvEnumPrompt({
-          key,
-          description,
-          current,
-          default: typeof defaultValue === "string" ? defaultValue : undefined,
-          required,
-          validate: validateFromSchema(schema),
-          options: values || [],
-          theme: resolvedTheme,
-          maxDisplayLength: truncate,
-          previousEnabled: index > 0,
-        });
-        break;
-      }
-
-      default: {
-        prompt = new EnvStringPrompt({
-          key,
-          description,
-          current,
-          default: typeof defaultValue === "string" ? defaultValue : undefined,
-          required,
-          validate: validateFromSchema(schema),
-          theme: resolvedTheme,
-          maxDisplayLength: truncate,
-          secret: shouldMask,
-          previousEnabled: index > 0,
-        });
-        break;
-      }
-    }
+    const prompt = createPrompt({
+      type,
+      key,
+      description,
+      defaultValue,
+      required,
+      schema,
+      values,
+      currentValue: current,
+      theme: resolvedTheme,
+      truncate,
+      shouldMask,
+      hasPrevious: index > 0,
+    });
     const value = await prompt.prompt();
     addedLines++;
     const outcome = prompt.getOutcome();

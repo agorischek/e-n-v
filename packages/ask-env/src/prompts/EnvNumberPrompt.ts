@@ -168,9 +168,9 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
               return inputValidation;
             }
             // If format is valid, run custom validation if provided
-            if (this.options.validate) {
+            if (this.validate) {
               const parsedValue = this.parseInput(this.userInput);
-              const customValidation = this.options.validate(parsedValue);
+              const customValidation = this.validate(parsedValue);
               if (customValidation) {
                 return customValidation instanceof Error
                   ? customValidation.message
@@ -216,9 +216,9 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
               return inputValidation;
             }
             // If format is valid, run custom validation if provided
-            if (this.options.validate) {
+            if (this.validate) {
               const parsedValue = this.parseInput(this.userInput);
-              const customValidation = this.options.validate(parsedValue);
+              const customValidation = this.validate(parsedValue);
               if (customValidation) {
                 return customValidation instanceof Error
                   ? customValidation.message
@@ -228,8 +228,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           }
 
           // For non-typing cases (selecting current/default), validate the selected value
-          if (!this.isTyping && this.options.validate) {
-            const customValidation = this.options.validate(value);
+          if (!this.isTyping && this.validate) {
+            const customValidation = this.validate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message

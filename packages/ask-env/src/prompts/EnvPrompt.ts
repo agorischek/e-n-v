@@ -9,7 +9,7 @@ import {
   S_TOOL_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import type { PromptOptions } from "../vendor/PromptOptions";
+import type { PromptOptions, Validate } from "../vendor/PromptOptions";
 
 export type PromptOutcome = "commit" | "skip" | "previous";
 
@@ -24,7 +24,7 @@ export interface EnvPromptOptions<T> {
   current?: T;
   default?: T;
   required: boolean;
-  validate?: ((value: T | undefined) => string | Error | undefined) | undefined;
+  validate?: Validate<T>;
   theme?: Theme;
   maxDisplayLength?: number;
   secret?: boolean;
@@ -48,6 +48,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
+  protected validate: Validate<T> | undefined;
 
   protected set track(value: boolean) {
     (this as any)._track = value;
@@ -82,6 +83,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = opts.previousEnabled ?? true;
+    this.validate = opts.validate;
 
     this.on("finalize", () => {
       const shouldConsumeSubmit =

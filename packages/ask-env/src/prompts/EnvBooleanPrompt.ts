@@ -8,7 +8,6 @@ interface EnvBooleanPromptOptions extends EnvPromptOptions<boolean> {}
 
 export class EnvBooleanPrompt extends EnvPrompt<boolean> {
   cursor: number;
-  protected options: EnvBooleanPromptOptions;
 
   constructor(opts: EnvBooleanPromptOptions) {
     super(
@@ -102,8 +101,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
             return undefined;
           }
 
-          if (this.options.validate) {
-            const customValidation = this.options.validate(value);
+          if (this.validate) {
+            const customValidation = this.validate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message
@@ -114,8 +113,6 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
         },
       }
     );
-
-    this.options = opts;
 
     // Set cursor based on priority: current → default → true
     // cursor 0 = true, cursor 1 = false
