@@ -13,6 +13,7 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
   protected options: EnvEnumPromptOptions;
 
   constructor(opts: EnvEnumPromptOptions) {
+    const customValidate = opts.validate;
     super(
       {
         ...opts,
@@ -94,8 +95,8 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
             return undefined;
           }
 
-          if (this.validate) {
-            const customValidation = this.validate(value);
+          if (customValidate) {
+            const customValidation = customValidate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message

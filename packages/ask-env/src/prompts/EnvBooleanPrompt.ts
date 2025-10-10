@@ -10,6 +10,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
   cursor: number;
 
   constructor(opts: EnvBooleanPromptOptions) {
+    const customValidate = opts.validate;
     super(
       {
         ...opts,
@@ -101,8 +102,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
             return undefined;
           }
 
-          if (this.validate) {
-            const customValidation = this.validate(value);
+          if (customValidate) {
+            const customValidation = customValidate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message
