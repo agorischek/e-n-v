@@ -10,6 +10,7 @@ import {
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptOptions, Validate } from "../vendor/PromptOptions";
+import { Readable, Writable } from 'node:stream';
 
 export type PromptOutcome = "commit" | "skip" | "previous";
 
@@ -31,6 +32,8 @@ export interface EnvPromptOptions<T> {
   mask?: string;
   secretToggleShortcut?: string;
   previousEnabled?: boolean;
+  input?: Readable;
+  output?: Writable;
 }
 
 export abstract class EnvPrompt<T> extends ThemedPrompt<T> {

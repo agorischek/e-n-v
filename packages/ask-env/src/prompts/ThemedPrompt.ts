@@ -11,18 +11,17 @@ import {
 } from "../visuals/symbols";
 import type { PromptOptions } from "../vendor/PromptOptions";
 
-export interface ThemeOptions {
+export interface ThemedPromptOptions {
   theme?: Theme;
 }
-
-export type ThemedPromptOptions = ThemeOptions &
-  PromptOptions<unknown, Prompt<unknown>>;
 
 export abstract class ThemedPrompt<T> extends Prompt<T> {
   protected theme: Theme;
 
-  constructor(opts: ThemeOptions &
-  PromptOptions<T, Prompt<T>>, trackValue = false) {
+  constructor(
+    opts: ThemedPromptOptions & PromptOptions<T, Prompt<T>>,
+    trackValue = false
+  ) {
     super(opts, trackValue);
     this.theme = opts.theme || Theme.default;
   }
