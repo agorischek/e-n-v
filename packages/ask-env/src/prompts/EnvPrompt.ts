@@ -59,10 +59,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   }
 
   private get hasAnyPreviousValue(): boolean {
-    if (!this.previousEnabled) {
-      return false;
-    }
-    return this.current !== undefined || this.default !== undefined;
+    return this.previousEnabled;
   }
 
   constructor(opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T>>) {
