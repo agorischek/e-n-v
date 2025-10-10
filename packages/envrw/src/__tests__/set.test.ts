@@ -92,6 +92,25 @@ describe("set", () => {
     expect(lines.slice(0, 4)).toEqual(['export MULTI="updated', 'value" # comment', 'FOO=1', '']);
   });
 
+  it("keeps trailing comments only on the final line for multi-line assignments", () => {
+    const initial = ['export MULTI="first', 'second', 'third" # comment', 'FOO=1', ''].join("\n");
+    const result = set(initial, "MULTI", "alpha\nbeta\ngamma");
+    const lines = result.split("\n");
+    expect(lines.slice(0, 5)).toEqual(['export MULTI="alpha', 'beta', 'gamma" # comment', 'FOO=1', '']);
+  });
+
+  it("updates remaining keys even when later assignments already match", () => {
+    const initial = ["FOO=1", "BAR=stable", ""].join("\n");
+    const result = set(initial, { BAR: "stable", FOO: "updated" });
+    expect(result).toBe(["FOO=updated", "BAR=stable", ""].join("\n"));
+  });
+
+  it("updates multiple keys with duplicate assignments from bottom to top", () => {
+    const initial = ["ALPHA=1", "BETA=2", "ALPHA=old", "BETA=old", ""].join("\n");
+    const result = set(initial, { ALPHA: "new", BETA: "newer" });
+    expect(result).toBe(["ALPHA=1", "BETA=2", "ALPHA=new", "BETA=newer", ""].join("\n"));
+  });
+
   it("throws when value is missing for a named assignment", () => {
     expect(() => (set as any)("FOO=1\n", "BAR")).toThrow(new TypeError('Value for variable "BAR" must be provided'));
   });
