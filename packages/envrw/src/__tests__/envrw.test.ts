@@ -3,7 +3,7 @@ import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { EnvSource, get, set, source as createSource } from "../src/index.ts";
+import { EnvSource, get, set, source as createSource } from "../index.ts";
 
 async function createTempEnvSource() {
   const dir = await mkdtemp(join(tmpdir(), "envrw-"));

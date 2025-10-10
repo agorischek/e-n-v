@@ -142,3 +142,7 @@ example.env
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# stryker temp files
+.stryker-tmp
+reports/mutation
