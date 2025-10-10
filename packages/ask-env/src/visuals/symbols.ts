@@ -1,6 +1,3 @@
-export const SKIP_SYMBOL = Symbol('ask-env:skip');
-export const PREVIOUS_SYMBOL = Symbol('ask-env:previous');
-
 // Clack-style Unicode symbols for visual formatting
 export const S_BAR = "│";           // Vertical bar (pipe)
 export const S_BAR_END = "└";       // Bottom-left corner

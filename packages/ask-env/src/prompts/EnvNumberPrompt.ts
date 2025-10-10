@@ -18,11 +18,11 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
         theme: opts.theme,
         render: function (this: EnvNumberPrompt) {
           if (this.state === "submit") {
-            // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
-            if (typeof this.value === "symbol") {
-              return this.renderSymbolValue(this.value);
+            const outcomeResult = this.renderOutcomeResult();
+            if (outcomeResult) {
+              return outcomeResult;
             }
-            // User provided a value - show ENV_KEY=value format with hollow diamond
+
             return `${this.getSymbol()}  ${this.colors.bold(
               this.colors.white(this.key)
             )}${this.colors.subtle("=")}${this.colors.white(
@@ -150,8 +150,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
           return output;
         },
-        validate: (value: number | symbol) => {
-          if (typeof value === "symbol") {
+        validate: (value: number | undefined) => {
+          if (this.getOutcome() !== "commit") {
             return undefined;
           }
           // If both current and default are undefined, we're in text-only mode
@@ -228,12 +228,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           }
 
           // For non-typing cases (selecting current/default), validate the selected value
-          if (
-            !this.isTyping &&
-            this.options.validate &&
-            typeof this.value !== "symbol"
-          ) {
-            const customValidation = this.options.validate(this.value);
+          if (!this.isTyping && this.options.validate) {
+            const customValidation = this.options.validate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message
@@ -253,7 +249,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
     if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
       this.track = true;
-      this.value = this.getDefaultValue();
+      this.setCommittedValue(this.getDefaultValue());
     } else {
       // Set initial value based on cursor position
       this.updateValue();
@@ -333,7 +329,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
       if (this.isTyping) {
         try {
-          this.value = this.parseInput(input) ?? this.getDefaultValue();
+          const parsed = this.parseInput(input);
+          this.setCommittedValue(parsed ?? this.getDefaultValue());
         } catch {
           // If parsing fails, keep the current value but still update display
           // The validation will catch this
@@ -367,8 +364,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
         // Already in typing mode, just update the value as the user types
         if (this.isTyping) {
           try {
-            this.value =
-              this.parseInput(this.userInput) ?? this.getDefaultValue();
+            const parsed = this.parseInput(this.userInput);
+            this.setCommittedValue(parsed ?? this.getDefaultValue());
           } catch {
             // Keep current value if parsing fails
           }
@@ -442,9 +439,10 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
       this.options.default === undefined
     ) {
       try {
-        this.value = this.parseInput(this.userInput) ?? this.getDefaultValue();
+        const parsed = this.parseInput(this.userInput);
+        this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
-        this.value = this.getDefaultValue();
+        this.setCommittedValue(this.getDefaultValue());
       }
       return;
     }
@@ -455,7 +453,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
       // Check if cursor is on current value
       if (this.options.current !== undefined && this.cursor === optionIndex) {
-        this.value = this.options.current;
+        this.setCommittedValue(this.options.current);
         return;
       }
       if (this.options.current !== undefined) optionIndex++;
@@ -466,7 +464,7 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
         this.options.current !== this.options.default &&
         this.cursor === optionIndex
       ) {
-        this.value = this.options.default;
+        this.setCommittedValue(this.options.default);
         return;
       }
       if (
@@ -476,12 +474,13 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
         optionIndex++;
 
       // If we get here, cursor is on "Other" option
-      this.value = this.getDefaultValue();
+      this.setCommittedValue(this.getDefaultValue());
     } else {
       try {
-        this.value = this.parseInput(this.userInput) ?? this.getDefaultValue();
+        const parsed = this.parseInput(this.userInput);
+        this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
-        this.value = this.getDefaultValue();
+        this.setCommittedValue(this.getDefaultValue());
       }
     }
   }

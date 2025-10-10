@@ -2,15 +2,21 @@ import { ThemedPrompt } from "./ThemedPrompt";
 import { Theme } from "../visuals/Theme";
 import { SECRET_MASK } from "../visuals/symbols";
 import {
-  SKIP_SYMBOL,
   S_STEP_CANCEL,
   S_STEP_PREVIOUS,
   S_STEP_SKIP,
-  PREVIOUS_SYMBOL,
   S_TOOL_ACTIVE,
   S_TOOL_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
+import type { PromptOptions } from "../vendor/PromptOptions";
+
+export type PromptOutcome = "commit" | "skip" | "previous";
+
+export interface EnvPromptResult<T> {
+  outcome: PromptOutcome;
+  value?: T;
+}
 
 export interface EnvPromptOptions<T> {
   key: string;
@@ -41,6 +47,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected allowSubmitFromOption: boolean;
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
+  protected outcome: PromptOutcome;
 
   protected set track(value: boolean) {
     (this as any)._track = value;
@@ -57,10 +64,11 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     return this.current !== undefined || this.default !== undefined;
   }
 
-  constructor(opts: EnvPromptOptions<T> & any) {
+  constructor(opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T>>) {
     super(opts);
     // Disable base Prompt input tracking by default; subclasses toggle as needed
     this.track = false;
+    this.outcome = "commit";
     this.key = opts.key;
     this.current = opts.current;
     this.default = opts.default;
@@ -83,7 +91,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
         this.resetSecretReveal();
       }
 
-      this.closeOptions();
+      this.closeOptions(this.outcome === "commit");
 
       this.consumeNextSubmit = false;
       this.allowSubmitFromOption = false;
@@ -91,8 +99,18 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
       if (shouldConsumeSubmit) {
         this.state = "active";
         this.error = "";
+        this.outcome = "commit";
       }
     });
+  }
+
+  protected setCommittedValue(value: T | undefined): void {
+    this.outcome = "commit";
+    this.value = value as T;
+  }
+
+  public getOutcome(): PromptOutcome {
+    return this.outcome;
   }
 
   protected buildSkipHint(base?: string): string {
@@ -229,16 +247,16 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     return `${previousSymbol}  ${keyText}`;
   }
 
-  protected renderSymbolValue(value: symbol): string {
-    if (value === SKIP_SYMBOL) {
+  protected renderOutcomeResult(): string | undefined {
+    if (this.outcome === "skip") {
       return this.renderSkipped();
     }
 
-    if (value === PREVIOUS_SYMBOL) {
+    if (this.outcome === "previous") {
       return this.renderPrevious();
     }
 
-    return this.renderSkipped();
+    return undefined;
   }
 
   protected renderCancelled(): string {
@@ -282,9 +300,12 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.optionCursor = this.findInitialCursor(options);
   }
 
-  protected closeOptions(): void {
+  protected closeOptions(resetOutcome = true): void {
     this.optionMode = false;
     this.optionCursor = 0;
+    if (resetOutcome) {
+      this.outcome = "commit";
+    }
   }
 
   private shiftOptionCursor(delta: number): void {
@@ -319,15 +340,17 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
       case "skip":
         this.allowSubmitFromOption = true;
         this.consumeNextSubmit = false;
-        this.closeOptions();
-        this.value = SKIP_SYMBOL as any;
+        this.outcome = "skip";
+        this.value = undefined as T;
+        this.closeOptions(false);
         this.state = "submit";
         break;
       case "previous":
         this.allowSubmitFromOption = true;
         this.consumeNextSubmit = false;
-        this.closeOptions();
-        this.value = PREVIOUS_SYMBOL as any;
+        this.outcome = "previous";
+        this.value = undefined as T;
+        this.closeOptions(false);
         this.state = "submit";
         break;
       case "toggleSecret":

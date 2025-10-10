@@ -17,11 +17,11 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
         theme: opts.theme,
         render: function (this: EnvBooleanPrompt) {
           if (this.state === "submit") {
-            // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
-            if (typeof this.value === "symbol") {
-              return this.renderSymbolValue(this.value);
+            const outcomeResult = this.renderOutcomeResult();
+            if (outcomeResult) {
+              return outcomeResult;
             }
-            // User provided a value - show ENV_KEY=value format with hollow diamond
+
             const valueStr = this.value ? "true" : "false";
             return `${this.getSymbol()}  ${this.colors.bold(
               this.colors.white(this.key)
@@ -97,10 +97,13 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
 
           return output;
         },
-        validate: (value: boolean | symbol) => {
-          // For boolean prompts, always validate with custom validation if provided
-          if (this.options.validate && typeof this.value !== "symbol") {
-            const customValidation = this.options.validate(this.value);
+        validate: (value: boolean | undefined) => {
+          if (this.getOutcome() !== "commit") {
+            return undefined;
+          }
+
+          if (this.options.validate) {
+            const customValidation = this.options.validate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message
@@ -127,7 +130,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
     this.cursor = initialValue ? 0 : 1;
 
     // Set initial value to current, or default, or false
-    this.value = this.current ?? this.default ?? false;
+    this.setCommittedValue(this.current ?? this.default ?? false);
 
     this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
@@ -172,7 +175,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
 
   private updateValue() {
     // cursor 0 = true, cursor 1 = false
-    this.value = this.cursor === 0;
+    this.setCommittedValue(this.cursor === 0);
   }
 
 }

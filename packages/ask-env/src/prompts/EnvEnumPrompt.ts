@@ -19,14 +19,16 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
         theme: opts.theme,
         render: function (this: EnvEnumPrompt) {
           if (this.state === "submit") {
-            // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
-            if (typeof this.value === "symbol") {
-              return this.renderSymbolValue(this.value);
+            const outcomeResult = this.renderOutcomeResult();
+            if (outcomeResult) {
+              return outcomeResult;
             }
-            // User provided a value - show ENV_KEY=value format with hollow diamond
+
             return `${this.getSymbol()}  ${this.colors.bold(
               this.colors.white(this.key)
-            )}${this.colors.subtle("=")}${this.colors.white(this.truncateValue(this.value || ""))}`;
+            )}${this.colors.subtle("=")}${this.colors.white(
+              this.truncateValue(this.value ?? "")
+            )}`;
           }
 
           if (this.state === "cancel") {
@@ -87,10 +89,13 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
 
           return output;
         },
-        validate: (value: string | symbol) => {
-          // For enum prompts, validate with custom validation if provided
-          if (this.options.validate && typeof this.value !== "symbol") {
-            const customValidation = this.options.validate(this.value);
+        validate: (value: string | undefined) => {
+          if (this.getOutcome() !== "commit") {
+            return undefined;
+          }
+
+          if (this.options.validate) {
+            const customValidation = this.options.validate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message
@@ -105,8 +110,9 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
     this.options = opts;
 
     // Set initial value to current, or default, or first option
-    this.value =
-      this.current ?? this.default ?? this.options.options[0];
+    this.setCommittedValue(
+      this.current ?? this.default ?? this.options.options[0]
+    );
 
     // Set initial cursor position based on current/default value
     const initialIndex = this.current
@@ -164,7 +170,7 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
   }
 
   private updateValue() {
-    this.value = this.options.options[this.cursor];
+    this.setCommittedValue(this.options.options[this.cursor]);
   }
 
 }

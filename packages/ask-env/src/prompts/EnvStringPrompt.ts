@@ -19,11 +19,11 @@ export class EnvStringPrompt extends EnvPrompt<string> {
         theme: opts.theme,
         render: function (this: EnvStringPrompt) {
           if (this.state === "submit") {
-            // Handle symbol values (like SKIP_SYMBOL) that can't be converted to string
-            if (typeof this.value === "symbol") {
-              return this.renderSymbolValue(this.value);
+            const outcomeResult = this.renderOutcomeResult();
+            if (outcomeResult) {
+              return outcomeResult;
             }
-            // User provided a value - show ENV_KEY=value format with hollow diamond
+
             return `${this.getSymbol()}  ${this.colors.bold(
               this.colors.white(this.key)
             )}${this.colors.subtle("=")}${this.colors.white(
@@ -148,8 +148,8 @@ export class EnvStringPrompt extends EnvPrompt<string> {
 
           return output;
         },
-        validate: (value: string | symbol) => {
-          if (typeof value === "symbol") {
+        validate: (value: string | undefined) => {
+          if (this.getOutcome() !== "commit") {
             return undefined;
           }
           // If both current and default are undefined, we're in text-only mode
@@ -232,12 +232,8 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           }
 
           // For non-typing cases (selecting current/default), validate the selected value
-          if (
-            !this.isTyping &&
-            this.options.validate &&
-            typeof this.value !== "symbol"
-          ) {
-            const customValidation = this.options.validate(this.value);
+          if (!this.isTyping && this.options.validate) {
+            const customValidation = this.options.validate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message
@@ -257,10 +253,10 @@ export class EnvStringPrompt extends EnvPrompt<string> {
     if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
       this.track = true;
-      this.value = this.getDefaultValue();
+      this.setCommittedValue(this.getDefaultValue());
     } else {
       // Set initial value to current
-      this.value = this.current ?? this.getDefaultValue();
+      this.setCommittedValue(this.current ?? this.getDefaultValue());
     }
 
     this.on("cursor", (action?: PromptAction) => {
@@ -337,7 +333,8 @@ export class EnvStringPrompt extends EnvPrompt<string> {
 
       if (this.isTyping) {
         try {
-          this.value = this.parseInput(input) ?? this.getDefaultValue();
+          const parsed = this.parseInput(input);
+          this.setCommittedValue(parsed ?? this.getDefaultValue());
         } catch {
           // If parsing fails, keep the current value but still update display
           // The validation will catch this
@@ -375,8 +372,8 @@ export class EnvStringPrompt extends EnvPrompt<string> {
         // Already in typing mode, just update the value as the user types
         if (this.isTyping) {
           try {
-            this.value =
-              this.parseInput(this.userInput) ?? this.getDefaultValue();
+            const parsed = this.parseInput(this.userInput);
+            this.setCommittedValue(parsed ?? this.getDefaultValue());
           } catch {
             // Keep current value if parsing fails
           }
@@ -450,9 +447,10 @@ export class EnvStringPrompt extends EnvPrompt<string> {
       this.options.default === undefined
     ) {
       try {
-        this.value = this.parseInput(this.userInput) ?? this.getDefaultValue();
+        const parsed = this.parseInput(this.userInput);
+        this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
-        this.value = this.getDefaultValue();
+        this.setCommittedValue(this.getDefaultValue());
       }
       return;
     }
@@ -463,7 +461,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
 
       // Check if cursor is on current value
       if (this.options.current !== undefined && this.cursor === optionIndex) {
-        this.value = this.options.current;
+        this.setCommittedValue(this.options.current);
         return;
       }
       if (this.options.current !== undefined) optionIndex++;
@@ -474,7 +472,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
         this.options.current !== this.options.default &&
         this.cursor === optionIndex
       ) {
-        this.value = this.options.default;
+        this.setCommittedValue(this.options.default);
         return;
       }
       if (
@@ -484,12 +482,13 @@ export class EnvStringPrompt extends EnvPrompt<string> {
         optionIndex++;
 
       // If we get here, cursor is on "Other" option
-      this.value = this.getDefaultValue();
+      this.setCommittedValue(this.getDefaultValue());
     } else {
       try {
-        this.value = this.parseInput(this.userInput) ?? this.getDefaultValue();
+        const parsed = this.parseInput(this.userInput);
+        this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
-        this.value = this.getDefaultValue();
+        this.setCommittedValue(this.getDefaultValue());
       }
     }
   }

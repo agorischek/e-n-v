@@ -21,7 +21,8 @@ export type ThemedPromptOptions = ThemeOptions &
 export abstract class ThemedPrompt<T> extends Prompt<T> {
   protected theme: Theme;
 
-  constructor(opts: ThemedPromptOptions, trackValue = false) {
+  constructor(opts: ThemeOptions &
+  PromptOptions<T, Prompt<T>>, trackValue = false) {
     super(opts, trackValue);
     this.theme = opts.theme || Theme.default;
   }

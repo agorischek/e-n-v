@@ -4,13 +4,7 @@ import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import {
-  PREVIOUS_SYMBOL,
-  S_BAR,
-  S_BAR_END,
-  S_BAR_START,
-  SKIP_SYMBOL,
-} from "./visuals/symbols";
+import { S_BAR, S_BAR_END, S_BAR_START } from "./visuals/symbols";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { isCancel } from "@clack/core";
@@ -160,6 +154,7 @@ export async function askEnv(
     }
     const value = await prompt.prompt();
     addedLines++;
+    const outcome = prompt.getOutcome();
 
     // Handle cancellation FIRST - check for clack cancel symbol
     if (
@@ -174,7 +169,7 @@ export async function askEnv(
       return;
     }
 
-    if (value === PREVIOUS_SYMBOL) {
+    if (outcome === "previous") {
       clearConsoleLines(addedLines);
       const previousLines = promptLineHistory.pop() ?? 0;
       if (previousLines > 0) {
@@ -187,7 +182,7 @@ export async function askEnv(
     promptLineHistory.push(addedLines);
 
     // Handle skip symbol
-    if (value === SKIP_SYMBOL) {
+    if (outcome === "skip") {
       index++;
       continue; // Skip this environment variable
     }
