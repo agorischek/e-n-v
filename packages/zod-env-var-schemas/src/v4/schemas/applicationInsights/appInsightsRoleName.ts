@@ -1,0 +1,15 @@
+import { z } from "zod";
+import {
+  APPLICATION_INSIGHTS_DESCRIPTIONS,
+  APPLICATION_INSIGHTS_LIMITS,
+  APPLICATION_INSIGHTS_MESSAGES,
+} from "../../../shared/applicationInsights";
+
+const schema = z
+  .string()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.ROLE_NAME)
+  .min(APPLICATION_INSIGHTS_LIMITS.ROLE_NAME_MIN, { error: APPLICATION_INSIGHTS_MESSAGES.ROLE_NAME_MIN })
+  .max(APPLICATION_INSIGHTS_LIMITS.ROLE_NAME_MAX, { error: APPLICATION_INSIGHTS_MESSAGES.ROLE_NAME_MAX });
+
+export const appInsightsRoleNameSchema = schema;
+export const APPINSIGHTS_ROLE_NAME = appInsightsRoleNameSchema;
