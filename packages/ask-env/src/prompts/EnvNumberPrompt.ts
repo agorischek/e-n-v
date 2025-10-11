@@ -152,6 +152,9 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           return output;
         },
         validate: (value: number | undefined) => {
+          if (this.consumeSkipValidation()) {
+            return undefined;
+          }
           if (this.getOutcome() !== "commit") {
             return undefined;
           }

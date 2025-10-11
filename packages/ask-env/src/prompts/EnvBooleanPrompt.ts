@@ -98,6 +98,9 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
           return output;
         },
         validate: (value: boolean | undefined) => {
+          if (this.consumeSkipValidation()) {
+            return undefined;
+          }
           if (this.getOutcome() !== "commit") {
             return undefined;
           }

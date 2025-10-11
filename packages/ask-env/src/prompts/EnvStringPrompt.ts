@@ -150,6 +150,9 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           return output;
         },
         validate: (value: string | undefined) => {
+          if (this.consumeSkipValidation()) {
+            return undefined;
+          }
           if (this.getOutcome() !== "commit") {
             return undefined;
           }

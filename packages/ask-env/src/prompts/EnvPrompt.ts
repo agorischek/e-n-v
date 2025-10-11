@@ -52,6 +52,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
   protected validate: Validate<T> | undefined;
+  private skipValidationFlag: boolean;
 
   protected set track(value: boolean) {
     (this as any)._track = value;
@@ -84,6 +85,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.consumeNextSubmit = false;
     this.previousEnabled = opts.previousEnabled ?? true;
     this.validate = opts.validate;
+    this.skipValidationFlag = false;
 
     this.on("finalize", () => {
       const shouldConsumeSubmit =
@@ -97,6 +99,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
 
       this.consumeNextSubmit = false;
       this.allowSubmitFromOption = false;
+      this.skipValidationFlag = false;
 
       if (shouldConsumeSubmit) {
         this.state = "active";
@@ -357,7 +360,9 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
         break;
       case "toggleSecret":
         this.consumeNextSubmit = true;
+        this.skipValidationFlag = true;
         this.toggleSecretReveal();
+        this.closeOptions();
         break;
       case "close":
         this.consumeNextSubmit = true;
@@ -437,6 +442,14 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     });
 
     return options;
+  }
+
+  protected consumeSkipValidation(): boolean {
+    if (!this.skipValidationFlag) {
+      return false;
+    }
+    this.skipValidationFlag = false;
+    return true;
   }
 }
 

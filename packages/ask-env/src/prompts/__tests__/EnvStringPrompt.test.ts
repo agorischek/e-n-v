@@ -206,6 +206,54 @@ describe("EnvStringPrompt", () => {
     await promptPromise;
   });
 
+  it("returns focus to previous selection when toggling secret and skips validation", async () => {
+  const calls: Array<string | undefined> = [];
+  const { prompt } = createPrompt({
+    current: "curr",
+    default: "def",
+    secret: true,
+    required: true,
+    previousEnabled: false,
+    validate: (value?: string) => {
+      calls.push(value);
+      if (!value) {
+        return "missing";
+      }
+      return undefined;
+    },
+  });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    expect(prompt.cursor).toBe(1);
+
+    await pressKey(prompt, { name: "tab" });
+    await waitForIO(2);
+    expect((prompt as any).isOptionPickerOpen()).toBe(true);
+    expect(Reflect.get(prompt, "optionCursor")).toBe(0);
+
+    await pressKey(prompt, { name: "right" });
+    await waitForIO(2);
+    expect(Reflect.get(prompt, "optionCursor")).toBe(1);
+
+    await pressKey(prompt, { name: "return" });
+    await waitForIO(2);
+
+    expect((prompt as any).isOptionPickerOpen()).toBe(false);
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.state).toBe("active");
+    expect(prompt.error).toBe("");
+    expect((prompt as any).isSecretRevealed()).toBe(true);
+    expect(calls).toEqual([]);
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    await promptPromise;
+
+    expect(calls).toEqual(["def"]);
+  });
+
   it("prevents submitting empty custom entries when required", async () => {
   const { prompt } = createPrompt({ current: "curr", default: "def", required: true });
   const promptPromise = prompt.prompt();
