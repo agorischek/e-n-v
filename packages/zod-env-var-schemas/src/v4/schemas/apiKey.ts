@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { API_SERVICE_DESCRIPTIONS, API_SERVICE_LENGTHS, API_SERVICE_MESSAGES } from "../../../shared/apiService";
+import { API_SERVICE_DESCRIPTIONS, API_SERVICE_LENGTHS, API_SERVICE_MESSAGES } from "../../shared/apiService";
 
 const schema = z
   .string()
