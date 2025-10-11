@@ -38,12 +38,13 @@ export async function waitForIO(ticks = 1): Promise<void> {
 }
 
 export function emitKey(
-  prompt: { input: Readable },
+  prompt: unknown,
   options: Partial<Key>,
   char?: string,
 ): void {
   const key = baseKey(options);
-  (prompt.input as Readable & { emit: (event: string, ...args: any[]) => boolean }).emit(
+  const input = (prompt as { input: Readable }).input;
+  (input as Readable & { emit: (event: string, ...args: any[]) => boolean }).emit(
     "keypress",
     char,
     key,
@@ -51,7 +52,7 @@ export function emitKey(
 }
 
 export async function typeText(
-  prompt: { rl?: any; input: Readable },
+  prompt: unknown,
   text: string,
 ): Promise<void> {
   for (const char of text) {
@@ -60,11 +61,29 @@ export async function typeText(
   }
 }
 
-export function submitPrompt(prompt: { rl?: { write: (data: string | null, key?: Key) => void }; input: Readable }): void {
+export async function pressKey(
+  prompt: unknown,
+  key: Partial<Key>,
+  char?: string,
+): Promise<void> {
+  emitKey(prompt, key, char);
+  await waitForIO();
+}
+
+export async function backspace(
+  prompt: unknown,
+  count: number,
+): Promise<void> {
+  for (let index = 0; index < count; index++) {
+    await pressKey(prompt, { name: "backspace" });
+  }
+}
+
+export function submitPrompt(prompt: unknown): void {
   emitKey(prompt, { name: "return" }, "\r");
 }
 
-export function cancelPrompt(prompt: { rl?: { write: (data: string | null, key?: Key) => void }; input: Readable }): void {
+export function cancelPrompt(prompt: unknown): void {
   emitKey(prompt, { name: "escape" });
 }
 

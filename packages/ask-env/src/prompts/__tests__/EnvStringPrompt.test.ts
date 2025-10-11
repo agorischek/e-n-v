@@ -5,12 +5,12 @@ import {
   TestWritable,
   createTestStreams,
   waitForIO,
-  emitKey,
   typeText,
   submitPrompt,
   cancelPrompt,
   toOutputString,
-  baseKey,
+  pressKey,
+  backspace,
 } from "./helpers/promptTestUtils";
 
 function createPrompt(
@@ -37,26 +37,7 @@ function createPrompt(
   return { prompt, ...streams };
 }
 
-async function pressKey(
-  prompt: EnvStringPrompt,
-  key: Partial<Parameters<typeof baseKey>[0]>,
-  char?: string
-): Promise<void> {
-  emitKey(prompt as any, key, char);
-  await waitForIO();
-}
-
-async function backspace(
-  prompt: EnvStringPrompt,
-  count: number
-): Promise<void> {
-  for (let i = 0; i < count; i++) {
-    await pressKey(prompt, { name: "backspace" });
-  }
-}
-
-const STRIP_ANSI =
-  /[\u001B\u009B][[\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
+const STRIP_ANSI = /[\u001B\u009B][[\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
 const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
 
 describe("EnvStringPrompt", () => {
@@ -74,9 +55,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("defaults to typing mode when no current or default is provided", async () => {
-    const { prompt } = createPrompt({ required: true });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ required: true });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     expect(prompt.isTyping).toBe(true);
     expect(prompt.value).toBe("");
@@ -91,9 +72,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("navigates current and default selections with arrow keys", async () => {
-    const { prompt } = createPrompt({ current: "current", default: "default" });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "current", default: "default" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     expect(prompt.cursor).toBe(0);
     expect(prompt.value).toBe("current");
@@ -116,9 +97,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("enters typing mode and tracks input when characters are pressed", async () => {
-    const { prompt } = createPrompt({ current: "current", default: "default" });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "current", default: "default" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
@@ -137,9 +118,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("exits typing mode with escape and resets the input", async () => {
-    const { prompt } = createPrompt({ current: "current", default: "default" });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "current", default: "default" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
@@ -158,9 +139,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("toggles secret reveal with Ctrl+R", async () => {
-    const { prompt } = createPrompt({ secret: true });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ secret: true });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     expect((prompt as any).isSecretRevealed()).toBe(false);
 
@@ -176,13 +157,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("renders submitted masked values using the prompt format", async () => {
-    const { prompt, output } = createPrompt({
-      secret: true,
-      mask: "#",
-      maxDisplayLength: 4,
-    });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt, output } = createPrompt({ secret: true, mask: "#", maxDisplayLength: 4 });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await typeText(prompt as any, "super-secret-value");
     submitPrompt(prompt as any);
@@ -196,9 +173,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("renders cancelled prompts using the cancel renderer", async () => {
-    const { prompt, output } = createPrompt({ current: "value" });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt, output } = createPrompt({ current: "value" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     cancelPrompt(prompt as any);
     await waitForIO(2);
@@ -210,12 +187,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("dimms inputs while the option picker is open", async () => {
-    const { prompt, output } = createPrompt({
-      current: "same",
-      default: "same",
-    });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt, output } = createPrompt({ current: "same", default: "same" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
@@ -233,13 +207,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("prevents submitting empty custom entries when required", async () => {
-    const { prompt } = createPrompt({
-      current: "curr",
-      default: "def",
-      required: true,
-    });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "curr", default: "def", required: true });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
@@ -259,13 +229,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("allows optional custom entries to remain empty", async () => {
-    const { prompt } = createPrompt({
-      current: "curr",
-      default: "def",
-      required: false,
-    });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "curr", default: "def", required: false });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
@@ -291,13 +257,9 @@ describe("EnvStringPrompt", () => {
       return undefined;
     };
 
-    const { prompt } = createPrompt({
-      current: "curr",
-      default: "def",
-      validate,
-    });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "curr", default: "def", validate });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await pressKey(prompt, { name: "down" });
     expect(prompt.value).toBe("def");
@@ -324,13 +286,9 @@ describe("EnvStringPrompt", () => {
       return undefined;
     };
 
-    const { prompt } = createPrompt({
-      current: "curr",
-      default: "def",
-      validate,
-    });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "curr", default: "def", validate });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
@@ -360,9 +318,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("respects custom validateInput responses", async () => {
-    const { prompt } = createPrompt({ current: "curr", default: "def" });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "curr", default: "def" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     (prompt as any).validateInput = () => "format error";
 
@@ -402,13 +360,13 @@ describe("EnvStringPrompt", () => {
     await typeText(prompt as any, "text");
     expect(prompt.value).toBe("text");
 
-    await backspace(prompt, prompt.userInput.length);
-    await typeText(prompt as any, "fail");
-    await waitForIO(2);
-    expect(prompt.userInput).toBe("fail");
+  await backspace(prompt, prompt.userInput.length);
+  await typeText(prompt as any, "fail");
+  await waitForIO(2);
+  expect(prompt.userInput).toBe("fail");
 
-    await (prompt as any).updateValue();
-    expect(prompt.value).toBe("");
+  await (prompt as any).updateValue();
+  expect(prompt.value).toBe("");
 
     submitPrompt(prompt as any);
     await waitForIO(2);
@@ -416,9 +374,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("updates values when selecting between current, default, and other", async () => {
-    const { prompt } = createPrompt({ current: "curr", default: "def" });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "curr", default: "def" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     expect(prompt.value).toBe("curr");
 
@@ -440,14 +398,9 @@ describe("EnvStringPrompt", () => {
   });
 
   it("exposes helper utilities for masking and display", async () => {
-    const { prompt } = createPrompt({
-      current: "curr",
-      default: "def",
-      secret: true,
-      mask: "*",
-    });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
+  const { prompt } = createPrompt({ current: "curr", default: "def", secret: true, mask: "*" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
 
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
