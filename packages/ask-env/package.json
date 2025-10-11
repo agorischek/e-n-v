@@ -4,8 +4,13 @@
   "type": "module",
   "dependencies": {
     "@clack/core": "1.0.0-alpha.5",
-    "picocolors": "^1.1.1",
-    "zod": "^3.25.76"
+    "picocolors": "^1.1.1"
+  },
+  "peerDependencies": {
+    "zod": "^3.25.0 || ^4.0.0"
+  },
+  "devDependencies": {
+    "zod": "^3.25.0 || ^4.0.0"
   },
   "scripts": {
     "build": "tsup src/index.ts --config ./tsup.config.ts"

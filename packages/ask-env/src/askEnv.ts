@@ -11,7 +11,6 @@ import { stdout } from "node:process";
 import { DEFAULT_SECRET_PATTERNS } from "./constants";
 import { isSecretKey } from "./utils/secrets";
 import type { AskEnvOptions } from "./AskEnvOptions";
-import type { ZodSchema, ZodTypeDef } from "zod";
 import type { EnvVarType } from "./specification/EnvVarType";
 import { createPrompt } from "./createPrompt";
 

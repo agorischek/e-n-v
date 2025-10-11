@@ -22,7 +22,12 @@
       "dependencies": {
         "@clack/core": "1.0.0-alpha.5",
         "picocolors": "^1.1.1",
-        "zod": "^3.25.76",
+      },
+      "devDependencies": {
+        "zod": "^3.25.0 || ^4.0.0",
+      },
+      "peerDependencies": {
+        "zod": "^3.25.0 || ^4.0.0",
       },
     },
     "packages/envrw": {

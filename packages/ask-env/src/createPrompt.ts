@@ -1,4 +1,4 @@
-import type { ZodSchema } from "zod";
+import type { CompatibleZodSchema } from "./specification/zodCompat";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
@@ -14,7 +14,7 @@ interface CreatePromptOptions {
   description?: string;
   defaultValue: unknown;
   required: boolean;
-  schema: ZodSchema;
+  schema: CompatibleZodSchema;
   values?: string[];
   currentValue?: string;
   theme: Theme;
