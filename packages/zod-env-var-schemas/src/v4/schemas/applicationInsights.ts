@@ -1,0 +1,93 @@
+import { z } from "zod";
+import { APPLICATION_INSIGHTS_CONNECTION_STRING_PATTERN } from "../../shared/patterns";
+import {
+  APPLICATION_INSIGHTS_DEFAULTS,
+  APPLICATION_INSIGHTS_DESCRIPTIONS,
+  APPLICATION_INSIGHTS_LIMITS,
+  APPLICATION_INSIGHTS_MESSAGES,
+} from "../../shared/applicationInsights";
+
+/**
+ * Validates Azure Application Insights connection string format
+ * Expected format: InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://region.in.applicationinsights.azure.com/;LiveEndpoint=https://region.livediagnostics.monitor.azure.com/
+ */
+export const APPLICATIONINSIGHTS_CONNECTION_STRING = z
+  .string()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.CONNECTION_STRING)
+  .regex(APPLICATION_INSIGHTS_CONNECTION_STRING_PATTERN, {
+    error: APPLICATION_INSIGHTS_MESSAGES.CONNECTION_STRING_FORMAT,
+  });
+
+/**
+ * Validates Azure Application Insights instrumentation key (legacy format)
+ * Format: 00000000-0000-0000-0000-000000000000
+ */
+export const APPINSIGHTS_INSTRUMENTATIONKEY = z
+  .string()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.INSTRUMENTATION_KEY)
+  .uuid({ error: APPLICATION_INSIGHTS_MESSAGES.INSTRUMENTATION_KEY_UUID });
+
+/**
+ * Application Insights role name for distributed tracing
+ */
+export const APPINSIGHTS_ROLE_NAME = z
+  .string()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.ROLE_NAME)
+  .min(APPLICATION_INSIGHTS_LIMITS.ROLE_NAME_MIN, { error: APPLICATION_INSIGHTS_MESSAGES.ROLE_NAME_MIN })
+  .max(APPLICATION_INSIGHTS_LIMITS.ROLE_NAME_MAX, { error: APPLICATION_INSIGHTS_MESSAGES.ROLE_NAME_MAX });
+
+/**
+ * Application Insights sampling rate (0-100)
+ */
+export const APPINSIGHTS_SAMPLING_RATE = z
+  .number()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.SAMPLING_RATE)
+  .min(APPLICATION_INSIGHTS_LIMITS.SAMPLING_RATE_MIN, { error: APPLICATION_INSIGHTS_MESSAGES.SAMPLING_RATE_MIN })
+  .max(APPLICATION_INSIGHTS_LIMITS.SAMPLING_RATE_MAX, { error: APPLICATION_INSIGHTS_MESSAGES.SAMPLING_RATE_MAX })
+  .default(APPLICATION_INSIGHTS_DEFAULTS.SAMPLING_RATE);
+
+/**
+ * Enable/disable Application Insights auto collection of dependencies
+ */
+export const APPINSIGHTS_AUTOCOLLECT_DEPENDENCIES = z
+  .boolean()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_DEPENDENCIES)
+  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_DEPENDENCIES);
+
+/**
+ * Enable/disable Application Insights auto collection of exceptions
+ */
+export const APPINSIGHTS_AUTOCOLLECT_EXCEPTIONS = z
+  .boolean()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_EXCEPTIONS)
+  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_EXCEPTIONS);
+
+/**
+ * Enable/disable Application Insights auto collection of console logs
+ */
+export const APPINSIGHTS_AUTOCOLLECT_CONSOLE = z
+  .boolean()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_CONSOLE)
+  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_CONSOLE);
+
+/**
+ * Enable/disable Application Insights auto collection of performance counters
+ */
+export const APPINSIGHTS_AUTOCOLLECT_PERFORMANCE = z
+  .boolean()
+  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_PERFORMANCE)
+  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_PERFORMANCE);
+
+/**
+ * Pre-configured Application Insights schemas for common scenarios
+ */
+export const applicationInsightsSchemas = {
+  APPLICATIONINSIGHTS_CONNECTION_STRING,
+  APPINSIGHTS_INSTRUMENTATIONKEY,
+  APPINSIGHTS_ROLE_NAME,
+  APPINSIGHTS_SAMPLING_RATE,
+  APPINSIGHTS_AUTOCOLLECT_DEPENDENCIES,
+  APPINSIGHTS_AUTOCOLLECT_EXCEPTIONS,
+  APPINSIGHTS_AUTOCOLLECT_CONSOLE,
+  APPINSIGHTS_AUTOCOLLECT_PERFORMANCE,
+} as const;

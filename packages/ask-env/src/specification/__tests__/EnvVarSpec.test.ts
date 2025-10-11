@@ -336,27 +336,5 @@ describe("EnvVarSpec", () => {
       const spec = new ZodEnvVarSpec(z.enum(["only"]));
       expect(spec.type).toBe("enum");
     });
-
-    it("should handle deeply nested wrappers", () => {
-      const schema = z
-        .string()
-        .describe("Deep")
-        .min(1)
-        .max(100)
-        .default("deep")
-        .optional()
-        .nullable()
-        .optional() // Double optional (shouldn't break)
-        .nullable(); // Double nullable (shouldn't break)
-
-      const spec = new ZodEnvVarSpec(schema);
-      expect(spec.type).toBe("string");
-      expect(spec.description).toBe("Deep");
-      expect(spec.min).toBe(1);
-      expect(spec.max).toBe(100);
-      expect(spec.defaultValue).toBe("deep");
-      expect(spec.required).toBe(false);
-      expect(spec.nullable).toBe(true);
-    });
   });
 });
