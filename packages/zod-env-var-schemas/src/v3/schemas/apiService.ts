@@ -5,128 +5,102 @@ import {
   JWT_TOKEN_DURATION_PATTERN,
 } from "../../shared/patterns";
 import {
-  API_SERVICE_DEFAULTS,
-  API_SERVICE_DESCRIPTIONS,
-  API_SERVICE_ENUM_OPTIONS,
-  API_SERVICE_LENGTHS,
-  API_SERVICE_LIMITS,
-  API_SERVICE_MESSAGES,
+  defaults,
+  descriptions,
+  enumOptions,
+  constraints,
+  limits,
+  messages,
 } from "../../shared/apiService";
+import {
+  OAUTH_CLIENT_ID,
+  OAUTH_CLIENT_SECRET,
+  OAUTH_REDIRECT_URI,
+  OAUTH_SCOPE,
+} from "./oauth";
 
 /**
  * Generic API key with minimum length requirement
  */
 export const API_KEY = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.API_KEY)
-  .min(API_SERVICE_LENGTHS.API_KEY_MIN, API_SERVICE_MESSAGES.API_KEY_MIN);
+  .describe(descriptions.apiKey)
+  .min(constraints.apiKeyMinLength, messages.apiKeyMin);
 
 /**
  * JWT secret key with strong requirements
  */
 export const JWT_SECRET = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.JWT_SECRET)
-  .min(API_SERVICE_LENGTHS.JWT_SECRET_MIN, API_SERVICE_MESSAGES.JWT_SECRET_MIN);
+  .describe(descriptions.jwtSecret)
+  .min(constraints.jwtSecretMinLength, messages.jwtSecretMin);
 
 /**
  * JWT access token expiration time
  */
 export const JWT_ACCESS_TOKEN_EXPIRES_IN = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.JWT_ACCESS_TOKEN_EXPIRES_IN)
-  .regex(JWT_TOKEN_DURATION_PATTERN, API_SERVICE_MESSAGES.JWT_DURATION_FORMAT)
-  .default(API_SERVICE_DEFAULTS.JWT_ACCESS_TOKEN_EXPIRES_IN);
+  .describe(descriptions.jwtAccessTokenExpiresIn)
+  .regex(JWT_TOKEN_DURATION_PATTERN, messages.jwtDurationFormat)
+  .default(defaults.jwtAccessTokenExpiresIn);
 
 /**
  * JWT refresh token expiration time
  */
 export const JWT_REFRESH_TOKEN_EXPIRES_IN = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.JWT_REFRESH_TOKEN_EXPIRES_IN)
-  .regex(JWT_TOKEN_DURATION_PATTERN, API_SERVICE_MESSAGES.JWT_DURATION_FORMAT)
-  .default(API_SERVICE_DEFAULTS.JWT_REFRESH_TOKEN_EXPIRES_IN);
+  .describe(descriptions.jwtRefreshTokenExpiresIn)
+  .regex(JWT_TOKEN_DURATION_PATTERN, messages.jwtDurationFormat)
+  .default(defaults.jwtRefreshTokenExpiresIn);
 
 /**
  * Base URL for API services
  */
 export const API_BASE_URL = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.API_BASE_URL)
-  .url(API_SERVICE_MESSAGES.MUST_BE_VALID_URL)
-  .regex(HTTP_PROTOCOL_PATTERN, API_SERVICE_MESSAGES.HTTP_PROTOCOL_REQUIRED);
+  .describe(descriptions.apiBaseUrl)
+  .url(messages.mustBeValidUrl)
+  .regex(HTTP_PROTOCOL_PATTERN, messages.httpProtocolRequired);
 
 /**
  * Service URL with HTTPS requirement for production
  */
 export const SERVICE_URL = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.SERVICE_URL)
-  .url(API_SERVICE_MESSAGES.MUST_BE_VALID_URL);
+  .describe(descriptions.serviceUrl)
+  .url(messages.mustBeValidUrl);
 
 /**
  * Webhook URL for receiving callbacks
  */
 export const WEBHOOK_URL = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.WEBHOOK_URL)
-  .url(API_SERVICE_MESSAGES.MUST_BE_VALID_URL)
-  .regex(HTTPS_PROTOCOL_PATTERN, API_SERVICE_MESSAGES.HTTPS_PROTOCOL_REQUIRED);
-
-/**
- * OAuth client ID
- */
-export const OAUTH_CLIENT_ID = z
-  .string()
-  .describe(API_SERVICE_DESCRIPTIONS.OAUTH_CLIENT_ID)
-  .min(1, API_SERVICE_MESSAGES.OAUTH_CLIENT_ID_REQUIRED);
-
-/**
- * OAuth client secret
- */
-export const OAUTH_CLIENT_SECRET = z
-  .string()
-  .describe(API_SERVICE_DESCRIPTIONS.OAUTH_CLIENT_SECRET)
-  .min(API_SERVICE_LENGTHS.OAUTH_CLIENT_SECRET_MIN, API_SERVICE_MESSAGES.OAUTH_CLIENT_SECRET_MIN);
-
-/**
- * OAuth redirect URI
- */
-export const OAUTH_REDIRECT_URI = z
-  .string()
-  .describe(API_SERVICE_DESCRIPTIONS.OAUTH_REDIRECT_URI)
-  .url(API_SERVICE_MESSAGES.MUST_BE_VALID_URL);
-
-/**
- * OAuth scope
- */
-export const OAUTH_SCOPE = z
-  .string()
-  .describe(API_SERVICE_DESCRIPTIONS.OAUTH_SCOPE)
-  .min(1, API_SERVICE_MESSAGES.OAUTH_SCOPE_REQUIRED);
+  .describe(descriptions.webhookUrl)
+  .url(messages.mustBeValidUrl)
+  .regex(HTTPS_PROTOCOL_PATTERN, messages.httpsProtocolRequired);
 
 /**
  * Encryption key for data encryption
  */
 export const ENCRYPTION_KEY = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.ENCRYPTION_KEY)
-  .min(API_SERVICE_LENGTHS.ENCRYPTION_KEY_MIN, API_SERVICE_MESSAGES.ENCRYPTION_KEY_MIN);
+  .describe(descriptions.encryptionKey)
+  .min(constraints.encryptionKeyMinLength, messages.encryptionKeyMin);
 
 /**
  * Session secret for express-session or similar
  */
 export const SESSION_SECRET = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.SESSION_SECRET)
-  .min(API_SERVICE_LENGTHS.SESSION_SECRET_MIN, API_SERVICE_MESSAGES.SESSION_SECRET_MIN);
+  .describe(descriptions.sessionSecret)
+  .min(constraints.sessionSecretMinLength, messages.sessionSecretMin);
 
 /**
  * CORS allowed origins (comma-separated or single origin)
  */
 export const CORS_ORIGIN = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.CORS_ORIGIN)
+  .describe(descriptions.corsOrigin)
   .refine(
     (val) => {
       if (val === "*") return true;
@@ -140,7 +114,7 @@ export const CORS_ORIGIN = z
         }
       });
     },
-    API_SERVICE_MESSAGES.CORS_ORIGIN_INVALID
+    messages.corsOriginInvalid
   );
 
 /**
@@ -148,79 +122,79 @@ export const CORS_ORIGIN = z
  */
 export const RATE_LIMIT_RPM = z
   .number()
-  .describe(API_SERVICE_DESCRIPTIONS.RATE_LIMIT_RPM)
-  .int(API_SERVICE_MESSAGES.RATE_LIMIT_RPM_INT)
-  .min(API_SERVICE_LIMITS.RATE_LIMIT_RPM_MIN, API_SERVICE_MESSAGES.RATE_LIMIT_RPM_MIN)
-  .max(API_SERVICE_LIMITS.RATE_LIMIT_RPM_MAX, API_SERVICE_MESSAGES.RATE_LIMIT_RPM_MAX)
-  .default(API_SERVICE_DEFAULTS.RATE_LIMIT_RPM);
+  .describe(descriptions.rateLimitRpm)
+  .int(messages.rateLimitRpmInt)
+  .min(limits.rateLimitRpmMin, messages.rateLimitRpmMin)
+  .max(limits.rateLimitRpmMax, messages.rateLimitRpmMax)
+  .default(defaults.rateLimitRpm);
 
 /**
  * Rate limiting - window size in minutes
  */
 export const RATE_LIMIT_WINDOW = z
   .number()
-  .describe(API_SERVICE_DESCRIPTIONS.RATE_LIMIT_WINDOW)
-  .int(API_SERVICE_MESSAGES.RATE_LIMIT_WINDOW_INT)
-  .min(API_SERVICE_LIMITS.RATE_LIMIT_WINDOW_MIN, API_SERVICE_MESSAGES.RATE_LIMIT_WINDOW_MIN)
-  .max(API_SERVICE_LIMITS.RATE_LIMIT_WINDOW_MAX, API_SERVICE_MESSAGES.RATE_LIMIT_WINDOW_MAX)
-  .default(API_SERVICE_DEFAULTS.RATE_LIMIT_WINDOW);
+  .describe(descriptions.rateLimitWindow)
+  .int(messages.rateLimitWindowInt)
+  .min(limits.rateLimitWindowMin, messages.rateLimitWindowMin)
+  .max(limits.rateLimitWindowMax, messages.rateLimitWindowMax)
+  .default(defaults.rateLimitWindow);
 
 /**
  * API timeout in milliseconds
  */
 export const API_TIMEOUT = z
   .number()
-  .describe(API_SERVICE_DESCRIPTIONS.API_TIMEOUT)
-  .int(API_SERVICE_MESSAGES.API_TIMEOUT_INT)
-  .min(API_SERVICE_LIMITS.API_TIMEOUT_MIN, API_SERVICE_MESSAGES.API_TIMEOUT_MIN)
-  .max(API_SERVICE_LIMITS.API_TIMEOUT_MAX, API_SERVICE_MESSAGES.API_TIMEOUT_MAX)
-  .default(API_SERVICE_DEFAULTS.API_TIMEOUT);
+  .describe(descriptions.apiTimeout)
+  .int(messages.apiTimeoutInt)
+  .min(limits.apiTimeoutMin, messages.apiTimeoutMin)
+  .max(limits.apiTimeoutMax, messages.apiTimeoutMax)
+  .default(defaults.apiTimeout);
 
 /**
  * Maximum file upload size in bytes
  */
 export const MAX_FILE_SIZE = z
   .number()
-  .describe(API_SERVICE_DESCRIPTIONS.MAX_FILE_SIZE)
-  .int(API_SERVICE_MESSAGES.MAX_FILE_SIZE_INT)
-  .min(API_SERVICE_LIMITS.MAX_FILE_SIZE_MIN, API_SERVICE_MESSAGES.MAX_FILE_SIZE_MIN)
-  .max(API_SERVICE_LIMITS.MAX_FILE_SIZE_MAX, API_SERVICE_MESSAGES.MAX_FILE_SIZE_MAX)
-  .default(API_SERVICE_DEFAULTS.MAX_FILE_SIZE);
+  .describe(descriptions.maxFileSize)
+  .int(messages.maxFileSizeInt)
+  .min(limits.maxFileSizeMin, messages.maxFileSizeMin)
+  .max(limits.maxFileSizeMax, messages.maxFileSizeMax)
+  .default(defaults.maxFileSize);
 
 /**
  * Log level for application logging
  */
 export const LOG_LEVEL = z
-  .enum([...API_SERVICE_ENUM_OPTIONS.LOG_LEVEL])
-  .describe(API_SERVICE_DESCRIPTIONS.LOG_LEVEL)
-  .default(API_SERVICE_DEFAULTS.LOG_LEVEL);
+  .enum([...enumOptions.logLevel])
+  .describe(descriptions.logLevel)
+  .default(defaults.logLevel);
 
 /**
  * Application environment
  */
 export const NODE_ENV = z
-  .enum([...API_SERVICE_ENUM_OPTIONS.NODE_ENV])
-  .describe(API_SERVICE_DESCRIPTIONS.NODE_ENV)
-  .default(API_SERVICE_DEFAULTS.NODE_ENV);
+  .enum([...enumOptions.nodeEnv])
+  .describe(descriptions.nodeEnv)
+  .default(defaults.nodeEnv);
 
 /**
  * Server port number
  */
 export const PORT = z
   .number()
-  .describe(API_SERVICE_DESCRIPTIONS.PORT)
-  .int(API_SERVICE_MESSAGES.PORT_INT)
-  .min(API_SERVICE_LIMITS.PORT_MIN, API_SERVICE_MESSAGES.PORT_MIN)
-  .max(API_SERVICE_LIMITS.PORT_MAX, API_SERVICE_MESSAGES.PORT_MAX)
-  .default(API_SERVICE_DEFAULTS.PORT);
+  .describe(descriptions.port)
+  .int(messages.portInt)
+  .min(limits.portMin, messages.portMin)
+  .max(limits.portMax, messages.portMax)
+  .default(defaults.port);
 
 /**
  * Server host address
  */
 export const HOST = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.HOST)
-  .default(API_SERVICE_DEFAULTS.HOST);
+  .describe(descriptions.host)
+  .default(defaults.host);
 
 /**
  * Pre-configured API and service schemas for common scenarios

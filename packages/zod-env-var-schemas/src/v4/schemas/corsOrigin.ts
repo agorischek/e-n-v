@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { API_SERVICE_DESCRIPTIONS, API_SERVICE_MESSAGES } from "../../../shared/apiService";
+import { descriptions, messages } from "../../shared/apiService";
 
 const schema = z
   .string()
-  .describe(API_SERVICE_DESCRIPTIONS.CORS_ORIGIN)
+  .describe(descriptions.corsOrigin)
   .refine(
     (val) => {
       if (val === "*") return true;
@@ -17,7 +17,7 @@ const schema = z
         }
       });
     },
-    { error: API_SERVICE_MESSAGES.CORS_ORIGIN_INVALID }
+    { error: messages.corsOriginInvalid }
   );
 
 export const corsOriginSchema = schema;

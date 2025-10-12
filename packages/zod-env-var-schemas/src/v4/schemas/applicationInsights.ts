@@ -1,1 +1,1 @@
-export * from "./applicationInsights";
+export * from "./applicationInsights/index";
