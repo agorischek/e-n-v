@@ -1,13 +1,13 @@
 import { z } from "zod";
 import {
-  APPLICATION_INSIGHTS_DEFAULTS,
-  APPLICATION_INSIGHTS_DESCRIPTIONS,
+  defaults,
+  descriptions,
 } from "../../../shared/applicationInsights";
 
 const schema = z
   .boolean()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_DEPENDENCIES)
-  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_DEPENDENCIES);
+  .describe(descriptions.autoCollectDependencies)
+  .default(defaults.autoCollectDependencies);
 
 export const appInsightsAutocollectDependenciesSchema = schema;
 export const APPINSIGHTS_AUTOCOLLECT_DEPENDENCIES = appInsightsAutocollectDependenciesSchema;

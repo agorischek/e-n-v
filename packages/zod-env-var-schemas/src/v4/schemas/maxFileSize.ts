@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { defaults, descriptions, limits, messages } from "../../shared/apiService";
+import { defaults, descriptions, constraints, messages } from "../../shared/apiService";
 
 const schema = z
   .number()
   .describe(descriptions.maxFileSize)
   .int({ error: messages.maxFileSizeInt })
-  .min(limits.maxFileSizeMin, { error: messages.maxFileSizeMin })
-  .max(limits.maxFileSizeMax, { error: messages.maxFileSizeMax })
+  .min(constraints.maxFileSizeMin, { error: messages.maxFileSizeMin })
+  .max(constraints.maxFileSizeMax, { error: messages.maxFileSizeMax })
   .default(defaults.maxFileSize);
 
 export const maxFileSizeSchema = schema;

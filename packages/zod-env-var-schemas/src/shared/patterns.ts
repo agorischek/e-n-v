@@ -2,9 +2,6 @@ export const JWT_TOKEN_DURATION_PATTERN = /^\d+[smhd]$/;
 export const HTTP_PROTOCOL_PATTERN = /^https?:\/\//;
 export const HTTPS_PROTOCOL_PATTERN = /^https:\/\//;
 
-export const APPLICATION_INSIGHTS_CONNECTION_STRING_PATTERN =
-  /^InstrumentationKey=[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12};IngestionEndpoint=https:\/\/[^;]+;LiveEndpoint=https:\/\/[^;]+$/;
-
 export const POSTGRES_URL_PATTERN =
   /^postgresql:\/\/(?:[^:@\/]+(?::[^@\/]*)?@)?[^:\/]+(?::\d+)?(?:\/[^?]*)?(?:\?.*)?$/;
 

@@ -1,15 +1,15 @@
 import { z } from "zod";
 import {
-  APPLICATION_INSIGHTS_DESCRIPTIONS,
-  APPLICATION_INSIGHTS_LIMITS,
-  APPLICATION_INSIGHTS_MESSAGES,
+  descriptions,
+  constraints,
+  messages,
 } from "../../../shared/applicationInsights";
 
 const schema = z
   .string()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.ROLE_NAME)
-  .min(APPLICATION_INSIGHTS_LIMITS.ROLE_NAME_MIN, { error: APPLICATION_INSIGHTS_MESSAGES.ROLE_NAME_MIN })
-  .max(APPLICATION_INSIGHTS_LIMITS.ROLE_NAME_MAX, { error: APPLICATION_INSIGHTS_MESSAGES.ROLE_NAME_MAX });
+  .describe(descriptions.roleName)
+  .min(constraints.roleNameMin, { error: messages.roleNameMin })
+  .max(constraints.roleNameMax, { error: messages.roleNameMax });
 
 export const appInsightsRoleNameSchema = schema;
 export const APPINSIGHTS_ROLE_NAME = appInsightsRoleNameSchema;

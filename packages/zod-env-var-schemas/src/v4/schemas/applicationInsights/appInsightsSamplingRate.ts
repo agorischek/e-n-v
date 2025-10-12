@@ -1,17 +1,17 @@
 import { z } from "zod";
 import {
-  APPLICATION_INSIGHTS_DEFAULTS,
-  APPLICATION_INSIGHTS_DESCRIPTIONS,
-  APPLICATION_INSIGHTS_LIMITS,
-  APPLICATION_INSIGHTS_MESSAGES,
+  defaults,
+  descriptions,
+  constraints,
+  messages,
 } from "../../../shared/applicationInsights";
 
 const schema = z
   .number()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.SAMPLING_RATE)
-  .min(APPLICATION_INSIGHTS_LIMITS.SAMPLING_RATE_MIN, { error: APPLICATION_INSIGHTS_MESSAGES.SAMPLING_RATE_MIN })
-  .max(APPLICATION_INSIGHTS_LIMITS.SAMPLING_RATE_MAX, { error: APPLICATION_INSIGHTS_MESSAGES.SAMPLING_RATE_MAX })
-  .default(APPLICATION_INSIGHTS_DEFAULTS.SAMPLING_RATE);
+  .describe(descriptions.samplingRate)
+  .min(constraints.samplingRateMin, { error: messages.samplingRateMin })
+  .max(constraints.samplingRateMax, { error: messages.samplingRateMax })
+  .default(defaults.samplingRate);
 
 export const appInsightsSamplingRateSchema = schema;
 export const APPINSIGHTS_SAMPLING_RATE = appInsightsSamplingRateSchema;

@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { APPLICATION_INSIGHTS_CONNECTION_STRING_PATTERN } from "../../shared/patterns";
 import {
-  APPLICATION_INSIGHTS_DEFAULTS,
-  APPLICATION_INSIGHTS_DESCRIPTIONS,
-  APPLICATION_INSIGHTS_LIMITS,
-  APPLICATION_INSIGHTS_MESSAGES,
+  defaults,
+  descriptions,
+  constraints,
+  messages,
+  patterns,
 } from "../../shared/applicationInsights";
 
 /**
@@ -13,8 +13,8 @@ import {
  */
 export const APPLICATIONINSIGHTS_CONNECTION_STRING = z
   .string()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.CONNECTION_STRING)
-  .regex(APPLICATION_INSIGHTS_CONNECTION_STRING_PATTERN, APPLICATION_INSIGHTS_MESSAGES.CONNECTION_STRING_FORMAT);
+  .describe(descriptions.connectionString)
+  .regex(patterns.connectionString, messages.connectionStringFormat);
 
 /**
  * Validates Azure Application Insights instrumentation key (legacy format)
@@ -22,59 +22,59 @@ export const APPLICATIONINSIGHTS_CONNECTION_STRING = z
  */
 export const APPINSIGHTS_INSTRUMENTATIONKEY = z
   .string()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.INSTRUMENTATION_KEY)
-  .uuid(APPLICATION_INSIGHTS_MESSAGES.INSTRUMENTATION_KEY_UUID);
+  .describe(descriptions.instrumentationKey)
+  .uuid(messages.instrumentationKeyUuid);
 
 /**
  * Application Insights role name for distributed tracing
  */
 export const APPINSIGHTS_ROLE_NAME = z
   .string()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.ROLE_NAME)
-  .min(APPLICATION_INSIGHTS_LIMITS.ROLE_NAME_MIN, APPLICATION_INSIGHTS_MESSAGES.ROLE_NAME_MIN)
-  .max(APPLICATION_INSIGHTS_LIMITS.ROLE_NAME_MAX, APPLICATION_INSIGHTS_MESSAGES.ROLE_NAME_MAX);
+  .describe(descriptions.roleName)
+  .min(constraints.roleNameMin, messages.roleNameMin)
+  .max(constraints.roleNameMax, messages.roleNameMax);
 
 /**
  * Application Insights sampling rate (0-100)
  */
 export const APPINSIGHTS_SAMPLING_RATE = z
   .number()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.SAMPLING_RATE)
-  .min(APPLICATION_INSIGHTS_LIMITS.SAMPLING_RATE_MIN, APPLICATION_INSIGHTS_MESSAGES.SAMPLING_RATE_MIN)
-  .max(APPLICATION_INSIGHTS_LIMITS.SAMPLING_RATE_MAX, APPLICATION_INSIGHTS_MESSAGES.SAMPLING_RATE_MAX)
-  .default(APPLICATION_INSIGHTS_DEFAULTS.SAMPLING_RATE);
+  .describe(descriptions.samplingRate)
+  .min(constraints.samplingRateMin, messages.samplingRateMin)
+  .max(constraints.samplingRateMax, messages.samplingRateMax)
+  .default(defaults.samplingRate);
 
 /**
  * Enable/disable Application Insights auto collection of dependencies
  */
 export const APPINSIGHTS_AUTOCOLLECT_DEPENDENCIES = z
   .boolean()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_DEPENDENCIES)
-  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_DEPENDENCIES);
+  .describe(descriptions.autoCollectDependencies)
+  .default(defaults.autoCollectDependencies);
 
 /**
  * Enable/disable Application Insights auto collection of exceptions
  */
 export const APPINSIGHTS_AUTOCOLLECT_EXCEPTIONS = z
   .boolean()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_EXCEPTIONS)
-  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_EXCEPTIONS);
+  .describe(descriptions.autoCollectExceptions)
+  .default(defaults.autoCollectExceptions);
 
 /**
  * Enable/disable Application Insights auto collection of console logs
  */
 export const APPINSIGHTS_AUTOCOLLECT_CONSOLE = z
   .boolean()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_CONSOLE)
-  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_CONSOLE);
+  .describe(descriptions.autoCollectConsole)
+  .default(defaults.autoCollectConsole);
 
 /**
  * Enable/disable Application Insights auto collection of performance counters
  */
 export const APPINSIGHTS_AUTOCOLLECT_PERFORMANCE = z
   .boolean()
-  .describe(APPLICATION_INSIGHTS_DESCRIPTIONS.AUTO_COLLECT_PERFORMANCE)
-  .default(APPLICATION_INSIGHTS_DEFAULTS.AUTO_COLLECT_PERFORMANCE);
+  .describe(descriptions.autoCollectPerformance)
+  .default(defaults.autoCollectPerformance);
 
 /**
  * Pre-configured Application Insights schemas for common scenarios

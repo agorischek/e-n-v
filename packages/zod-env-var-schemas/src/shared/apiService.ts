@@ -53,6 +53,16 @@ export const constraints = {
   jwtSecretMinLength: 32,
   encryptionKeyMinLength: 32,
   sessionSecretMinLength: 32,
+  rateLimitRpmMin: 1,
+  rateLimitRpmMax: 10000,
+  rateLimitWindowMin: 1,
+  rateLimitWindowMax: 60,
+  apiTimeoutMin: 1000,
+  apiTimeoutMax: 300000,
+  maxFileSizeMin: 1024,
+  maxFileSizeMax: 1073741824,
+  portMin: 1024,
+  portMax: 65535,
 } as const;
 
 export const defaults = {
@@ -66,19 +76,6 @@ export const defaults = {
   nodeEnv: "development",
   port: 3000,
   host: "localhost",
-} as const;
-
-export const limits = {
-  rateLimitRpmMin: 1,
-  rateLimitRpmMax: 10000,
-  rateLimitWindowMin: 1,
-  rateLimitWindowMax: 60,
-  apiTimeoutMin: 1000,
-  apiTimeoutMax: 300000,
-  maxFileSizeMin: 1024,
-  maxFileSizeMax: 1073741824,
-  portMin: 1024,
-  portMax: 65535,
 } as const;
 
 export const enumOptions = {

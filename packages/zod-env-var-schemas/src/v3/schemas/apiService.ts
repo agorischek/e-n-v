@@ -9,7 +9,6 @@ import {
   descriptions,
   enumOptions,
   constraints,
-  limits,
   messages,
 } from "../../shared/apiService";
 import {
@@ -124,8 +123,8 @@ export const RATE_LIMIT_RPM = z
   .number()
   .describe(descriptions.rateLimitRpm)
   .int(messages.rateLimitRpmInt)
-  .min(limits.rateLimitRpmMin, messages.rateLimitRpmMin)
-  .max(limits.rateLimitRpmMax, messages.rateLimitRpmMax)
+  .min(constraints.rateLimitRpmMin, messages.rateLimitRpmMin)
+  .max(constraints.rateLimitRpmMax, messages.rateLimitRpmMax)
   .default(defaults.rateLimitRpm);
 
 /**
@@ -135,8 +134,8 @@ export const RATE_LIMIT_WINDOW = z
   .number()
   .describe(descriptions.rateLimitWindow)
   .int(messages.rateLimitWindowInt)
-  .min(limits.rateLimitWindowMin, messages.rateLimitWindowMin)
-  .max(limits.rateLimitWindowMax, messages.rateLimitWindowMax)
+  .min(constraints.rateLimitWindowMin, messages.rateLimitWindowMin)
+  .max(constraints.rateLimitWindowMax, messages.rateLimitWindowMax)
   .default(defaults.rateLimitWindow);
 
 /**
@@ -146,8 +145,8 @@ export const API_TIMEOUT = z
   .number()
   .describe(descriptions.apiTimeout)
   .int(messages.apiTimeoutInt)
-  .min(limits.apiTimeoutMin, messages.apiTimeoutMin)
-  .max(limits.apiTimeoutMax, messages.apiTimeoutMax)
+  .min(constraints.apiTimeoutMin, messages.apiTimeoutMin)
+  .max(constraints.apiTimeoutMax, messages.apiTimeoutMax)
   .default(defaults.apiTimeout);
 
 /**
@@ -157,8 +156,8 @@ export const MAX_FILE_SIZE = z
   .number()
   .describe(descriptions.maxFileSize)
   .int(messages.maxFileSizeInt)
-  .min(limits.maxFileSizeMin, messages.maxFileSizeMin)
-  .max(limits.maxFileSizeMax, messages.maxFileSizeMax)
+  .min(constraints.maxFileSizeMin, messages.maxFileSizeMin)
+  .max(constraints.maxFileSizeMax, messages.maxFileSizeMax)
   .default(defaults.maxFileSize);
 
 /**
@@ -184,8 +183,8 @@ export const PORT = z
   .number()
   .describe(descriptions.port)
   .int(messages.portInt)
-  .min(limits.portMin, messages.portMin)
-  .max(limits.portMax, messages.portMax)
+  .min(constraints.portMin, messages.portMin)
+  .max(constraints.portMax, messages.portMax)
   .default(defaults.port);
 
 /**
