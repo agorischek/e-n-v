@@ -15,9 +15,7 @@ import { RABBITMQ_URL } from "./rabbitmqUrl";
 import { KAFKA_BROKERS } from "./kafkaBrokers";
 import { KAFKA_CLIENT_ID } from "./kafkaClientId";
 import { MEMCACHED_SERVERS } from "./memcachedServers";
-import { DOCKER_REGISTRY_URL } from "./dockerRegistryUrl";
-import { DOCKER_REGISTRY_USERNAME } from "./dockerRegistryUsername";
-import { DOCKER_REGISTRY_PASSWORD } from "./dockerRegistryPassword";
+
 import { KUBERNETES_NAMESPACE } from "./kubernetesNamespace";
 import { KUBERNETES_SERVICE_ACCOUNT } from "./kubernetesServiceAccount";
 import { PROMETHEUS_PORT } from "./prometheusPort";
@@ -43,9 +41,7 @@ export { rabbitmqUrlSchema, RABBITMQ_URL } from "./rabbitmqUrl";
 export { kafkaBrokersSchema, KAFKA_BROKERS } from "./kafkaBrokers";
 export { kafkaClientIdSchema, KAFKA_CLIENT_ID } from "./kafkaClientId";
 export { memcachedServersSchema, MEMCACHED_SERVERS } from "./memcachedServers";
-export { dockerRegistryUrlSchema, DOCKER_REGISTRY_URL } from "./dockerRegistryUrl";
-export { dockerRegistryUsernameSchema, DOCKER_REGISTRY_USERNAME } from "./dockerRegistryUsername";
-export { dockerRegistryPasswordSchema, DOCKER_REGISTRY_PASSWORD } from "./dockerRegistryPassword";
+
 export { kubernetesNamespaceSchema, KUBERNETES_NAMESPACE } from "./kubernetesNamespace";
 export { kubernetesServiceAccountSchema, KUBERNETES_SERVICE_ACCOUNT } from "./kubernetesServiceAccount";
 export { prometheusPortSchema, PROMETHEUS_PORT } from "./prometheusPort";
@@ -72,9 +68,6 @@ export const infrastructureSchemas = {
   KAFKA_BROKERS,
   KAFKA_CLIENT_ID,
   MEMCACHED_SERVERS,
-  DOCKER_REGISTRY_URL,
-  DOCKER_REGISTRY_USERNAME,
-  DOCKER_REGISTRY_PASSWORD,
   KUBERNETES_NAMESPACE,
   KUBERNETES_SERVICE_ACCOUNT,
   PROMETHEUS_PORT,

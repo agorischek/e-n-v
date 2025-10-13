@@ -25,30 +25,6 @@ export const GENERIC_DATABASE_URL_PATTERN =
 export const DATABASE_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
 export const DATABASE_SCHEMA_PATTERN = /^[a-zA-Z0-9_]+$/;
 
-export const AZURE_STORAGE_CONNECTION_STRING_PATTERN =
-  /^DefaultEndpointsProtocol=https;AccountName=[^;]+;AccountKey=[^;]+;EndpointSuffix=[^;]+$/;
 
-export const AZURE_STORAGE_ACCOUNT_NAME_PATTERN = /^[a-z0-9]{3,24}$/;
 
-export const AZURE_SERVICE_BUS_CONNECTION_STRING_PATTERN =
-  /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=[^;]+$/;
 
-export const AZURE_EVENT_HUB_CONNECTION_STRING_PATTERN =
-  /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=[^;]+;EntityPath=[^;]+$/;
-
-export const AWS_SQS_QUEUE_URL_PATTERN =
-  /^https:\/\/sqs\.[^.]+\.amazonaws\.com\/\d+\/[^\/]+$/;
-
-export const AWS_REGION_PATTERN = /^[a-z]{2}-[a-z]+-\d{1}$/;
-
-export const AWS_S3_BUCKET_NAME_PATTERN = /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/;
-
-export const HOST_PORT_LIST_PATTERN = /^[^:,]+:\d+(?:,[^:,]+:\d+)*$/;
-
-export const RABBITMQ_URL_PATTERN =
-  /^amqps?:\/\/(?:[^:@\/]+(?::[^@\/]*)?@)?[^:\/]+(?::\d+)?(?:\/.*)?$/;
-
-export const KUBERNETES_NAME_PATTERN = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
-
-export const SENTRY_DSN_PATTERN =
-  /^https:\/\/[a-f0-9]+@[a-f0-9]+\.ingest\.sentry\.io\/\d+$/;

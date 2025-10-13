@@ -29,7 +29,7 @@ export const OAUTH_CLIENT_SECRET = oauthClientSecret();
 export const OAUTH_REDIRECT_URI = oauthRedirectUri();
 export const OAUTH_SCOPE = oauthScope();
 
-export const oauthSchemas = {
+export const oauth = {
   OAUTH_CLIENT_ID,
   OAUTH_CLIENT_SECRET,
   OAUTH_REDIRECT_URI,
