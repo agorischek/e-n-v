@@ -25,6 +25,8 @@ export const GENERIC_DATABASE_URL_PATTERN =
 export const DATABASE_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
 export const DATABASE_SCHEMA_PATTERN = /^[a-zA-Z0-9_]+$/;
 
+export const HOST_PORT_LIST_PATTERN = /^[a-zA-Z0-9.-]+:\d+(,[a-zA-Z0-9.-]+:\d+)*$/;
+
 
 
 
