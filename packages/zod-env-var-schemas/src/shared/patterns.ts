@@ -27,6 +27,11 @@ export const DATABASE_SCHEMA_PATTERN = /^[a-zA-Z0-9_]+$/;
 
 export const HOST_PORT_LIST_PATTERN = /^[a-zA-Z0-9.-]+:\d+(,[a-zA-Z0-9.-]+:\d+)*$/;
 
+export const AZURE_STORAGE_CONNECTION_STRING_PATTERN = /^DefaultEndpointsProtocol=https;AccountName=[^;]+;AccountKey=[^;]+;EndpointSuffix=.+$/;
+export const AZURE_STORAGE_ACCOUNT_NAME_PATTERN = /^[a-z0-9]{3,24}$/;
+export const AZURE_SERVICE_BUS_CONNECTION_STRING_PATTERN = /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=.+$/;
+export const AZURE_EVENT_HUB_CONNECTION_STRING_PATTERN = /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=.+$/;
+
 
 
 
