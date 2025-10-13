@@ -4,6 +4,7 @@ export * from "./aws";
 export * from "./azure";
 export * from "./caching";
 export * from "./corsOrigin";
+export * from "./database";
 export * from "./datadog";
 export * from "./docker";
 export * from "./elasticsearch";
