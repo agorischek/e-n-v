@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { constraints, defaults, descriptions, messages } from "../../shared/apiService";
+import { constraints, defaults, descriptions, messages } from "../shared/apiService";
 
 export const rateLimitRpm = () =>
   z

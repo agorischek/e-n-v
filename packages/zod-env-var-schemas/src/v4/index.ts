@@ -1,29 +1,23 @@
-export * from "./schemas";
-
-import { apiServiceSchemas } from "./schemas/apiService";
-import { applicationInsightsSchemas } from "./schemas/applicationInsights";
-import { databaseSchemas } from "./schemas/database";
-import { infrastructureSchemas } from "./schemas/infrastructure";
-import { oauthSchemas } from "./schemas/oauth";
-
-export { apiServiceSchemas } from "./schemas/apiService";
-export { applicationInsightsSchemas } from "./schemas/applicationInsights";
-export { databaseSchemas } from "./schemas/database";
-export { infrastructureSchemas } from "./schemas/infrastructure";
-export { oauthSchemas } from "./schemas/oauth";
-
-export const schemas = {
-  applicationInsights: applicationInsightsSchemas,
-  database: databaseSchemas,
-  apiService: apiServiceSchemas,
-  infrastructure: infrastructureSchemas,
-  oauth: oauthSchemas,
-} as const;
-
-export const allSchemas = {
-  ...applicationInsightsSchemas,
-  ...databaseSchemas,
-  ...apiServiceSchemas,
-  ...infrastructureSchemas,
-  ...oauthSchemas,
-} as const;
+export * from "./api";
+export * from "./applicationInsights";
+export * from "./aws";
+export * from "./azure";
+export * from "./memcached";
+export * from "./cors";
+export * from "./database";
+export * from "./datadog";
+export * from "./docker";
+export * from "./elasticsearch";
+export * from "./encryptionKey";
+export * from "./host";
+export * from "./jwt";
+export * from "./kafka";
+export * from "./kubernetes";
+export * from "./logLevel";
+export * from "./rabbitmq";
+export * from "./monitoring";
+export * from "./node";
+export * from "./oauth";
+export * from "./port";
+export * from "./rateLimit";
+export * from "./webhook";

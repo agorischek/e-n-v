@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { defaults, descriptions, enumOptions } from "../../shared/apiService";
+import { defaults, descriptions, enumOptions } from "../shared/apiService";
 
 export const nodeEnv = () =>
   z

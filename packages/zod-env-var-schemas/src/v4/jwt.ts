@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { JWT_TOKEN_DURATION_PATTERN } from "../../shared/patterns";
-import { constraints, defaults, descriptions, messages } from "../../shared/apiService";
+import { JWT_TOKEN_DURATION_PATTERN } from "../shared/patterns";
+import { constraints, defaults, descriptions, messages } from "../shared/apiService";
 
 export const jwtSecret = () =>
   z

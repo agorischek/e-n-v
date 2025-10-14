@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { descriptions, constraints, messages } from "../../shared/apiService";
+import { descriptions, constraints, messages } from "../shared/apiService";
 
 const encryptionKeySchema = z
   .string()

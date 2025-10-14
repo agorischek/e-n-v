@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { descriptions, messages } from "../../shared/infrastructure";
-import { HOST_PORT_LIST_PATTERN } from "../../shared/patterns";
+import { descriptions, messages } from "../shared/infrastructure";
+import { HOST_PORT_LIST_PATTERN } from "../shared/patterns";
 
 export const kafkaBrokers = () =>
   z

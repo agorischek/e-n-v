@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { descriptions, messages } from "../../shared/infrastructure";
-import { HTTP_PROTOCOL_PATTERN } from "../../shared/patterns";
+import { descriptions, messages } from "../shared/infrastructure";
+import { HTTP_PROTOCOL_PATTERN } from "../shared/patterns";
 
 export const elasticsearchUrl = () =>
   z

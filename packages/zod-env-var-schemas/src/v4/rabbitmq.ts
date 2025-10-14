@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { descriptions, messages, patterns } from "../../shared/infrastructure";
+import { descriptions, messages, patterns } from "../shared/infrastructure";
 
 export const rabbitmqUrl = () =>
   z

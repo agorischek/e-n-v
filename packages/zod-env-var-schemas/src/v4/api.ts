@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { HTTP_PROTOCOL_PATTERN } from "../../shared/patterns";
-import { constraints, defaults, descriptions, messages } from "../../shared/apiService";
+import { HTTP_PROTOCOL_PATTERN } from "../shared/patterns";
+import { constraints, defaults, descriptions, messages } from "../shared/apiService";
 
 export const apiKey = () =>
   z

@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { descriptions, messages } from "../../shared/infrastructure";
+import { descriptions, messages } from "../shared/infrastructure";
 import { 
   AZURE_STORAGE_CONNECTION_STRING_PATTERN, 
   AZURE_STORAGE_ACCOUNT_NAME_PATTERN,
   AZURE_SERVICE_BUS_CONNECTION_STRING_PATTERN,
   AZURE_EVENT_HUB_CONNECTION_STRING_PATTERN 
-} from "../../shared/patterns";
+} from "../shared/patterns";
 
 export const azureStorageConnectionString = () =>
   z
