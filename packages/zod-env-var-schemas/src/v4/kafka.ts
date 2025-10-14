@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { descriptions, messages } from "../shared/infrastructure";
-import { HOST_PORT_LIST_PATTERN } from "../shared/patterns";
+import { patterns } from "../shared/infrastructure";
 
 export const kafkaBrokers = () =>
   z
     .string()
     .describe(descriptions.kafkaBrokers)
-    .regex(HOST_PORT_LIST_PATTERN, {
+    .regex(patterns.hostPortList, {
       message: messages.hostPortListFormat,
     });
 

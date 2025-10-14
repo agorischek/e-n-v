@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { HTTP_PROTOCOL_PATTERN } from "../shared/patterns";
+import { patterns } from "../shared/apiService";
 import { constraints, defaults, descriptions, messages } from "../shared/apiService";
 
 export const apiKey = () =>
@@ -12,7 +12,7 @@ export const apiBaseUrl = () =>
   z
     .url()
     .describe(descriptions.apiBaseUrl)
-    .regex(HTTP_PROTOCOL_PATTERN, { error: messages.httpProtocolRequired });
+    .regex(patterns.httpProtocol, { error: messages.httpProtocolRequired });
 
 export const apiTimeout = () =>
   z

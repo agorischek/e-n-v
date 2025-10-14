@@ -62,3 +62,17 @@ export const constraints = {
   databaseTimeoutMin: 1000,
   databaseTimeoutMax: 300000,
 } as const;
+
+export const patterns = {
+  postgresUrl: /^postgresql:\/\/(?:[^:@\/]+(?::[^@\/]*)?@)?[^:\/]+(?::\d+)?(?:\/[^?]*)?(?:\?.*)?$/,
+  mysqlUrl: /^mysql:\/\/(?:[^:@\/]+(?::[^@\/]*)?@)?[^:\/]+(?::\d+)?(?:\/[^?]*)?(?:\?.*)?$/,
+  mongodbUrl: /^mongodb(?:\+srv)?:\/\/(?:[^:@\/]+(?::[^@\/]*)?@)?[^:\/,]+(?::\d+)?(?:,[^:\/,]+(?::\d+)?)*(?:\/[^?]*)?(?:\?.*)?$/,
+  sqlserverUrlPrefix: /^sqlserver:\/\//,
+  sqlserverServer: /Server=.+/,
+  sqlserverDatabase: /Database=.+/,
+  sqlserverInitialCatalog: /Initial Catalog=.+/,
+  redisUrl: /^rediss?:\/\/(?:[^:@\/]+(?::[^@\/]*)?@)?[^:\/]+(?::\d+)?(?:\/\d+)?(?:\?.*)?$/,
+  genericDatabaseUrl: /^(postgresql|mysql|mongodb|mongodb\+srv|sqlserver|sqlite|oracle|redshift):\/\/.+/,
+  databaseName: /^[a-zA-Z0-9_-]+$/,
+  databaseSchema: /^[a-zA-Z0-9_]+$/,
+} as const;

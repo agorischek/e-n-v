@@ -1,17 +1,11 @@
 import { z } from "zod";
-import { descriptions, messages } from "../shared/infrastructure";
-import { 
-  AZURE_STORAGE_CONNECTION_STRING_PATTERN, 
-  AZURE_STORAGE_ACCOUNT_NAME_PATTERN,
-  AZURE_SERVICE_BUS_CONNECTION_STRING_PATTERN,
-  AZURE_EVENT_HUB_CONNECTION_STRING_PATTERN 
-} from "../shared/patterns";
+import { descriptions, messages, patterns } from "../shared/infrastructure";
 
 export const azureStorageConnectionString = () =>
   z
     .string()
     .describe(descriptions.azureStorageConnectionString)
-    .regex(AZURE_STORAGE_CONNECTION_STRING_PATTERN, {
+    .regex(patterns.azureStorageConnectionString, {
       message: messages.azureStorageConnectionStringFormat,
     });
 
@@ -19,7 +13,7 @@ export const azureStorageAccountName = () =>
   z
     .string()
     .describe(descriptions.azureStorageAccountName)
-    .regex(AZURE_STORAGE_ACCOUNT_NAME_PATTERN, {
+    .regex(patterns.azureStorageAccountName, {
       message: messages.azureStorageAccountNameFormat,
     });
 
@@ -33,7 +27,7 @@ export const azureServiceBusConnectionString = () =>
   z
     .string()
     .describe(descriptions.azureServiceBusConnectionString)
-    .regex(AZURE_SERVICE_BUS_CONNECTION_STRING_PATTERN, {
+    .regex(patterns.azureServiceBusConnectionString, {
       message: messages.azureServiceBusConnectionStringFormat,
     });
 
@@ -41,7 +35,7 @@ export const azureEventHubConnectionString = () =>
   z
     .string()
     .describe(descriptions.azureEventHubConnectionString)
-    .regex(AZURE_EVENT_HUB_CONNECTION_STRING_PATTERN, {
+    .regex(patterns.azureEventHubConnectionString, {
       message: messages.azureEventHubConnectionStringFormat,
     });
 

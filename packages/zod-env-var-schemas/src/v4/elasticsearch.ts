@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { descriptions, messages } from "../shared/infrastructure";
-import { HTTP_PROTOCOL_PATTERN } from "../shared/patterns";
+import { patterns } from "../shared/apiService";
 
 export const elasticsearchUrl = () =>
   z
     .url({ message: messages.elasticsearchUrlFormat })
     .describe(descriptions.elasticsearchUrl)
-    .regex(HTTP_PROTOCOL_PATTERN, { message: messages.elasticsearchUrlProtocol });
+    .regex(patterns.httpProtocol, { message: messages.elasticsearchUrlProtocol });
 
 export const elasticsearchUsername = () =>
   z

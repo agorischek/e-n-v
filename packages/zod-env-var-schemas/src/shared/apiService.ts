@@ -82,3 +82,9 @@ export const enumOptions = {
   logLevel: ["error", "warn", "info", "debug", "trace"] as const,
   nodeEnv: ["development", "production", "test", "staging"] as const,
 } as const;
+
+export const patterns = {
+  jwtTokenDuration: /^\d+[smhd]$/,
+  httpProtocol: /^https?:\/\//,
+  httpsProtocol: /^https:\/\//,
+} as const;

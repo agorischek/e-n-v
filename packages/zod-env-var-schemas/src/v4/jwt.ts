@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { JWT_TOKEN_DURATION_PATTERN } from "../shared/patterns";
+import { patterns } from "../shared/apiService";
 import { constraints, defaults, descriptions, messages } from "../shared/apiService";
 
 export const jwtSecret = () =>
@@ -12,14 +12,14 @@ export const jwtAccessTokenExpiresIn = () =>
   z
     .string()
     .describe(descriptions.jwtAccessTokenExpiresIn)
-    .regex(JWT_TOKEN_DURATION_PATTERN, { error: messages.jwtDurationFormat })
+    .regex(patterns.jwtTokenDuration, { error: messages.jwtDurationFormat })
     .default(defaults.jwtAccessTokenExpiresIn);
 
 export const jwtRefreshTokenExpiresIn = () =>
   z
     .string()
     .describe(descriptions.jwtRefreshTokenExpiresIn)
-    .regex(JWT_TOKEN_DURATION_PATTERN, { error: messages.jwtDurationFormat })
+    .regex(patterns.jwtTokenDuration, { error: messages.jwtDurationFormat })
     .default(defaults.jwtRefreshTokenExpiresIn);
 
 export const JWT_SECRET = jwtSecret();

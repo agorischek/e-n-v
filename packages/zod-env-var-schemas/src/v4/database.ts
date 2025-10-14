@@ -5,13 +5,13 @@ import {
   defaults,
   constraints,
 } from "../shared/database";
-import { GENERIC_DATABASE_URL_PATTERN } from "../shared/patterns";
+import { patterns } from "../shared/database";
 
 export const databaseUrl = () =>
   z
     .string()
     .describe(descriptions.databaseUrl)
-    .regex(GENERIC_DATABASE_URL_PATTERN, {
+    .regex(patterns.genericDatabaseUrl, {
       message: messages.genericDatabaseUrlFormat,
     });
 
