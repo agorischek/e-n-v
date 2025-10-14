@@ -1,13 +1,10 @@
 import { z } from "zod";
 import { askEnv } from "../src/askEnv";
-import {
-  DATABASE_PASSWORD,
-  PORT,
-  RABBITMQ_URL,
-} from "../../zod-env-var-schemas/src/schemas";
+
 import { join } from "desm";
 import { blue } from "picocolors";
 import type { SchemaMap } from "../src/types";
+import { DATABASE_PASSWORD, RABBITMQ_URL } from "../../zod-env-var-schemas/src";
 
 const envMap: SchemaMap = {
   DATABASE_PASSWORD,

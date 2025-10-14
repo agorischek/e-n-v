@@ -366,6 +366,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
         break;
       case "close":
         this.consumeNextSubmit = true;
+        this.skipValidationFlag = true;
         this.closeOptions();
         break;
     }
