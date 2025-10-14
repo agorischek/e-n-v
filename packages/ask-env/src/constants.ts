@@ -8,7 +8,7 @@ export const DEFAULT_SECRET_PATTERNS: ReadonlyArray<SecretPattern> = Object.free
   /api[_-]?key/i,
   /client[_-]?secret/i,
   /private[_-]?key/i,
-  /connection(?:[_-]?string)?/i,
+  /(?:database|db|redis|mongo|sql|postgres|mysql)[_-]?(?:connection[_-]?)?(?:string|url)/i,
   /database(?:[_-]?url)?/i,
   /access[_-]?key/i,
   /credential/i,

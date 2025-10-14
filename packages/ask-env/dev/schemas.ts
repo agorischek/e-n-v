@@ -1,4 +1,4 @@
 import { askEnv } from "../src/askEnv";
-import { APPLICATIONINSIGHTS_CONNECTION_STRING } from "../../zod-env-var-schemas/src";
+import { NODE_ENV, RATE_LIMIT_RPM } from "../../zod-env-var-schemas/src";
 
-await askEnv({ APPLICATIONINSIGHTS_CONNECTION_STRING });
+await askEnv({ NODE_ENV, RATE_LIMIT_RPM });
