@@ -1,5 +1,9 @@
 import type { SecretPattern } from "./types";
 
+export const DEFAULT_ENV_PATH = ".env";
+
+export const DEFAULT_TRUNCATE_LENGTH = 40;
+
 export const DEFAULT_SECRET_PATTERNS: ReadonlyArray<SecretPattern> = Object.freeze([
   /password/i,
   /passphrase/i,
