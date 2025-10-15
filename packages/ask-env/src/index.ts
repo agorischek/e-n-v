@@ -6,7 +6,7 @@ export type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConf
 export type { DefaultChannelConfig } from "./channels/default/DefaultChannelConfig";
 export { resolveChannel } from "./channels/resolveChannel";
 
-export * from "../../zod-env-var-schemas/src/schemas";
+export * from "../../zod-env-var-schemas/src";
 
 export { DEFAULT_SECRET_PATTERNS } from "./constants";
 
