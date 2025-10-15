@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@clack/prompts": "^0.11.0",
     "@dotenvx/dotenvx": "^1.51.0",
     "@standard-schema/spec": "^1.0.0",
     "@stryker-mutator/core": "^9.2.0",

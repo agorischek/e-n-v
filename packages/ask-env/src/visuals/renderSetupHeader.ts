@@ -13,5 +13,5 @@ export function renderSetupHeader(
     `${color.gray("│")}  `,
   ].join("\n");
 
-  output.write(`${color.gray(S_BAR_START)}  ${headerBody}\n`);
+  output.write(`\n${color.gray(S_BAR_START)}  ${headerBody}\n`);
 }
