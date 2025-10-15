@@ -437,7 +437,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
 
     options.push({
       key: "close",
-      label: "Close",
+      label: "Return",
       icon: S_TOOL_INACTIVE,
       activeIcon: S_TOOL_ACTIVE,
     });

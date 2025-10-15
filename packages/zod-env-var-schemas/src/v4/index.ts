@@ -18,6 +18,8 @@ export * from "./rabbitmq";
 export * from "./monitoring";
 export * from "./node";
 export * from "./oauth";
+export * from "./openai";
+export * from "./redis";
 export * from "./port";
 export * from "./rateLimit";
 export * from "./webhook";
