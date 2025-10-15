@@ -11,6 +11,10 @@ import {
 import { resolveChannel } from "./channels/resolveChannel";
 import { Session } from "./flows/runPromptFlow";
 
+function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
+  return new Theme(themeOption ?? color.magenta);
+}
+
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
  * @param schemas - Object mapping environment variable names to Zod schemas, or a ZodObject
@@ -28,8 +32,7 @@ export async function askEnv(
   const output = stdout;
 
   const channel = resolveChannel(options.channel, path);
-
-  const theme = new Theme(options.theme ?? color.magenta);
+  const theme = resolveTheme(options.theme);
 
   const session = new Session({
     schemas,
@@ -41,6 +44,6 @@ export async function askEnv(
     output,
     path,
   });
-  
+
   await session.run();
 }
