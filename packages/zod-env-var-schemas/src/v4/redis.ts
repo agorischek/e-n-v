@@ -12,7 +12,6 @@ export const redisUrl = () =>
     .string()
     .describe(descriptions.url)
     .regex(patterns.url, { message: messages.urlFormat })
-    .optional();
 
 export const redisHost = () =>
   z
@@ -20,7 +19,6 @@ export const redisHost = () =>
     .describe(descriptions.host)
     .min(1, { message: messages.hostRequired })
     .regex(patterns.host, { message: messages.hostFormat })
-    .optional();
 
 export const redisPort = () =>
   z
@@ -36,14 +34,12 @@ export const redisUsername = () =>
     .string()
     .describe(descriptions.username)
     .min(1, { message: messages.usernameRequired })
-    .optional();
 
 export const redisPassword = () =>
   z
     .string()
     .describe(descriptions.password)
     .min(1, { message: messages.passwordRequired })
-    .optional();
 
 export const redisDb = () =>
   z
@@ -62,7 +58,6 @@ export const redisTlsCaCertPath = () =>
     .string()
     .describe(descriptions.tlsCaCertPath)
     .min(1, { message: messages.tlsCaCertPathRequired })
-    .optional();
 
 export const REDIS_URL = redisUrl();
 export const REDIS_HOST = redisHost();
