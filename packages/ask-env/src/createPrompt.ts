@@ -1,3 +1,4 @@
+import { Readable, Writable } from "node:stream";
 import type { CompatibleZodSchema } from "./specification/zodCompat";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
@@ -21,6 +22,8 @@ interface CreatePromptOptions {
   truncate: number;
   shouldMask: boolean;
   hasPrevious: boolean;
+  input?: Readable;
+  output?: Writable;
 }
 
 export function createPrompt({
@@ -36,6 +39,8 @@ export function createPrompt({
   truncate,
   shouldMask,
   hasPrevious,
+  input,
+  output,
 }: CreatePromptOptions):
   | EnvBooleanPrompt
   | EnvNumberPrompt
@@ -48,6 +53,8 @@ export function createPrompt({
     theme,
     maxDisplayLength: truncate,
     previousEnabled: hasPrevious,
+    input,
+    output,
   } as const;
 
   switch (type) {

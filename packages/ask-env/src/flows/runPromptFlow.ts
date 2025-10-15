@@ -1,4 +1,5 @@
 import { isCancel } from "@clack/core";
+import type { Readable } from "node:stream";
 import * as color from "picocolors";
 import { createPrompt } from "../createPrompt";
 import { ZodEnvVarSpec } from "../specification/ZodEnvVarSpec";
@@ -17,6 +18,7 @@ export interface PromptFlowOptions {
   secrets: readonly SecretPattern[];
   truncate: number;
   theme: Theme;
+  input?: Readable;
   output: NodeJS.WriteStream;
 }
 
@@ -26,6 +28,7 @@ export async function runPromptFlow({
   secrets,
   truncate,
   theme,
+  input,
   output,
 }: PromptFlowOptions): Promise<PromptFlowResult> {
   let currentValues = await channel.get();
@@ -40,7 +43,7 @@ export async function runPromptFlow({
     let addedLines = 0;
 
     if (index > 0) {
-      console.log(`${color.gray("│")}  `);
+      output.write(`${color.gray("│")}  \n`);
       addedLines++;
     }
 
@@ -67,6 +70,8 @@ export async function runPromptFlow({
       truncate,
       shouldMask,
       hasPrevious: index > 0,
+      input,
+      output,
     });
 
     const value = await prompt.prompt();
@@ -78,9 +83,8 @@ export async function runPromptFlow({
       (typeof value === "symbol" &&
         (value as any)?.description === "clack:cancel")
     ) {
-      console.log(`${color.red("│")}  `);
-      console.log(`${color.red("└")}  ${color.red("Setup cancelled.")}`);
-      console.log();
+      output.write(`${color.red("│")}  \n`);
+      output.write(`${color.red("└")}  ${color.red("Setup cancelled.")}\n\n`);
       return "cancelled";
     }
 
