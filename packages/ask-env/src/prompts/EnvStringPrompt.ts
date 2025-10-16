@@ -4,20 +4,20 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import { maskSecretValue } from "../utils/secrets";
+import type { StringEnvVarSchema } from "../specification/EnvVarSchema";
 
 interface EnvStringPromptOptions extends EnvPromptOptions<string> {}
 
-export class EnvStringPrompt extends EnvPrompt<string> {
+export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   cursor = 0;
   isTyping = false;
   protected options: EnvStringPromptOptions;
 
-  constructor(opts: EnvStringPromptOptions) {
-    const customValidate = opts.validate;
+  constructor(schema: StringEnvVarSchema, opts: EnvStringPromptOptions) {
     super(
+      schema,
       {
         ...opts,
-        theme: opts.theme,
         render: function (this: EnvStringPrompt) {
           if (this.state === "submit") {
             const outcomeResult = this.renderOutcomeResult();
@@ -42,8 +42,8 @@ export class EnvStringPrompt extends EnvPrompt<string> {
           output += `${this.getSymbol()}  ${this.colors.bold(
             this.colors.white(this.key)
           )}`;
-          if (opts.description) {
-            output += ` ${this.colors.subtle(opts.description)}`;
+          if (this.spec.description) {
+            output += ` ${this.colors.subtle(this.spec.description)}`;
           }
           output += "\n";
 
@@ -162,7 +162,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
             this.options.default === undefined
           ) {
             if (!this.userInput || !this.userInput.trim()) {
-              if (this.options.required) {
+              if (this.required) {
                 return "Please enter a value";
               }
               return undefined;
@@ -173,14 +173,12 @@ export class EnvStringPrompt extends EnvPrompt<string> {
               return inputValidation;
             }
             // If format is valid, run custom validation if provided
-            if (customValidate) {
-              const parsedValue = this.parseInput(this.userInput);
-              const customValidation = customValidate(parsedValue);
-              if (customValidation) {
-                return customValidation instanceof Error
-                  ? customValidation.message
-                  : customValidation;
-              }
+            const parsedValue = this.parseInput(this.userInput);
+            const customValidation = this.runCustomValidate(parsedValue);
+            if (customValidation) {
+              return customValidation instanceof Error
+                ? customValidation.message
+                : customValidation;
             }
             return undefined;
           }
@@ -211,7 +209,7 @@ export class EnvStringPrompt extends EnvPrompt<string> {
             this.isTyping &&
             (!this.userInput || !this.userInput.trim())
           ) {
-            if (this.options.required) {
+            if (this.required) {
               return "Please enter a value";
             }
             return undefined;
@@ -224,20 +222,18 @@ export class EnvStringPrompt extends EnvPrompt<string> {
               return inputValidation;
             }
             // If format is valid, run custom validation if provided
-            if (customValidate) {
-              const parsedValue = this.parseInput(this.userInput);
-              const customValidation = customValidate(parsedValue);
-              if (customValidation) {
-                return customValidation instanceof Error
-                  ? customValidation.message
-                  : customValidation;
-              }
+            const parsedValue = this.parseInput(this.userInput);
+            const customValidation = this.runCustomValidate(parsedValue);
+            if (customValidation) {
+              return customValidation instanceof Error
+                ? customValidation.message
+                : customValidation;
             }
           }
 
           // For non-typing cases (selecting current/default), validate the selected value
-          if (!this.isTyping && customValidate) {
-            const customValidation = customValidate(value);
+          if (!this.isTyping) {
+            const customValidation = this.runCustomValidate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message

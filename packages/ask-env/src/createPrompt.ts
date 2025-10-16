@@ -1,22 +1,15 @@
 import { Readable, Writable } from "node:stream";
-import type { CompatibleZodSchema } from "./specification/zodCompat";
 import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import type { EnvVarType } from "./specification/EnvVarType";
+import type { EnvVarSchema } from "./specification/EnvVarSchema";
 import { parseBoolean } from "./utils/parseBoolean";
-import { validateFromSchema } from "./utils/validateFromSchema";
 import type { Theme } from "./visuals/Theme";
 
 interface CreatePromptOptions {
-  type: EnvVarType;
   key: string;
-  description?: string;
-  defaultValue: unknown;
-  required: boolean;
-  schema: CompatibleZodSchema;
-  values?: string[];
+  schema: EnvVarSchema;
   currentValue?: string;
   theme: Theme;
   truncate: number;
@@ -27,13 +20,8 @@ interface CreatePromptOptions {
 }
 
 export function createPrompt({
-  type,
   key,
-  description,
-  defaultValue,
-  required,
   schema,
-  values,
   currentValue,
   theme,
   truncate,
@@ -48,8 +36,6 @@ export function createPrompt({
   | EnvStringPrompt {
   const baseOptions = {
     key,
-    description,
-    required,
     theme,
     maxDisplayLength: truncate,
     previousEnabled: hasPrevious,
@@ -57,38 +43,45 @@ export function createPrompt({
     output,
   } as const;
 
-  switch (type) {
+  switch (schema.type) {
     case "boolean":
-      return new EnvBooleanPrompt({
+      return new EnvBooleanPrompt(schema, {
         ...baseOptions,
         current:
           currentValue !== undefined ? parseBoolean(currentValue) : undefined,
-        default: typeof defaultValue === "boolean" ? defaultValue : undefined,
-        validate: validateFromSchema(schema),
+        default:
+          typeof schema.defaultValue === "boolean"
+            ? schema.defaultValue
+            : undefined,
       });
     case "number":
-      return new EnvNumberPrompt({
+      return new EnvNumberPrompt(schema, {
         ...baseOptions,
         current:
           currentValue !== undefined ? parseFloat(currentValue) : undefined,
-        default: typeof defaultValue === "number" ? defaultValue : undefined,
-        validate: validateFromSchema(schema),
+        default:
+          typeof schema.defaultValue === "number"
+            ? schema.defaultValue
+            : undefined,
       });
     case "enum":
-      return new EnvEnumPrompt({
+      return new EnvEnumPrompt(schema, {
         ...baseOptions,
         current: currentValue,
-        default: typeof defaultValue === "string" ? defaultValue : undefined,
-        options: values || [],
-        validate: validateFromSchema(schema),
+        default:
+          typeof schema.defaultValue === "string"
+            ? schema.defaultValue
+            : undefined,
       });
     default:
-      return new EnvStringPrompt({
+      return new EnvStringPrompt(schema, {
         ...baseOptions,
         current: currentValue,
-        default: typeof defaultValue === "string" ? defaultValue : undefined,
+        default:
+          typeof schema.defaultValue === "string"
+            ? schema.defaultValue
+            : undefined,
         secret: shouldMask,
-        validate: validateFromSchema(schema),
       });
   }
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { EnvNumberPrompt } from "../EnvNumberPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
+import type { NumberEnvVarSchema } from "../../specification/EnvVarSchema";
 import {
   createTestStreams,
   waitForIO,
@@ -13,17 +14,32 @@ import {
 } from "./helpers/promptTestUtils";
 
 function createPrompt(
-  options: Partial<EnvPromptOptions<number>> & { key?: string } = {}
+  options: Partial<EnvPromptOptions<number>> & {
+    key?: string;
+    description?: string;
+    required?: boolean;
+    nullable?: boolean;
+    validate?: (value: number | undefined) => string | Error | undefined;
+  } = {}
 ) {
   const streams = createTestStreams();
-  const prompt = new EnvNumberPrompt({
-    key: options.key ?? "NUM_ENV",
-    description: options.description,
-    current: options.current,
-    default: options.default,
+  const schema: NumberEnvVarSchema = {
+    type: "number",
     required: options.required ?? false,
-    maxDisplayLength: options.maxDisplayLength,
+    nullable: options.nullable ?? false,
+    defaultValue: options.default,
+    description: options.description,
     validate: options.validate,
+  };
+
+  const prompt = new EnvNumberPrompt(schema, {
+    key: options.key ?? "NUM_ENV",
+    current: options.current,
+    default:
+      options.default !== undefined
+        ? options.default
+        : (schema.defaultValue ?? undefined),
+    maxDisplayLength: options.maxDisplayLength,
     theme: options.theme,
     previousEnabled: options.previousEnabled,
     input: options.input ?? streams.input,

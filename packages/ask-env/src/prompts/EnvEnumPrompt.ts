@@ -3,21 +3,20 @@ import type { EnvPromptOptions } from "./EnvPrompt";
 import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
+import type { EnumEnvVarSchema } from "../specification/EnvVarSchema";
 
-interface EnvEnumPromptOptions extends EnvPromptOptions<string> {
-  options: string[];
-}
+interface EnvEnumPromptOptions extends EnvPromptOptions<string> {}
 
-export class EnvEnumPrompt extends EnvPrompt<string> {
+export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   cursor = 0;
   protected options: EnvEnumPromptOptions;
+  private readonly values: readonly string[];
 
-  constructor(opts: EnvEnumPromptOptions) {
-    const customValidate = opts.validate;
+  constructor(schema: EnumEnvVarSchema, opts: EnvEnumPromptOptions) {
     super(
+      schema,
       {
         ...opts,
-        theme: opts.theme,
         render: function (this: EnvEnumPrompt) {
           if (this.state === "submit") {
             const outcomeResult = this.renderOutcomeResult();
@@ -40,16 +39,16 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
 
           // Add header line with symbol based on state and key in bold white and description in gray if provided
           output += `${this.getSymbol()}  ${this.colors.bold(
-            this.colors.white(opts.key)
+            this.colors.white(this.key)
           )}`;
-          if (opts.description) {
-            output += ` ${this.colors.subtle(opts.description)}`;
+          if (this.spec.description) {
+            output += ` ${this.colors.subtle(this.spec.description)}`;
           }
           output += "\n";
 
           // Display enum options
           const dimInputs = this.shouldDimInputs();
-          opts.options.forEach((option, index) => {
+          this.values.forEach((option, index) => {
             const isSelected = index === this.cursor;
             const circle = dimInputs
               ? this.colors.dim(
@@ -95,13 +94,11 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
             return undefined;
           }
 
-          if (customValidate) {
-            const customValidation = customValidate(value);
-            if (customValidation) {
-              return customValidation instanceof Error
-                ? customValidation.message
-                : customValidation;
-            }
+          const customValidation = this.runCustomValidate(value);
+          if (customValidation) {
+            return customValidation instanceof Error
+              ? customValidation.message
+              : customValidation;
           }
           return undefined;
         },
@@ -109,17 +106,16 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
     );
 
     this.options = opts;
+    this.values = [...schema.values];
 
     // Set initial value to current, or default, or first option
-    this.setCommittedValue(
-      this.current ?? this.default ?? this.options.options[0]
-    );
+    this.setCommittedValue(this.current ?? this.default ?? this.values[0]);
 
     // Set initial cursor position based on current/default value
     const initialIndex = this.current
-      ? this.options.options.indexOf(this.current)
+      ? this.values.indexOf(this.current)
       : this.default
-      ? this.options.options.indexOf(this.default)
+      ? this.values.indexOf(this.default)
       : 0;
     this.cursor = Math.max(0, initialIndex);
 
@@ -137,13 +133,11 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
       switch (action) {
         case "up":
           this.cursor =
-            this.cursor === 0
-              ? this.options.options.length - 1
-              : this.cursor - 1;
+            this.cursor === 0 ? this.values.length - 1 : this.cursor - 1;
           break;
         case "down":
           this.cursor =
-            this.cursor === this.options.options.length - 1
+            this.cursor === this.values.length - 1
               ? 0
               : this.cursor + 1;
           break;
@@ -171,7 +165,7 @@ export class EnvEnumPrompt extends EnvPrompt<string> {
   }
 
   private updateValue() {
-    this.setCommittedValue(this.options.options[this.cursor]);
+    this.setCommittedValue(this.values[this.cursor]);
   }
 
 }

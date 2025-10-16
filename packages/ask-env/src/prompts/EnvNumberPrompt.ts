@@ -3,20 +3,20 @@ import type { EnvPromptOptions } from "./EnvPrompt";
 import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
+import type { NumberEnvVarSchema } from "../specification/EnvVarSchema";
 
 interface EnvNumberPromptOptions extends EnvPromptOptions<number> {}
 
-export class EnvNumberPrompt extends EnvPrompt<number> {
+export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   cursor = 0;
   isTyping = false;
   protected options: EnvNumberPromptOptions;
 
-  constructor(opts: EnvNumberPromptOptions) {
-    const customValidate = opts.validate;
+  constructor(schema: NumberEnvVarSchema, opts: EnvNumberPromptOptions) {
     super(
+      schema,
       {
         ...opts,
-        theme: opts.theme,
         render: function (this: EnvNumberPrompt) {
           if (this.state === "submit") {
             const outcomeResult = this.renderOutcomeResult();
@@ -41,8 +41,8 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
           output += `${this.getSymbol()}  ${this.colors.bold(
             this.colors.white(this.key)
           )}`;
-          if (opts.description) {
-            output += ` ${this.colors.subtle(opts.description)}`;
+          if (this.spec.description) {
+            output += ` ${this.colors.subtle(this.spec.description)}`;
           }
           output += "\n";
 
@@ -172,14 +172,12 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
               return inputValidation;
             }
             // If format is valid, run custom validation if provided
-            if (customValidate) {
-              const parsedValue = this.parseInput(this.userInput);
-              const customValidation = customValidate(parsedValue);
-              if (customValidation) {
-                return customValidation instanceof Error
-                  ? customValidation.message
-                  : customValidation;
-              }
+            const parsedValue = this.parseInput(this.userInput);
+            const customValidation = this.runCustomValidate(parsedValue);
+            if (customValidation) {
+              return customValidation instanceof Error
+                ? customValidation.message
+                : customValidation;
             }
             return undefined;
           }
@@ -220,20 +218,18 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
               return inputValidation;
             }
             // If format is valid, run custom validation if provided
-            if (customValidate) {
-              const parsedValue = this.parseInput(this.userInput);
-              const customValidation = customValidate(parsedValue);
-              if (customValidation) {
-                return customValidation instanceof Error
-                  ? customValidation.message
-                  : customValidation;
-              }
+            const parsedValue = this.parseInput(this.userInput);
+            const customValidation = this.runCustomValidate(parsedValue);
+            if (customValidation) {
+              return customValidation instanceof Error
+                ? customValidation.message
+                : customValidation;
             }
           }
 
           // For non-typing cases (selecting current/default), validate the selected value
-          if (!this.isTyping && customValidate) {
-            const customValidation = customValidate(value);
+          if (!this.isTyping) {
+            const customValidation = this.runCustomValidate(value);
             if (customValidation) {
               return customValidation instanceof Error
                 ? customValidation.message

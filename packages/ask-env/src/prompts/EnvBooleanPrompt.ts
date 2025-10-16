@@ -3,18 +3,18 @@ import type { EnvPromptOptions } from "./EnvPrompt";
 import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
+import type { BooleanEnvVarSchema } from "../specification/EnvVarSchema";
 
 interface EnvBooleanPromptOptions extends EnvPromptOptions<boolean> {}
 
-export class EnvBooleanPrompt extends EnvPrompt<boolean> {
+export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
 
-  constructor(opts: EnvBooleanPromptOptions) {
-    const customValidate = opts.validate;
+  constructor(schema: BooleanEnvVarSchema, opts: EnvBooleanPromptOptions) {
     super(
+      schema,
       {
         ...opts,
-        theme: opts.theme,
         render: function (this: EnvBooleanPrompt) {
           if (this.state === "submit") {
             const outcomeResult = this.renderOutcomeResult();
@@ -40,8 +40,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
           output += `${this.getSymbol()}  ${this.colors.bold(
             this.colors.white(this.key)
           )}`;
-          if (opts.description) {
-            output += ` ${this.colors.subtle(opts.description)}`;
+          if (this.spec.description) {
+            output += ` ${this.colors.subtle(this.spec.description)}`;
           }
           output += "\n";
 
@@ -105,13 +105,11 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean> {
             return undefined;
           }
 
-          if (customValidate) {
-            const customValidation = customValidate(value);
-            if (customValidation) {
-              return customValidation instanceof Error
-                ? customValidation.message
-                : customValidation;
-            }
+          const customValidation = this.runCustomValidate(value);
+          if (customValidation) {
+            return customValidation instanceof Error
+              ? customValidation.message
+              : customValidation;
           }
           return undefined;
         },

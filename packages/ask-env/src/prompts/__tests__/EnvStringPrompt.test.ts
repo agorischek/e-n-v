@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { EnvStringPrompt } from "../EnvStringPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
+import type { StringEnvVarSchema } from "../../specification/EnvVarSchema";
 import {
   TestWritable,
   createTestStreams,
@@ -14,22 +15,37 @@ import {
 } from "./helpers/promptTestUtils";
 
 function createPrompt(
-  options: Partial<EnvPromptOptions<string>> & { key?: string } = {}
+  options: Partial<EnvPromptOptions<string>> & {
+    key?: string;
+    description?: string;
+    required?: boolean;
+    nullable?: boolean;
+    validate?: (value: string | undefined) => string | Error | undefined;
+  } = {}
 ) {
   const streams = createTestStreams();
-  const prompt = new EnvStringPrompt({
-    key: options.key ?? "TEST_ENV",
-    description: options.description,
-    current: options.current,
-    default: options.default,
+  const schema: StringEnvVarSchema = {
+    type: "string",
     required: options.required ?? false,
+    nullable: options.nullable ?? false,
+    defaultValue: options.default,
+    description: options.description,
+    validate: options.validate,
+  };
+
+  const prompt = new EnvStringPrompt(schema, {
+    key: options.key ?? "TEST_ENV",
+    current: options.current,
+    default:
+      options.default !== undefined
+        ? options.default
+        : (schema.defaultValue ?? undefined),
     maxDisplayLength: options.maxDisplayLength,
     secret: options.secret,
     mask: options.mask,
     theme: options.theme,
     secretToggleShortcut: options.secretToggleShortcut,
     previousEnabled: options.previousEnabled,
-    validate: options.validate,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
   });

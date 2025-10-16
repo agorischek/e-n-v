@@ -1,5 +1,5 @@
 import { ThemedPrompt } from "./ThemedPrompt";
-import { Theme } from "../visuals/Theme";
+import type { Theme } from "../visuals/Theme";
 import { SECRET_MASK } from "../visuals/symbols";
 import {
   S_STEP_CANCEL,
@@ -10,6 +10,7 @@ import {
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptOptions, Validate } from "../vendor/PromptOptions";
+import type { EnvVarSchemaDetails } from "../specification/EnvVarSchema";
 import { Readable, Writable } from 'node:stream';
 
 export type PromptOutcome = "commit" | "skip" | "previous";
@@ -21,11 +22,8 @@ export interface EnvPromptResult<T> {
 
 export interface EnvPromptOptions<T> {
   key: string;
-  description?: string;
   current?: T;
   default?: T;
-  required: boolean;
-  validate?: Validate<T>;
   theme?: Theme;
   maxDisplayLength?: number;
   secret?: boolean;
@@ -36,7 +34,13 @@ export interface EnvPromptOptions<T> {
   output?: Writable;
 }
 
-export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
+export abstract class EnvPrompt<
+  T,
+  TSpec extends EnvVarSchemaDetails<T> = EnvVarSchemaDetails<T>
+> extends ThemedPrompt<T> {
+  protected readonly spec: TSpec;
+  protected readonly required: boolean;
+  protected readonly nullable: boolean;
   protected key: string;
   protected current?: T;
   protected default?: T;
@@ -51,7 +55,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
-  protected validate: Validate<T> | undefined;
+  private readonly customValidate?: Validate<T>;
   private skipValidationFlag: boolean;
 
   protected set track(value: boolean) {
@@ -66,8 +70,14 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     return this.previousEnabled;
   }
 
-  constructor(opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T>>) {
+  constructor(
+    spec: TSpec,
+    opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>
+  ) {
     super(opts);
+    this.spec = spec;
+    this.required = spec.required;
+    this.nullable = spec.nullable;
     // Disable base Prompt input tracking by default; subclasses toggle as needed
     this.track = false;
     this.outcome = "commit";
@@ -84,7 +94,7 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = opts.previousEnabled ?? true;
-    this.validate = opts.validate;
+    this.customValidate = spec.validate;
     this.skipValidationFlag = false;
 
     this.on("finalize", () => {
@@ -107,6 +117,15 @@ export abstract class EnvPrompt<T> extends ThemedPrompt<T> {
         this.outcome = "commit";
       }
     });
+  }
+
+  protected runCustomValidate(
+    value: T | undefined
+  ): string | Error | undefined {
+    if (!this.customValidate) {
+      return undefined;
+    }
+    return this.customValidate(value);
   }
 
   protected setCommittedValue(value: T | undefined): void {

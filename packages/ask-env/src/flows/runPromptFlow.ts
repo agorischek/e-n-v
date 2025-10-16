@@ -2,7 +2,7 @@ import { isCancel } from "@clack/core";
 import type { Readable } from "node:stream";
 import * as color from "picocolors";
 import { createPrompt } from "../createPrompt";
-import { ZodEnvVarSpec } from "../specification/ZodEnvVarSpec";
+import { fromZodSchema } from "../specification/fromZodSchema";
 import type { SecretPattern, SchemaMap } from "../types";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
 import { isSecretKey } from "../utils/secrets";
@@ -76,24 +76,19 @@ export class Session {
         addedLines++;
       }
 
-      const { type, defaultValue, description, required, values } =
-        new ZodEnvVarSpec(schema);
+      const envVarSchema = fromZodSchema(schema);
 
       const shouldMask =
-        type === "string" && isSecretKey(key, description, this.secrets);
+        envVarSchema.type === "string" &&
+        isSecretKey(key, envVarSchema.description, this.secrets);
 
       const storedValue = this.newValues[key] ?? currentValues[key];
       const current =
         storedValue && storedValue.trim() !== "" ? storedValue : undefined;
 
       const prompt = createPrompt({
-        type,
         key,
-        description,
-        defaultValue,
-        required,
-        schema,
-        values,
+        schema: envVarSchema,
         currentValue: current,
         theme: this.theme,
         truncate: this.truncate,
