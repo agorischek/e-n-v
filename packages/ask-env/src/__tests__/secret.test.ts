@@ -4,7 +4,7 @@ import {
   isSecretKey,
 } from "../utils/secrets";
 import { SECRET_MASK } from "../visuals/symbols";
-import { DEFAULT_SECRET_PATTERNS } from "../constants";
+import { DEFAULT_SECRET_PATTERNS } from "../defaults";
 
 describe("secret utilities", () => {
   it("masks values using the default mask", () => {

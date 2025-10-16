@@ -3,11 +3,7 @@ import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { stdin, stdout } from "node:process";
 import type { AskEnvOptions } from "./AskEnvOptions";
-import {
-  DEFAULT_ENV_PATH,
-  DEFAULT_TRUNCATE_LENGTH,
-  DEFAULT_SECRET_PATTERNS,
-} from "./constants";
+import * as defaults from "./defaults";
 import { resolveChannel } from "./channels/resolveChannel";
 import { Session } from "./flows/runPromptFlow";
 
@@ -24,9 +20,9 @@ export async function ask(
   schemas: SchemaMap,
   options: AskEnvOptions = {}
 ): Promise<void> {
-  const path = options.path ?? DEFAULT_ENV_PATH;
-  const truncate = options.truncate ?? DEFAULT_TRUNCATE_LENGTH;
-  const secrets = options.secrets ?? DEFAULT_SECRET_PATTERNS;
+  const path = options.path ??  defaults.ENV_PATH;
+  const truncate = options.truncate ?? defaults.TRUNCATE_LENGTH;
+  const secrets = options.secrets ?? defaults.SECRET_PATTERNS;
 
   const input = stdin;
   const output = stdout;
