@@ -37,6 +37,6 @@ export const constraints = {
 } as const;
 
 export const patterns = {
-  url: /^rediss?:\/\/(?:[^:@\/\s]+(?::[^@\/\s]*)?@)?[^:\/\s]+(?::\d+)?(?:\/\d+)?(?:\?.*)?$/,
+  url: /^rediss?:\/\/(?:[^:@/\s]+(?::[^@/\s]*)?@)?[^:/\s]+(?::\d+)?(?:\/\d+)?(?:\?.*)?$/,
   host: /^[a-zA-Z0-9.-]+$/,
 } as const;

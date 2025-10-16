@@ -1,7 +1,5 @@
 import type { EnvChannel } from "../EnvChannel";
 import { EnvSource } from "../../../../envrw/src/index";
-import { readFileSync, writeFileSync } from "node:fs";
-import type { EnvPrimitiveValue } from "../../../../envrw/src/index";
 
 /**
  * Default implementation of EnvChannel that works with .env files using envrw

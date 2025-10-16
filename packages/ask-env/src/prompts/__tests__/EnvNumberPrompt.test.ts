@@ -43,7 +43,12 @@ function createPrompt(
   return { prompt, ...streams };
 }
 
-const STRIP_ANSI = /[\u001B\u009B][[\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
+const ESC = String.fromCharCode(0x1b);
+const CSI = String.fromCharCode(0x9b);
+const STRIP_ANSI = new RegExp(
+  `[${ESC}${CSI}][[\\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]`,
+  "g"
+);
 const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
 
 describe("EnvNumberPrompt", () => {

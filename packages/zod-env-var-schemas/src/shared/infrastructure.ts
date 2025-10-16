@@ -80,13 +80,13 @@ export const constraints = {
 export const patterns = {
   awsRegion: /^[a-z]{2}-[a-z]+-\d{1}$/,
   awsS3BucketName: /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/,
-  awsSqsQueueUrl: /^https:\/\/sqs\.[^.]+\.amazonaws\.com\/\d+\/[^\/]+$/,
+  awsSqsQueueUrl: /^https:\/\/sqs\.[^.]+\.amazonaws\.com\/\d+\/[^/]+$/,
   azureStorageConnectionString: /^DefaultEndpointsProtocol=https;AccountName=[^;]+;AccountKey=[^;]+;EndpointSuffix=.+$/,
   azureStorageAccountName: /^[a-z0-9]{3,24}$/,
   azureServiceBusConnectionString: /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=.+$/,
   azureEventHubConnectionString: /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=.+$/,
   hostPortList: /^[a-zA-Z0-9.-]+:\d+(,[a-zA-Z0-9.-]+:\d+)*$/,
-  rabbitmqUrl: /^amqps?:\/\/(?:[^:@\/]+(?::[^@\/]*)?@)?[^:\/]+(?::\d+)?(?:\/.*)?$/,
+  rabbitmqUrl: /^amqps?:\/\/(?:[^:@/]+(?::[^@/]*)?@)?[^:/]+(?::\d+)?(?:\/.*)?$/,
   kubernetesName: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/,
   sentryDsn: /^https:\/\/[a-f0-9]+@[a-f0-9]+\.ingest\.sentry\.io\/\d+$/,
 } as const;

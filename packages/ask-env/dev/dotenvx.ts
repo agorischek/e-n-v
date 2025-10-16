@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { ask } from "../src/ask";
 import { APPLICATIONINSIGHTS_CONNECTION_STRING } from "../../zod-env-var-schemas/src";
 import dotenvx from "@dotenvx/dotenvx";

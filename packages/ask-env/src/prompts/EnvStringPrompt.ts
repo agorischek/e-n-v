@@ -471,7 +471,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     return input || undefined;
   }
 
-  protected validateInput(input: string): string | undefined {
+  protected validateInput(_input: string): string | undefined {
     // For strings, any non-empty input is valid by default
     // Custom validation will be handled separately
     return undefined;
