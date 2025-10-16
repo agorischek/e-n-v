@@ -9,7 +9,6 @@ import type { StringEnvVarSchema } from "../specification/EnvVarSchema";
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   cursor = 0;
   isTyping = false;
-  protected options: EnvPromptOptions<string>;
 
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(
@@ -155,10 +154,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             return undefined;
           }
           // If both current and default are undefined, we're in text-only mode
-          if (
-            this.options.current === undefined &&
-            this.options.default === undefined
-          ) {
+          if (this.current === undefined && this.default === undefined) {
             if (!this.userInput || !this.userInput.trim()) {
               if (this.required) {
                 return "Please enter a value";
@@ -187,14 +183,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           }
 
           // Calculate the text input index dynamically
-          let textInputIndex = 0;
-          if (this.options.current !== undefined) textInputIndex++;
-          if (
-            this.options.default !== undefined &&
-            this.options.current !== this.options.default
-          )
-            textInputIndex++;
-          // textInputIndex now points to the "Other" option
+          const textInputIndex = this.getTextInputIndex();
 
           // If we're on the custom entry option but not typing yet, prevent submission
           if (this.cursor === textInputIndex && !this.isTyping) {
@@ -255,10 +244,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       },
     );
 
-    this.options = opts;
-
     // If both current and default are undefined, start in typing mode
-    if (this.current === undefined && this.default === undefined) {
+  if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
       this.track = true;
       this.setCommittedValue(this.getDefaultValue());
@@ -275,10 +262,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       }
 
       // If both current and default are undefined, we're in text-only mode - no cursor navigation
-      if (
-        this.options.current === undefined &&
-        this.options.default === undefined
-      ) {
+      if (this.current === undefined && this.default === undefined) {
         return;
       }
 
@@ -290,11 +274,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         case "up":
           // Calculate max index based on actual options
           let optionsCount = 0;
-          if (this.options.current !== undefined) optionsCount++;
-          if (
-            this.options.default !== undefined &&
-            this.options.current !== this.options.default
-          )
+          if (this.current !== undefined) optionsCount++;
+          if (this.default !== undefined && this.current !== this.default)
             optionsCount++;
           optionsCount++; // For "Other" option
           const maxIndex = optionsCount - 1;
@@ -310,11 +291,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         case "down":
           // Calculate max index based on actual options
           let optionsCountDown = 0;
-          if (this.options.current !== undefined) optionsCountDown++;
-          if (
-            this.options.default !== undefined &&
-            this.options.current !== this.options.default
-          )
+          if (this.current !== undefined) optionsCountDown++;
+          if (this.default !== undefined && this.current !== this.default)
             optionsCountDown++;
           optionsCountDown++; // For "Other" option
           const maxIndexDown = optionsCountDown - 1;
@@ -373,10 +351,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       }
 
       // If both current and default are undefined, we're in text-only mode
-      if (
-        this.options.current === undefined &&
-        this.options.default === undefined
-      ) {
+      if (this.current === undefined && this.default === undefined) {
         // Already in typing mode, just update the value as the user types
         if (this.isTyping) {
           try {
@@ -407,13 +382,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         if (!isArrowKey && !isControlKey) {
           // Calculate the text input index dynamically
-          let textInputIndex = 0;
-          if (this.options.current !== undefined) textInputIndex++;
-          if (
-            this.options.default !== undefined &&
-            this.options.current !== this.options.default
-          )
-            textInputIndex++;
+          const textInputIndex = this.getTextInputIndex();
 
           this.cursor = textInputIndex; // Jump to the "Other" option
           this.isTyping = true;
@@ -426,13 +395,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       }
 
       // Calculate the text input index dynamically
-      let textInputIndex = 0;
-      if (this.options.current !== undefined) textInputIndex++;
-      if (
-        this.options.default !== undefined &&
-        this.options.current !== this.options.default
-      )
-        textInputIndex++;
+      const textInputIndex = this.getTextInputIndex();
 
       if (this.cursor === textInputIndex) {
         // Text input option
@@ -450,10 +413,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
   private updateValue() {
     // If both current and default are undefined, we're in text-only mode
-    if (
-      this.options.current === undefined &&
-      this.options.default === undefined
-    ) {
+    if (this.current === undefined && this.default === undefined) {
       try {
         const parsed = this.parseInput(this.userInput);
         this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -468,25 +428,22 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       let optionIndex = 0;
 
       // Check if cursor is on current value
-      if (this.options.current !== undefined && this.cursor === optionIndex) {
-        this.setCommittedValue(this.options.current);
+      if (this.current !== undefined && this.cursor === optionIndex) {
+        this.setCommittedValue(this.current);
         return;
       }
-      if (this.options.current !== undefined) optionIndex++;
+      if (this.current !== undefined) optionIndex++;
 
       // Check if cursor is on default value (and it's different from current)
       if (
-        this.options.default !== undefined &&
-        this.options.current !== this.options.default &&
+        this.default !== undefined &&
+        this.current !== this.default &&
         this.cursor === optionIndex
       ) {
-        this.setCommittedValue(this.options.default);
+        this.setCommittedValue(this.default);
         return;
       }
-      if (
-        this.options.default !== undefined &&
-        this.options.current !== this.options.default
-      )
+      if (this.default !== undefined && this.current !== this.default)
         optionIndex++;
 
       // If we get here, cursor is on "Other" option
@@ -530,11 +487,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
   private getTextInputIndex(): number {
     let index = 0;
-    if (this.options.current !== undefined) index++;
-    if (
-      this.options.default !== undefined &&
-      this.options.current !== this.options.default
-    )
+    if (this.current !== undefined) index++;
+    if (this.default !== undefined && this.current !== this.default)
       index++;
     return index;
   }

@@ -106,6 +106,27 @@ describe("EnvStringPrompt", () => {
     await promptPromise;
   });
 
+  it("navigates to the custom option when only the schema default exists", async () => {
+  const { prompt } = createPrompt({ default: "from-schema" });
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
+
+    expect(prompt.cursor).toBe(0);
+    expect(prompt.value).toBe("");
+
+    await pressKey(prompt, { name: "down" });
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.isTyping).toBe(false);
+
+    await pressKey(prompt, { name: "up" });
+    expect(prompt.cursor).toBe(0);
+    expect(prompt.value).toBe("from-schema");
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
   it("enters typing mode and tracks input when characters are pressed", async () => {
   const { prompt } = createPrompt({ current: "current", default: "default" });
   const promptPromise = prompt.prompt();
