@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ask } from "../src/ask";
-import { DEFAULT_SECRET_PATTERNS } from "../src";
+import { defaults } from "../src";
 
 await ask(
   {
@@ -18,6 +18,6 @@ await ask(
       .describe("Custom secret value that relies on the extended pattern list"),
   },
   {
-    secrets: [...DEFAULT_SECRET_PATTERNS, /CUSTOM_SENSITIVE/i],
+    secrets: [...defaults.SECRET_PATTERNS, /CUSTOM_SENSITIVE/i],
   },
 );
