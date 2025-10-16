@@ -5,7 +5,7 @@ export const openaiApiKey = () =>
   z
     .string()
     .describe(descriptions.apiKey)
-  .min(constraints.apiKeyMinLength, { error: messages.apiKeyMinLength })
+    .min(constraints.apiKeyMinLength, { error: messages.apiKeyMinLength })
     .regex(patterns.apiKey, { message: messages.apiKeyFormat });
 
 export const openaiOrganizationId = () =>
