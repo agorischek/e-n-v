@@ -5,7 +5,7 @@ import { stdin, stdout } from "node:process";
 import type { AskEnvOptions } from "./AskEnvOptions";
 import * as defaults from "./defaults";
 import { resolveChannel } from "./channels/resolveChannel";
-import { Session } from "./flows/runPromptFlow";
+import { Session } from "./session/Session";
 
 function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);
