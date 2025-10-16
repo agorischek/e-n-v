@@ -11,6 +11,7 @@ export interface EnvVarSchemaDetails<TValue> {
 
 export interface StringEnvVarSchema extends EnvVarSchemaDetails<string> {
   type: "string";
+  secret?: boolean;
 }
 
 export interface NumberEnvVarSchema extends EnvVarSchemaDetails<number> {
@@ -41,13 +42,22 @@ export function isEnvVarSchema(value: unknown): value is EnvVarSchema {
     return false;
   }
 
-  const candidate = value as Partial<EnvVarSchema> & { type?: unknown };
+  const candidate = value as Partial<EnvVarSchema> & {
+    type?: unknown;
+    secret?: unknown;
+  };
   if (typeof candidate.type !== "string") {
     return false;
   }
 
   if (!ENV_VAR_TYPES.has(candidate.type)) {
     return false;
+  }
+
+  if ("secret" in candidate && candidate.secret !== undefined) {
+    if (candidate.type !== "string" || typeof candidate.secret !== "boolean") {
+      return false;
+    }
   }
 
   return typeof candidate.required === "boolean";

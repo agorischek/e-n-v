@@ -3,7 +3,10 @@ import type { Readable } from "node:stream";
 import * as color from "picocolors";
 import { createPrompt } from "../createPrompt";
 import { fromZodSchema } from "../specification/fromZodSchema";
-import { isEnvVarSchema } from "../specification/EnvVarSchema";
+import {
+  isEnvVarSchema,
+  type EnvVarSchema,
+} from "../specification/EnvVarSchema";
 import { isCompatibleZodSchema } from "../specification/zodCompat";
 import type { SecretPattern, SchemaMap } from "../types";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
@@ -15,6 +18,22 @@ import type { Theme } from "../visuals/Theme";
 import type { EnvChannel } from "../channels/EnvChannel";
 
 export type PromptFlowResult = "success" | "cancelled" | "error";
+
+export function resolveShouldMask(
+  key: string,
+  schema: EnvVarSchema,
+  patterns: ReadonlyArray<SecretPattern>
+): boolean {
+  if (schema.type !== "string") {
+    return false;
+  }
+
+  if (typeof schema.secret === "boolean") {
+    return schema.secret;
+  }
+
+  return isSecretKey(key, schema.description, patterns);
+}
 
 export interface SessionOptions {
   schemas: SchemaMap;
@@ -84,9 +103,7 @@ export class Session {
         ? rawSchema
         : (rawSchema as ReturnType<typeof fromZodSchema>);
 
-      const shouldMask =
-        envVarSchema.type === "string" &&
-        isSecretKey(key, envVarSchema.description, this.secrets);
+      const shouldMask = resolveShouldMask(key, envVarSchema, this.secrets);
 
       const storedValue = this.newValues[key] ?? currentValues[key];
       const current =
