@@ -4,7 +4,7 @@ import {
   isSecretKey,
 } from "../utils/secrets";
 import { SECRET_MASK } from "../visuals/symbols";
-import { DEFAULT_SECRET_PATTERNS } from "../defaults";
+import { SECRET_PATTERNS } from "../defaults";
 
 describe("secret utilities", () => {
   it("masks values using the default mask", () => {
@@ -16,10 +16,10 @@ describe("secret utilities", () => {
   });
 
   it("detects secrets by key using default patterns", () => {
-    expect(isSecretKey("API_KEY", undefined, DEFAULT_SECRET_PATTERNS)).toBe(
+    expect(isSecretKey("API_KEY", undefined, SECRET_PATTERNS)).toBe(
       true
     );
-    expect(isSecretKey("PUBLIC_URL", undefined, DEFAULT_SECRET_PATTERNS)).toBe(
+    expect(isSecretKey("PUBLIC_URL", undefined, SECRET_PATTERNS)).toBe(
       false
     );
   });
@@ -29,7 +29,7 @@ describe("secret utilities", () => {
       isSecretKey(
         "SOME_VALUE",
         "Used as the OAuth client secret",
-        DEFAULT_SECRET_PATTERNS
+        SECRET_PATTERNS
       )
     ).toBe(true);
   });

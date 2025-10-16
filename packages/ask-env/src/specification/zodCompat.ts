@@ -14,6 +14,8 @@ const CATCH_TAGS = new Set(["ZodCatch", "catch"]);
 const READONLY_TAGS = new Set(["ZodReadonly", "readonly"]);
 const BRAND_TAGS = new Set(["ZodBranded", "brand"]);
 const PREFALT_TAGS = new Set(["ZodPrefault", "prefault"]);
+const NULLABLE_TAGS = new Set(["ZodNullable", "nullable"]);
+const NULLISH_TAGS = new Set(["ZodNullish", "nullish"]);
 const WRAPPER_TAGS = new Set([
   ...OPTIONAL_TAGS,
   ...DEFAULT_TAGS,
@@ -23,6 +25,8 @@ const WRAPPER_TAGS = new Set([
   ...READONLY_TAGS,
   ...BRAND_TAGS,
   ...PREFALT_TAGS,
+  ...NULLABLE_TAGS,
+  ...NULLISH_TAGS,
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -222,7 +226,7 @@ export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
       break;
     }
 
-    if (OPTIONAL_TAGS.has(typeTag)) {
+    if (OPTIONAL_TAGS.has(typeTag) || NULLISH_TAGS.has(typeTag)) {
       required = false;
     }
 
