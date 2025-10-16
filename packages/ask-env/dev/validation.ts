@@ -22,7 +22,7 @@ const prompt = new EnvNumberPrompt(
   {
     key: "API_PORT",
     current: 3000,
-  }
+  },
 );
 
 const result = await prompt.prompt();

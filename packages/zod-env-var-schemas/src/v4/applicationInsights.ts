@@ -59,11 +59,15 @@ export const appInsightsAutocollectPerformance = () =>
     .describe(descriptions.autoCollectPerformance)
     .default(defaults.autoCollectPerformance);
 
-export const APPLICATIONINSIGHTS_CONNECTION_STRING = applicationInsightsConnectionString();
+export const APPLICATIONINSIGHTS_CONNECTION_STRING =
+  applicationInsightsConnectionString();
 export const APPINSIGHTS_INSTRUMENTATIONKEY = appInsightsInstrumentationKey();
 export const APPINSIGHTS_ROLE_NAME = appInsightsRoleName();
 export const APPINSIGHTS_SAMPLING_RATE = appInsightsSamplingRate();
-export const APPINSIGHTS_AUTOCOLLECT_DEPENDENCIES = appInsightsAutocollectDependencies();
-export const APPINSIGHTS_AUTOCOLLECT_EXCEPTIONS = appInsightsAutocollectExceptions();
+export const APPINSIGHTS_AUTOCOLLECT_DEPENDENCIES =
+  appInsightsAutocollectDependencies();
+export const APPINSIGHTS_AUTOCOLLECT_EXCEPTIONS =
+  appInsightsAutocollectExceptions();
 export const APPINSIGHTS_AUTOCOLLECT_CONSOLE = appInsightsAutocollectConsole();
-export const APPINSIGHTS_AUTOCOLLECT_PERFORMANCE = appInsightsAutocollectPerformance();
+export const APPINSIGHTS_AUTOCOLLECT_PERFORMANCE =
+  appInsightsAutocollectPerformance();

@@ -18,9 +18,9 @@ function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
  */
 export async function ask(
   schemas: SchemaMap,
-  options: AskEnvOptions = {}
+  options: AskEnvOptions = {},
 ): Promise<void> {
-  const path = options.path ??  defaults.ENV_PATH;
+  const path = options.path ?? defaults.ENV_PATH;
   const truncate = options.truncate ?? defaults.TRUNCATE_LENGTH;
   const secrets = options.secrets ?? defaults.SECRET_PATTERNS;
 

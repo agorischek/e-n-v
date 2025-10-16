@@ -5,7 +5,7 @@ import { S_BAR_START } from "./symbols";
 export function renderSetupHeader(
   output: NodeJS.WriteStream,
   theme: Theme,
-  displayEnvPath: string
+  displayEnvPath: string,
 ): void {
   const headerBody = [
     theme.bgPrimary(color.black(" Environment Variable Setup ")),

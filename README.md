@@ -26,14 +26,16 @@ bun add ask-env
 ## Quick Start
 
 ```typescript
-import { z } from 'zod';
-import { ask } from 'ask-env';
+import { z } from "zod";
+import { ask } from "ask-env";
 
 const schemas = {
-  DB_HOST: z.string().min(1, 'Database host is required'),
-  DB_PORT: z.string().regex(/^\d+$/, 'Must be a valid port number'),
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  ENABLE_LOGGING: z.string().transform(val => val.toLowerCase() === 'true'),
+  DB_HOST: z.string().min(1, "Database host is required"),
+  DB_PORT: z.string().regex(/^\d+$/, "Must be a valid port number"),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
+  ENABLE_LOGGING: z.string().transform((val) => val.toLowerCase() === "true"),
 };
 
 // Run the interactive prompt
@@ -74,13 +76,13 @@ Secret patterns default to common names like `PASSWORD`, `TOKEN`, `API_KEY`, and
 ### Basic Usage
 
 ```typescript
-import { z } from 'zod';
-import { ask } from 'ask-env';
+import { z } from "zod";
+import { ask } from "ask-env";
 
 const schemas = {
   API_KEY: z.string().min(1),
   PORT: z.string().regex(/^\d+$/),
-  DEBUG: z.string().transform(val => val === 'true'),
+  DEBUG: z.string().transform((val) => val === "true"),
 };
 
 await ask(schemas);
@@ -91,25 +93,29 @@ await ask(schemas);
 ```typescript
 const schemas = {
   // String with minimum length
-  JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters'),
-  
+  JWT_SECRET: z.string().min(32, "JWT secret must be at least 32 characters"),
+
   // URL validation
-  API_BASE_URL: z.string().url('Must be a valid URL'),
-  
+  API_BASE_URL: z.string().url("Must be a valid URL"),
+
   // Enum values
-  NODE_ENV: z.enum(['development', 'production', 'test']),
-  
+  NODE_ENV: z.enum(["development", "production", "test"]),
+
   // Number validation with transformation
-  DB_PORT: z.string()
-    .regex(/^\d+$/, 'Must be a number')
+  DB_PORT: z
+    .string()
+    .regex(/^\d+$/, "Must be a number")
     .transform(Number)
-    .refine(port => port > 0 && port <= 65535, 'Port must be between 1 and 65535'),
-  
+    .refine(
+      (port) => port > 0 && port <= 65535,
+      "Port must be between 1 and 65535",
+    ),
+
   // Optional fields
-  LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).optional(),
-  
+  LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
+
   // Default values
-  ENABLE_CORS: z.string().default('true'),
+  ENABLE_CORS: z.string().default("true"),
 };
 
 await ask(schemas, {

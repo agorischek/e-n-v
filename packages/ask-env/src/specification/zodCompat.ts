@@ -37,7 +37,9 @@ export function isZodV4Schema(schema: unknown): schema is $ZodType {
   return Boolean(isRecord(schema) && "_zod" in schema);
 }
 
-export function isCompatibleZodSchema(value: unknown): value is CompatibleZodSchema {
+export function isCompatibleZodSchema(
+  value: unknown,
+): value is CompatibleZodSchema {
   if (!value) {
     return false;
   }
@@ -60,7 +62,10 @@ export function isCompatibleZodSchema(value: unknown): value is CompatibleZodSch
     safeParse?: unknown;
   };
 
-  if (typeof candidate.parse === "function" || typeof candidate.safeParse === "function") {
+  if (
+    typeof candidate.parse === "function" ||
+    typeof candidate.safeParse === "function"
+  ) {
     return true;
   }
 
@@ -109,7 +114,7 @@ export function getDefType(def: SchemaDef): string | undefined {
 
 export function getSchemaDescription(
   schema: CompatibleZodSchema,
-  def: SchemaDef
+  def: SchemaDef,
 ): string | undefined {
   const directDescription = (schema as { description?: unknown }).description;
   if (typeof directDescription === "string" && directDescription.length > 0) {
@@ -140,7 +145,9 @@ export function getSchemaDescription(
   return undefined;
 }
 
-export function getInnerSchema(def: SchemaDef): CompatibleZodSchema | undefined {
+export function getInnerSchema(
+  def: SchemaDef,
+): CompatibleZodSchema | undefined {
   if (!def) {
     return undefined;
   }
@@ -255,7 +262,9 @@ export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
   };
 }
 
-export function extractEnumValues(schema: CompatibleZodSchema): string[] | undefined {
+export function extractEnumValues(
+  schema: CompatibleZodSchema,
+): string[] | undefined {
   const def = getSchemaDef(schema);
   if (!def) {
     return undefined;

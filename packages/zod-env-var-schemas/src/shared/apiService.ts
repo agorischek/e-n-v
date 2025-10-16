@@ -3,7 +3,8 @@ import { COMMON_MESSAGES } from "./messages";
 export const descriptions = {
   apiKey: "API key for external service",
   jwtSecret: "JWT secret key for token signing",
-  jwtAccessTokenExpiresIn: "JWT access token expiration (e.g., '15m', '1h', '1d')",
+  jwtAccessTokenExpiresIn:
+    "JWT access token expiration (e.g., '15m', '1h', '1d')",
   jwtRefreshTokenExpiresIn: "JWT refresh token expiration (e.g., '7d', '30d')",
   apiBaseUrl: "Base URL for API service",
   serviceUrl: "Service URL",
@@ -29,7 +30,8 @@ export const messages = {
   httpProtocolRequired: "Must start with http:// or https://",
   httpsProtocolRequired: "Webhook URLs should use HTTPS for security",
   encryptionKeyMin: "Encryption key must be at least 32 characters long",
-  sessionSecretMin: "Session secret must be at least 32 characters long for security",
+  sessionSecretMin:
+    "Session secret must be at least 32 characters long for security",
   corsOriginInvalid: "Must be '*' or comma-separated valid URLs",
   rateLimitRpmInt: "Rate limit must be an integer",
   rateLimitRpmMin: "Rate limit must be at least 1",

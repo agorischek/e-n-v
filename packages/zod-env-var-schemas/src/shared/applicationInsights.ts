@@ -1,12 +1,8 @@
 export const descriptions = {
-  connectionString:
-    "Azure Application Insights connection string",
-  instrumentationKey:
-    "Azure Application Insights instrumentation key (legacy)",
-  roleName:
-    "Application Insights role name for distributed tracing",
-  samplingRate:
-    "Application Insights telemetry sampling rate (0-100)",
+  connectionString: "Azure Application Insights connection string",
+  instrumentationKey: "Azure Application Insights instrumentation key (legacy)",
+  roleName: "Application Insights role name for distributed tracing",
+  samplingRate: "Application Insights telemetry sampling rate (0-100)",
   autoCollectDependencies:
     "Enable automatic dependency tracking in Application Insights",
   autoCollectExceptions:
@@ -18,7 +14,8 @@ export const descriptions = {
 } as const;
 
 export const messages = {
-  connectionStringFormat: "Must be a valid Application Insights connection string format",
+  connectionStringFormat:
+    "Must be a valid Application Insights connection string format",
   instrumentationKeyUuid: "Must be a valid UUID format for instrumentation key",
   roleNameMin: "Role name cannot be empty",
   roleNameMax: "Role name must be less than 256 characters",
@@ -42,5 +39,6 @@ export const defaults = {
 } as const;
 
 export const patterns = {
-  connectionString: /^InstrumentationKey=[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12};IngestionEndpoint=https:\/\/[^;]+;LiveEndpoint=https:\/\/[^;]+$/,
+  connectionString:
+    /^InstrumentationKey=[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12};IngestionEndpoint=https:\/\/[^;]+;LiveEndpoint=https:\/\/[^;]+$/,
 } as const;

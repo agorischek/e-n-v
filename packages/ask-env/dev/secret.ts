@@ -19,5 +19,5 @@ await ask(
   },
   {
     secrets: [...DEFAULT_SECRET_PATTERNS, /CUSTOM_SENSITIVE/i],
-  }
+  },
 );

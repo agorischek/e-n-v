@@ -20,7 +20,7 @@ export abstract class ThemedPrompt<T> extends Prompt<T> {
 
   constructor(
     opts: ThemedPromptOptions & PromptOptions<T, Prompt<T>>,
-    trackValue = false
+    trackValue = false,
   ) {
     super(opts, trackValue);
     this.theme = opts.theme || Theme.default;

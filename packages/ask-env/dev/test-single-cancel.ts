@@ -12,7 +12,7 @@ const prompt = new EnvStringPrompt(
   },
   {
     key: "TEST_VALUE",
-  }
+  },
 );
 
 try {

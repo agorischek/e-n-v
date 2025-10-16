@@ -1,9 +1,5 @@
 import type { CompatibleZodSchema } from "./zodCompat";
-import {
-  extractEnumValues,
-  peelSchema,
-  resolveEnvVarType,
-} from "./zodCompat";
+import { extractEnumValues, peelSchema, resolveEnvVarType } from "./zodCompat";
 import type {
   BooleanEnvVarSchema,
   EnvVarSchema,
@@ -16,7 +12,7 @@ import { validateFromSchema } from "../utils/validateFromSchema";
 
 function createBaseDetails<TValue>(
   schema: CompatibleZodSchema,
-  details: EnvVarSchemaDetails<TValue>
+  details: EnvVarSchemaDetails<TValue>,
 ): EnvVarSchemaDetails<TValue> {
   const validate = validateFromSchema(schema);
   return {
@@ -36,9 +32,7 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
         type,
         required: peeled.required,
         default:
-          typeof peeled.default === "boolean"
-            ? peeled.default
-            : undefined,
+          typeof peeled.default === "boolean" ? peeled.default : undefined,
         description: peeled.description,
       });
 
@@ -54,9 +48,7 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
         type,
         required: peeled.required,
         default:
-          typeof peeled.default === "number"
-            ? peeled.default
-            : undefined,
+          typeof peeled.default === "number" ? peeled.default : undefined,
         description: peeled.description,
       });
 
@@ -69,9 +61,7 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
     }
     case "enum": {
       const defaultValue =
-        typeof peeled.default === "string"
-          ? peeled.default
-          : undefined;
+        typeof peeled.default === "string" ? peeled.default : undefined;
 
       const base = createBaseDetails<string>(schema, {
         type,

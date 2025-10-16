@@ -42,5 +42,7 @@ export const azureEventHubConnectionString = () =>
 export const AZURE_STORAGE_CONNECTION_STRING = azureStorageConnectionString();
 export const AZURE_STORAGE_ACCOUNT_NAME = azureStorageAccountName();
 export const AZURE_STORAGE_ACCOUNT_KEY = azureStorageAccountKey();
-export const AZURE_SERVICE_BUS_CONNECTION_STRING = azureServiceBusConnectionString();
-export const AZURE_EVENT_HUB_CONNECTION_STRING = azureEventHubConnectionString();
+export const AZURE_SERVICE_BUS_CONNECTION_STRING =
+  azureServiceBusConnectionString();
+export const AZURE_EVENT_HUB_CONNECTION_STRING =
+  azureEventHubConnectionString();

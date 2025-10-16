@@ -11,14 +11,14 @@ export const redisUrl = () =>
   z
     .string()
     .describe(descriptions.url)
-    .regex(patterns.url, { message: messages.urlFormat })
+    .regex(patterns.url, { message: messages.urlFormat });
 
 export const redisHost = () =>
   z
     .string()
     .describe(descriptions.host)
     .min(1, { message: messages.hostRequired })
-    .regex(patterns.host, { message: messages.hostFormat })
+    .regex(patterns.host, { message: messages.hostFormat });
 
 export const redisPort = () =>
   z
@@ -33,13 +33,13 @@ export const redisUsername = () =>
   z
     .string()
     .describe(descriptions.username)
-    .min(1, { message: messages.usernameRequired })
+    .min(1, { message: messages.usernameRequired });
 
 export const redisPassword = () =>
   z
     .string()
     .describe(descriptions.password)
-    .min(1, { message: messages.passwordRequired })
+    .min(1, { message: messages.passwordRequired });
 
 export const redisDb = () =>
   z
@@ -57,7 +57,7 @@ export const redisTlsCaCertPath = () =>
   z
     .string()
     .describe(descriptions.tlsCaCertPath)
-    .min(1, { message: messages.tlsCaCertPathRequired })
+    .min(1, { message: messages.tlsCaCertPathRequired });
 
 export const REDIS_URL = redisUrl();
 export const REDIS_HOST = redisHost();
