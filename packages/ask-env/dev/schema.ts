@@ -6,7 +6,7 @@ const schemas = {
         type: "string",
         description: "Demo variable",
         required: true,
-        preset: "hello",
+        default: "hello",
     },
 } satisfies Record<string, EnvVarSpec>;
 

@@ -5,7 +5,7 @@ const prompt = new EnvStringPrompt(
     type: "string",
     required: true,
     description: "Root URL of the target service",
-    preset: "cool",
+    default: "cool",
   },
   {
     key: "SERVICE_URL",

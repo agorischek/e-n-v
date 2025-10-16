@@ -25,7 +25,7 @@ function createPrompt(
   const schema: NumberEnvVarSchema = {
     type: "number",
     required: options.required ?? false,
-    preset: options.default,
+    default: options.default,
     description: options.description,
     validate: options.validate,
   };
@@ -36,7 +36,7 @@ function createPrompt(
     default:
       options.default !== undefined
         ? options.default
-        : (schema.preset ?? undefined),
+        : (schema.default ?? undefined),
     maxDisplayLength: options.maxDisplayLength,
     theme: options.theme,
     previousEnabled: options.previousEnabled,

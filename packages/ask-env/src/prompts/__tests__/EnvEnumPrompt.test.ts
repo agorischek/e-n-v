@@ -20,7 +20,7 @@ function createPrompt(options: TestPromptOptions = {}) {
     type: "enum",
     required: options.required ?? false,
     description: options.description,
-    preset: options.default,
+    default: options.default,
     validate: options.validate,
     values,
   };

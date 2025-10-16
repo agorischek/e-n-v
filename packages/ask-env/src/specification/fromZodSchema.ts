@@ -35,9 +35,9 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
       const base = createBaseDetails<boolean>(schema, {
         type,
         required: peeled.required,
-        preset:
-          typeof peeled.preset === "boolean"
-            ? peeled.preset
+        default:
+          typeof peeled.default === "boolean"
+            ? peeled.default
             : undefined,
         description: peeled.description,
       });
@@ -53,9 +53,9 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
       const base = createBaseDetails<number>(schema, {
         type,
         required: peeled.required,
-        preset:
-          typeof peeled.preset === "number"
-            ? peeled.preset
+        default:
+          typeof peeled.default === "number"
+            ? peeled.default
             : undefined,
         description: peeled.description,
       });
@@ -68,15 +68,15 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
       return result;
     }
     case "enum": {
-      const preset =
-        typeof peeled.preset === "string"
-          ? peeled.preset
+      const defaultValue =
+        typeof peeled.default === "string"
+          ? peeled.default
           : undefined;
 
       const base = createBaseDetails<string>(schema, {
         type,
         required: peeled.required,
-        preset,
+        default: defaultValue,
         description: peeled.description,
       });
 
@@ -90,15 +90,15 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
     }
     case "string":
     default: {
-      const preset =
-        typeof peeled.preset === "string" || peeled.preset === null
-          ? (peeled.preset as string | null | undefined)
+      const defaultValue =
+        typeof peeled.default === "string" || peeled.default === null
+          ? (peeled.default as string | null | undefined)
           : undefined;
 
       const base = createBaseDetails<string>(schema, {
         type: "string",
         required: peeled.required,
-        preset,
+        default: defaultValue,
         description: peeled.description,
       });
 

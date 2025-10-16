@@ -24,7 +24,7 @@ function createPrompt(options: TestPromptOptions = {}) {
     type: "boolean",
     required: options.required ?? false,
     description: options.description,
-    preset: options.default,
+    default: options.default,
     validate: options.validate,
   };
 

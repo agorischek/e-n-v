@@ -195,14 +195,14 @@ export function getDefaultFromDef(def: SchemaDef): unknown {
 export interface PeeledSchemaResult {
   schema: CompatibleZodSchema;
   required: boolean;
-  preset: unknown;
+  default: unknown;
   description?: string;
 }
 
 export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
   let current = schema;
   let required = true;
-  let preset: unknown = undefined;
+  let defaultValue: unknown = undefined;
   let description: string | undefined;
 
   // Unwrap common wrapper types until we reach a concrete schema.
@@ -227,8 +227,8 @@ export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
     }
 
     if (DEFAULT_TAGS.has(typeTag) || PREFALT_TAGS.has(typeTag)) {
-      if (preset === undefined) {
-        preset = getDefaultFromDef(def);
+      if (defaultValue === undefined) {
+        defaultValue = getDefaultFromDef(def);
       }
     }
 
@@ -246,7 +246,7 @@ export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
   return {
     schema: current,
     required,
-    preset,
+    default: defaultValue,
     description,
   };
 }
