@@ -156,6 +156,28 @@ describe("EnvStringPrompt", () => {
     await promptPromise;
   });
 
+  it("renders the cursor at the tracked position while navigating", async () => {
+  const { prompt, output } = createPrompt();
+  const promptPromise = prompt.prompt();
+  await waitForIO(2);
+
+    await typeText(prompt as any, "hello");
+    expect((prompt as any).getInputDisplay(true)).toBe("hello█");
+    expect(stripAnsi(toOutputString(output))).toContain("hello█");
+
+    await pressKey(prompt, { name: "left" });
+    expect((prompt as any).getInputDisplay(true)).toBe("hell█o");
+    expect(stripAnsi(toOutputString(output))).toContain("hell█o");
+
+    await pressKey(prompt, { name: "left" });
+    expect((prompt as any).getInputDisplay(true)).toBe("hel█lo");
+    expect(stripAnsi(toOutputString(output))).toContain("hel█lo");
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
   it("renders submitted masked values using the prompt format", async () => {
   const { prompt, output } = createPrompt({ secret: true, mask: "#", maxDisplayLength: 4 });
   const promptPromise = prompt.prompt();

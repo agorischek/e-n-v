@@ -541,7 +541,21 @@ export class EnvStringPrompt extends EnvPrompt<string> {
       this.secret && inputValue && !this.isSecretRevealed()
         ? this.maskValue(inputValue)
         : inputValue;
-    return includeCursor ? `${base}${S_CURSOR}` : base;
+    if (!includeCursor) {
+      return base;
+    }
+
+    // Clamp the tracked cursor to the length of the display string so the
+    // visual block stays aligned with the readline cursor position.
+    const cursorIndex = this.isTyping
+      ? Math.min(Math.max(this._cursor ?? base.length, 0), base.length)
+      : base.length;
+    if (cursorIndex >= base.length) {
+      return `${base}${S_CURSOR}`;
+    }
+
+    // Replace the character underneath the caret so the block overlays it.
+    return `${base.slice(0, cursorIndex)}${S_CURSOR}${base.slice(cursorIndex + 1)}`;
   }
 
   private getEntryHint(): string {

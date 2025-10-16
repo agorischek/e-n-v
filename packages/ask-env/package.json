@@ -3,7 +3,7 @@
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {
-    "@clack/core": "1.0.0-alpha.5",
+    "@clack/core": "1.0.0-alpha.6",
     "picocolors": "^1.1.1"
   },
   "peerDependencies": {

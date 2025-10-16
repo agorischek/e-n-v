@@ -1,10 +1,6 @@
 {
   "name": "envcredible",
   "module": "index.ts",
-  "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.0",
     "@standard-schema/spec": "^1.0.0",
@@ -20,5 +16,9 @@
   },
   "scripts": {
     "test": "bun test"
-  }
+  },
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ]
 }

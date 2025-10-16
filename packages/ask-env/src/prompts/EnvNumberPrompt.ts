@@ -50,16 +50,14 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
 
           // If both current and default are undefined, show only text input
           if (this.current === undefined && this.default === undefined) {
-            const typedValue = this.userInput ?? "";
-
             if (this.isTyping) {
               const displayText = dimInputs
-                ? this.colors.dim(typedValue)
-                : this.colors.white(`${typedValue}${S_CURSOR}`);
+                ? this.colors.dim(this.getInputDisplay(false))
+                : this.colors.white(this.getInputDisplay(true));
               output += `${this.getBar()}  ${displayText}`;
             } else {
               const cursorDisplay = dimInputs
-                ? this.colors.dim(typedValue)
+                ? this.colors.dim(this.getInputDisplay(false))
                 : this.colors.white(S_CURSOR);
               output += `${this.getBar()}  ${cursorDisplay}`;
             }
@@ -109,10 +107,9 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
             if (typeof option === "string") {
               // "Other" option
               if (this.isTyping) {
-                const typedValue = this.userInput ?? "";
                 const displayText = dimInputs
-                  ? this.colors.dim(typedValue)
-                  : this.colors.white(`${typedValue}${S_CURSOR}`);
+                  ? this.colors.dim(this.getInputDisplay(false))
+                  : this.colors.white(this.getInputDisplay(true));
                 output += `${this.getBar()}  ${circle} ${displayText}\n`;
               } else if (isSelected) {
                 // Show cursor immediately when selected, even before typing
@@ -533,5 +530,18 @@ export class EnvNumberPrompt extends EnvPrompt<number> {
     )
       index++;
     return index;
+  }
+
+  private getInputDisplay(includeCursor: boolean): string {
+    const inputValue = this.userInput ?? "";
+    if (!includeCursor) {
+      return inputValue;
+    }
+
+    const cursorIndex = this.isTyping
+      ? Math.min(Math.max(this._cursor ?? inputValue.length, 0), inputValue.length)
+      : inputValue.length;
+
+    return `${inputValue.slice(0, cursorIndex)}${S_CURSOR}${inputValue.slice(cursorIndex)}`;
   }
 }

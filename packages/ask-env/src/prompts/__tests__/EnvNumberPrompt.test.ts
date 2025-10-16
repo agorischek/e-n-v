@@ -111,6 +111,25 @@ describe("EnvNumberPrompt", () => {
     await promptPromise;
   });
 
+  it("renders the cursor at the tracked position while navigating", async () => {
+    const { prompt, output } = createPrompt();
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await typeText(prompt, "1234");
+    expect(stripAnsi(toOutputString(output))).toContain("1234█");
+
+    await pressKey(prompt, { name: "left" });
+    expect(stripAnsi(toOutputString(output))).toContain("123█4");
+
+    await pressKey(prompt, { name: "left" });
+    expect(stripAnsi(toOutputString(output))).toContain("12█34");
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
   it("prevents submitting empty or invalid numeric entries", async () => {
     const { prompt } = createPrompt({ current: 1, default: 2 });
     const promptPromise = prompt.prompt();
