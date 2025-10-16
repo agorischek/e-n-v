@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { EnvBooleanPrompt } from "../EnvBooleanPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
+import type { BooleanEnvVarSchema } from "../../specification/EnvVarSchema";
 import {
   createTestStreams,
   waitForIO,
@@ -10,21 +11,37 @@ import {
   toOutputString,
 } from "./helpers/promptTestUtils";
 
-function createPrompt(
-  options: Partial<EnvPromptOptions<boolean>> & { key?: string } = {}
-) {
+type TestPromptOptions = Partial<EnvPromptOptions<boolean>> & {
+  key?: string;
+  description?: string;
+  required?: boolean;
+  validate?: BooleanEnvVarSchema["validate"];
+  nullable?: boolean;
+};
+
+function createPrompt(options: TestPromptOptions = {}) {
   const streams = createTestStreams();
-  const prompt = new EnvBooleanPrompt({
-    key: options.key ?? "BOOL_ENV",
+  const schema: BooleanEnvVarSchema = {
+    type: "boolean",
+    required: options.required ?? false,
+    nullable: options.nullable ?? false,
     description: options.description,
+    defaultValue: options.default,
+    validate: options.validate,
+  };
+
+  const prompt = new EnvBooleanPrompt(schema, {
+    key: options.key ?? "BOOL_ENV",
     current: options.current,
     default: options.default,
-    required: options.required ?? false,
-    validate: options.validate,
     theme: options.theme,
     previousEnabled: options.previousEnabled,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
+    maxDisplayLength: options.maxDisplayLength,
+    secret: options.secret,
+    mask: options.mask,
+    secretToggleShortcut: options.secretToggleShortcut,
   });
 
   return { prompt, ...streams };

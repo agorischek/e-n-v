@@ -1,23 +1,44 @@
 import { describe, expect, it } from "bun:test";
 import { EnvEnumPrompt } from "../EnvEnumPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
+import type { EnumEnvVarSchema } from "../../specification/EnvVarSchema";
 import { createTestStreams, baseKey } from "./helpers/promptTestUtils";
 
-function createPrompt(
-  options: Partial<EnvPromptOptions<string>> & { key?: string; options?: string[] } = {},
-) {
+type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
+  key?: string;
+  options?: string[];
+  required?: boolean;
+  description?: string;
+  validate?: EnumEnvVarSchema["validate"];
+  nullable?: boolean;
+};
+
+function createPrompt(options: TestPromptOptions = {}) {
   const streams = createTestStreams();
-  const prompt = new EnvEnumPrompt({
-    key: options.key ?? "TEST_ENV",
+  const values = options.options ?? ["alpha", "beta", "gamma"];
+
+  const schema: EnumEnvVarSchema = {
+    type: "enum",
+    required: options.required ?? false,
+    nullable: options.nullable ?? false,
     description: options.description,
+    defaultValue: options.default,
+    validate: options.validate,
+    values,
+  };
+
+  const prompt = new EnvEnumPrompt(schema, {
+    key: options.key ?? "TEST_ENV",
     current: options.current,
     default: options.default,
-    required: options.required ?? false,
-    validate: options.validate,
     theme: options.theme,
-    options: options.options ?? ["alpha", "beta", "gamma"],
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
+    maxDisplayLength: options.maxDisplayLength,
+    secret: options.secret,
+    mask: options.mask,
+    secretToggleShortcut: options.secretToggleShortcut,
+    previousEnabled: options.previousEnabled,
   });
 
   return { prompt, ...streams };
