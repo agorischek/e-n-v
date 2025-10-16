@@ -5,14 +5,12 @@ import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import type { NumberEnvVarSchema } from "../specification/EnvVarSchema";
 
-interface EnvNumberPromptOptions extends EnvPromptOptions<number> {}
-
 export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   cursor = 0;
   isTyping = false;
-  protected options: EnvNumberPromptOptions;
+  protected options: EnvPromptOptions<number>;
 
-  constructor(schema: NumberEnvVarSchema, opts: EnvNumberPromptOptions) {
+  constructor(schema: NumberEnvVarSchema, opts: EnvPromptOptions<number>) {
     super(
       schema,
       {

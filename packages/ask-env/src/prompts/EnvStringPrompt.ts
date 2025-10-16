@@ -6,14 +6,12 @@ import type { PromptAction } from "./types/PromptAction";
 import { maskSecretValue } from "../utils/secrets";
 import type { StringEnvVarSchema } from "../specification/EnvVarSchema";
 
-interface EnvStringPromptOptions extends EnvPromptOptions<string> {}
-
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   cursor = 0;
   isTyping = false;
-  protected options: EnvStringPromptOptions;
+  protected options: EnvPromptOptions<string>;
 
-  constructor(schema: StringEnvVarSchema, opts: EnvStringPromptOptions) {
+  constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(
       schema,
       {
@@ -173,7 +171,12 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
               return inputValidation;
             }
             // If format is valid, run custom validation if provided
-            const parsedValue = this.parseInput(this.userInput);
+            let parsedValue: string | undefined;
+            try {
+              parsedValue = this.parseInput(this.userInput);
+            } catch {
+              parsedValue = undefined;
+            }
             const customValidation = this.runCustomValidate(parsedValue);
             if (customValidation) {
               return customValidation instanceof Error
@@ -222,7 +225,12 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
               return inputValidation;
             }
             // If format is valid, run custom validation if provided
-            const parsedValue = this.parseInput(this.userInput);
+            let parsedValue: string | undefined;
+            try {
+              parsedValue = this.parseInput(this.userInput);
+            } catch {
+              parsedValue = undefined;
+            }
             const customValidation = this.runCustomValidate(parsedValue);
             if (customValidation) {
               return customValidation instanceof Error

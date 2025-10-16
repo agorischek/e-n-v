@@ -5,14 +5,12 @@ import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import type { EnumEnvVarSchema } from "../specification/EnvVarSchema";
 
-interface EnvEnumPromptOptions extends EnvPromptOptions<string> {}
-
 export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   cursor = 0;
-  protected options: EnvEnumPromptOptions;
+  protected options: EnvPromptOptions<string>;
   private readonly values: readonly string[];
 
-  constructor(schema: EnumEnvVarSchema, opts: EnvEnumPromptOptions) {
+  constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(
       schema,
       {

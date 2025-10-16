@@ -5,12 +5,10 @@ import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import type { BooleanEnvVarSchema } from "../specification/EnvVarSchema";
 
-interface EnvBooleanPromptOptions extends EnvPromptOptions<boolean> {}
-
 export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
 
-  constructor(schema: BooleanEnvVarSchema, opts: EnvBooleanPromptOptions) {
+  constructor(schema: BooleanEnvVarSchema, opts: EnvPromptOptions<boolean>) {
     super(
       schema,
       {
