@@ -1,7 +1,6 @@
 import type { CompatibleZodSchema } from "./zodCompat";
 import {
   extractEnumValues,
-  extractRangeConstraints,
   peelSchema,
   resolveEnvVarType,
 } from "./zodCompat";
@@ -29,7 +28,6 @@ function createBaseDetails<TValue>(
 export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
   const peeled = peelSchema(schema);
   const type = resolveEnvVarType(peeled.schema);
-  const { min, max } = extractRangeConstraints(peeled.schema);
   const values = extractEnumValues(peeled.schema);
 
   switch (type) {
@@ -67,8 +65,6 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
       const result: NumberEnvVarSchema = {
         ...base,
         type,
-        min,
-        max,
       };
 
       return result;
@@ -113,8 +109,6 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
       const result: StringEnvVarSchema = {
         ...base,
         type: "string",
-        min,
-        max,
       };
 
       return result;

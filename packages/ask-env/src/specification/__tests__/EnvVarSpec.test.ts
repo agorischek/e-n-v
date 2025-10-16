@@ -1,20 +1,6 @@
 import { z } from "zod";
 import { fromZodSchema } from "../fromZodSchema";
 import { describe, it, expect } from "bun:test";
-import type {
-  EnvVarSchema,
-  NumberEnvVarSchema,
-  StringEnvVarSchema,
-} from "../EnvVarSchema";
-
-function isStringSpec(spec: EnvVarSchema): spec is StringEnvVarSchema {
-  return spec.type === "string";
-}
-
-function isNumberSpec(spec: EnvVarSchema): spec is NumberEnvVarSchema {
-  return spec.type === "number";
-}
-
 describe("fromZodSchema", () => {
   describe("Basic type resolution", () => {
     it("should resolve string type", () => {
@@ -231,97 +217,6 @@ describe("fromZodSchema", () => {
     });
   });
 
-  describe("String constraints", () => {
-    it("should extract min length", () => {
-      const spec = fromZodSchema(z.string().min(5));
-      expect(spec.type).toBe("string");
-      if (!isStringSpec(spec)) {
-        throw new Error("Expected string schema");
-      }
-      expect(spec.min).toBe(5);
-      expect(spec.max).toBeUndefined();
-    });
-
-    it("should extract max length", () => {
-      const spec = fromZodSchema(z.string().max(10));
-      expect(spec.type).toBe("string");
-      if (!isStringSpec(spec)) {
-        throw new Error("Expected string schema");
-      }
-      expect(spec.min).toBeUndefined();
-      expect(spec.max).toBe(10);
-    });
-
-    it("should extract both min and max length", () => {
-      const spec = fromZodSchema(z.string().min(3).max(15));
-      expect(spec.type).toBe("string");
-      if (!isStringSpec(spec)) {
-        throw new Error("Expected string schema");
-      }
-      expect(spec.min).toBe(3);
-      expect(spec.max).toBe(15);
-    });
-
-    it("should handle min/max with other wrappers", () => {
-      const spec = fromZodSchema(
-        z.string().min(2).max(8).optional().default("test")
-      );
-      expect(spec.type).toBe("string");
-      if (!isStringSpec(spec)) {
-        throw new Error("Expected string schema");
-      }
-      expect(spec.min).toBe(2);
-      expect(spec.max).toBe(8);
-      expect(spec.required).toBe(false);
-      expect(spec.defaultValue).toBe("test");
-    });
-  });
-
-  describe("Number constraints", () => {
-    it("should extract min value", () => {
-      const spec = fromZodSchema(z.number().min(0));
-      expect(spec.type).toBe("number");
-      if (!isNumberSpec(spec)) {
-        throw new Error("Expected number schema");
-      }
-      expect(spec.min).toBe(0);
-      expect(spec.max).toBeUndefined();
-    });
-
-    it("should extract max value", () => {
-      const spec = fromZodSchema(z.number().max(100));
-      expect(spec.type).toBe("number");
-      if (!isNumberSpec(spec)) {
-        throw new Error("Expected number schema");
-      }
-      expect(spec.min).toBeUndefined();
-      expect(spec.max).toBe(100);
-    });
-
-    it("should extract both min and max values", () => {
-      const spec = fromZodSchema(z.number().min(-10).max(50));
-      expect(spec.type).toBe("number");
-      if (!isNumberSpec(spec)) {
-        throw new Error("Expected number schema");
-      }
-      expect(spec.min).toBe(-10);
-      expect(spec.max).toBe(50);
-    });
-
-    it("should handle min/max with other wrappers", () => {
-      const spec = fromZodSchema(
-        z.number().min(1).max(999).nullable().default(42)
-      );
-      expect(spec.type).toBe("number");
-      if (!isNumberSpec(spec)) {
-        throw new Error("Expected number schema");
-      }
-      expect(spec.min).toBe(1);
-      expect(spec.max).toBe(999);
-      expect(spec.nullable).toBe(true);
-      expect(spec.defaultValue).toBe(42);
-    });
-  });
 
   describe("ZodEffects handling", () => {
     it("should unwrap through ZodEffects", () => {
@@ -339,10 +234,6 @@ describe("fromZodSchema", () => {
         .default("test");
       const spec = fromZodSchema(schema);
       expect(spec.type).toBe("string");
-      if (!isStringSpec(spec)) {
-        throw new Error("Expected string schema");
-      }
-      expect(spec.min).toBe(3);
       expect(spec.required).toBe(false);
       expect(spec.defaultValue).toBe("test");
     });
@@ -366,11 +257,6 @@ describe("fromZodSchema", () => {
       expect(spec.required).toBe(true);
       expect(spec.nullable).toBe(false);
       expect(spec.defaultValue).toBeUndefined();
-      if (!isStringSpec(spec)) {
-        throw new Error("Expected string schema");
-      }
-      expect(spec.min).toBeUndefined();
-      expect(spec.max).toBeUndefined();
       expect(spec.description).toBeUndefined();
     });
 

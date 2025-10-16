@@ -12,14 +12,10 @@ export interface EnvVarSchemaDetails<TValue> {
 
 export interface StringEnvVarSchema extends EnvVarSchemaDetails<string> {
   type: "string";
-  min?: number;
-  max?: number;
 }
 
 export interface NumberEnvVarSchema extends EnvVarSchemaDetails<number> {
   type: "number";
-  min?: number;
-  max?: number;
 }
 
 export interface BooleanEnvVarSchema extends EnvVarSchemaDetails<boolean> {
