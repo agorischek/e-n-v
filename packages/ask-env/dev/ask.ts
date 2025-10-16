@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { askEnv } from "../src/askEnv";
+import { ask } from "../src/ask";
 
 import { join } from "desm";
 import { blue } from "picocolors";
@@ -19,4 +19,4 @@ const envMap: SchemaMap = {
 
 const path = join(import.meta.url, ".env");
 
-await askEnv(envMap, { path, theme: blue });
+await ask(envMap, { path, theme: blue });

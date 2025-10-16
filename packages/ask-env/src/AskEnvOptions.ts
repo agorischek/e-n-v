@@ -3,7 +3,7 @@ import type { EnvChannelOptions } from "./channels/EnvChannelOptions";
 import type { SecretPattern } from "./types";
 
 /**
- * Configuration options for the askEnv function
+ * Configuration options for the ask function
  */
 export type AskEnvOptions = {
   /**

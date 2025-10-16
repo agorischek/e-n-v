@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { askEnv } from "../src/askEnv";
+import { ask } from "../src/ask";
 import { APPLICATIONINSIGHTS_CONNECTION_STRING } from "../../zod-env-var-schemas/src";
 import dotenvx from "@dotenvx/dotenvx";
 
-await askEnv(
+await ask(
   {
     APPLICATIONINSIGHTS_CONNECTION_STRING,
   },

@@ -20,7 +20,7 @@ function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
  * @param schemas - Object mapping environment variable names to Zod schemas, or a ZodObject
  * @param options - Configuration options
  */
-export async function askEnv(
+export async function ask(
   schemas: SchemaMap,
   options: AskEnvOptions = {}
 ): Promise<void> {

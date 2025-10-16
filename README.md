@@ -27,7 +27,7 @@ bun add ask-env
 
 ```typescript
 import { z } from 'zod';
-import { askEnv } from 'ask-env';
+import { ask } from 'ask-env';
 
 const schemas = {
   DB_HOST: z.string().min(1, 'Database host is required'),
@@ -37,7 +37,7 @@ const schemas = {
 };
 
 // Run the interactive prompt
-await askEnv(schemas);
+await ask(schemas);
 ```
 
 This will:
@@ -49,7 +49,7 @@ This will:
 
 ## API
 
-### `askEnv(schemas, options?)`
+### `ask(schemas, options?)`
 
 **Parameters:**
 
@@ -75,7 +75,7 @@ Secret patterns default to common names like `PASSWORD`, `TOKEN`, `API_KEY`, and
 
 ```typescript
 import { z } from 'zod';
-import { askEnv } from 'ask-env';
+import { ask } from 'ask-env';
 
 const schemas = {
   API_KEY: z.string().min(1),
@@ -83,7 +83,7 @@ const schemas = {
   DEBUG: z.string().transform(val => val === 'true'),
 };
 
-await askEnv(schemas);
+await ask(schemas);
 ```
 
 ### Advanced Validation
@@ -112,7 +112,7 @@ const schemas = {
   ENABLE_CORS: z.string().default('true'),
 };
 
-await askEnv(schemas, {
+await ask(schemas, {
   path: "./config/.env",
   secretPatterns: [/^MY_APP_/i],
 });
@@ -121,7 +121,7 @@ await askEnv(schemas, {
 ### Custom Output Path
 
 ```typescript
-await askEnv(schemas, {
+await ask(schemas, {
   path: "./config/production.env",
 });
 ```

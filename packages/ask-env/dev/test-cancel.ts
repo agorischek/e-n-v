@@ -1,4 +1,4 @@
-import { askEnv } from "../src/askEnv";
+import { ask } from "../src/ask";
 import { z } from "zod";
 
 // Simple schema for testing cancellation
@@ -14,7 +14,7 @@ console.log("Instructions: Try cancelling with Ctrl+C on one of the prompts");
 console.log();
 
 try {
-  await askEnv(schemas, {
+  await ask(schemas, {
     path: ".env.test"
   });
 } catch (error) {

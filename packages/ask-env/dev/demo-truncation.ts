@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { askEnv } from "../src/askEnv";
+import { ask } from "../src/ask";
 
 const schemas = {
   DEMO_LONG_VALUE: z.string().optional(),
@@ -11,6 +11,6 @@ console.log("Enter a very long string for DEMO_LONG_VALUE to see truncation in a
 console.log("The default limit is 40 characters");
 console.log();
 
-await askEnv(schemas, {
+await ask(schemas, {
   path: ".env.demo-truncation"
 });

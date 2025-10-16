@@ -31,3 +31,24 @@ export type EnvVarSchema =
   | NumberEnvVarSchema
   | BooleanEnvVarSchema
   | EnumEnvVarSchema;
+
+export type EnvVarSpec = EnvVarSchema;
+
+const ENV_VAR_TYPES = new Set(["string", "number", "boolean", "enum"]);
+
+export function isEnvVarSchema(value: unknown): value is EnvVarSchema {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<EnvVarSchema> & { type?: unknown };
+  if (typeof candidate.type !== "string") {
+    return false;
+  }
+
+  if (!ENV_VAR_TYPES.has(candidate.type)) {
+    return false;
+  }
+
+  return typeof candidate.required === "boolean";
+}

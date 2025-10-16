@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { askEnv } from "../src/askEnv";
+import { ask } from "../src/ask";
 
 const schemas = {
   VERY_LONG_STRING: z.string().default("This is a very long default string that should definitely be truncated when displayed because it exceeds 40 characters"),
@@ -8,12 +8,12 @@ const schemas = {
 };
 
 console.log("Testing truncation with default 40 characters:");
-await askEnv(schemas, {
+await ask(schemas, {
   path: ".env.test-truncation"
 });
 
 console.log("\nTesting with custom 20 character limit:");
-await askEnv(schemas, {
+await ask(schemas, {
   path: ".env.test-truncation-20",
   truncate: 20
 });

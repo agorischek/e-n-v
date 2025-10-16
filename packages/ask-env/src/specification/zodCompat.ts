@@ -1,4 +1,4 @@
-import type { ZodTypeAny } from "zod";
+import { ZodType, type ZodTypeAny } from "zod";
 import type { $ZodType } from "zod/v4/core";
 import type { EnvVarType } from "./EnvVarType";
 
@@ -31,6 +31,36 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 export function isZodV4Schema(schema: unknown): schema is $ZodType {
   return Boolean(isRecord(schema) && "_zod" in schema);
+}
+
+export function isCompatibleZodSchema(value: unknown): value is CompatibleZodSchema {
+  if (!value) {
+    return false;
+  }
+
+  if (typeof ZodType === "function" && value instanceof ZodType) {
+    return true;
+  }
+
+  if (isZodV4Schema(value)) {
+    return true;
+  }
+
+  if (typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as {
+    _def?: unknown;
+    parse?: unknown;
+    safeParse?: unknown;
+  };
+
+  if (typeof candidate.parse === "function" || typeof candidate.safeParse === "function") {
+    return true;
+  }
+
+  return "_def" in candidate;
 }
 
 export function getSchemaDef(schema: CompatibleZodSchema): SchemaDef {

@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { askEnv } from "../src/askEnv";
+import { ask } from "../src/ask";
 import { DEFAULT_SECRET_PATTERNS } from "../src";
 
-await askEnv(
+await ask(
   {
     API_TOKEN: z.string().min(8, "API token must be at least 8 characters"),
     DATABASE_URL: z

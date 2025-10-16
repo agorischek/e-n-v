@@ -3,6 +3,8 @@ import type { Readable } from "node:stream";
 import * as color from "picocolors";
 import { createPrompt } from "../createPrompt";
 import { fromZodSchema } from "../specification/fromZodSchema";
+import { isEnvVarSchema } from "../specification/EnvVarSchema";
+import { isCompatibleZodSchema } from "../specification/zodCompat";
 import type { SecretPattern, SchemaMap } from "../types";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
 import { isSecretKey } from "../utils/secrets";
@@ -67,7 +69,7 @@ export class Session {
     let index = 0;
 
     while (index < this.schemaEntries.length) {
-      const [key, schema] = this.schemaEntries[index]!;
+  const [key, rawSchema] = this.schemaEntries[index]!;
 
       let addedLines = 0;
 
@@ -76,7 +78,11 @@ export class Session {
         addedLines++;
       }
 
-      const envVarSchema = fromZodSchema(schema);
+      const envVarSchema = isCompatibleZodSchema(rawSchema)
+        ? fromZodSchema(rawSchema)
+        : isEnvVarSchema(rawSchema)
+        ? rawSchema
+        : (rawSchema as ReturnType<typeof fromZodSchema>);
 
       const shouldMask =
         envVarSchema.type === "string" &&

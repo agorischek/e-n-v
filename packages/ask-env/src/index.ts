@@ -10,4 +10,4 @@ export * from "../../zod-env-var-schemas/src";
 
 export { DEFAULT_SECRET_PATTERNS } from "./constants";
 
-export { askEnv } from "./askEnv";
+export { ask } from "./ask";
