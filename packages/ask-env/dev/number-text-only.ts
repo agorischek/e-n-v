@@ -4,7 +4,6 @@ const prompt = new EnvNumberPrompt(
   {
     type: "number",
     required: true,
-    nullable: false,
     description: "Maximum number of concurrent connections",
   },
   {

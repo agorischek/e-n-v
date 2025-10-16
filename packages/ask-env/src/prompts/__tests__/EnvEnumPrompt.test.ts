@@ -10,7 +10,6 @@ type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
   required?: boolean;
   description?: string;
   validate?: EnumEnvVarSchema["validate"];
-  nullable?: boolean;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -20,9 +19,8 @@ function createPrompt(options: TestPromptOptions = {}) {
   const schema: EnumEnvVarSchema = {
     type: "enum",
     required: options.required ?? false,
-    nullable: options.nullable ?? false,
     description: options.description,
-    defaultValue: options.default,
+    preset: options.default,
     validate: options.validate,
     values,
   };

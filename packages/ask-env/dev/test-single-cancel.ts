@@ -8,7 +8,6 @@ const prompt = new EnvStringPrompt(
   {
     type: "string",
     required: true,
-    nullable: false,
     description: "A test value for cancellation",
   },
   {

@@ -4,9 +4,8 @@ const prompt = new EnvNumberPrompt(
   {
     type: "number",
     required: true,
-    nullable: false,
     description: "API server port (must be between 1024-65535)",
-    defaultValue: 8080,
+    preset: 8080,
     validate: (value) => {
       if (value === undefined) {
         return "Port is required";

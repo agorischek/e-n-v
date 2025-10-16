@@ -7,7 +7,6 @@ export type CompatibleZodSchema = ZodTypeAny | $ZodType;
 export type SchemaDef = Record<string, unknown> | undefined;
 
 const OPTIONAL_TAGS = new Set(["ZodOptional", "optional"]);
-const NULLABLE_TAGS = new Set(["ZodNullable", "nullable"]);
 const DEFAULT_TAGS = new Set(["ZodDefault", "default"]);
 const EFFECT_TAGS = new Set(["ZodEffects"]);
 const PIPE_TAGS = new Set(["ZodPipeline", "pipe"]);
@@ -17,7 +16,6 @@ const BRAND_TAGS = new Set(["ZodBranded", "brand"]);
 const PREFALT_TAGS = new Set(["ZodPrefault", "prefault"]);
 const WRAPPER_TAGS = new Set([
   ...OPTIONAL_TAGS,
-  ...NULLABLE_TAGS,
   ...DEFAULT_TAGS,
   ...EFFECT_TAGS,
   ...PIPE_TAGS,
@@ -167,16 +165,14 @@ export function getDefaultFromDef(def: SchemaDef): unknown {
 export interface PeeledSchemaResult {
   schema: CompatibleZodSchema;
   required: boolean;
-  nullable: boolean;
-  defaultValue: unknown;
+  preset: unknown;
   description?: string;
 }
 
 export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
   let current = schema;
   let required = true;
-  let nullable = false;
-  let defaultValue: unknown = undefined;
+  let preset: unknown = undefined;
   let description: string | undefined;
 
   // Unwrap common wrapper types until we reach a concrete schema.
@@ -200,13 +196,9 @@ export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
       required = false;
     }
 
-    if (NULLABLE_TAGS.has(typeTag)) {
-      nullable = true;
-    }
-
     if (DEFAULT_TAGS.has(typeTag) || PREFALT_TAGS.has(typeTag)) {
-      if (defaultValue === undefined) {
-        defaultValue = getDefaultFromDef(def);
+      if (preset === undefined) {
+        preset = getDefaultFromDef(def);
       }
     }
 
@@ -224,8 +216,7 @@ export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
   return {
     schema: current,
     required,
-    nullable,
-    defaultValue,
+    preset,
     description,
   };
 }

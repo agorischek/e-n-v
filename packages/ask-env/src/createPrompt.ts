@@ -50,9 +50,7 @@ export function createPrompt({
         current:
           currentValue !== undefined ? parseBoolean(currentValue) : undefined,
         default:
-          typeof schema.defaultValue === "boolean"
-            ? schema.defaultValue
-            : undefined,
+          typeof schema.preset === "boolean" ? schema.preset : undefined,
       });
     case "number":
       return new EnvNumberPrompt(schema, {
@@ -60,27 +58,21 @@ export function createPrompt({
         current:
           currentValue !== undefined ? parseFloat(currentValue) : undefined,
         default:
-          typeof schema.defaultValue === "number"
-            ? schema.defaultValue
-            : undefined,
+          typeof schema.preset === "number" ? schema.preset : undefined,
       });
     case "enum":
       return new EnvEnumPrompt(schema, {
         ...baseOptions,
         current: currentValue,
         default:
-          typeof schema.defaultValue === "string"
-            ? schema.defaultValue
-            : undefined,
+          typeof schema.preset === "string" ? schema.preset : undefined,
       });
     default:
       return new EnvStringPrompt(schema, {
         ...baseOptions,
         current: currentValue,
         default:
-          typeof schema.defaultValue === "string"
-            ? schema.defaultValue
-            : undefined,
+          typeof schema.preset === "string" ? schema.preset : undefined,
         secret: shouldMask,
       });
   }

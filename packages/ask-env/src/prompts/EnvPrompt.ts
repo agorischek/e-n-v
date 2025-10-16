@@ -40,7 +40,6 @@ export abstract class EnvPrompt<
 > extends ThemedPrompt<T> {
   protected readonly spec: TSpec;
   protected readonly required: boolean;
-  protected readonly nullable: boolean;
   protected key: string;
   protected current?: T;
   protected default?: T;
@@ -77,7 +76,6 @@ export abstract class EnvPrompt<
     super(opts);
     this.spec = spec;
     this.required = spec.required;
-    this.nullable = spec.nullable;
     // Disable base Prompt input tracking by default; subclasses toggle as needed
     this.track = false;
     this.outcome = "commit";

@@ -4,9 +4,8 @@ const prompt = new EnvBooleanPrompt(
   {
     type: "boolean",
     required: true,
-    nullable: false,
     description: "Enable the feature",
-    defaultValue: false,
+    preset: false,
   },
   {
     key: "IS_ENABLED",

@@ -18,7 +18,6 @@ function createPrompt(
     key?: string;
     description?: string;
     required?: boolean;
-    nullable?: boolean;
     validate?: (value: number | undefined) => string | Error | undefined;
   } = {}
 ) {
@@ -26,8 +25,7 @@ function createPrompt(
   const schema: NumberEnvVarSchema = {
     type: "number",
     required: options.required ?? false,
-    nullable: options.nullable ?? false,
-    defaultValue: options.default,
+    preset: options.default,
     description: options.description,
     validate: options.validate,
   };
@@ -38,7 +36,7 @@ function createPrompt(
     default:
       options.default !== undefined
         ? options.default
-        : (schema.defaultValue ?? undefined),
+        : (schema.preset ?? undefined),
     maxDisplayLength: options.maxDisplayLength,
     theme: options.theme,
     previousEnabled: options.previousEnabled,

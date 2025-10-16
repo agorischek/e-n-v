@@ -4,13 +4,11 @@ const prompt = new EnvNumberPrompt(
   {
     type: "number",
     required: true,
-    nullable: false,
     description: "Server port number",
-    defaultValue: 8080,
+    preset: 8080,
   },
   {
     key: "PORT",
-    current: 3000,
     default: 8080,
   }
 );

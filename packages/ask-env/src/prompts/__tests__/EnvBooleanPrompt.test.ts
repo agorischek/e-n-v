@@ -16,7 +16,6 @@ type TestPromptOptions = Partial<EnvPromptOptions<boolean>> & {
   description?: string;
   required?: boolean;
   validate?: BooleanEnvVarSchema["validate"];
-  nullable?: boolean;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -24,9 +23,8 @@ function createPrompt(options: TestPromptOptions = {}) {
   const schema: BooleanEnvVarSchema = {
     type: "boolean",
     required: options.required ?? false,
-    nullable: options.nullable ?? false,
     description: options.description,
-    defaultValue: options.default,
+    preset: options.default,
     validate: options.validate,
   };
 

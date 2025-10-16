@@ -35,10 +35,9 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
       const base = createBaseDetails<boolean>(schema, {
         type,
         required: peeled.required,
-        nullable: peeled.nullable,
-        defaultValue:
-          typeof peeled.defaultValue === "boolean"
-            ? peeled.defaultValue
+        preset:
+          typeof peeled.preset === "boolean"
+            ? peeled.preset
             : undefined,
         description: peeled.description,
       });
@@ -54,10 +53,9 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
       const base = createBaseDetails<number>(schema, {
         type,
         required: peeled.required,
-        nullable: peeled.nullable,
-        defaultValue:
-          typeof peeled.defaultValue === "number"
-            ? peeled.defaultValue
+        preset:
+          typeof peeled.preset === "number"
+            ? peeled.preset
             : undefined,
         description: peeled.description,
       });
@@ -70,16 +68,15 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
       return result;
     }
     case "enum": {
-      const defaultValue =
-        typeof peeled.defaultValue === "string"
-          ? peeled.defaultValue
+      const preset =
+        typeof peeled.preset === "string"
+          ? peeled.preset
           : undefined;
 
       const base = createBaseDetails<string>(schema, {
         type,
         required: peeled.required,
-        nullable: peeled.nullable,
-        defaultValue,
+        preset,
         description: peeled.description,
       });
 
@@ -93,16 +90,15 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
     }
     case "string":
     default: {
-      const defaultValue =
-        typeof peeled.defaultValue === "string" || peeled.defaultValue === null
-          ? (peeled.defaultValue as string | null | undefined)
+      const preset =
+        typeof peeled.preset === "string" || peeled.preset === null
+          ? (peeled.preset as string | null | undefined)
           : undefined;
 
       const base = createBaseDetails<string>(schema, {
         type: "string",
         required: peeled.required,
-        nullable: peeled.nullable,
-        defaultValue,
+        preset,
         description: peeled.description,
       });
 

@@ -4,8 +4,7 @@ import type { Validate } from "../vendor/PromptOptions";
 export interface EnvVarSchemaDetails<TValue> {
   type: EnvVarType;
   required: boolean;
-  nullable: boolean;
-  defaultValue?: TValue | null;
+  preset?: TValue | null;
   description?: string;
   validate?: Validate<TValue>;
 }
