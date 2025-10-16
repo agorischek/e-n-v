@@ -101,6 +101,28 @@ describe("EnvNumberPrompt", () => {
     await promptPromise;
   });
 
+  it("navigates to the custom option when only the schema default exists", async () => {
+    const { prompt } = createPrompt({ default: 7 });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    expect(prompt.cursor).toBe(0);
+    expect(prompt.value).toBe(7);
+
+    await pressKey(prompt, { name: "down" });
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.isTyping).toBe(false);
+    expect(prompt.value).toBe(0);
+
+    await pressKey(prompt, { name: "up" });
+    expect(prompt.cursor).toBe(0);
+    expect(prompt.value).toBe(7);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
   it("starts typing when printable characters are entered on a selection", async () => {
     const { prompt } = createPrompt({ current: 5, default: 6 });
     const promptPromise = prompt.prompt();
