@@ -10,7 +10,6 @@ const prompt = new EnvStringPrompt(
   {
     key: "SERVICE_URL",
     current: "awesome",
-    default: "cool",
   }
 );
 

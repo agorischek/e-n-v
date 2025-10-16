@@ -34,10 +34,6 @@ function createPrompt(
   const prompt = new EnvStringPrompt(schema, {
     key: options.key ?? "TEST_ENV",
     current: options.current,
-    default:
-      options.default !== undefined
-        ? options.default
-        : (schema.default ?? undefined),
     maxDisplayLength: options.maxDisplayLength,
     secret: options.secret,
     mask: options.mask,

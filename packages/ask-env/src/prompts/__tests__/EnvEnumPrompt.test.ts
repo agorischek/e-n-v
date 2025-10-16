@@ -28,7 +28,6 @@ function createPrompt(options: TestPromptOptions = {}) {
   const prompt = new EnvEnumPrompt(schema, {
     key: options.key ?? "TEST_ENV",
     current: options.current,
-    default: options.default,
     theme: options.theme,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,

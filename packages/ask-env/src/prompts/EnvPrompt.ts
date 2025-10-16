@@ -34,6 +34,26 @@ export interface EnvPromptOptions<T> {
   output?: Writable;
 }
 
+function resolveDefaultFromSpec<T>(spec: EnvVarSchemaDetails<T>): T | undefined {
+  switch (spec.type) {
+    case "boolean":
+      return typeof spec.default === "boolean"
+        ? (spec.default as T)
+        : undefined;
+    case "number":
+      return typeof spec.default === "number"
+        ? (spec.default as T)
+        : undefined;
+    case "enum":
+    case "string":
+      return typeof spec.default === "string"
+        ? (spec.default as T)
+        : undefined;
+    default:
+      return undefined;
+  }
+}
+
 export abstract class EnvPrompt<
   T,
   TSpec extends EnvVarSchemaDetails<T> = EnvVarSchemaDetails<T>
@@ -73,25 +93,33 @@ export abstract class EnvPrompt<
     spec: TSpec,
     opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>
   ) {
-    super(opts);
+    const resolvedDefault =
+      opts.default !== undefined ? opts.default : resolveDefaultFromSpec(spec);
+
+    const promptOptions = {
+      ...opts,
+      default: resolvedDefault,
+    } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>;
+
+    super(promptOptions);
     this.spec = spec;
     this.required = spec.required;
     // Disable base Prompt input tracking by default; subclasses toggle as needed
     this.track = false;
     this.outcome = "commit";
-    this.key = opts.key;
-    this.current = opts.current;
-    this.default = opts.default;
-    this.maxDisplayLength = opts.maxDisplayLength ?? 40;
-    this.secret = Boolean(opts.secret);
-    this.mask = opts.mask ?? SECRET_MASK;
+    this.key = promptOptions.key;
+    this.current = promptOptions.current;
+    this.default = promptOptions.default;
+    this.maxDisplayLength = promptOptions.maxDisplayLength ?? 40;
+    this.secret = Boolean(promptOptions.secret);
+    this.mask = promptOptions.mask ?? SECRET_MASK;
     this.revealSecret = false;
-    this.secretToggleShortcut = opts.secretToggleShortcut ?? "Ctrl+R";
+    this.secretToggleShortcut = promptOptions.secretToggleShortcut ?? "Ctrl+R";
     this.optionMode = false;
     this.optionCursor = 0;
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
-    this.previousEnabled = opts.previousEnabled ?? true;
+    this.previousEnabled = promptOptions.previousEnabled ?? true;
     this.customValidate = spec.validate;
     this.skipValidationFlag = false;
 

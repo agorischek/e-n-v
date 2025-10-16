@@ -12,6 +12,7 @@
     "@stryker-mutator/core": "^9.2.0",
     "@types/bun": "latest",
     "desm": "^1.3.1",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "^5"
@@ -21,5 +22,8 @@
   },
   "scripts": {
     "test": "bun test"
+  },
+  "dependencies": {
+    "bun-types": "^1.3.0"
   }
 }

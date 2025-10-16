@@ -31,7 +31,6 @@ function createPrompt(options: TestPromptOptions = {}) {
   const prompt = new EnvBooleanPrompt(schema, {
     key: options.key ?? "BOOL_ENV",
     current: options.current,
-    default: options.default,
     theme: options.theme,
     previousEnabled: options.previousEnabled,
     input: options.input ?? streams.input,

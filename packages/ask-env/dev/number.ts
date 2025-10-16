@@ -9,7 +9,6 @@ const prompt = new EnvNumberPrompt(
   },
   {
     key: "PORT",
-    default: 8080,
   }
 );
 
