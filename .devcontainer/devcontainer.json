@@ -1,0 +1,7 @@
+{
+  "name": "ask-env",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "bun install"
+}
