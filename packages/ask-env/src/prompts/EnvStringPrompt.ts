@@ -56,7 +56,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             } else {
               const idleDisplay = dimInputs
                 ? this.colors.dim(this.getInputDisplay(false))
-                : this.colors.white(S_CURSOR);
+                : this.colors.white(this.getInputDisplay(true));
               output += `${this.getBar()}  ${idleDisplay}`;
             }
 
@@ -110,11 +110,11 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
                   : this.colors.white(this.getInputDisplay(true));
                 output += `${this.getBar()}  ${circle} ${displayText}\n`;
               } else if (isSelected) {
-                // Show cursor immediately when selected, even before typing
-                const selectedDisplay = dimInputs
-                  ? this.colors.dim(option)
-                  : this.colors.white(S_CURSOR);
-                output += `${this.getBar()}  ${circle} ${selectedDisplay}\n`;
+                if (dimInputs) {
+                  output += `${this.getBar()}  ${circle} ${this.colors.dim(option)}\n`;
+                } else {
+                  output += `${this.getBar()}  ${circle} ${this.colors.white(this.getInputDisplay(true))}\n`;
+                }
               } else {
                 // "Other" is gray when not selected
                 const text = dimInputs
@@ -495,11 +495,30 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
   private getInputDisplay(includeCursor: boolean): string {
     const inputValue = this.userInput ?? "";
-    const base =
-      this.secret && inputValue && !this.isSecretRevealed()
-        ? this.maskValue(inputValue)
-        : inputValue;
-    return includeCursor ? `${base}${S_CURSOR}` : base;
+    const isMasked =
+      this.secret && inputValue && !this.isSecretRevealed();
+    const base = isMasked ? this.maskValue(inputValue) : inputValue;
+
+    if (!includeCursor) {
+      return base;
+    }
+
+    const rawCursor = this.isTyping
+      ? Math.max(0, (this as unknown as { _cursor?: number })._cursor ?? inputValue.length)
+      : 0;
+    const maskLength = isMasked ? Math.max(1, this.mask.length) : 1;
+    const cursorIndex = Math.min(rawCursor * maskLength, base.length);
+
+    if (cursorIndex >= base.length) {
+      return `${base}${S_CURSOR}`;
+    }
+
+    const segmentLength = maskLength;
+    const before = base.slice(0, cursorIndex);
+    const cursorSegment = base.slice(cursorIndex, cursorIndex + segmentLength) || " ";
+    const after = base.slice(cursorIndex + segmentLength);
+
+    return `${before}${this.colors.inverse(cursorSegment)}${after}`;
   }
 
   private getEntryHint(): string {

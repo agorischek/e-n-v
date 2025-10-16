@@ -78,6 +78,7 @@ export abstract class ThemedPrompt<T> extends Prompt<T> {
       white: color.white,
       bold: color.bold,
       dim: color.dim,
+      inverse: color.inverse,
       strikethrough: color.strikethrough,
     };
   }

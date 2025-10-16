@@ -47,18 +47,16 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
           // If both current and default are undefined, show only text input
           if (this.current === undefined && this.default === undefined) {
-            const typedValue = this.userInput ?? "";
-
             if (this.isTyping) {
               const displayText = dimInputs
-                ? this.colors.dim(typedValue)
-                : this.colors.white(`${typedValue}${S_CURSOR}`);
+                ? this.colors.dim(this.getInputDisplay(false))
+                : this.colors.white(this.getInputDisplay(true));
               output += `${this.getBar()}  ${displayText}`;
             } else {
-              const cursorDisplay = dimInputs
-                ? this.colors.dim(typedValue)
-                : this.colors.white(S_CURSOR);
-              output += `${this.getBar()}  ${cursorDisplay}`;
+              const idleDisplay = dimInputs
+                ? this.colors.dim(this.getInputDisplay(false))
+                : this.colors.white(this.getInputDisplay(true));
+              output += `${this.getBar()}  ${idleDisplay}`;
             }
 
             // Add validation output or placeholder text with L-shaped pipe
@@ -106,17 +104,16 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
             if (typeof option === "string") {
               // "Other" option
               if (this.isTyping) {
-                const typedValue = this.userInput ?? "";
                 const displayText = dimInputs
-                  ? this.colors.dim(typedValue)
-                  : this.colors.white(`${typedValue}${S_CURSOR}`);
+                  ? this.colors.dim(this.getInputDisplay(false))
+                  : this.colors.white(this.getInputDisplay(true));
                 output += `${this.getBar()}  ${circle} ${displayText}\n`;
               } else if (isSelected) {
-                // Show cursor immediately when selected, even before typing
-                const selectedDisplay = dimInputs
-                  ? this.colors.dim(option)
-                  : this.colors.white(S_CURSOR);
-                output += `${this.getBar()}  ${circle} ${selectedDisplay}\n`;
+                if (dimInputs) {
+                  output += `${this.getBar()}  ${circle} ${this.colors.dim(option)}\n`;
+                } else {
+                  output += `${this.getBar()}  ${circle} ${this.colors.white(this.getInputDisplay(true))}\n`;
+                }
               } else {
                 // "Other" is gray when not selected
                 const text = dimInputs
@@ -392,6 +389,28 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         }
       }
     });
+  }
+
+  private getInputDisplay(includeCursor: boolean): string {
+    const inputValue = this.userInput ?? "";
+    if (!includeCursor) {
+      return inputValue;
+    }
+
+    const rawCursor = this.isTyping
+      ? Math.max(0, (this as unknown as { _cursor?: number })._cursor ?? inputValue.length)
+      : 0;
+    const cursorIndex = Math.min(rawCursor, inputValue.length);
+
+    if (cursorIndex >= inputValue.length) {
+      return `${inputValue}${S_CURSOR}`;
+    }
+
+    const before = inputValue.slice(0, cursorIndex);
+    const cursorChar = inputValue.charAt(cursorIndex) || " ";
+    const after = inputValue.slice(cursorIndex + 1);
+
+    return `${before}${this.colors.inverse(cursorChar)}${after}`;
   }
 
   private updateValue() {
