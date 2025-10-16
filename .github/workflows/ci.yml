@@ -22,7 +22,7 @@ jobs:
         run: bun run lint
 
       - name: Check types
-        run: bun run compile
+        run: bun run check:types
 
       - name: Check formatting
         run: bun run check:format
