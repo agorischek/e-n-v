@@ -1,5 +1,5 @@
 {
-  "name": "zod-env-var-schemas",
+  "name": "env-var-schemas",
   "module": "./src/index.ts",
   "exports": {
     ".": {

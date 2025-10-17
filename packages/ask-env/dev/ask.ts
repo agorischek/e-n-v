@@ -4,7 +4,7 @@ import { ask } from "../src/ask";
 import { join } from "desm";
 import { blue } from "picocolors";
 import type { SchemaMap } from "../src/types";
-import { DATABASE_PASSWORD, RABBITMQ_URL } from "../../zod-env-var-schemas/src";
+import { DATABASE_PASSWORD, RABBITMQ_URL } from "../../env-var-schemas/src";
 
 const envMap: SchemaMap = {
   DATABASE_PASSWORD,
