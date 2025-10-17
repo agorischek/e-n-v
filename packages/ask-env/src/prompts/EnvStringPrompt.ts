@@ -5,6 +5,7 @@ import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import { maskSecretValue } from "../utils/secrets";
 import type { StringEnvVarSchema } from "../specification/EnvVarSchema";
+import { padActiveRender } from "./utils/padActiveRender";
 
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   cursor = 0;
@@ -15,7 +16,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       schema,
       {
         ...opts,
-        render: function (this: EnvStringPrompt) {
+        render: padActiveRender(function (this: EnvStringPrompt) {
           if (this.state === "submit") {
             const outcomeResult = this.renderOutcomeResult();
             if (outcomeResult) {
@@ -145,7 +146,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
 
           return output;
-        },
+  }),
         validate: (value: string | undefined) => {
           if (this.consumeSkipValidation()) {
             return undefined;

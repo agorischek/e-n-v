@@ -1,12 +1,10 @@
 import { z } from "zod";
 import { ask } from "../src/ask";
 
-import { join } from "desm";
-import { blue } from "picocolors";
-import type { SchemaMap } from "../src/types";
+import type { EnvVarSchemaMap } from "../src/types";
 import { DATABASE_PASSWORD, RABBITMQ_URL } from "../../env-var-schemas/src";
 
-const envMap: SchemaMap = {
+const vars: EnvVarSchemaMap = {
   DATABASE_PASSWORD,
   RABBITMQ_URL,
   DATABASE_URL: z.string().describe("Database connection URL").default("hey"),
@@ -17,6 +15,4 @@ const envMap: SchemaMap = {
   MAX_CONNECTIONS: z.number().optional(),
 };
 
-const path = join(import.meta.url, ".env");
-
-await ask(envMap, { path, theme: blue });
+await ask(vars, { path: ".env", root: import.meta.url });

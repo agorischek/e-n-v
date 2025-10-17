@@ -8,7 +8,7 @@ import {
   type EnvVarSchema,
 } from "../specification/EnvVarSchema";
 import { isCompatibleZodSchema } from "../specification/zodCompat";
-import type { SecretPattern, SchemaMap } from "../types";
+import type { SecretPattern, EnvVarSchemaMap } from "../types";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
 import { isSecretKey } from "../utils/secrets";
 import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";
@@ -36,7 +36,7 @@ export function resolveShouldMask(
 }
 
 export interface SessionOptions {
-  schemas: SchemaMap;
+  schemas: EnvVarSchemaMap;
   channel: EnvChannel;
   secrets: readonly SecretPattern[];
   truncate: number;
@@ -47,7 +47,7 @@ export interface SessionOptions {
 }
 
 export class Session {
-  private readonly schemaEntries: Array<[string, SchemaMap[keyof SchemaMap]]>;
+  private readonly schemaEntries: Array<[string, EnvVarSchemaMap[keyof EnvVarSchemaMap]]>;
   private readonly newValues: Record<string, string> = {};
   private readonly promptLineHistory: number[] = [];
   private readonly channel: EnvChannel;
@@ -132,7 +132,7 @@ export class Session {
       ) {
         this.output.write(`${color.red("│")}  \n`);
         this.output.write(
-          `${color.red("└")}  ${color.red("Setup cancelled.")}\n\n`
+          `${color.red("└")}  ${color.red("Setup cancelled")}\n\n`
         );
         return "cancelled";
       }
@@ -164,7 +164,7 @@ export class Session {
         this.output.write(
           `${color.gray(S_BAR_END)}  ${color.red(
             `Failed to save ${key}: ${error}`
-          )}\n\n`
+          )}\n`
         );
         return "error";
       }
@@ -173,7 +173,7 @@ export class Session {
     }
 
     this.output.write(
-      `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  Setup complete\n\n`
+      `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  ${this.theme.primary("Setup complete")}\n\n`
     );
 
     return "success";

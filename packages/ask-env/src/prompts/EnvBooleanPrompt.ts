@@ -4,6 +4,7 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import type { BooleanEnvVarSchema } from "../specification/EnvVarSchema";
+import { padActiveRender } from "./utils/padActiveRender";
 
 export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
@@ -13,7 +14,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
       schema,
       {
         ...opts,
-        render: function (this: EnvBooleanPrompt) {
+        render: padActiveRender(function (this: EnvBooleanPrompt) {
           if (this.state === "submit") {
             const outcomeResult = this.renderOutcomeResult();
             if (outcomeResult) {
@@ -94,7 +95,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           output += `${this.getBarEnd()}  ${this.renderFooter()}`;
 
           return output;
-        },
+  }),
         validate: (value: boolean | undefined) => {
           if (this.consumeSkipValidation()) {
             return undefined;
