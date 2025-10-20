@@ -22,7 +22,7 @@ export type PromptFlowResult = "success" | "cancelled" | "error";
 export function resolveShouldMask(
   key: string,
   schema: EnvVarSchema,
-  patterns: ReadonlyArray<SecretPattern>
+  patterns: ReadonlyArray<SecretPattern>,
 ): boolean {
   if (schema.type !== "string") {
     return false;
@@ -88,7 +88,7 @@ export class Session {
     let index = 0;
 
     while (index < this.schemaEntries.length) {
-  const [key, rawSchema] = this.schemaEntries[index]!;
+      const [key, rawSchema] = this.schemaEntries[index]!;
 
       let addedLines = 0;
 
@@ -100,8 +100,8 @@ export class Session {
       const envVarSchema = isCompatibleZodSchema(rawSchema)
         ? fromZodSchema(rawSchema)
         : isEnvVarSchema(rawSchema)
-        ? rawSchema
-        : (rawSchema as ReturnType<typeof fromZodSchema>);
+          ? rawSchema
+          : (rawSchema as ReturnType<typeof fromZodSchema>);
 
       const shouldMask = resolveShouldMask(key, envVarSchema, this.secrets);
 
@@ -132,7 +132,7 @@ export class Session {
       ) {
         this.output.write(`${color.red("│")}  \n`);
         this.output.write(
-          `${color.red("└")}  ${color.red("Setup cancelled.")}\n\n`
+          `${color.red("└")}  ${color.red("Setup cancelled.")}\n\n`,
         );
         return "cancelled";
       }
@@ -163,8 +163,8 @@ export class Session {
       } catch (error) {
         this.output.write(
           `${color.gray(S_BAR_END)}  ${color.red(
-            `Failed to save ${key}: ${error}`
-          )}\n\n`
+            `Failed to save ${key}: ${error}`,
+          )}\n\n`,
         );
         return "error";
       }
@@ -173,7 +173,7 @@ export class Session {
     }
 
     this.output.write(
-      `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  Setup complete\n\n`
+      `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  Setup complete\n\n`,
     );
 
     return "success";
@@ -181,7 +181,7 @@ export class Session {
 }
 
 export async function runPromptFlow(
-  options: SessionOptions
+  options: SessionOptions,
 ): Promise<PromptFlowResult> {
   const session = Session.fromOptions(options);
   return session.run();

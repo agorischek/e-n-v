@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { descriptions, messages, defaults, patterns } from "../shared/infrastructure";
+import {
+  descriptions,
+  messages,
+  defaults,
+  patterns,
+} from "../shared/infrastructure";
 
 export const kubernetesNamespace = () =>
   z

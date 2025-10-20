@@ -19,7 +19,10 @@ export function validateKey(key: string): string {
   return trimmed;
 }
 
-export function parseAssignmentEndingAt(lines: string[], endIndex: number): ParsedAssignment | null {
+export function parseAssignmentEndingAt(
+  lines: string[],
+  endIndex: number,
+): ParsedAssignment | null {
   const lastLine = lines[endIndex];
   if (typeof lastLine !== "string" || isSkippableLine(lastLine)) {
     return null;
@@ -67,11 +70,14 @@ export function containsAssignmentOperator(line: string): boolean {
   }
 
   const commentIndex = trimmed.indexOf("#");
-  const inspect = commentIndex === -1 ? trimmed : trimmed.slice(0, commentIndex);
+  const inspect =
+    commentIndex === -1 ? trimmed : trimmed.slice(0, commentIndex);
   return inspect.includes("=");
 }
 
-export function tryParseAssignmentBlock(blockLines: string[]): Omit<ParsedAssignment, "startIndex" | "endIndex"> | null {
+export function tryParseAssignmentBlock(
+  blockLines: string[],
+): Omit<ParsedAssignment, "startIndex" | "endIndex"> | null {
   if (blockLines.length === 0) {
     return null;
   }
@@ -129,7 +135,9 @@ export function tryParseAssignmentBlock(blockLines: string[]): Omit<ParsedAssign
   };
 }
 
-export function parseValueSource(source: string): { value: string; trailing: string } | null {
+export function parseValueSource(
+  source: string,
+): { value: string; trailing: string } | null {
   if (source.length === 0) {
     return { value: "", trailing: "" };
   }
@@ -150,11 +158,14 @@ export function parseValueSource(source: string): { value: string; trailing: str
 
   const commentIndex = source.indexOf(" #");
   const raw = commentIndex === -1 ? source : source.slice(0, commentIndex);
-  const trailing = commentIndex === -1 ? source.slice(raw.length) : source.slice(commentIndex);
+  const trailing =
+    commentIndex === -1 ? source.slice(raw.length) : source.slice(commentIndex);
   return { value: raw.trim(), trailing };
 }
 
-export function parseDoubleQuotedValue(source: string): { value: string; trailing: string } | null {
+export function parseDoubleQuotedValue(
+  source: string,
+): { value: string; trailing: string } | null {
   let value = "";
   let escaping = false;
 
@@ -207,7 +218,9 @@ export function parseDoubleQuotedValue(source: string): { value: string; trailin
   return null;
 }
 
-export function parseSingleQuotedValue(source: string): { value: string; trailing: string } | null {
+export function parseSingleQuotedValue(
+  source: string,
+): { value: string; trailing: string } | null {
   let value = "";
 
   for (let i = 1; i < source.length; i += 1) {

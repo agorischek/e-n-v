@@ -11,7 +11,9 @@ export const oauthClientSecret = () =>
   z
     .string()
     .describe(descriptions.clientSecret)
-    .min(constraints.clientSecretMinLength, { error: messages.clientSecretMinLength });
+    .min(constraints.clientSecretMinLength, {
+      error: messages.clientSecretMinLength,
+    });
 
 export const oauthRedirectUri = () =>
   z

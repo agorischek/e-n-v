@@ -19,7 +19,7 @@ function createPrompt(
     description?: string;
     required?: boolean;
     validate?: (value: number | undefined) => string | Error | undefined;
-  } = {}
+  } = {},
 ) {
   const streams = createTestStreams();
   const schema: NumberEnvVarSchema = {
@@ -47,7 +47,7 @@ const ESC = String.fromCharCode(0x1b);
 const CSI = String.fromCharCode(0x9b);
 const STRIP_ANSI = new RegExp(
   `[${ESC}${CSI}][[\\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]`,
-  "g"
+  "g",
 );
 const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
 

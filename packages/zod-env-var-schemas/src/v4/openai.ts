@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { constraints, defaults, descriptions, messages, patterns } from "../shared/openai";
+import {
+  constraints,
+  defaults,
+  descriptions,
+  messages,
+  patterns,
+} from "../shared/openai";
 
 export const openaiApiKey = () =>
   z

@@ -3,7 +3,11 @@ import { dirname, resolve } from "node:path";
 
 import { get } from "./get.ts";
 import { set } from "./set.ts";
-import type { EnvPrimitiveValue, EnvRecord, EnvSelectionRecord } from "./types.ts";
+import type {
+  EnvPrimitiveValue,
+  EnvRecord,
+  EnvSelectionRecord,
+} from "./types.ts";
 
 export class EnvSource {
   private readonly filePath: string;
@@ -14,8 +18,12 @@ export class EnvSource {
 
   async read(): Promise<EnvRecord>;
   async read(name: string): Promise<string | undefined>;
-  async read<const Names extends readonly string[]>(names: Names): Promise<EnvSelectionRecord<Names>>;
-  async read(arg?: string | readonly string[]): Promise<
+  async read<const Names extends readonly string[]>(
+    names: Names,
+  ): Promise<EnvSelectionRecord<Names>>;
+  async read(
+    arg?: string | readonly string[],
+  ): Promise<
     EnvRecord | string | undefined | Record<string, string | undefined>
   > {
     const content = await this.readContent();
@@ -33,7 +41,10 @@ export class EnvSource {
 
   async write(name: string, value: EnvPrimitiveValue): Promise<void>;
   async write(values: Record<string, EnvPrimitiveValue>): Promise<void>;
-  async write(arg: string | Record<string, EnvPrimitiveValue>, value?: EnvPrimitiveValue): Promise<void> {
+  async write(
+    arg: string | Record<string, EnvPrimitiveValue>,
+    value?: EnvPrimitiveValue,
+  ): Promise<void> {
     const originalContent = await this.readContent();
 
     let nextContent: string;

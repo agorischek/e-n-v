@@ -17,14 +17,14 @@ describe("resolveShouldMask", () => {
       secret: false,
     };
     expect(resolveShouldMask("API_SECRET", nonSecretSchema, [/secret/i])).toBe(
-      false
+      false,
     );
   });
 
   it("falls back to pattern match when schema secret is undefined", () => {
-    expect(resolveShouldMask("SOME_TOKEN", BASE_STRING_SCHEMA, [/token/i])).toBe(
-      true
-    );
+    expect(
+      resolveShouldMask("SOME_TOKEN", BASE_STRING_SCHEMA, [/token/i]),
+    ).toBe(true);
   });
 
   it("returns false for non-string schemas", () => {
@@ -33,7 +33,7 @@ describe("resolveShouldMask", () => {
       required: true,
     };
     expect(resolveShouldMask("NUM_SECRET", numberSchema, [/secret/i])).toBe(
-      false
+      false,
     );
   });
 });

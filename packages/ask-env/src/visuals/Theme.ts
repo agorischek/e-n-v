@@ -4,7 +4,7 @@ export type ColorFunction = (text: string) => string;
 
 export class Theme {
   public static default = new Theme(color.magenta);
-  
+
   primary: ColorFunction;
   bgPrimary: ColorFunction;
   subtle: ColorFunction;
@@ -12,7 +12,7 @@ export class Theme {
   bgWarn: ColorFunction;
   error: ColorFunction;
   bgError: ColorFunction;
-  
+
   constructor(main: ColorFunction) {
     this.primary = main;
     this.bgPrimary = this.getBackgroundColor(main);
@@ -43,7 +43,7 @@ export class Theme {
     if (colorFn === color.magentaBright) return color.bgMagentaBright;
     if (colorFn === color.cyanBright) return color.bgCyanBright;
     if (colorFn === color.whiteBright) return color.bgWhiteBright;
-    
+
     // Fallback to a neutral background
     return color.bgBlack;
   }

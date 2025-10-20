@@ -8,7 +8,7 @@ const prompt = new EnvNumberPrompt(
   },
   {
     key: "MAX_CONNECTIONS",
-  }
+  },
 );
 
 const result = await prompt.prompt();

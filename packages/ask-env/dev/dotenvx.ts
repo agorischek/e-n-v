@@ -9,5 +9,5 @@ await ask(
   {
     path: ".env.x",
     channel: dotenvx,
-  }
+  },
 );

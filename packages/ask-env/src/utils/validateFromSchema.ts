@@ -24,15 +24,17 @@ type SafeParseResult =
 
 function safeParseCompat(
   schema: CompatibleZodSchema,
-  value: unknown
+  value: unknown,
 ): SafeParseResult {
   if (isZodV4Schema(schema)) {
     return z4core.safeParse(schema, value) as SafeParseResult;
   }
 
-  const maybeSafeParse = (schema as {
-    safeParse?: (input: unknown) => SafeParseResult;
-  }).safeParse;
+  const maybeSafeParse = (
+    schema as {
+      safeParse?: (input: unknown) => SafeParseResult;
+    }
+  ).safeParse;
 
   if (typeof maybeSafeParse === "function") {
     return maybeSafeParse.call(schema, value);
@@ -40,6 +42,6 @@ function safeParseCompat(
 
   return z4core.safeParse(
     schema as unknown as z4core.$ZodType,
-    value
+    value,
   ) as SafeParseResult;
 }

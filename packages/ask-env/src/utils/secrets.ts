@@ -3,7 +3,7 @@ import { SECRET_MASK } from "../visuals/symbols";
 
 function isSecretMatch(
   value: string | undefined,
-  pattern: SecretPattern
+  pattern: SecretPattern,
 ): boolean {
   if (!value) {
     return false;
@@ -26,7 +26,7 @@ function isSecretMatch(
 export function isSecretKey(
   key: string,
   description: string | undefined,
-  patterns: ReadonlyArray<SecretPattern>
+  patterns: ReadonlyArray<SecretPattern>,
 ): boolean {
   if (patterns.length === 0) {
     return false;
@@ -43,7 +43,7 @@ export function isSecretKey(
 
 export function maskSecretValue(
   value: string,
-  maskChar: string = SECRET_MASK
+  maskChar: string = SECRET_MASK,
 ): string {
   if (!value) {
     return value;

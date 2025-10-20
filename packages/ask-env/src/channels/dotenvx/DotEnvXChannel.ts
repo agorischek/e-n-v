@@ -25,7 +25,7 @@ export class DotEnvXChannel implements EnvChannel {
     dotenvx: DotEnvXInstance,
     defaultPath: string = ".env",
     getOptions: DotEnvXGetOptions = {},
-    setOptions: DotEnvXSetOptions = {}
+    setOptions: DotEnvXSetOptions = {},
   ) {
     this.dotenvx = dotenvx;
     this.defaultPath = defaultPath;

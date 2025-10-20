@@ -1,8 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  maskSecretValue,
-  isSecretKey,
-} from "../utils/secrets";
+import { maskSecretValue, isSecretKey } from "../utils/secrets";
 import { SECRET_MASK } from "../visuals/symbols";
 import { SECRET_PATTERNS } from "../defaults";
 
@@ -16,12 +13,8 @@ describe("secret utilities", () => {
   });
 
   it("detects secrets by key using default patterns", () => {
-    expect(isSecretKey("API_KEY", undefined, SECRET_PATTERNS)).toBe(
-      true
-    );
-    expect(isSecretKey("PUBLIC_URL", undefined, SECRET_PATTERNS)).toBe(
-      false
-    );
+    expect(isSecretKey("API_KEY", undefined, SECRET_PATTERNS)).toBe(true);
+    expect(isSecretKey("PUBLIC_URL", undefined, SECRET_PATTERNS)).toBe(false);
   });
 
   it("detects secrets based on descriptions", () => {
@@ -29,8 +22,8 @@ describe("secret utilities", () => {
       isSecretKey(
         "SOME_VALUE",
         "Used as the OAuth client secret",
-        SECRET_PATTERNS
-      )
+        SECRET_PATTERNS,
+      ),
     ).toBe(true);
   });
 

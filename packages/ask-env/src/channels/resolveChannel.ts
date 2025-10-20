@@ -9,9 +9,12 @@ import { DotEnvXChannel } from "./dotenvx/DotEnvXChannel";
 /**
  * Create a DotEnvX channel with the given configuration
  */
-function createDotEnvXChannel(config: DotEnvXChannelConfig, defaultPath: string): EnvChannel {
+function createDotEnvXChannel(
+  config: DotEnvXChannelConfig,
+  defaultPath: string,
+): EnvChannel {
   const { dotenvx, get: getOptions = {}, set: setOptions = {} } = config;
-  
+
   if (!dotenvx) {
     throw new Error("DotEnvX instance is required for dotenvx channel");
   }
@@ -22,7 +25,10 @@ function createDotEnvXChannel(config: DotEnvXChannelConfig, defaultPath: string)
 /**
  * Create a default channel with the given configuration
  */
-function createDefaultChannel(config: DefaultChannelConfig, defaultPath: string): EnvChannel {
+function createDefaultChannel(
+  config: DefaultChannelConfig,
+  defaultPath: string,
+): EnvChannel {
   return new DefaultEnvChannel(defaultPath);
 }
 
@@ -32,7 +38,10 @@ function createDefaultChannel(config: DefaultChannelConfig, defaultPath: string)
  * @param defaultPath - Default path to use for env files (default: ".env")
  * @returns An EnvChannel instance
  */
-export function resolveChannel(options: EnvChannelOptions, defaultPath = ".env"): EnvChannel {
+export function resolveChannel(
+  options: EnvChannelOptions,
+  defaultPath = ".env",
+): EnvChannel {
   // undefined or "default" string -> use default channel
   if (options === undefined || options === "default") {
     return new DefaultEnvChannel(defaultPath);
@@ -44,15 +53,25 @@ export function resolveChannel(options: EnvChannelOptions, defaultPath = ".env")
       return createDotEnvXChannel(options as DotEnvXChannelConfig, defaultPath);
     } else if ("name" in options) {
       if (options.name === "default") {
-        return createDefaultChannel(options as DefaultChannelConfig, defaultPath);
+        return createDefaultChannel(
+          options as DefaultChannelConfig,
+          defaultPath,
+        );
       } else {
-        throw new Error(`Unknown channel name: ${(options as { name: unknown }).name}`);
+        throw new Error(
+          `Unknown channel name: ${(options as { name: unknown }).name}`,
+        );
       }
     }
   }
 
   // Assume it's a dotenvx singleton import
-  if (typeof options === "object" && options !== null && typeof options.get === "function" && typeof options.set === "function") {
+  if (
+    typeof options === "object" &&
+    options !== null &&
+    typeof options.get === "function" &&
+    typeof options.set === "function"
+  ) {
     return new DotEnvXChannel(options as DotEnvXInstance, defaultPath, {}, {});
   }
 

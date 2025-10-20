@@ -18,7 +18,7 @@ export const cors = () =>
           }
         });
       },
-      { error: messages.corsOriginInvalid }
+      { error: messages.corsOriginInvalid },
     );
 
 export const CORS_ORIGIN = cors();

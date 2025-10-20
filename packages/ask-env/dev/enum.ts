@@ -10,7 +10,7 @@ const prompt = new EnvEnumPrompt(
   },
   {
     key: "NODE_ENV",
-  }
+  },
 );
 
 await prompt.prompt();

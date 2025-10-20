@@ -9,7 +9,9 @@ export class TestWritable extends Writable {
     encoding: BufferEncoding,
     callback: (error?: Error | null) => void,
   ): void {
-    this.writes.push(typeof chunk === "string" ? chunk : Buffer.from(chunk, encoding));
+    this.writes.push(
+      typeof chunk === "string" ? chunk : Buffer.from(chunk, encoding),
+    );
     callback();
   }
 }
@@ -29,7 +31,7 @@ export const baseKey = (partial: Partial<Key>): Key =>
     sequence: undefined,
     code: undefined,
     ...partial,
-  } as Key);
+  }) as Key;
 
 export async function waitForIO(ticks = 1): Promise<void> {
   for (let index = 0; index < ticks; index++) {
@@ -44,17 +46,12 @@ export function emitKey(
 ): void {
   const key = baseKey(options);
   const input = (prompt as { input: Readable }).input;
-  (input as Readable & { emit: (event: string, ...args: any[]) => boolean }).emit(
-    "keypress",
-    char,
-    key,
-  );
+  (
+    input as Readable & { emit: (event: string, ...args: any[]) => boolean }
+  ).emit("keypress", char, key);
 }
 
-export async function typeText(
-  prompt: unknown,
-  text: string,
-): Promise<void> {
+export async function typeText(prompt: unknown, text: string): Promise<void> {
   for (const char of text) {
     emitKey(prompt, { name: undefined, sequence: char }, char);
     await waitForIO();
@@ -70,10 +67,7 @@ export async function pressKey(
   await waitForIO();
 }
 
-export async function backspace(
-  prompt: unknown,
-  count: number,
-): Promise<void> {
+export async function backspace(prompt: unknown, count: number): Promise<void> {
   for (let index = 0; index < count; index++) {
     await pressKey(prompt, { name: "backspace" });
   }
@@ -89,6 +83,8 @@ export function cancelPrompt(prompt: unknown): void {
 
 export function toOutputString(output: TestWritable): string {
   return output.writes
-    .map((entry) => (typeof entry === "string" ? entry : entry.toString("utf8")))
+    .map((entry) =>
+      typeof entry === "string" ? entry : entry.toString("utf8"),
+    )
     .join("");
 }
