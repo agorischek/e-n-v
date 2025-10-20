@@ -84,7 +84,7 @@ export class Session {
   async run(): Promise<PromptFlowResult> {
     renderSetupHeader(this.output, this.theme, this.displayEnvPath);
 
-    let currentValues = await this.channel.get();
+  let currentValues = this.channel.get();
     let index = 0;
 
     while (index < this.schemaEntries.length) {
@@ -157,8 +157,8 @@ export class Session {
       const stringValue = String(value);
 
       try {
-        await this.channel.set({ [key]: stringValue });
-        currentValues = await this.channel.get();
+  this.channel.set({ [key]: stringValue });
+  currentValues = this.channel.get();
         this.newValues[key] = stringValue;
       } catch (error) {
         this.output.write(

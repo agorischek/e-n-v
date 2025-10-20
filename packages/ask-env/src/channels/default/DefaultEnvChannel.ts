@@ -16,11 +16,17 @@ export class DefaultEnvChannel implements EnvChannel {
   }
 
   /**
-   * Get all environment variables
-   * @returns Promise that resolves to object containing all environment variable key-value pairs
+   * Get environment variables, optionally selecting a subset of keys.
+   * @param keys - Optional list of keys to read; returns all variables when omitted.
    */
-  async get(): Promise<Record<string, string>> {
-    return await this.envSource.read();
+  get(): Record<string, string>;
+  get<const Keys extends readonly string[]>(keys: Keys): Record<Keys[number], string | undefined>;
+  get(keys?: readonly string[]): Record<string, string | undefined> {
+    if (!keys) {
+      return this.envSource.readSync();
+    }
+
+    return this.envSource.readSync(keys);
   }
 
   /**
@@ -28,7 +34,7 @@ export class DefaultEnvChannel implements EnvChannel {
    * @param values - Object containing key-value pairs to set
    * @returns Promise that resolves when the values have been set
    */
-  async set(values: Record<string, string>): Promise<void> {
-    await this.envSource.write(values);
+  set(values: Record<string, string>): void {
+    this.envSource.writeSync(values);
   }
 }

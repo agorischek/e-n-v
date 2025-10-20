@@ -34,26 +34,24 @@ export class DotEnvXChannel implements EnvChannel {
   }
 
   /**
-   * Get all environment variables
-   * @returns Promise that resolves to object containing all environment variable key-value pairs
+   * Get environment variables, optionally selecting a subset of keys.
+   * @param keys - Optional list of keys to read; returns all variables when omitted.
    */
-  async get(): Promise<Record<string, string>> {
-    try {
-      // Use config with a placeholder object to avoid mutating process.env
-      const myEnv = {};
-      const result = this.dotenvx.config({
-        processEnv: myEnv,
-        quiet: true,
-        ignore: ["MISSING_ENV_FILE"],
-        path: this.defaultPath,
-        ...this.getOptions,
-      });
+  get(): Record<string, string>;
+  get<const Keys extends readonly string[]>(keys: Keys): Record<Keys[number], string | undefined>;
+  get(keys?: readonly string[]): Record<string, string | undefined> {
+    const values = this.readAll();
 
-      return result.parsed || {};
-    } catch {
-      // If there's an error (e.g., missing file), return empty object
-      return {};
+    if (!keys) {
+      return values;
     }
+
+    const selection: Record<string, string | undefined> = {};
+    for (const key of keys) {
+      selection[key] = values[key];
+    }
+
+    return selection;
   }
 
   /**
@@ -61,7 +59,7 @@ export class DotEnvXChannel implements EnvChannel {
    * @param values - Object containing key-value pairs to set
    * @returns Promise that resolves when the values have been set
    */
-  async set(values: Record<string, string>): Promise<void> {
+  set(values: Record<string, string>): void {
     // Ensure the file exists
     if (!existsSync(this.defaultPath)) {
       writeFileSync(this.defaultPath, "", "utf8");
@@ -95,5 +93,24 @@ export class DotEnvXChannel implements EnvChannel {
    */
   clearCache(): void {
     // No-op: This implementation doesn't use caching
+  }
+
+  private readAll(): Record<string, string> {
+    try {
+      // Use config with a placeholder object to avoid mutating process.env
+      const myEnv = {};
+      const result = this.dotenvx.config({
+        processEnv: myEnv,
+        quiet: true,
+        ignore: ["MISSING_ENV_FILE"],
+        path: this.defaultPath,
+        ...this.getOptions,
+      });
+
+      return result.parsed || {};
+    } catch {
+      // If there's an error (e.g., missing file), return empty object
+      return {};
+    }
   }
 }

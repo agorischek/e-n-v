@@ -3,15 +3,16 @@
  */
 export interface EnvChannel {
   /**
-   * Get all environment variables
-   * @returns Promise that resolves to object containing all environment variable key-value pairs
+   * Get environment variables, optionally limited to a specific list of keys.
+   * @param keys - Optional list of environment variable names to select.
+   * @returns Object containing key-value pairs for the requested variables.
    */
-  get(): Promise<Record<string, string>>;
+  get(): Record<string, string>;
+  get<const Keys extends readonly string[]>(keys: Keys): Record<Keys[number], string | undefined>;
 
   /**
    * Set multiple environment variables
    * @param values - Object containing key-value pairs to set
-   * @returns Promise that resolves when the values have been set
    */
-  set(values: Record<string, string>): Promise<void>;
+  set(values: Record<string, string>): void;
 }
