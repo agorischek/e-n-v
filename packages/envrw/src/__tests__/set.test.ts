@@ -86,17 +86,39 @@ describe("set", () => {
   });
 
   it("preserves trailing comments on multiline assignments", () => {
-    const initial = ['export MULTI="first', 'second" # comment', 'FOO=1', ''].join("\n");
+    const initial = [
+      'export MULTI="first',
+      'second" # comment',
+      "FOO=1",
+      "",
+    ].join("\n");
     const result = set(initial, "MULTI", "updated\nvalue");
     const lines = result.split("\n");
-    expect(lines.slice(0, 4)).toEqual(['export MULTI="updated', 'value" # comment', 'FOO=1', '']);
+    expect(lines.slice(0, 4)).toEqual([
+      'export MULTI="updated',
+      'value" # comment',
+      "FOO=1",
+      "",
+    ]);
   });
 
   it("keeps trailing comments only on the final line for multi-line assignments", () => {
-    const initial = ['export MULTI="first', 'second', 'third" # comment', 'FOO=1', ''].join("\n");
+    const initial = [
+      'export MULTI="first',
+      "second",
+      'third" # comment',
+      "FOO=1",
+      "",
+    ].join("\n");
     const result = set(initial, "MULTI", "alpha\nbeta\ngamma");
     const lines = result.split("\n");
-    expect(lines.slice(0, 5)).toEqual(['export MULTI="alpha', 'beta', 'gamma" # comment', 'FOO=1', '']);
+    expect(lines.slice(0, 5)).toEqual([
+      'export MULTI="alpha',
+      "beta",
+      'gamma" # comment',
+      "FOO=1",
+      "",
+    ]);
   });
 
   it("updates remaining keys even when later assignments already match", () => {
@@ -106,13 +128,19 @@ describe("set", () => {
   });
 
   it("updates multiple keys with duplicate assignments from bottom to top", () => {
-    const initial = ["ALPHA=1", "BETA=2", "ALPHA=old", "BETA=old", ""].join("\n");
+    const initial = ["ALPHA=1", "BETA=2", "ALPHA=old", "BETA=old", ""].join(
+      "\n",
+    );
     const result = set(initial, { ALPHA: "new", BETA: "newer" });
-    expect(result).toBe(["ALPHA=1", "BETA=2", "ALPHA=new", "BETA=newer", ""].join("\n"));
+    expect(result).toBe(
+      ["ALPHA=1", "BETA=2", "ALPHA=new", "BETA=newer", ""].join("\n"),
+    );
   });
 
   it("throws when value is missing for a named assignment", () => {
-    expect(() => (set as any)("FOO=1\n", "BAR")).toThrow(new TypeError('Value for variable "BAR" must be provided'));
+    expect(() => (set as any)("FOO=1\n", "BAR")).toThrow(
+      new TypeError('Value for variable "BAR" must be provided'),
+    );
   });
 
   it("throws when an object value is undefined", () => {
@@ -123,18 +151,24 @@ describe("set", () => {
 
   it("rejects non-record arguments", () => {
     expect(() => (set as any)("", null)).toThrow(
-      new TypeError("Argument must be a string name or an object of key-value pairs"),
+      new TypeError(
+        "Argument must be a string name or an object of key-value pairs",
+      ),
     );
     expect(() => (set as any)("", ["A", "B"])).toThrow(
-      new TypeError("Argument must be a string name or an object of key-value pairs"),
+      new TypeError(
+        "Argument must be a string name or an object of key-value pairs",
+      ),
     );
     expect(() => (set as any)("", 42)).toThrow(
-      new TypeError("Argument must be a string name or an object of key-value pairs"),
+      new TypeError(
+        "Argument must be a string name or an object of key-value pairs",
+      ),
     );
   });
 
   it("supports bigint, boolean, and numeric inputs", () => {
     const result = set("", { COUNT: 42n, ENABLED: true, PORT: 8080 });
-    expect(result).toBe('COUNT=42\nENABLED=true\nPORT=8080\n');
+    expect(result).toBe("COUNT=42\nENABLED=true\nPORT=8080\n");
   });
 });

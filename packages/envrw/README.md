@@ -2,7 +2,6 @@
 
 A read/write API for `.env` files.
 
-
 ## Installation
 
 ```bash

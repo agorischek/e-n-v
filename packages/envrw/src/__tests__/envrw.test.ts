@@ -27,17 +27,29 @@ describe("EnvSource", () => {
   });
 
   it("round-trips values through the filesystem", async () => {
-    await envSource.write({ APP: "app", URL: "https://example.com", EMPTY: "" });
+    await envSource.write({
+      APP: "app",
+      URL: "https://example.com",
+      EMPTY: "",
+    });
     await envSource.write("URL", "https://override.test");
 
     const all = await envSource.read();
-    expect(all).toEqual({ APP: "app", URL: "https://override.test", EMPTY: "" });
+    expect(all).toEqual({
+      APP: "app",
+      URL: "https://override.test",
+      EMPTY: "",
+    });
 
     const single = await envSource.read("URL");
     expect(single).toBe("https://override.test");
 
     const selection = await envSource.read(["URL", "APP", "MISSING"]);
-    expect(selection).toEqual({ URL: "https://override.test", APP: "app", MISSING: undefined });
+    expect(selection).toEqual({
+      URL: "https://override.test",
+      APP: "app",
+      MISSING: undefined,
+    });
   });
 
   it("provides a source convenience factory", async () => {

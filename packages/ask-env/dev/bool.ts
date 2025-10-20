@@ -10,7 +10,7 @@ const prompt = new EnvBooleanPrompt(
   {
     key: "IS_ENABLED",
     current: false,
-  }
+  },
 );
 
 await prompt.prompt();

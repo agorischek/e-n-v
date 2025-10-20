@@ -1,9 +1,21 @@
-import type { EnvRecord, EnvSelectionRecord, ParsedAssignment } from "./types.ts";
-import { normalizeContent, parseAssignmentEndingAt, splitLines, validateKey } from "./utils.ts";
+import type {
+  EnvRecord,
+  EnvSelectionRecord,
+  ParsedAssignment,
+} from "./types.ts";
+import {
+  normalizeContent,
+  parseAssignmentEndingAt,
+  splitLines,
+  validateKey,
+} from "./utils.ts";
 
 export function get(content: string): EnvRecord;
 export function get(content: string, name: string): string | undefined;
-export function get<const Names extends readonly string[]>(content: string, names: Names): EnvSelectionRecord<Names>;
+export function get<const Names extends readonly string[]>(
+  content: string,
+  names: Names,
+): EnvSelectionRecord<Names>;
 export function get(
   content: string,
   arg?: string | readonly string[],
@@ -20,10 +32,14 @@ export function get(
     return scanForSingle(lines, arg);
   }
 
-  const normalizedTargets = Array.from(new Set(arg.map((name) => validateKey(name))));
+  const normalizedTargets = Array.from(
+    new Set(arg.map((name) => validateKey(name))),
+  );
   const lookup = scanForMany(lines, new Set(normalizedTargets));
 
-  const ordered: [string, string | undefined][] = normalizedTargets.map((key) => [key, lookup.get(key)]);
+  const ordered: [string, string | undefined][] = normalizedTargets.map(
+    (key) => [key, lookup.get(key)],
+  );
   return Object.fromEntries(ordered) as Record<string, string | undefined>;
 }
 
@@ -50,7 +66,10 @@ function scanForSingle(lines: string[], target: string): string | undefined {
   return found;
 }
 
-function scanForMany(lines: string[], targets: Set<string>): Map<string, string> {
+function scanForMany(
+  lines: string[],
+  targets: Set<string>,
+): Map<string, string> {
   const normalizedTargets = new Set<string>();
   for (const target of targets) {
     normalizedTargets.add(validateKey(target));

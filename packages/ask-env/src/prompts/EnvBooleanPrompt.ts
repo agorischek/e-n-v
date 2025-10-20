@@ -95,7 +95,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           output += `${this.getBarEnd()}  ${this.renderFooter()}`;
 
           return output;
-  }),
+        }),
         validate: (value: boolean | undefined) => {
           if (this.consumeSkipValidation()) {
             return undefined;
@@ -175,5 +175,4 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
     // cursor 0 = true, cursor 1 = false
     this.setCommittedValue(this.cursor === 0);
   }
-
 }

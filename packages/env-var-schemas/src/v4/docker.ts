@@ -8,16 +8,10 @@ export const dockerRegistryUrl = () =>
     .describe(descriptions.dockerRegistryUrl);
 
 export const dockerRegistryUsername = () =>
-  z
-    .string()
-    .describe(descriptions.dockerRegistryUsername)
-    .optional();
+  z.string().describe(descriptions.dockerRegistryUsername).optional();
 
 export const dockerRegistryPassword = () =>
-  z
-    .string()
-    .describe(descriptions.dockerRegistryPassword)
-    .optional();
+  z.string().describe(descriptions.dockerRegistryPassword).optional();
 
 export const DOCKER_REGISTRY_URL = dockerRegistryUrl();
 export const DOCKER_REGISTRY_USERNAME = dockerRegistryUsername();

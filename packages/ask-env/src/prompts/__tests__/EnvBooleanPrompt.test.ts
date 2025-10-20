@@ -48,7 +48,7 @@ const ESC = String.fromCharCode(0x1b);
 const CSI = String.fromCharCode(0x9b);
 const STRIP_ANSI = new RegExp(
   `[${ESC}${CSI}][[\\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]`,
-  "g"
+  "g",
 );
 const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
 
@@ -119,8 +119,8 @@ describe("EnvBooleanPrompt", () => {
 
     await pressKey(prompt, { name: "up" });
     await waitForIO(2);
-  expect(prompt.state).toBe("active");
-  expect(prompt.cursor).toBe(0);
+    expect(prompt.state).toBe("active");
+    expect(prompt.cursor).toBe(0);
 
     submitPrompt(prompt);
     await waitForIO(2);

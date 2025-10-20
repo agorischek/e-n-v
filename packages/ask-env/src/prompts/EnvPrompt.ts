@@ -11,7 +11,7 @@ import {
 import type { Key } from "node:readline";
 import type { PromptOptions, Validate } from "../vendor/PromptOptions";
 import type { EnvVarSchemaDetails } from "../specification/EnvVarSchema";
-import { Readable, Writable } from 'node:stream';
+import { Readable, Writable } from "node:stream";
 
 export type PromptOutcome = "commit" | "skip" | "previous";
 
@@ -34,21 +34,19 @@ export interface EnvPromptOptions<T> {
   output?: Writable;
 }
 
-function resolveDefaultFromSpec<T>(spec: EnvVarSchemaDetails<T>): T | undefined {
+function resolveDefaultFromSpec<T>(
+  spec: EnvVarSchemaDetails<T>,
+): T | undefined {
   switch (spec.type) {
     case "boolean":
       return typeof spec.default === "boolean"
         ? (spec.default as T)
         : undefined;
     case "number":
-      return typeof spec.default === "number"
-        ? (spec.default as T)
-        : undefined;
+      return typeof spec.default === "number" ? (spec.default as T) : undefined;
     case "enum":
     case "string":
-      return typeof spec.default === "string"
-        ? (spec.default as T)
-        : undefined;
+      return typeof spec.default === "string" ? (spec.default as T) : undefined;
     default:
       return undefined;
   }
@@ -56,7 +54,7 @@ function resolveDefaultFromSpec<T>(spec: EnvVarSchemaDetails<T>): T | undefined 
 
 export abstract class EnvPrompt<
   T,
-  TSpec extends EnvVarSchemaDetails<T> = EnvVarSchemaDetails<T>
+  TSpec extends EnvVarSchemaDetails<T> = EnvVarSchemaDetails<T>,
 > extends ThemedPrompt<T> {
   protected readonly spec: TSpec;
   protected readonly required: boolean;
@@ -91,7 +89,7 @@ export abstract class EnvPrompt<
 
   constructor(
     spec: TSpec,
-    opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>
+    opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>,
   ) {
     const resolvedDefault =
       opts.default !== undefined ? opts.default : resolveDefaultFromSpec(spec);
@@ -146,7 +144,7 @@ export abstract class EnvPrompt<
   }
 
   protected runCustomValidate(
-    value: T | undefined
+    value: T | undefined,
   ): string | Error | undefined {
     if (!this.customValidate) {
       return undefined;
@@ -186,7 +184,7 @@ export abstract class EnvPrompt<
       const optionStrings = options.map((option, index) => {
         const isFocused = index === this.optionCursor;
         const icon = isFocused
-          ? option.activeIcon ?? option.icon
+          ? (option.activeIcon ?? option.icon)
           : option.icon;
         const label = icon ? `${icon} ${option.label}` : option.label;
 
@@ -194,7 +192,9 @@ export abstract class EnvPrompt<
           return this.colors.dim(label);
         }
 
-        return isFocused ? this.theme.primary(label) : this.colors.subtle(label);
+        return isFocused
+          ? this.theme.primary(label)
+          : this.colors.subtle(label);
       });
 
       return optionStrings.join(separator);
@@ -253,12 +253,7 @@ export abstract class EnvPrompt<
         return false;
     }
 
-    if (
-      char &&
-      char.length === 1 &&
-      !info.ctrl &&
-      !info.meta
-    ) {
+    if (char && char.length === 1 && !info.ctrl && !info.meta) {
       this.consumeNextSubmit = false;
       this.allowSubmitFromOption = false;
       this.closeOptions();

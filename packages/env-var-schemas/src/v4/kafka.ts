@@ -3,12 +3,9 @@ import { descriptions, messages } from "../shared/infrastructure";
 import { patterns } from "../shared/infrastructure";
 
 export const kafkaBrokers = () =>
-  z
-    .string()
-    .describe(descriptions.kafkaBrokers)
-    .regex(patterns.hostPortList, {
-      message: messages.hostPortListFormat,
-    });
+  z.string().describe(descriptions.kafkaBrokers).regex(patterns.hostPortList, {
+    message: messages.hostPortListFormat,
+  });
 
 export const kafkaClientId = () =>
   z

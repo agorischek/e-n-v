@@ -31,7 +31,8 @@ export const descriptions = {
 } as const;
 
 export const messages = {
-  azureStorageConnectionStringFormat: "Must be a valid Azure Storage connection string",
+  azureStorageConnectionStringFormat:
+    "Must be a valid Azure Storage connection string",
   azureStorageAccountNameFormat:
     "Storage account name must be 3-24 characters, lowercase letters and numbers only",
   azureStorageAccountKeyRequired: "Storage account key is required",
@@ -49,16 +50,19 @@ export const messages = {
   elasticsearchUrlFormat: COMMON_MESSAGES.MUST_BE_VALID_URL,
   elasticsearchUrlProtocol: "Must start with http:// or https://",
   rabbitmqUrlFormat: "Must be a valid RabbitMQ URL (amqp:// or amqps://...)",
-  hostPortListFormat: "Must be comma-separated list of host:port (e.g., localhost:9092,broker2:9092)",
+  hostPortListFormat:
+    "Must be comma-separated list of host:port (e.g., localhost:9092,broker2:9092)",
   kafkaClientIdRequired: "Kafka client ID is required",
   dockerRegistryUrlFormat: COMMON_MESSAGES.MUST_BE_VALID_URL,
   kubernetesNameFormat: "Must be a valid Kubernetes namespace name",
-  kubernetesServiceAccountFormat: "Must be a valid Kubernetes service account name",
+  kubernetesServiceAccountFormat:
+    "Must be a valid Kubernetes service account name",
   prometheusPortInt: "Port must be an integer",
   prometheusPortMin: "Port must be >= 1024",
   prometheusPortMax: "Port must be <= 65535",
   jaegerEndpointFormat: COMMON_MESSAGES.MUST_BE_VALID_URL,
-  newRelicLicenseKeyLength: "New Relic license key must be exactly 40 characters",
+  newRelicLicenseKeyLength:
+    "New Relic license key must be exactly 40 characters",
   datadogApiKeyLength: "Datadog API key must be exactly 32 characters",
   sentryDsnFormat: "Must be a valid Sentry DSN format",
 } as const;
@@ -81,10 +85,13 @@ export const patterns = {
   awsRegion: /^[a-z]{2}-[a-z]+-\d{1}$/,
   awsS3BucketName: /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/,
   awsSqsQueueUrl: /^https:\/\/sqs\.[^.]+\.amazonaws\.com\/\d+\/[^/]+$/,
-  azureStorageConnectionString: /^DefaultEndpointsProtocol=https;AccountName=[^;]+;AccountKey=[^;]+;EndpointSuffix=.+$/,
+  azureStorageConnectionString:
+    /^DefaultEndpointsProtocol=https;AccountName=[^;]+;AccountKey=[^;]+;EndpointSuffix=.+$/,
   azureStorageAccountName: /^[a-z0-9]{3,24}$/,
-  azureServiceBusConnectionString: /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=.+$/,
-  azureEventHubConnectionString: /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=.+$/,
+  azureServiceBusConnectionString:
+    /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=.+$/,
+  azureEventHubConnectionString:
+    /^Endpoint=sb:\/\/[^;]+;SharedAccessKeyName=[^;]+;SharedAccessKey=.+$/,
   hostPortList: /^[a-zA-Z0-9.-]+:\d+(,[a-zA-Z0-9.-]+:\d+)*$/,
   rabbitmqUrl: /^amqps?:\/\/(?:[^:@/]+(?::[^@/]*)?@)?[^:/]+(?::\d+)?(?:\/.*)?$/,
   kubernetesName: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/,

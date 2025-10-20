@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { descriptions, messages, defaults, constraints, patterns } from "../shared/infrastructure";
+import {
+  descriptions,
+  messages,
+  defaults,
+  constraints,
+  patterns,
+} from "../shared/infrastructure";
 
 export const newRelicLicenseKey = () =>
   z

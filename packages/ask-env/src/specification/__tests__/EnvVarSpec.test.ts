@@ -4,31 +4,31 @@ import { describe, it, expect } from "bun:test";
 describe("fromZodSchema", () => {
   describe("Basic type resolution", () => {
     it("should resolve string type", () => {
-  const spec = fromZodSchema(z.string());
-  expect(spec.type).toBe("string");
-  expect(spec.required).toBe(true);
-  expect(spec.default).toBeUndefined();
+      const spec = fromZodSchema(z.string());
+      expect(spec.type).toBe("string");
+      expect(spec.required).toBe(true);
+      expect(spec.default).toBeUndefined();
     });
 
     it("should resolve number type", () => {
       const spec = fromZodSchema(z.number());
       expect(spec.type).toBe("number");
       expect(spec.required).toBe(true);
-  expect(spec.default).toBeUndefined();
+      expect(spec.default).toBeUndefined();
     });
 
     it("should resolve boolean type", () => {
       const spec = fromZodSchema(z.boolean());
       expect(spec.type).toBe("boolean");
       expect(spec.required).toBe(true);
-  expect(spec.default).toBeUndefined();
+      expect(spec.default).toBeUndefined();
     });
 
     it("should resolve enum type", () => {
       const spec = fromZodSchema(z.enum(["dev", "prod", "test"]));
       expect(spec.type).toBe("enum");
       expect(spec.required).toBe(true);
-  expect(spec.default).toBeUndefined();
+      expect(spec.default).toBeUndefined();
     });
 
     it("should default unknown types to string", () => {
@@ -67,32 +67,32 @@ describe("fromZodSchema", () => {
     it("should extract string default values", () => {
       const spec = fromZodSchema(z.string().default("hello"));
       expect(spec.type).toBe("string");
-  expect(spec.default).toBe("hello");
+      expect(spec.default).toBe("hello");
       expect(spec.required).toBe(true);
     });
 
     it("should extract number default values", () => {
       const spec = fromZodSchema(z.number().default(42));
       expect(spec.type).toBe("number");
-  expect(spec.default).toBe(42);
+      expect(spec.default).toBe(42);
     });
 
     it("should extract boolean default values", () => {
       const spec = fromZodSchema(z.boolean().default(true));
       expect(spec.type).toBe("boolean");
-  expect(spec.default).toBe(true);
+      expect(spec.default).toBe(true);
     });
 
     it("should extract enum default values", () => {
       const spec = fromZodSchema(z.enum(["dev", "prod"]).default("dev"));
       expect(spec.type).toBe("enum");
-  expect(spec.default).toBe("dev");
+      expect(spec.default).toBe("dev");
     });
 
     it("should handle function default values", () => {
       const spec = fromZodSchema(z.string().default(() => "computed"));
       expect(spec.type).toBe("string");
-  expect(spec.default).toBe("computed");
+      expect(spec.default).toBe("computed");
     });
   });
 
@@ -101,46 +101,44 @@ describe("fromZodSchema", () => {
       const spec = fromZodSchema(z.string().default("hello").optional());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
-  expect(spec.default).toBe("hello");
+      expect(spec.default).toBe("hello");
     });
 
     it("should handle default with optional (reversed order)", () => {
       const spec = fromZodSchema(z.string().optional().default("hello"));
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
-  expect(spec.default).toBe("hello");
+      expect(spec.default).toBe("hello");
     });
 
     it("should handle nullable with optional", () => {
       const spec = fromZodSchema(z.string().nullable().optional());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
-  expect(spec.default).toBeUndefined();
+      expect(spec.default).toBeUndefined();
     });
 
     it("should handle optional with nullable (reversed order)", () => {
       const spec = fromZodSchema(z.string().optional().nullable());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
-  expect(spec.default).toBeUndefined();
+      expect(spec.default).toBeUndefined();
     });
 
     it("should handle all three: optional, nullable, and default", () => {
       const spec = fromZodSchema(
-        z.string().default("test").nullable().optional()
+        z.string().default("test").nullable().optional(),
       );
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
-  expect(spec.default).toBe("test");
+      expect(spec.default).toBe("test");
     });
 
     it("should handle complex nesting order", () => {
-      const spec = fromZodSchema(
-        z.number().optional().default(100).nullable()
-      );
+      const spec = fromZodSchema(z.number().optional().default(100).nullable());
       expect(spec.type).toBe("number");
       expect(spec.required).toBe(false);
-  expect(spec.default).toBe(100);
+      expect(spec.default).toBe(100);
     });
   });
 
@@ -158,7 +156,7 @@ describe("fromZodSchema", () => {
 
     it("should extract description from outer wrapper", () => {
       const spec = fromZodSchema(
-        z.string().optional().describe("Optional string")
+        z.string().optional().describe("Optional string"),
       );
       expect(spec.description).toBe("Optional string");
       expect(spec.required).toBe(false);
@@ -170,21 +168,20 @@ describe("fromZodSchema", () => {
           .string()
           .describe("Inner description")
           .optional()
-          .describe("Outer description")
+          .describe("Outer description"),
       );
       expect(spec.description).toBe("Outer description");
     });
 
     it("should handle description with complex nesting", () => {
       const spec = fromZodSchema(
-        z.string().describe("Base").default("test").nullable().optional()
+        z.string().describe("Base").default("test").nullable().optional(),
       );
       expect(spec.description).toBe("Base");
-  expect(spec.default).toBe("test");
+      expect(spec.default).toBe("test");
       expect(spec.required).toBe(false);
     });
   });
-
 
   describe("ZodEffects handling", () => {
     it("should unwrap through ZodEffects", () => {
@@ -203,7 +200,7 @@ describe("fromZodSchema", () => {
       const spec = fromZodSchema(schema);
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(false);
-  expect(spec.default).toBe("test");
+      expect(spec.default).toBe("test");
     });
 
     it("should handle nested ZodEffects", () => {
@@ -223,7 +220,7 @@ describe("fromZodSchema", () => {
       const spec = fromZodSchema(z.string());
       expect(spec.type).toBe("string");
       expect(spec.required).toBe(true);
-  expect(spec.default).toBeUndefined();
+      expect(spec.default).toBeUndefined();
       expect(spec.description).toBeUndefined();
     });
 

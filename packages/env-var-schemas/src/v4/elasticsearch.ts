@@ -6,19 +6,15 @@ export const elasticsearchUrl = () =>
   z
     .url({ message: messages.elasticsearchUrlFormat })
     .describe(descriptions.elasticsearchUrl)
-    .regex(patterns.httpProtocol, { message: messages.elasticsearchUrlProtocol });
+    .regex(patterns.httpProtocol, {
+      message: messages.elasticsearchUrlProtocol,
+    });
 
 export const elasticsearchUsername = () =>
-  z
-    .string()
-    .describe(descriptions.elasticsearchUsername)
-    .optional();
+  z.string().describe(descriptions.elasticsearchUsername).optional();
 
 export const elasticsearchPassword = () =>
-  z
-    .string()
-    .describe(descriptions.elasticsearchPassword)
-    .optional();
+  z.string().describe(descriptions.elasticsearchPassword).optional();
 
 export const ELASTICSEARCH_URL = elasticsearchUrl();
 export const ELASTICSEARCH_USERNAME = elasticsearchUsername();

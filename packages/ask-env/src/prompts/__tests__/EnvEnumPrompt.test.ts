@@ -66,7 +66,10 @@ describe("EnvEnumPrompt", () => {
   });
 
   it("wraps cursor navigation through the available options", () => {
-    const { prompt } = createPrompt({ options: ["one", "two", "three"], current: "one" });
+    const { prompt } = createPrompt({
+      options: ["one", "two", "three"],
+      current: "one",
+    });
 
     expect(prompt.cursor).toBe(0);
     expect(prompt.value).toBe("one");
@@ -105,7 +108,9 @@ describe("EnvEnumPrompt", () => {
 
     prompt.value = "beta";
     prompt.state = "submit";
-    const render = Reflect.get(prompt as any, "_render") as () => string | undefined;
+    const render = Reflect.get(prompt as any, "_render") as () =>
+      | string
+      | undefined;
     const output = render();
 
     expect(typeof output).toBe("string");
@@ -133,12 +138,18 @@ describe("EnvEnumPrompt", () => {
     prompt.emit("cursor", "down");
     expect(prompt.value).toBe("beta");
 
-    const opts = Reflect.get(prompt as any, "opts") as {
-      validate?: (value: string | symbol | undefined) => string | Error | undefined;
-    } | undefined;
+    const opts = Reflect.get(prompt as any, "opts") as
+      | {
+          validate?: (
+            value: string | symbol | undefined,
+          ) => string | Error | undefined;
+        }
+      | undefined;
 
     expect(typeof opts?.validate).toBe("function");
-    expect(opts?.validate?.call(prompt, prompt.value)).toBe("beta is not allowed");
+    expect(opts?.validate?.call(prompt, prompt.value)).toBe(
+      "beta is not allowed",
+    );
     expect(calls).toEqual(["beta"]);
   });
 });

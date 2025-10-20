@@ -23,7 +23,9 @@
   },
   "scripts": {
     "lint": "oxlint",
-    "test": "bun test"
+    "test": "bun test",
+    "check:format": "prettier --check .",
+    "check:types": "tsc --noEmit"
   },
   "dependencies": {
     "bun-types": "^1.3.0"

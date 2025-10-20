@@ -1,8 +1,20 @@
 import type { AssignmentStyle, EnvPrimitiveValue } from "./types.ts";
-import { normalizeContent, parseAssignmentEndingAt, splitLines, validateKey } from "./utils.ts";
+import {
+  normalizeContent,
+  parseAssignmentEndingAt,
+  splitLines,
+  validateKey,
+} from "./utils.ts";
 
-export function set(content: string, name: string, value: EnvPrimitiveValue): string;
-export function set(content: string, values: Record<string, EnvPrimitiveValue>): string;
+export function set(
+  content: string,
+  name: string,
+  value: EnvPrimitiveValue,
+): string;
+export function set(
+  content: string,
+  values: Record<string, EnvPrimitiveValue>,
+): string;
 export function set(
   content: string,
   arg: string | Record<string, EnvPrimitiveValue>,
@@ -30,7 +42,15 @@ export function set(
       continue;
     }
 
-    const { key, startIndex, endIndex, leading, exportPrefix, trailing, value: currentValue } = parsed;
+    const {
+      key,
+      startIndex,
+      endIndex,
+      leading,
+      exportPrefix,
+      trailing,
+      value: currentValue,
+    } = parsed;
     const nextValue = replacements.get(key);
 
     if (typeof nextValue === "undefined" || touched.has(key)) {
@@ -45,7 +65,11 @@ export function set(
       continue;
     }
 
-    const block = buildAssignmentLines(key, nextValue, { leading, exportPrefix, trailing });
+    const block = buildAssignmentLines(key, nextValue, {
+      leading,
+      exportPrefix,
+      trailing,
+    });
     lines.splice(startIndex, endIndex - startIndex + 1, ...block);
     touched.add(key);
     replacements.delete(key);
@@ -58,7 +82,10 @@ export function set(
     }
 
     const block = buildAssignmentLines(key, val);
-    const insertIndex = lines.length > 0 && lines[lines.length - 1] === "" ? lines.length - 1 : lines.length;
+    const insertIndex =
+      lines.length > 0 && lines[lines.length - 1] === ""
+        ? lines.length - 1
+        : lines.length;
     lines.splice(insertIndex, 0, ...block);
     touched.add(key);
   }
@@ -92,7 +119,9 @@ function normalizeWriteArguments(
   }
 
   if (!isObjectRecord(arg)) {
-    throw new TypeError("Argument must be a string name or an object of key-value pairs");
+    throw new TypeError(
+      "Argument must be a string name or an object of key-value pairs",
+    );
   }
 
   const entries: [string, string][] = [];
@@ -114,7 +143,10 @@ function formatValueInput(value: EnvPrimitiveValue): string {
 
 function serializeValue(value: string): string {
   const normalized = value.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  const needsQuotes = normalized.length === 0 || /[\s"'\\#]/.test(normalized) || normalized.includes("\n");
+  const needsQuotes =
+    normalized.length === 0 ||
+    /[\s"'\\#]/.test(normalized) ||
+    normalized.includes("\n");
 
   if (!needsQuotes) {
     return normalized;
@@ -140,7 +172,11 @@ function serializeValue(value: string): string {
   return result;
 }
 
-function buildAssignmentLines(key: string, value: string, style: AssignmentStyle = {}): string[] {
+function buildAssignmentLines(
+  key: string,
+  value: string,
+  style: AssignmentStyle = {},
+): string[] {
   const leading = style.leading ?? "";
   const exportPrefix = style.exportPrefix ?? "";
   const trailing = style.trailing ?? "";

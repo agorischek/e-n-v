@@ -3,10 +3,12 @@ import { z } from "zod";
 
 // Simple schema for testing cancellation
 const schemas = {
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
   PORT: z.number().min(1).max(65535).default(3000),
   DATABASE_URL: z.string().min(1),
-  ENABLE_LOGGING: z.boolean().default(true)
+  ENABLE_LOGGING: z.boolean().default(true),
 };
 
 console.log("Testing cancellation behavior");
@@ -15,7 +17,7 @@ console.log();
 
 try {
   await ask(schemas, {
-    path: ".env.test"
+    path: ".env.test",
   });
 } catch (error) {
   console.log("Caught error:", error);

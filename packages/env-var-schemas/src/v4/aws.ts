@@ -20,12 +20,9 @@ export const awsSecretAccessKey = () =>
     .min(1, { error: messages.awsSecretAccessKeyRequired });
 
 export const awsRegion = () =>
-  z
-    .string()
-    .describe(descriptions.awsRegion)
-    .regex(patterns.awsRegion, {
-      error: messages.awsRegionFormat,
-    });
+  z.string().describe(descriptions.awsRegion).regex(patterns.awsRegion, {
+    error: messages.awsRegionFormat,
+  });
 
 export const awsS3BucketName = () =>
   z

@@ -9,7 +9,7 @@ const prompt = new EnvNumberPrompt(
   },
   {
     key: "PORT",
-  }
+  },
 );
 
 const result = await prompt.prompt();
