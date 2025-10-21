@@ -8,7 +8,7 @@ import {
   type EnvVarSchema,
 } from "../specification/EnvVarSchema";
 import { isCompatibleZodSchema } from "../specification/zodCompat";
-import type { SecretPattern, SchemaMap } from "../types";
+import type { SecretPattern, EnvVarSchemaMap } from "../types";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
 import { isSecretKey } from "../utils/secrets";
 import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";
@@ -36,7 +36,7 @@ export function resolveShouldMask(
 }
 
 export interface SessionOptions {
-  schemas: SchemaMap;
+  schemas: EnvVarSchemaMap;
   channel: EnvChannel;
   secrets: readonly SecretPattern[];
   truncate: number;
@@ -47,7 +47,9 @@ export interface SessionOptions {
 }
 
 export class Session {
-  private readonly schemaEntries: Array<[string, SchemaMap[keyof SchemaMap]]>;
+  private readonly schemaEntries: Array<
+    [string, EnvVarSchemaMap[keyof EnvVarSchemaMap]]
+  >;
   private readonly newValues: Record<string, string> = {};
   private readonly promptLineHistory: number[] = [];
   private readonly channel: EnvChannel;

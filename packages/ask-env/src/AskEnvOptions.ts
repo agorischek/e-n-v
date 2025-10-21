@@ -14,6 +14,15 @@ export type AskEnvOptions = {
   path?: string;
 
   /**
+   * Root location used to resolve relative env file paths.
+   * Supply CommonJS `__dirname` or ESM `import.meta.url` so the env path resolves next to the caller.
+   * Falls back to the current working directory when omitted.
+   * @default process.cwd()
+   * @example import.meta.url, __dirname
+   */
+  root?: string;
+
+  /**
    * Channel configuration for reading and writing environment variables.
    * Can be undefined (default), "default", a dotenvx instance, or channel config objects.
    * @default undefined (uses default file-based channel)

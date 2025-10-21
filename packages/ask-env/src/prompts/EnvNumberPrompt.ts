@@ -4,6 +4,7 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import type { NumberEnvVarSchema } from "../specification/EnvVarSchema";
+import { padActiveRender } from "./utils/padActiveRender";
 
 export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   cursor = 0;
@@ -12,7 +13,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   constructor(schema: NumberEnvVarSchema, opts: EnvPromptOptions<number>) {
     super(schema, {
       ...opts,
-      render: function (this: EnvNumberPrompt) {
+      render: padActiveRender(function (this: EnvNumberPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -140,7 +141,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         output += `${this.getBarEnd()}  ${this.renderFooter("Enter a number")}`;
 
         return output;
-      },
+      }),
       validate: (value: number | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;

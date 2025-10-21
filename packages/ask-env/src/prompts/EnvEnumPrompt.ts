@@ -4,6 +4,7 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import type { EnumEnvVarSchema } from "../specification/EnvVarSchema";
+import { padActiveRender } from "./utils/padActiveRender";
 
 export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   cursor = 0;
@@ -13,7 +14,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-      render: function (this: EnvEnumPrompt) {
+      render: padActiveRender(function (this: EnvEnumPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -82,7 +83,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         output += `${this.getBarEnd()}  ${this.renderFooter()}`;
 
         return output;
-      },
+      }),
       validate: (value: string | undefined) => {
         if (this.getOutcome() !== "commit") {
           return undefined;

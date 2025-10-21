@@ -1,13 +1,5 @@
 import { ask } from "../src/ask";
-import { APPLICATIONINSIGHTS_CONNECTION_STRING } from "../../zod-env-var-schemas/src";
+import { OPENAI_API_KEY } from "../../env-var-schemas/src";
 import dotenvx from "@dotenvx/dotenvx";
 
-await ask(
-  {
-    APPLICATIONINSIGHTS_CONNECTION_STRING,
-  },
-  {
-    path: ".env.x",
-    channel: dotenvx,
-  },
-);
+await ask({ OPENAI_API_KEY }, { channel: dotenvx });

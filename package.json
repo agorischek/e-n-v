@@ -22,6 +22,7 @@
     "typescript": "^5"
   },
   "scripts": {
+    "format": "prettier --write .",
     "lint": "oxlint",
     "test": "bun test",
     "check:format": "prettier --check .",
