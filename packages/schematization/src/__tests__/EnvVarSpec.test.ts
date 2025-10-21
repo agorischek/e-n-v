@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { fromZodSchema } from "../fromZodSchema";
 import { describe, it, expect } from "bun:test";
+
 describe("fromZodSchema", () => {
   describe("Basic type resolution", () => {
     it("should resolve string type", () => {

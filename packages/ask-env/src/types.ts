@@ -1,5 +1,5 @@
-import type { CompatibleZodSchema } from "./specification/zodCompat";
-import type { EnvVarSpec } from "./specification/EnvVarSchema";
+import type { CompatibleZodSchema } from "@envcredible/schematization";
+import type { EnvVarSpec } from "@envcredible/schematization";
 
 export type EnvVarSchemaMap = Record<string, CompatibleZodSchema | EnvVarSpec>;
 

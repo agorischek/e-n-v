@@ -19,6 +19,8 @@
     "paths": {
       "@envcredible/types": ["./packages/envcredible-types/src/index.ts"],
       "@envcredible/types/*": ["./packages/envcredible-types/src/*"],
+      "@envcredible/schematization": ["./packages/schematization/src/index.ts"],
+      "@envcredible/schematization/*": ["./packages/schematization/src/*"],
       "envrw": ["./packages/envrw/src/index.ts"],
       "envrw/*": ["./packages/envrw/src/*"]
     },

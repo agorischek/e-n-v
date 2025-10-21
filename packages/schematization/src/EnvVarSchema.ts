@@ -1,12 +1,11 @@
 import type { EnvVarType } from "./EnvVarType";
-import type { Process } from "../vendor/PromptOptions";
 
 export interface EnvVarSchemaDetails<TValue> {
   type: EnvVarType;
   required: boolean;
   default?: TValue | null;
   description?: string;
-  process?: Process<TValue>;
+  process?: (value: string) => TValue | undefined;
 }
 
 export interface StringEnvVarSchema extends EnvVarSchemaDetails<string> {

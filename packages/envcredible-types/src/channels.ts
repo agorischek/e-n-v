@@ -3,12 +3,12 @@
  */
 export interface EnvChannel {
   /**
-   * Get all environment variables
+   * Get environment variables
    */
   get(keys?: string[]): Promise<Record<string, string>>;
 
   /**
-   * Set multiple environment variables
+   * Set environment variables
    */
   set(values: Record<string, string>): Promise<void>;
 }

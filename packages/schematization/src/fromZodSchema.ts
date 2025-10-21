@@ -8,7 +8,7 @@ import type {
   StringEnvVarSchema,
   EnumEnvVarSchema,
 } from "./EnvVarSchema";
-import { processFromSchema } from "../utils/processFromSchema";
+import { processFromSchema } from "./processFromSchema";
 
 function createBaseDetails<TValue>(
   schema: CompatibleZodSchema,
