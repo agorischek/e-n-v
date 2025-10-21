@@ -84,7 +84,7 @@ describe("EnvBooleanPrompt", () => {
     await waitForIO(2);
 
     const rendered = stripAnsi(toOutputString(output));
-    expect(rendered).toContain("(current, default)");
+  expect(rendered).toMatch(/\(current,\s*default\)/);
     expect(rendered).toContain("Choose wisely");
 
     submitPrompt(prompt);

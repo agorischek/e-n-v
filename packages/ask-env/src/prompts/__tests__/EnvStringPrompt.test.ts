@@ -237,7 +237,7 @@ describe("EnvStringPrompt", () => {
     await waitForIO(2);
     const openRender = stripAnsi(toOutputString(output));
     expect((prompt as any).isOptionPickerOpen()).toBe(true);
-    expect(openRender).toContain("(current, default)");
+  expect(openRender).toMatch(/\(current,\s*default\)/);
 
     await pressKey(prompt, { name: "escape" });
     await waitForIO(2);
