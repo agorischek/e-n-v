@@ -1,6 +1,5 @@
 import type { Formatter } from "picocolors/types";
 import type { EnvChannelOptions } from "@envcredible/channels/EnvChannelOptions";
-import type { SecretPattern } from "./types";
 
 /**
  * Configuration options for the ask function
@@ -44,7 +43,7 @@ export type AskEnvOptions = {
    * @default DEFAULT_SECRET_PATTERNS (includes password, token, api_key, database_url, etc.)
    * @example ["PASSWORD", /secret/i, "API_KEY"], [] (empty array disables masking)
    */
-  secrets?: Array<SecretPattern>;
+  secrets?: Array<RegExp | string>;
 
   /**
    * Color theme function for styling the CLI interface

@@ -12,6 +12,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   isTyping = false;
 
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
+    const customValidate = opts.validate;
+    
     super(schema, {
       ...opts,
       render: padActiveRender(function (this: EnvStringPrompt) {
@@ -211,9 +213,24 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           } catch {
             parsedValue = undefined;
           }
+          // Call custom validation if provided
+          if (customValidate) {
+            const customValidation = customValidate(parsedValue);
+            if (customValidation) {
+              return customValidation;
+            }
+          }
+          return undefined;
         }
 
-        // For non-typing cases (selecting current/default), no additional validation needed
+        // For non-typing cases (selecting current/default), run custom validation
+        if (customValidate) {
+          const customValidation = customValidate(value);
+          if (customValidation) {
+            return customValidation;
+          }
+        }
+
         return undefined;
       },
     });

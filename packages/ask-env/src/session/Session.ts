@@ -10,7 +10,6 @@ import { S_BAR, S_BAR_END } from "../visuals/symbols";
 import type { Theme } from "../visuals/Theme";
 import type { EnvChannel } from "@envcredible/types";
 import type { EnvVarSchema } from "@envcredible/types";
-import type { SecretPattern } from "@envcredible/types";
 
 export type PromptFlowResult = "success" | "cancelled" | "error";
 

@@ -9,6 +9,7 @@ type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
   options?: string[];
   required?: boolean;
   description?: string;
+  validate?: (value: string | undefined) => string | Error | undefined;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -34,6 +35,7 @@ function createPrompt(options: TestPromptOptions = {}) {
     mask: options.mask,
     secretToggleShortcut: options.secretToggleShortcut,
     previousEnabled: options.previousEnabled,
+    validate: options.validate,
   });
 
   return { prompt, ...streams };
@@ -130,12 +132,13 @@ describe("EnvEnumPrompt", () => {
     const { prompt } = createPrompt({
       current: "alpha",
       options: ["alpha", "beta"],
+      validate: validationSpy,
     });
 
     prompt.emit("cursor", "down");
     expect(prompt.value).toBe("beta");
 
-    const opts = Reflect.get(prompt as any, "opts") as
+    const opts = Reflect.get(prompt as any, "options") as
       | {
           validate?: (
             value: string | symbol | undefined,

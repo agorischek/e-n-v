@@ -32,6 +32,7 @@ export interface EnvPromptOptions<T> {
   previousEnabled?: boolean;
   input?: Readable;
   output?: Writable;
+  validate?: (value: T | undefined) => string | Error | undefined;
 }
 
 function resolveDefaultFromSpec<T>(

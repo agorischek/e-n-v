@@ -12,6 +12,8 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   private readonly values: readonly string[];
 
   constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
+    const customValidate = opts.validate;
+    
     super(schema, {
       ...opts,
       render: padActiveRender(function (this: EnvEnumPrompt) {
@@ -87,6 +89,14 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
       validate: (value: string | undefined) => {
         if (this.getOutcome() !== "commit") {
           return undefined;
+        }
+
+        // Call custom validation if provided
+        if (customValidate) {
+          const customValidation = customValidate(value);
+          if (customValidation) {
+            return customValidation;
+          }
         }
 
         return undefined;

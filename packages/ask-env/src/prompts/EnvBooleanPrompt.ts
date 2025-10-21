@@ -10,6 +10,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
 
   constructor(schema: BooleanEnvVarSchema, opts: EnvPromptOptions<boolean>) {
+    const customValidate = opts.validate;
+    
     super(schema, {
       ...opts,
       render: padActiveRender(function (this: EnvBooleanPrompt) {
@@ -95,6 +97,14 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         }
         if (this.getOutcome() !== "commit") {
           return undefined;
+        }
+
+        // Call custom validation if provided
+        if (customValidate) {
+          const customValidation = customValidate(value);
+          if (customValidation) {
+            return customValidation;
+          }
         }
 
         return undefined;

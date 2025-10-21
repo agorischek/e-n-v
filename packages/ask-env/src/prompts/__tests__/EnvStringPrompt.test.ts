@@ -40,6 +40,7 @@ function createPrompt(
     previousEnabled: options.previousEnabled,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
+    validate: options.validate,
   });
 
   return { prompt, ...streams };

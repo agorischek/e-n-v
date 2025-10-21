@@ -11,6 +11,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   isTyping = false;
 
   constructor(schema: NumberEnvVarSchema, opts: EnvPromptOptions<number>) {
+    const customValidate = opts.validate;
+    
     super(schema, {
       ...opts,
       render: padActiveRender(function (this: EnvNumberPrompt) {
@@ -192,11 +194,31 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, processing is done
+          // If format is valid, run custom validation if provided
+          let parsedValue: number | undefined;
+          try {
+            parsedValue = this.parseInput(this.userInput);
+          } catch {
+            parsedValue = undefined;
+          }
+          // Call custom validation if provided
+          if (customValidate) {
+            const customValidation = customValidate(parsedValue);
+            if (customValidation) {
+              return customValidation;
+            }
+          }
           return undefined;
         }
 
-        // For non-typing cases (selecting current/default), no additional validation needed
+        // For non-typing cases (selecting current/default), run custom validation
+        if (customValidate) {
+          const customValidation = customValidate(value);
+          if (customValidation) {
+            return customValidation;
+          }
+        }
+
         return undefined;
       },
     });
