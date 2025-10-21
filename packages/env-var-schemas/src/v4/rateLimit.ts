@@ -8,7 +8,7 @@ import {
 
 export const rateLimitRpm = () =>
   z
-    .number()
+    .coerce.number()
     .describe(descriptions.rateLimitRpm)
     .int({ error: messages.rateLimitRpmInt })
     .min(constraints.rateLimitRpmMin, { error: messages.rateLimitRpmMin })
@@ -17,7 +17,7 @@ export const rateLimitRpm = () =>
 
 export const rateLimitWindow = () =>
   z
-    .number()
+    .coerce.number()
     .describe(descriptions.rateLimitWindow)
     .int({ error: messages.rateLimitWindowInt })
     .min(constraints.rateLimitWindowMin, { error: messages.rateLimitWindowMin })

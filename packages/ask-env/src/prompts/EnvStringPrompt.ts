@@ -170,12 +170,6 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           } catch {
             parsedValue = undefined;
           }
-          const customValidation = this.runCustomValidate(parsedValue);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
-          }
           return undefined;
         }
 
@@ -217,25 +211,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           } catch {
             parsedValue = undefined;
           }
-          const customValidation = this.runCustomValidate(parsedValue);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
-          }
         }
 
-        // For non-typing cases (selecting current/default), validate the selected value
-        if (!this.isTyping) {
-          const customValidation = this.runCustomValidate(value);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
-          }
-        }
-
-        // All other cases are valid
+        // For non-typing cases (selecting current/default), no additional validation needed
         return undefined;
       },
     });

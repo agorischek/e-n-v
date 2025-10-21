@@ -23,7 +23,7 @@ export const databaseHost = () =>
 
 export const databasePort = () =>
   z
-    .number()
+    .coerce.number()
     .describe(descriptions.databasePort)
     .int({ message: messages.databasePortInt })
     .min(constraints.databasePortMin, { message: messages.databasePortMin })
@@ -52,7 +52,7 @@ export const databaseSchema = () =>
 
 export const databasePoolSize = () =>
   z
-    .number()
+    .coerce.number()
     .describe(descriptions.databasePoolSize)
     .int({ message: messages.databasePoolSizeInt })
     .min(constraints.databasePoolSizeMin, {
@@ -65,7 +65,7 @@ export const databasePoolSize = () =>
 
 export const databaseTimeout = () =>
   z
-    .number()
+    .coerce.number()
     .describe(descriptions.databaseTimeout)
     .int({ message: messages.databaseTimeoutInt })
     .min(constraints.databaseTimeoutMin, {

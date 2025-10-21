@@ -8,16 +8,20 @@ import type {
   StringEnvVarSchema,
   EnumEnvVarSchema,
 } from "./EnvVarSchema";
-import { validateFromSchema } from "../utils/validateFromSchema";
+import { processFromSchema } from "../utils/processFromSchema";
 
 function createBaseDetails<TValue>(
   schema: CompatibleZodSchema,
   details: EnvVarSchemaDetails<TValue>,
+  type: "string" | "number" | "boolean" | "enum",
+  values?: readonly string[]
 ): EnvVarSchemaDetails<TValue> {
-  const validate = validateFromSchema(schema);
+  // Create a process function from the Zod schema, falling back to default processors
+  const process = processFromSchema<TValue>(schema, type, values);
+  
   return {
     ...details,
-    validate: (value) => validate(value),
+    process,
   };
 }
 
@@ -34,7 +38,7 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
         default:
           typeof peeled.default === "boolean" ? peeled.default : undefined,
         description: peeled.description,
-      });
+      }, "boolean");
 
       const result: BooleanEnvVarSchema = {
         ...base,
@@ -50,7 +54,7 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
         default:
           typeof peeled.default === "number" ? peeled.default : undefined,
         description: peeled.description,
-      });
+      }, "number");
 
       const result: NumberEnvVarSchema = {
         ...base,
@@ -68,7 +72,7 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
         required: peeled.required,
         default: defaultValue,
         description: peeled.description,
-      });
+      }, "enum", values);
 
       const result: EnumEnvVarSchema = {
         ...base,
@@ -90,7 +94,7 @@ export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchema {
         required: peeled.required,
         default: defaultValue,
         description: peeled.description,
-      });
+      }, "string");
 
       const result: StringEnvVarSchema = {
         ...base,

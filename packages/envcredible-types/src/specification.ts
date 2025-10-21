@@ -1,13 +1,13 @@
-import type { Validate } from "./vendor";
+import type { Process } from "./vendor";
 
 export type EnvVarType = "string" | "number" | "boolean" | "enum";
 
-export interface EnvVarSchemaDetails<TValue> {
+export interface EnvVarSchemaDetails<T> {
   type: EnvVarType;
   required: boolean;
-  default?: TValue | null;
+  default?: T | null;
   description?: string;
-  validate?: Validate<TValue>;
+  process?: Process<T>;
 }
 
 export interface StringEnvVarSchema extends EnvVarSchemaDetails<string> {

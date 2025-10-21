@@ -8,7 +8,7 @@ import {
 
 export const port = () =>
   z
-    .number()
+    .coerce.number()
     .describe(descriptions.port)
     .int({ error: messages.portInt })
     .min(constraints.portMin, { error: messages.portMin })

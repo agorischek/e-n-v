@@ -159,14 +159,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run custom validation if provided
-          const parsedValue = this.parseInput(this.userInput);
-          const customValidation = this.runCustomValidate(parsedValue);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
-          }
+          // If format is valid, processing is done
           return undefined;
         }
 
@@ -199,27 +192,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run custom validation if provided
-          const parsedValue = this.parseInput(this.userInput);
-          const customValidation = this.runCustomValidate(parsedValue);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
-          }
+          // If format is valid, processing is done
+          return undefined;
         }
 
-        // For non-typing cases (selecting current/default), validate the selected value
-        if (!this.isTyping) {
-          const customValidation = this.runCustomValidate(value);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
-          }
-        }
-
-        // All other cases are valid
+        // For non-typing cases (selecting current/default), no additional validation needed
         return undefined;
       },
     });

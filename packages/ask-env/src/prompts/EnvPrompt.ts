@@ -9,7 +9,7 @@ import {
   S_TOOL_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import type { PromptOptions, Validate } from "../vendor/PromptOptions";
+import type { PromptOptions } from "../vendor/PromptOptions";
 import type { EnvVarSchemaDetails } from "@envcredible/types";
 import { Readable, Writable } from "node:stream";
 
@@ -72,7 +72,6 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
-  private readonly customValidate?: Validate<T>;
   private skipValidationFlag: boolean;
 
   protected set track(value: boolean) {
@@ -118,7 +117,6 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = promptOptions.previousEnabled ?? true;
-    this.customValidate = spec.validate;
     this.skipValidationFlag = false;
 
     this.on("finalize", () => {
@@ -141,15 +139,6 @@ export abstract class EnvPrompt<
         this.outcome = "commit";
       }
     });
-  }
-
-  protected runCustomValidate(
-    value: T | undefined,
-  ): string | Error | undefined {
-    if (!this.customValidate) {
-      return undefined;
-    }
-    return this.customValidate(value);
   }
 
   protected setCommittedValue(value: T | undefined): void {

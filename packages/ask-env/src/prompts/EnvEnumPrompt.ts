@@ -89,12 +89,6 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
           return undefined;
         }
 
-        const customValidation = this.runCustomValidate(value);
-        if (customValidation) {
-          return customValidation instanceof Error
-            ? customValidation.message
-            : customValidation;
-        }
         return undefined;
       },
     });

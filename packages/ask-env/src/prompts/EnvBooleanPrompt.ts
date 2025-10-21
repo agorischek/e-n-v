@@ -97,12 +97,6 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           return undefined;
         }
 
-        const customValidation = this.runCustomValidate(value);
-        if (customValidation) {
-          return customValidation instanceof Error
-            ? customValidation.message
-            : customValidation;
-        }
         return undefined;
       },
     });

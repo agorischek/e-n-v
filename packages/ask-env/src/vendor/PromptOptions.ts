@@ -5,6 +5,8 @@ export type Validate<TValue> = (
   value: TValue | undefined,
 ) => string | Error | undefined;
 
+export type Process<TValue> = (value: string) => TValue | undefined;
+
 export interface PromptOptions<TValue, Self extends Prompt<TValue>> {
   render(this: Omit<Self, "prompt">): string | undefined;
   initialValue?: any;

@@ -1,5 +1,6 @@
 /**
- * Minimal shape of the PromptOptions Validate type used by other packages.
- * Kept intentionally tiny to avoid coupling to the ask-env vendor internals.
+ * Process function that transforms a string input to type T.
+ * Returns T if processing succeeds, undefined if it fails.
+ * Used by environment variable schemas to convert string values to their target types.
  */
-export type Validate<T> = (value: T | undefined) => string | Error | undefined;
+export type Process<T> = (value: string) => T | undefined;
