@@ -23,7 +23,7 @@ Environment variable schemas can be supplied in three ways:
 By default, values are written directly to the specified file path via [`envrw`](../envrw/README.md). Alternatively, values can be managed via `dotenv`:
 
 ```ts
-await ask({ OPENAI_API_KEY }, { channel: dotenvx });
+await ask({ OPENAI_API_KEY }, { channel: { dotenvx } });
 ```
 
 ## Options

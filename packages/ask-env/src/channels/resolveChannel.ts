@@ -2,7 +2,6 @@ import type { EnvChannel } from "./EnvChannel";
 import type { EnvChannelOptions } from "./EnvChannelOptions";
 import type { DotEnvXChannelConfig } from "./dotenvx/DotEnvXChannelConfig";
 import type { DefaultChannelConfig } from "./default/DefaultChannelConfig";
-import type { DotEnvXInstance } from "./dotenvx/DotEnvXInstance";
 import { DefaultEnvChannel } from "./default/DefaultEnvChannel";
 import { DotEnvXChannel } from "./dotenvx/DotEnvXChannel";
 
@@ -63,16 +62,6 @@ export function resolveChannel(
         );
       }
     }
-  }
-
-  // Assume it's a dotenvx singleton import
-  if (
-    typeof options === "object" &&
-    options !== null &&
-    typeof options.get === "function" &&
-    typeof options.set === "function"
-  ) {
-    return new DotEnvXChannel(options as DotEnvXInstance, defaultPath, {}, {});
   }
 
   throw new Error(`Invalid channel options: ${options}`);

@@ -24,9 +24,9 @@ export type AskEnvOptions = {
 
   /**
    * Channel configuration for reading and writing environment variables.
-   * Can be undefined (default), "default", a dotenvx instance, or channel config objects.
+  * Can be undefined (default), "default", or channel config objects.
    * @default undefined (uses default file-based channel)
-   * @example dotenvx, { name: "default" }, { dotenvx: instance, get: {}, set: {} }
+  * @example { name: "default" }, { dotenvx: instance }, { dotenvx: instance, get: {}, set: {} }
    */
   channel?: EnvChannelOptions;
 
