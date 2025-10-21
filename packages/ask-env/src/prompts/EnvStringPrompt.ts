@@ -12,241 +12,236 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   isTyping = false;
 
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
-    super(
-      schema,
-      {
-        ...opts,
-        render: padActiveRender(function (this: EnvStringPrompt) {
-          if (this.state === "submit") {
-            const outcomeResult = this.renderOutcomeResult();
-            if (outcomeResult) {
-              return outcomeResult;
-            }
-
-            return `${this.getSymbol()}  ${this.colors.bold(
-              this.colors.white(this.key)
-            )}${this.colors.subtle("=")}${this.colors.white(
-              this.formatValue(this.value)
-            )}`;
+    super(schema, {
+      ...opts,
+      render: padActiveRender(function (this: EnvStringPrompt) {
+        if (this.state === "submit") {
+          const outcomeResult = this.renderOutcomeResult();
+          if (outcomeResult) {
+            return outcomeResult;
           }
 
-          if (this.state === "cancel") {
-            return this.renderCancelled();
-          }
-
-          let output = "";
-
-          // Add header line with symbol based on state and key in bold white and description in gray if provided
-          output += `${this.getSymbol()}  ${this.colors.bold(
-            this.colors.white(this.key)
+          return `${this.getSymbol()}  ${this.colors.bold(
+            this.colors.white(this.key),
+          )}${this.colors.subtle("=")}${this.colors.white(
+            this.formatValue(this.value),
           )}`;
-          if (this.spec.description) {
-            output += ` ${this.colors.subtle(this.spec.description)}`;
+        }
+
+        if (this.state === "cancel") {
+          return this.renderCancelled();
+        }
+
+        let output = "";
+
+        // Add header line with symbol based on state and key in bold white and description in gray if provided
+        output += `${this.getSymbol()}  ${this.colors.bold(
+          this.colors.white(this.key),
+        )}`;
+        if (this.spec.description) {
+          output += ` ${this.colors.subtle(this.spec.description)}`;
+        }
+        output += "\n";
+
+        const dimInputs = this.shouldDimInputs();
+
+        // If both current and default are undefined, show only text input
+        if (this.current === undefined && this.default === undefined) {
+          if (this.isTyping) {
+            const displayText = dimInputs
+              ? this.colors.dim(this.getInputDisplay(false))
+              : this.colors.white(this.getInputDisplay(true));
+            output += `${this.getBar()}  ${displayText}`;
+          } else {
+            const idleDisplay = dimInputs
+              ? this.colors.dim(this.getInputDisplay(false))
+              : this.colors.white(this.getInputDisplay(true));
+            output += `${this.getBar()}  ${idleDisplay}`;
           }
+
+          // Add validation output or placeholder text with L-shaped pipe
           output += "\n";
+          output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
 
-          const dimInputs = this.shouldDimInputs();
+          return output;
+        }
 
-          // If both current and default are undefined, show only text input
-          if (this.current === undefined && this.default === undefined) {
+        // Create options array dynamically based on what values exist
+        const options: Array<
+          { value: string | undefined; label: string } | string
+        > = [];
+
+        // Add current value if it exists
+        if (this.current !== undefined) {
+          if (this.default !== undefined && this.current === this.default) {
+            options.push({
+              value: this.current,
+              label: "(current, default)",
+            });
+          } else {
+            options.push({ value: this.current, label: "(current)" });
+          }
+        }
+
+        // Add default value if it exists and is different from current
+        if (this.default !== undefined && this.current !== this.default) {
+          options.push({ value: this.default, label: "(default)" });
+        }
+
+        // Always add the custom entry option
+        options.push("Other");
+
+        options.forEach((option, index) => {
+          const isSelected = index === this.cursor;
+          const circle = dimInputs
+            ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
+            : isSelected
+              ? this.theme.primary(S_RADIO_ACTIVE)
+              : this.colors.dim(S_RADIO_INACTIVE);
+
+          if (typeof option === "string") {
+            // "Other" option
             if (this.isTyping) {
               const displayText = dimInputs
                 ? this.colors.dim(this.getInputDisplay(false))
                 : this.colors.white(this.getInputDisplay(true));
-              output += `${this.getBar()}  ${displayText}`;
-            } else {
-              const idleDisplay = dimInputs
-                ? this.colors.dim(this.getInputDisplay(false))
-                : this.colors.white(this.getInputDisplay(true));
-              output += `${this.getBar()}  ${idleDisplay}`;
-            }
-
-            // Add validation output or placeholder text with L-shaped pipe
-            output += "\n";
-            output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
-
-            return output;
-          }
-
-          // Create options array dynamically based on what values exist
-          const options: Array<
-            { value: string | undefined; label: string } | string
-          > = [];
-
-          // Add current value if it exists
-          if (this.current !== undefined) {
-            if (this.default !== undefined && this.current === this.default) {
-              options.push({
-                value: this.current,
-                label: "(current, default)",
-              });
-            } else {
-              options.push({ value: this.current, label: "(current)" });
-            }
-          }
-
-          // Add default value if it exists and is different from current
-          if (this.default !== undefined && this.current !== this.default) {
-            options.push({ value: this.default, label: "(default)" });
-          }
-
-          // Always add the custom entry option
-          options.push("Other");
-
-          options.forEach((option, index) => {
-            const isSelected = index === this.cursor;
-            const circle = dimInputs
-              ? this.colors.dim(
-                  isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE
-                )
-              : isSelected
-              ? this.theme.primary(S_RADIO_ACTIVE)
-              : this.colors.dim(S_RADIO_INACTIVE);
-
-            if (typeof option === "string") {
-              // "Other" option
-              if (this.isTyping) {
-                const displayText = dimInputs
-                  ? this.colors.dim(this.getInputDisplay(false))
-                  : this.colors.white(this.getInputDisplay(true));
-                output += `${this.getBar()}  ${circle} ${displayText}\n`;
-              } else if (isSelected) {
-                if (dimInputs) {
-                  output += `${this.getBar()}  ${circle} ${this.colors.dim(option)}\n`;
-                } else {
-                  output += `${this.getBar()}  ${circle} ${this.colors.white(this.getInputDisplay(true))}\n`;
-                }
+              output += `${this.getBar()}  ${circle} ${displayText}\n`;
+            } else if (isSelected) {
+              if (dimInputs) {
+                output += `${this.getBar()}  ${circle} ${this.colors.dim(option)}\n`;
               } else {
-                // "Other" is gray when not selected
-                const text = dimInputs
-                  ? this.colors.dim(option)
-                  : this.colors.subtle(option);
-                output += `${this.getBar()}  ${circle} ${text}\n`;
+                output += `${this.getBar()}  ${circle} ${this.colors.white(this.getInputDisplay(true))}\n`;
               }
             } else {
-              // Current/Default options
-              const displayValue = this.formatValue(option.value);
+              // "Other" is gray when not selected
               const text = dimInputs
-                ? this.colors.dim(displayValue)
-                : isSelected
+                ? this.colors.dim(option)
+                : this.colors.subtle(option);
+              output += `${this.getBar()}  ${circle} ${text}\n`;
+            }
+          } else {
+            // Current/Default options
+            const displayValue = this.formatValue(option.value);
+            const text = dimInputs
+              ? this.colors.dim(displayValue)
+              : isSelected
                 ? this.colors.white(displayValue)
                 : this.colors.subtle(displayValue);
-              const annotation = ` ${option.label}`;
-              let suffix = "";
-              if (isSelected) {
-                suffix = dimInputs
-                  ? this.colors.dim(annotation)
-                  : this.colors.subtle(annotation);
-              }
-              output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
+            const annotation = ` ${option.label}`;
+            let suffix = "";
+            if (isSelected) {
+              suffix = dimInputs
+                ? this.colors.dim(annotation)
+                : this.colors.subtle(annotation);
             }
-          });
-
-          // Add validation output or placeholder text with L-shaped pipe
-          output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
-
-          return output;
-  }),
-        validate: (value: string | undefined) => {
-          if (this.consumeSkipValidation()) {
-            return undefined;
+            output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
           }
-          if (this.getOutcome() !== "commit") {
-            return undefined;
-          }
-          // If both current and default are undefined, we're in text-only mode
-          if (this.current === undefined && this.default === undefined) {
-            if (!this.userInput || !this.userInput.trim()) {
-              if (this.required) {
-                return "Please enter a value";
-              }
-              return undefined;
-            }
-            // Validate the user input format first
-            const inputValidation = this.validateInput(this.userInput);
-            if (inputValidation) {
-              return inputValidation;
-            }
-            // If format is valid, run custom validation if provided
-            let parsedValue: string | undefined;
-            try {
-              parsedValue = this.parseInput(this.userInput);
-            } catch {
-              parsedValue = undefined;
-            }
-            const customValidation = this.runCustomValidate(parsedValue);
-            if (customValidation) {
-              return customValidation instanceof Error
-                ? customValidation.message
-                : customValidation;
-            }
-            return undefined;
-          }
+        });
 
-          // Calculate the text input index dynamically
-          const textInputIndex = this.getTextInputIndex();
+        // Add validation output or placeholder text with L-shaped pipe
+        output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
 
-          // If we're on the custom entry option but not typing yet, prevent submission
-          if (this.cursor === textInputIndex && !this.isTyping) {
-            // Start typing mode instead of submitting
-            this.isTyping = true;
-            this.track = true;
-            this._setUserInput("");
-            this.updateValue();
-            return "Value cannot be empty"; // This will cause validation to fail and stay active
-          }
-
-          // If we're typing on the custom option but haven't entered anything, prevent submission
-          if (
-            this.cursor === textInputIndex &&
-            this.isTyping &&
-            (!this.userInput || !this.userInput.trim())
-          ) {
+        return output;
+      }),
+      validate: (value: string | undefined) => {
+        if (this.consumeSkipValidation()) {
+          return undefined;
+        }
+        if (this.getOutcome() !== "commit") {
+          return undefined;
+        }
+        // If both current and default are undefined, we're in text-only mode
+        if (this.current === undefined && this.default === undefined) {
+          if (!this.userInput || !this.userInput.trim()) {
             if (this.required) {
               return "Please enter a value";
             }
             return undefined;
           }
-
-          // If we're typing, validate the input
-          if (this.isTyping && this.userInput) {
-            const inputValidation = this.validateInput(this.userInput);
-            if (inputValidation) {
-              return inputValidation;
-            }
-            // If format is valid, run custom validation if provided
-            let parsedValue: string | undefined;
-            try {
-              parsedValue = this.parseInput(this.userInput);
-            } catch {
-              parsedValue = undefined;
-            }
-            const customValidation = this.runCustomValidate(parsedValue);
-            if (customValidation) {
-              return customValidation instanceof Error
-                ? customValidation.message
-                : customValidation;
-            }
+          // Validate the user input format first
+          const inputValidation = this.validateInput(this.userInput);
+          if (inputValidation) {
+            return inputValidation;
           }
-
-          // For non-typing cases (selecting current/default), validate the selected value
-          if (!this.isTyping) {
-            const customValidation = this.runCustomValidate(value);
-            if (customValidation) {
-              return customValidation instanceof Error
-                ? customValidation.message
-                : customValidation;
-            }
+          // If format is valid, run custom validation if provided
+          let parsedValue: string | undefined;
+          try {
+            parsedValue = this.parseInput(this.userInput);
+          } catch {
+            parsedValue = undefined;
           }
-
-          // All other cases are valid
+          const customValidation = this.runCustomValidate(parsedValue);
+          if (customValidation) {
+            return customValidation instanceof Error
+              ? customValidation.message
+              : customValidation;
+          }
           return undefined;
-        },
+        }
+
+        // Calculate the text input index dynamically
+        const textInputIndex = this.getTextInputIndex();
+
+        // If we're on the custom entry option but not typing yet, prevent submission
+        if (this.cursor === textInputIndex && !this.isTyping) {
+          // Start typing mode instead of submitting
+          this.isTyping = true;
+          this.track = true;
+          this._setUserInput("");
+          this.updateValue();
+          return "Value cannot be empty"; // This will cause validation to fail and stay active
+        }
+
+        // If we're typing on the custom option but haven't entered anything, prevent submission
+        if (
+          this.cursor === textInputIndex &&
+          this.isTyping &&
+          (!this.userInput || !this.userInput.trim())
+        ) {
+          if (this.required) {
+            return "Please enter a value";
+          }
+          return undefined;
+        }
+
+        // If we're typing, validate the input
+        if (this.isTyping && this.userInput) {
+          const inputValidation = this.validateInput(this.userInput);
+          if (inputValidation) {
+            return inputValidation;
+          }
+          // If format is valid, run custom validation if provided
+          let parsedValue: string | undefined;
+          try {
+            parsedValue = this.parseInput(this.userInput);
+          } catch {
+            parsedValue = undefined;
+          }
+          const customValidation = this.runCustomValidate(parsedValue);
+          if (customValidation) {
+            return customValidation instanceof Error
+              ? customValidation.message
+              : customValidation;
+          }
+        }
+
+        // For non-typing cases (selecting current/default), validate the selected value
+        if (!this.isTyping) {
+          const customValidation = this.runCustomValidate(value);
+          if (customValidation) {
+            return customValidation instanceof Error
+              ? customValidation.message
+              : customValidation;
+          }
+        }
+
+        // All other cases are valid
+        return undefined;
       },
-    );
+    });
 
     // If both current and default are undefined, start in typing mode
-  if (this.current === undefined && this.default === undefined) {
+    if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
       this.track = true;
       this.setCommittedValue(this.getDefaultValue());
@@ -375,10 +370,10 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         !this.isTyping
       ) {
         const isArrowKey = ["up", "down", "left", "right"].includes(
-          info.name || ""
+          info.name || "",
         );
         const isControlKey = ["return", "enter", "escape", "tab"].includes(
-          info.name || ""
+          info.name || "",
         );
 
         if (!isArrowKey && !isControlKey) {
@@ -489,15 +484,13 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   private getTextInputIndex(): number {
     let index = 0;
     if (this.current !== undefined) index++;
-    if (this.default !== undefined && this.current !== this.default)
-      index++;
+    if (this.default !== undefined && this.current !== this.default) index++;
     return index;
   }
 
   private getInputDisplay(includeCursor: boolean): string {
     const inputValue = this.userInput ?? "";
-    const isMasked =
-      this.secret && inputValue && !this.isSecretRevealed();
+    const isMasked = this.secret && inputValue && !this.isSecretRevealed();
     const base = isMasked ? this.maskValue(inputValue) : inputValue;
 
     if (!includeCursor) {
@@ -505,7 +498,11 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     }
 
     const rawCursor = this.isTyping
-      ? Math.max(0, (this as unknown as { _cursor?: number })._cursor ?? inputValue.length)
+      ? Math.max(
+          0,
+          (this as unknown as { _cursor?: number })._cursor ??
+            inputValue.length,
+        )
       : 0;
     const maskLength = isMasked ? Math.max(1, this.mask.length) : 1;
     const cursorIndex = Math.min(rawCursor * maskLength, base.length);
@@ -516,7 +513,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
     const segmentLength = maskLength;
     const before = base.slice(0, cursorIndex);
-    const cursorSegment = base.slice(cursorIndex, cursorIndex + segmentLength) || " ";
+    const cursorSegment =
+      base.slice(cursorIndex, cursorIndex + segmentLength) || " ";
     const after = base.slice(cursorIndex + segmentLength);
 
     return `${before}${this.colors.inverse(cursorSegment)}${after}`;

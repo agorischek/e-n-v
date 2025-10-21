@@ -47,7 +47,9 @@ export interface SessionOptions {
 }
 
 export class Session {
-  private readonly schemaEntries: Array<[string, EnvVarSchemaMap[keyof EnvVarSchemaMap]]>;
+  private readonly schemaEntries: Array<
+    [string, EnvVarSchemaMap[keyof EnvVarSchemaMap]]
+  >;
   private readonly newValues: Record<string, string> = {};
   private readonly promptLineHistory: number[] = [];
   private readonly channel: EnvChannel;

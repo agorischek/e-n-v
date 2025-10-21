@@ -12,97 +12,92 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   private readonly values: readonly string[];
 
   constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
-    super(
-      schema,
-      {
-        ...opts,
-        render: padActiveRender(function (this: EnvEnumPrompt) {
-          if (this.state === "submit") {
-            const outcomeResult = this.renderOutcomeResult();
-            if (outcomeResult) {
-              return outcomeResult;
-            }
-
-            return `${this.getSymbol()}  ${this.colors.bold(
-              this.colors.white(this.key)
-            )}${this.colors.subtle("=")}${this.colors.white(
-              this.truncateValue(this.value ?? "")
-            )}`;
+    super(schema, {
+      ...opts,
+      render: padActiveRender(function (this: EnvEnumPrompt) {
+        if (this.state === "submit") {
+          const outcomeResult = this.renderOutcomeResult();
+          if (outcomeResult) {
+            return outcomeResult;
           }
 
-          if (this.state === "cancel") {
-            return this.renderCancelled();
-          }
-
-          let output = "";
-
-          // Add header line with symbol based on state and key in bold white and description in gray if provided
-          output += `${this.getSymbol()}  ${this.colors.bold(
-            this.colors.white(this.key)
+          return `${this.getSymbol()}  ${this.colors.bold(
+            this.colors.white(this.key),
+          )}${this.colors.subtle("=")}${this.colors.white(
+            this.truncateValue(this.value ?? ""),
           )}`;
-          if (this.spec.description) {
-            output += ` ${this.colors.subtle(this.spec.description)}`;
-          }
-          output += "\n";
+        }
 
-          // Display enum options
-          const dimInputs = this.shouldDimInputs();
-          this.values.forEach((option, index) => {
-            const isSelected = index === this.cursor;
-            const circle = dimInputs
-              ? this.colors.dim(
-                  isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE
-                )
-              : isSelected
+        if (this.state === "cancel") {
+          return this.renderCancelled();
+        }
+
+        let output = "";
+
+        // Add header line with symbol based on state and key in bold white and description in gray if provided
+        output += `${this.getSymbol()}  ${this.colors.bold(
+          this.colors.white(this.key),
+        )}`;
+        if (this.spec.description) {
+          output += ` ${this.colors.subtle(this.spec.description)}`;
+        }
+        output += "\n";
+
+        // Display enum options
+        const dimInputs = this.shouldDimInputs();
+        this.values.forEach((option, index) => {
+          const isSelected = index === this.cursor;
+          const circle = dimInputs
+            ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
+            : isSelected
               ? this.theme.primary(S_RADIO_ACTIVE)
               : this.colors.dim(S_RADIO_INACTIVE);
 
-            // Determine if this option matches current or default
-            let annotation = "";
-            if (this.current === option && this.default === option) {
-              annotation = " (current, default)";
-            } else if (this.current === option) {
-              annotation = " (current)";
-            } else if (this.default === option) {
-              annotation = " (default)";
-            }
+          // Determine if this option matches current or default
+          let annotation = "";
+          if (this.current === option && this.default === option) {
+            annotation = " (current, default)";
+          } else if (this.current === option) {
+            annotation = " (current)";
+          } else if (this.default === option) {
+            annotation = " (default)";
+          }
 
-            const text = dimInputs
-              ? this.colors.dim(option)
-              : isSelected
+          const text = dimInputs
+            ? this.colors.dim(option)
+            : isSelected
               ? this.colors.white(option)
               : this.colors.subtle(option);
-            let suffix = "";
-            if (annotation) {
-              suffix = dimInputs
-                ? this.colors.dim(annotation)
-                : isSelected
+          let suffix = "";
+          if (annotation) {
+            suffix = dimInputs
+              ? this.colors.dim(annotation)
+              : isSelected
                 ? this.colors.subtle(annotation)
                 : "";
-            }
-            output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
-          });
-
-          // Add validation output with L-shaped pipe
-          output += `${this.getBarEnd()}  ${this.renderFooter()}`;
-
-          return output;
-  }),
-        validate: (value: string | undefined) => {
-          if (this.getOutcome() !== "commit") {
-            return undefined;
           }
+          output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
+        });
 
-          const customValidation = this.runCustomValidate(value);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
-          }
+        // Add validation output with L-shaped pipe
+        output += `${this.getBarEnd()}  ${this.renderFooter()}`;
+
+        return output;
+      }),
+      validate: (value: string | undefined) => {
+        if (this.getOutcome() !== "commit") {
           return undefined;
-        },
-      }
-    );
+        }
+
+        const customValidation = this.runCustomValidate(value);
+        if (customValidation) {
+          return customValidation instanceof Error
+            ? customValidation.message
+            : customValidation;
+        }
+        return undefined;
+      },
+    });
 
     this.options = opts;
     this.values = [...schema.values];
@@ -114,8 +109,8 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
     const initialIndex = this.current
       ? this.values.indexOf(this.current)
       : this.default
-      ? this.values.indexOf(this.default)
-      : 0;
+        ? this.values.indexOf(this.default)
+        : 0;
     this.cursor = Math.max(0, initialIndex);
 
     this.on("cursor", (action?: PromptAction) => {
@@ -136,9 +131,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
           break;
         case "down":
           this.cursor =
-            this.cursor === this.values.length - 1
-              ? 0
-              : this.cursor + 1;
+            this.cursor === this.values.length - 1 ? 0 : this.cursor + 1;
           break;
       }
       this.updateValue();
@@ -166,5 +159,4 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   private updateValue() {
     this.setCommittedValue(this.values[this.cursor]);
   }
-
 }

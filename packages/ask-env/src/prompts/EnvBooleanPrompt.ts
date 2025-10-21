@@ -10,110 +10,102 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
 
   constructor(schema: BooleanEnvVarSchema, opts: EnvPromptOptions<boolean>) {
-    super(
-      schema,
-      {
-        ...opts,
-        render: padActiveRender(function (this: EnvBooleanPrompt) {
-          if (this.state === "submit") {
-            const outcomeResult = this.renderOutcomeResult();
-            if (outcomeResult) {
-              return outcomeResult;
-            }
-
-            const valueStr = this.value ? "true" : "false";
-            return `${this.getSymbol()}  ${this.colors.bold(
-              this.colors.white(this.key)
-            )}${this.colors.subtle("=")}${this.colors.white(
-              this.truncateValue(valueStr)
-            )}`;
+    super(schema, {
+      ...opts,
+      render: padActiveRender(function (this: EnvBooleanPrompt) {
+        if (this.state === "submit") {
+          const outcomeResult = this.renderOutcomeResult();
+          if (outcomeResult) {
+            return outcomeResult;
           }
 
-          if (this.state === "cancel") {
-            return this.renderCancelled();
-          }
-
-          let output = "";
-
-          // Add header line with symbol based on state and key in bold white and description in gray if provided
-          output += `${this.getSymbol()}  ${this.colors.bold(
-            this.colors.white(this.key)
+          const valueStr = this.value ? "true" : "false";
+          return `${this.getSymbol()}  ${this.colors.bold(
+            this.colors.white(this.key),
+          )}${this.colors.subtle("=")}${this.colors.white(
+            this.truncateValue(valueStr),
           )}`;
-          if (this.spec.description) {
-            output += ` ${this.colors.subtle(this.spec.description)}`;
-          }
-          output += "\n";
+        }
 
-          // Create options array for true/false
-          const options = [
-            { value: true, label: "true" },
-            { value: false, label: "false" },
-          ];
+        if (this.state === "cancel") {
+          return this.renderCancelled();
+        }
 
-          const dimInputs = this.shouldDimInputs();
+        let output = "";
 
-          options.forEach((option, index) => {
-            const isSelected = index === this.cursor;
-            const circle = dimInputs
-              ? this.colors.dim(
-                  isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE
-                )
-              : isSelected
+        // Add header line with symbol based on state and key in bold white and description in gray if provided
+        output += `${this.getSymbol()}  ${this.colors.bold(
+          this.colors.white(this.key),
+        )}`;
+        if (this.spec.description) {
+          output += ` ${this.colors.subtle(this.spec.description)}`;
+        }
+        output += "\n";
+
+        // Create options array for true/false
+        const options = [
+          { value: true, label: "true" },
+          { value: false, label: "false" },
+        ];
+
+        const dimInputs = this.shouldDimInputs();
+
+        options.forEach((option, index) => {
+          const isSelected = index === this.cursor;
+          const circle = dimInputs
+            ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
+            : isSelected
               ? this.theme.primary(S_RADIO_ACTIVE)
               : this.colors.dim(S_RADIO_INACTIVE);
 
-            // Determine if this option matches current or default
-            let annotation = "";
-            if (
-              this.current === option.value &&
-              this.default === option.value
-            ) {
-              annotation = " (current, default)";
-            } else if (this.current === option.value) {
-              annotation = " (current)";
-            } else if (this.default === option.value) {
-              annotation = " (default)";
-            }
+          // Determine if this option matches current or default
+          let annotation = "";
+          if (this.current === option.value && this.default === option.value) {
+            annotation = " (current, default)";
+          } else if (this.current === option.value) {
+            annotation = " (current)";
+          } else if (this.default === option.value) {
+            annotation = " (default)";
+          }
 
-            const text = dimInputs
-              ? this.colors.dim(option.label)
-              : isSelected
+          const text = dimInputs
+            ? this.colors.dim(option.label)
+            : isSelected
               ? this.colors.white(option.label)
               : this.colors.subtle(option.label);
-            let suffix = "";
-            if (annotation) {
-              suffix = dimInputs
-                ? this.colors.dim(annotation)
-                : isSelected
+          let suffix = "";
+          if (annotation) {
+            suffix = dimInputs
+              ? this.colors.dim(annotation)
+              : isSelected
                 ? this.colors.subtle(annotation)
                 : "";
-            }
-            output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
-          });
-
-          // Add validation output with L-shaped pipe
-          output += `${this.getBarEnd()}  ${this.renderFooter()}`;
-
-          return output;
-        }),
-        validate: (value: boolean | undefined) => {
-          if (this.consumeSkipValidation()) {
-            return undefined;
           }
-          if (this.getOutcome() !== "commit") {
-            return undefined;
-          }
+          output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
+        });
 
-          const customValidation = this.runCustomValidate(value);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
-          }
+        // Add validation output with L-shaped pipe
+        output += `${this.getBarEnd()}  ${this.renderFooter()}`;
+
+        return output;
+      }),
+      validate: (value: boolean | undefined) => {
+        if (this.consumeSkipValidation()) {
           return undefined;
-        },
-      }
-    );
+        }
+        if (this.getOutcome() !== "commit") {
+          return undefined;
+        }
+
+        const customValidation = this.runCustomValidate(value);
+        if (customValidation) {
+          return customValidation instanceof Error
+            ? customValidation.message
+            : customValidation;
+        }
+        return undefined;
+      },
+    });
 
     // Set cursor based on priority: current → default → true
     // cursor 0 = true, cursor 1 = false

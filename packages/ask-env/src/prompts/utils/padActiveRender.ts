@@ -1,7 +1,7 @@
 import type { EnvPrompt } from "../EnvPrompt";
 
 export type PromptRender<TPrompt extends EnvPrompt<any, any>> = (
-  this: TPrompt
+  this: TPrompt,
 ) => string | undefined;
 
 /**
@@ -9,7 +9,7 @@ export type PromptRender<TPrompt extends EnvPrompt<any, any>> = (
  * submitted or cancelled renders untouched.
  */
 export function padActiveRender<TPrompt extends EnvPrompt<any, any>>(
-  render: PromptRender<TPrompt>
+  render: PromptRender<TPrompt>,
 ): PromptRender<TPrompt> {
   return function paddedRender(this: TPrompt) {
     const result = render.call(this);

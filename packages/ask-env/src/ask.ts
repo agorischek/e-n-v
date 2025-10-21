@@ -13,7 +13,9 @@ function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);
 }
 
-function resolveRootDirectory(rootOption: AskEnvOptions["root"]): string | undefined {
+function resolveRootDirectory(
+  rootOption: AskEnvOptions["root"],
+): string | undefined {
   if (!rootOption) {
     return undefined;
   }
@@ -25,7 +27,10 @@ function resolveRootDirectory(rootOption: AskEnvOptions["root"]): string | undef
   return rootOption;
 }
 
-function resolveEnvFilePath(pathOption: string, rootDir: string | undefined): string {
+function resolveEnvFilePath(
+  pathOption: string,
+  rootDir: string | undefined,
+): string {
   if (!rootDir) {
     return pathOption;
   }
@@ -40,10 +45,13 @@ function resolveEnvFilePath(pathOption: string, rootDir: string | undefined): st
  */
 export async function ask(
   schemas: EnvVarSchemaMap,
-  options: AskEnvOptions = {}
+  options: AskEnvOptions = {},
 ): Promise<void> {
   const rootDirectory = resolveRootDirectory(options.root);
-  const envPath = resolveEnvFilePath(options.path ?? defaults.ENV_PATH, rootDirectory);
+  const envPath = resolveEnvFilePath(
+    options.path ?? defaults.ENV_PATH,
+    rootDirectory,
+  );
   const truncate = options.truncate ?? defaults.TRUNCATE_LENGTH;
   const secrets = options.secrets ?? defaults.SECRET_PATTERNS;
 
