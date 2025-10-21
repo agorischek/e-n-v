@@ -7,9 +7,9 @@ import type { EnvVarType } from "../specification/EnvVarType";
 type SafeParseResult =
   | { success: true; data: unknown }
   | {
-      success: false;
-      error: { issues: Array<{ message: string }> };
-    };
+    success: false;
+    error: { issues: Array<{ message: string }> };
+  };
 
 function safeParseCompat(
   schema: CompatibleZodSchema,
@@ -52,22 +52,13 @@ export function processFromSchema<T>(
     if (result.success) {
       return result.data as T;
     }
-    
-    // If Zod parsing fails, fall back to default processor
-    switch (type) {
-      case "string":
-        return defaultProcessors.string(value) as T | undefined;
-      case "number":
-        return defaultProcessors.number(value) as T | undefined;
-      case "boolean":
-        return defaultProcessors.boolean(value) as T | undefined;
-      case "enum":
-        if (values) {
-          return defaultProcessors.enum(values)(value) as T | undefined;
-        }
-        return undefined;
-      default:
-        return undefined;
+    else {
+      throw new Error(
+        `Failed to parse value "${value}": ${result.error.issues
+          .map((issue) => issue.message)
+          .join("; ")}`,
+      );
     }
+
   };
 }

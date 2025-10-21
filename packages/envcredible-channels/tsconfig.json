@@ -10,6 +10,6 @@
     "declarationMap": true,
     "outDir": "./dist"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../ask-env/src/utils/processors.ts"],
   "exclude": ["node_modules", "dist"]
 }

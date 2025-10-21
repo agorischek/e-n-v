@@ -1,25 +1,25 @@
 /**
  * Default processors for environment variable types.
- * Each processor takes a value of type T and returns T | undefined.
+ * Each processor factory returns a function that takes a value and returns T | undefined.
  * Returns undefined for empty/null values, throws descriptive errors for invalid values.
  */
 
 /**
- * Process a string value - pass through as-is
+ * Create a string processor - pass through as-is
  */
-export function processString(value: string): string | undefined {
+export const stringProcessor = () => (value: string): string | undefined => {
   if (typeof value !== 'string') {
     throw new Error('Value must be a string');
   }
   
   // Return undefined for empty strings, otherwise return the string
   return value === '' ? undefined : value;
-}
+};
 
 /**
- * Process a number value using parseFloat
+ * Create a number processor using parseFloat
  */
-export function processNumber(value: string): number | undefined {
+export const numberProcessor = () => (value: string): number | undefined => {
   if (typeof value !== 'string') {
     throw new Error('Value must be a string');
   }
@@ -35,12 +35,12 @@ export function processNumber(value: string): number | undefined {
   }
   
   return parsed;
-}
+};
 
 /**
- * Process a boolean value from string representation
+ * Create a boolean processor from string representation
  */
-export function processBoolean(value: string): boolean | undefined {
+export const booleanProcessor = () => (value: string): boolean | undefined => {
   if (typeof value !== 'string') {
     throw new Error('Value must be a string');
   }
@@ -60,36 +60,34 @@ export function processBoolean(value: string): boolean | undefined {
   }
   
   throw new Error(`"${value}" is not a valid boolean. Use: true/false, 1/0, yes/no, or on/off`);
-}
+};
 
 /**
- * Process an enum value - validates it's in the allowed values list
+ * Create an enum processor that validates values against allowed options
  */
-export function processEnum(allowedValues: readonly string[]) {
-  return (value: string): string | undefined => {
-    if (typeof value !== 'string') {
-      throw new Error('Value must be a string');
-    }
-    
-    const trimmed = value.trim();
-    if (trimmed === '') {
-      return undefined;
-    }
-    
-    if (!allowedValues.includes(trimmed)) {
-      throw new Error(`"${value}" is not a valid option. Must be one of: ${allowedValues.join(', ')}`);
-    }
-    
-    return trimmed;
-  };
-}
+export const enumProcessor = (allowedValues: readonly string[]) => (value: string): string | undefined => {
+  if (typeof value !== 'string') {
+    throw new Error('Value must be a string');
+  }
+  
+  const trimmed = value.trim();
+  if (trimmed === '') { 
+    return undefined;
+  }
+  
+  if (!allowedValues.includes(trimmed)) {
+    throw new Error(`"${value}" is not a valid option. Must be one of: ${allowedValues.join(', ')}`);
+  }
+  
+  return trimmed;
+};
 
 /**
  * Default processors map for each environment variable type
  */
 export const defaultProcessors = {
-  string: processString,
-  number: processNumber,
-  boolean: processBoolean,
-  enum: processEnum,
+  string: stringProcessor,
+  number: numberProcessor,
+  boolean: booleanProcessor,
+  enum: enumProcessor,
 } as const;
