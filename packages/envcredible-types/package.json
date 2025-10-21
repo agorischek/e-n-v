@@ -1,7 +1,7 @@
 {
   "name": "@envcredible/types",
   "version": "0.1.0",
-  "description": "Shared TypeScript types for envcredible (EnvChannel, EnvVarSchema, EnvVarSchemaMap, etc.)",
+  "description": "Shared TypeScript types for envcredible (EnvChannel, EnvVarSchema, etc.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
@@ -9,9 +9,6 @@
     "dist"
   ],
   "keywords": ["env", "types", "envcredible"],
-  "peerDependencies": {
-    "zod": "^3 || ^4"
-  },
   "devDependencies": {
     "typescript": "^5.0.0"
   },

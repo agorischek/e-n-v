@@ -1,5 +1,5 @@
 import type { EnvVarSchema } from "@envcredible/types";
-import type { EnvVarSchemaMap } from "@envcredible/types";
+import type { EnvVarSchemaMap } from "./types";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { stdin, stdout } from "node:process";
