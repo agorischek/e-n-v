@@ -1,4 +1,5 @@
-import type { EnvVarSchemaMap } from "./types";
+import type { EnvVarSchema } from "../../envcredible-types/src/specification";
+import type { EnvVarSchemaMap } from "../../envcredible-types/src/types";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { stdin, stdout } from "node:process";
@@ -8,6 +9,9 @@ import type { AskEnvOptions } from "./AskEnvOptions";
 import * as defaults from "./defaults";
 import { resolveChannel } from "./channels/resolveChannel";
 import { Session } from "./session/Session";
+import { fromZodSchema } from "./specification/fromZodSchema";
+import { isEnvVarSchema } from "./specification/EnvVarSchema";
+import { isCompatibleZodSchema } from "./specification/zodCompat";
 
 function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);
@@ -39,6 +43,26 @@ function resolveEnvFilePath(
 }
 
 /**
+ * Resolve mixed schema map (Zod schemas or EnvVarSchema) to pure EnvVarSchema map
+ */
+function resolveSchemas(schemas: EnvVarSchemaMap): Record<string, EnvVarSchema> {
+  const resolved: Record<string, EnvVarSchema> = {};
+  
+  for (const [key, rawSchema] of Object.entries(schemas)) {
+    if (isCompatibleZodSchema(rawSchema)) {
+      resolved[key] = fromZodSchema(rawSchema);
+    } else if (isEnvVarSchema(rawSchema)) {
+      resolved[key] = rawSchema;
+    } else {
+      // Fallback - treat as already resolved
+      resolved[key] = rawSchema as EnvVarSchema;
+    }
+  }
+  
+  return resolved;
+}
+
+/**
  * Interactive CLI tool to generate .env files with Zod schema validation
  * @param schemas - Object mapping environment variable names to Zod schemas, or a ZodObject
  * @param options - Configuration options
@@ -60,9 +84,10 @@ export async function ask(
 
   const channel = resolveChannel(options.channel, envPath);
   const theme = resolveTheme(options.theme);
+  const resolvedSchemas = resolveSchemas(schemas);
 
   const session = new Session({
-    schemas,
+    schemas: resolvedSchemas,
     channel,
     secrets,
     truncate,

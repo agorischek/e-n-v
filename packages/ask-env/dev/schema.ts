@@ -6,7 +6,7 @@ await ask({
     description: "Demo variable",
     required: true,
     default: "hello",
-    validate: (value) => {
+    validate: (value: string) => {
       if (value?.length && value.length < 3) {
         return "Must be at least 3 characters";
       }

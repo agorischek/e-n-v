@@ -1,4 +1,4 @@
-export type { EnvChannel } from "./channels/EnvChannel";
+export type { EnvChannel } from "../../envcredible-types/src/channels";
 export { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
 export { DotEnvXChannel } from "./channels/dotenvx/DotEnvXChannel";
 export type { EnvChannelOptions } from "./channels/EnvChannelOptions";

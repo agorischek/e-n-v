@@ -2,27 +2,22 @@ import { isCancel } from "@clack/core";
 import type { Readable } from "node:stream";
 import * as color from "picocolors";
 import { createPrompt } from "../createPrompt";
-import { fromZodSchema } from "../specification/fromZodSchema";
-import {
-  isEnvVarSchema,
-  type EnvVarSchema,
-} from "../specification/EnvVarSchema";
-import { isCompatibleZodSchema } from "../specification/zodCompat";
-import type { SecretPattern, EnvVarSchemaMap } from "../types";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
 import { isSecretKey } from "../utils/secrets";
 import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";
 import { renderSetupHeader } from "../visuals/renderSetupHeader";
 import { S_BAR, S_BAR_END } from "../visuals/symbols";
 import type { Theme } from "../visuals/Theme";
-import type { EnvChannel } from "../channels/EnvChannel";
+import type { EnvChannel } from "../../../envcredible-types/src/channels";
+import type { EnvVarSchema } from "../../../envcredible-types/src/specification";
+import type { SecretPattern } from "../../../envcredible-types/src/types";
 
 export type PromptFlowResult = "success" | "cancelled" | "error";
 
 export function resolveShouldMask(
   key: string,
   schema: EnvVarSchema,
-  patterns: ReadonlyArray<SecretPattern>,
+  patterns: ReadonlyArray<string | RegExp>,
 ): boolean {
   if (schema.type !== "string") {
     return false;
@@ -36,9 +31,9 @@ export function resolveShouldMask(
 }
 
 export interface SessionOptions {
-  schemas: EnvVarSchemaMap;
+  schemas: Record<string, EnvVarSchema>;
   channel: EnvChannel;
-  secrets: readonly SecretPattern[];
+  secrets: readonly (string | RegExp)[];
   truncate: number;
   theme: Theme;
   input?: Readable;
@@ -47,13 +42,11 @@ export interface SessionOptions {
 }
 
 export class Session {
-  private readonly schemaEntries: Array<
-    [string, EnvVarSchemaMap[keyof EnvVarSchemaMap]]
-  >;
+  private readonly schemas: Record<string, EnvVarSchema>;
   private readonly newValues: Record<string, string> = {};
   private readonly promptLineHistory: number[] = [];
   private readonly channel: EnvChannel;
-  private readonly secrets: readonly SecretPattern[];
+  private readonly secrets: readonly (string | RegExp)[];
   private readonly truncate: number;
   private readonly theme: Theme;
   private readonly output: NodeJS.WriteStream;
@@ -77,7 +70,7 @@ export class Session {
     this.output = output;
     this.input = input;
     this.displayEnvPath = getDisplayEnvPath(path);
-    this.schemaEntries = Object.entries(schemas);
+    this.schemas = schemas;
   }
 
   static fromOptions(options: SessionOptions): Session {
@@ -87,10 +80,12 @@ export class Session {
     renderSetupHeader(this.output, this.theme, this.displayEnvPath);
 
     let currentValues = await this.channel.get();
+    const schemaKeys = Object.keys(this.schemas);
     let index = 0;
 
-    while (index < this.schemaEntries.length) {
-      const [key, rawSchema] = this.schemaEntries[index]!;
+    while (index < schemaKeys.length) {
+      const key = schemaKeys[index]!;
+      const envVarSchema = this.schemas[key]!;
 
       let addedLines = 0;
 
@@ -98,12 +93,6 @@ export class Session {
         this.output.write(`${color.gray("│")}  \n`);
         addedLines++;
       }
-
-      const envVarSchema = isCompatibleZodSchema(rawSchema)
-        ? fromZodSchema(rawSchema)
-        : isEnvVarSchema(rawSchema)
-          ? rawSchema
-          : (rawSchema as ReturnType<typeof fromZodSchema>);
 
       const shouldMask = resolveShouldMask(key, envVarSchema, this.secrets);
 

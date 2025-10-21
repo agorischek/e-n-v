@@ -3,7 +3,7 @@ import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import type { EnvVarSchema } from "./specification/EnvVarSchema";
+import type { EnvVarSchema } from "../../envcredible-types/src/specification";
 import { parseBoolean } from "./utils/parseBoolean";
 import type { Theme } from "./visuals/Theme";
 

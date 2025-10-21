@@ -3,7 +3,7 @@ import type { EnvPromptOptions } from "./EnvPrompt";
 import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
-import type { EnumEnvVarSchema } from "../specification/EnvVarSchema";
+import type { EnumEnvVarSchema } from "../../../envcredible-types/src/specification";
 import { padActiveRender } from "./utils/padActiveRender";
 
 export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {

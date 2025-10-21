@@ -1,10 +1,9 @@
 import { z } from "zod";
 import { ask } from "../src/ask";
 
-import type { EnvVarSchemaMap } from "../src/types";
 import { DATABASE_PASSWORD, RABBITMQ_URL } from "../../env-var-schemas/src";
 
-const vars: EnvVarSchemaMap = {
+const vars = {
   DATABASE_PASSWORD,
   RABBITMQ_URL,
   DATABASE_URL: z.string().describe("Database connection URL").default("hey"),
