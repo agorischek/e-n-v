@@ -1,14 +1,19 @@
 /**
  * Default processors for environment variable types.
  * Each processor takes a value of type T and returns T | undefined.
- * Returning undefined indicates the value could not be processed.
+ * Returns undefined for empty/null values, throws descriptive errors for invalid values.
  */
 
 /**
  * Process a string value - pass through as-is
  */
 export function processString(value: string): string | undefined {
-  return value;
+  if (typeof value !== 'string') {
+    throw new Error('Value must be a string');
+  }
+  
+  // Return undefined for empty strings, otherwise return the string
+  return value === '' ? undefined : value;
 }
 
 /**
@@ -16,7 +21,7 @@ export function processString(value: string): string | undefined {
  */
 export function processNumber(value: string): number | undefined {
   if (typeof value !== 'string') {
-    return undefined;
+    throw new Error('Value must be a string');
   }
   
   const trimmed = value.trim();
@@ -25,7 +30,11 @@ export function processNumber(value: string): number | undefined {
   }
   
   const parsed = parseFloat(trimmed);
-  return isNaN(parsed) ? undefined : parsed;
+  if (isNaN(parsed)) {
+    throw new Error(`"${value}" is not a valid number`);
+  }
+  
+  return parsed;
 }
 
 /**
@@ -33,10 +42,14 @@ export function processNumber(value: string): number | undefined {
  */
 export function processBoolean(value: string): boolean | undefined {
   if (typeof value !== 'string') {
-    return undefined;
+    throw new Error('Value must be a string');
   }
   
   const trimmed = value.trim().toLowerCase();
+  
+  if (trimmed === '') {
+    return undefined;
+  }
   
   if (trimmed === 'true' || trimmed === '1' || trimmed === 'yes' || trimmed === 'on') {
     return true;
@@ -46,7 +59,7 @@ export function processBoolean(value: string): boolean | undefined {
     return false;
   }
   
-  return undefined;
+  throw new Error(`"${value}" is not a valid boolean. Use: true/false, 1/0, yes/no, or on/off`);
 }
 
 /**
@@ -55,10 +68,19 @@ export function processBoolean(value: string): boolean | undefined {
 export function processEnum(allowedValues: readonly string[]) {
   return (value: string): string | undefined => {
     if (typeof value !== 'string') {
+      throw new Error('Value must be a string');
+    }
+    
+    const trimmed = value.trim();
+    if (trimmed === '') {
       return undefined;
     }
     
-    return allowedValues.includes(value) ? value : undefined;
+    if (!allowedValues.includes(trimmed)) {
+      throw new Error(`"${value}" is not a valid option. Must be one of: ${allowedValues.join(', ')}`);
+    }
+    
+    return trimmed;
   };
 }
 

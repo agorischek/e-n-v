@@ -48,6 +48,9 @@
     "packages/envcredible-channels": {
       "name": "@envcredible/channels",
       "version": "0.1.0",
+      "dependencies": {
+        "@envcredible/types": "workspace:*",
+      },
       "devDependencies": {
         "typescript": "^5.0.0",
       },

@@ -15,7 +15,6 @@ type TestPromptOptions = Partial<EnvPromptOptions<boolean>> & {
   key?: string;
   description?: string;
   required?: boolean;
-  validate?: BooleanEnvVarSchema["validate"];
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -25,7 +24,6 @@ function createPrompt(options: TestPromptOptions = {}) {
     required: options.required ?? false,
     description: options.description,
     default: options.default,
-    validate: options.validate,
   };
 
   const prompt = new EnvBooleanPrompt(schema, {
@@ -107,7 +105,7 @@ describe("EnvBooleanPrompt", () => {
       return undefined;
     };
 
-    const { prompt } = createPrompt({ current: false, validate });
+    const { prompt } = createPrompt({ current: false });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 

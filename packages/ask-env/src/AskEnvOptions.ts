@@ -1,5 +1,5 @@
 import type { Formatter } from "picocolors/types";
-import type { EnvChannelOptions } from "./channels/EnvChannelOptions";
+import type { EnvChannelOptions } from "@envcredible/channels/src/channels/EnvChannelOptions";
 import type { SecretPattern } from "./types";
 
 /**

@@ -1,6 +1,6 @@
-import type { DotEnvXInstance } from "./dotenvx/DotEnvXInstance";
-import type { DotEnvXChannelConfig } from "./dotenvx/DotEnvXChannelConfig";
-import type { DefaultChannelConfig } from "./default/DefaultChannelConfig";
+import type { DotEnvXInstance } from "./channels/dotenvx/DotEnvXInstance";
+import type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
+import type { DefaultChannelConfig } from "./channels/default/DefaultChannelConfig";
 
 /**
  * Channel options can be:
@@ -13,6 +13,5 @@ import type { DefaultChannelConfig } from "./default/DefaultChannelConfig";
 export type EnvChannelOptions =
   | undefined
   | "default"
-  | DotEnvXInstance // dotenvx singleton import
   | DotEnvXChannelConfig
   | DefaultChannelConfig;

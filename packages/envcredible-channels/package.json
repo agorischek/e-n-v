@@ -8,6 +8,9 @@
   "files": [
     "dist"
   ],
+  "dependencies": {
+    "@envcredible/types": "workspace:*"
+  },
   "keywords": ["env", "channels", "processors", "envcredible"],
   "peerDependencies": {
     "zod": "^3 || ^4"
