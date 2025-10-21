@@ -49,7 +49,7 @@ export function createPrompt({
         ...baseOptions,
         current:
           currentValue !== undefined 
-            ? (schema.process || defaultProcessors.boolean)(currentValue)
+            ? (schema.process || defaultProcessors.boolean())(currentValue)
             : undefined,
       });
     case "number":
@@ -57,7 +57,7 @@ export function createPrompt({
         ...baseOptions,
         current:
           currentValue !== undefined 
-            ? (schema.process || defaultProcessors.number)(currentValue)
+            ? (schema.process || defaultProcessors.number())(currentValue)
             : undefined,
       });
     case "enum":

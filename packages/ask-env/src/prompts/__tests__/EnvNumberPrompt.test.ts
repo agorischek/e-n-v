@@ -27,7 +27,6 @@ function createPrompt(
     required: options.required ?? false,
     default: options.default,
     description: options.description,
-    validate: options.validate,
   };
 
   const prompt = new EnvNumberPrompt(schema, {

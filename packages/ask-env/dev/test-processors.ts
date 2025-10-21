@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fromZodSchema } from "../src/specification/fromZodSchema";
+import { fromZodSchema } from "@envcredible/schematization";
 import { defaultProcessors } from "@envcredible/channels";
 
 // Test number processing with z.coerce
@@ -58,6 +58,6 @@ if (enumSpec.process) {
 
 // Test default processors directly
 console.log("\nDefault Processors Test:");
-console.log('defaultProcessors.number("42.5"):', defaultProcessors.number("42.5"));
-console.log('defaultProcessors.boolean("yes"):', defaultProcessors.boolean("yes"));
+console.log('defaultProcessors.number()("42.5"):', defaultProcessors.number()("42.5"));
+console.log('defaultProcessors.boolean()("yes"):', defaultProcessors.boolean()("yes"));
 console.log('defaultProcessors.enum(["a", "b"])("a"):', defaultProcessors.enum(["a", "b"])("a"));

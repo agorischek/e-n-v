@@ -7,7 +7,7 @@ const prompt = new EnvNumberPrompt(
     required: true,
     description: "API server port (must be between 1024-65535)",
     default: 8080,
-    process: defaultProcessors.number,
+    process: defaultProcessors.number(),
   },
   {
     key: "API_PORT",

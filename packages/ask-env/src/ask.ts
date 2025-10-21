@@ -7,7 +7,7 @@ import { dirname, resolve as resolvePath } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AskEnvOptions } from "./AskEnvOptions";
 import * as defaults from "./defaults";
-import { resolveChannel } from "@envcredible/channels/src/channels/resolveChannel";
+import { resolveChannel } from "@envcredible/channels/resolveChannel";
 import { Session } from "./session/Session";
 import { fromZodSchema } from "@envcredible/schematization";
 import { isEnvVarSchema } from "@envcredible/schematization";

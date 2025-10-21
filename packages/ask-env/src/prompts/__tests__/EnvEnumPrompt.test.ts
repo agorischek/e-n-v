@@ -9,7 +9,6 @@ type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
   options?: string[];
   required?: boolean;
   description?: string;
-  validate?: EnumEnvVarSchema["validate"];
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -21,7 +20,6 @@ function createPrompt(options: TestPromptOptions = {}) {
     required: options.required ?? false,
     description: options.description,
     default: options.default,
-    validate: options.validate,
     values,
   };
 
@@ -132,7 +130,6 @@ describe("EnvEnumPrompt", () => {
     const { prompt } = createPrompt({
       current: "alpha",
       options: ["alpha", "beta"],
-      validate: validationSpy,
     });
 
     prompt.emit("cursor", "down");
