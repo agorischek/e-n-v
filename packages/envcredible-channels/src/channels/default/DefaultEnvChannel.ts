@@ -1,5 +1,5 @@
 import type { EnvChannel } from "@envcredible/types";
-import { EnvSource } from "../../../../envrw/src/index";
+import { EnvSource } from "envrw";
 
 /**
  * Default implementation of EnvChannel that works with .env files using envrw

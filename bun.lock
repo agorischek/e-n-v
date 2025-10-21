@@ -50,6 +50,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@envcredible/types": "workspace:*",
+        "envrw": "workspace:*",
       },
       "devDependencies": {
         "typescript": "^5.0.0",

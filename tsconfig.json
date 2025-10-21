@@ -18,7 +18,9 @@
     "baseUrl": ".",
     "paths": {
       "@envcredible/types": ["./packages/envcredible-types/src/index.ts"],
-      "@envcredible/types/*": ["./packages/envcredible-types/src/*"]
+      "@envcredible/types/*": ["./packages/envcredible-types/src/*"],
+      "envrw": ["./packages/envrw/src/index.ts"],
+      "envrw/*": ["./packages/envrw/src/*"]
     },
 
     // Best practices
