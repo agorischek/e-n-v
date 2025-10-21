@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { resolveShouldMask } from "../Session";
-import type { EnvVarSchema } from "../../../../envcredible-types/src/specification";
+import type { EnvVarSchema } from "@envcredible/types";
 
 const BASE_STRING_SCHEMA: EnvVarSchema = {
   type: "string",

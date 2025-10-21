@@ -4,7 +4,7 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
 import { maskSecretValue } from "../utils/secrets";
-import type { StringEnvVarSchema } from "../../../envcredible-types/src/specification";
+import type { StringEnvVarSchema } from "@envcredible/types";
 import { padActiveRender } from "./utils/padActiveRender";
 
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {

@@ -10,7 +10,7 @@ import {
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptOptions, Validate } from "../vendor/PromptOptions";
-import type { EnvVarSchemaDetails } from "../../../envcredible-types/src/specification";
+import type { EnvVarSchemaDetails } from "@envcredible/types";
 import { Readable, Writable } from "node:stream";
 
 export type PromptOutcome = "commit" | "skip" | "previous";

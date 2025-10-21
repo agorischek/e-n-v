@@ -1,4 +1,4 @@
-import type { EnvChannel } from "../../../envcredible-types/src/channels";
+import type { EnvChannel } from "@envcredible/types";
 import type { EnvChannelOptions } from "./EnvChannelOptions";
 import type { DotEnvXChannelConfig } from "./dotenvx/DotEnvXChannelConfig";
 import type { DefaultChannelConfig } from "./default/DefaultChannelConfig";

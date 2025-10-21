@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { EnvBooleanPrompt } from "../EnvBooleanPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
-import type { BooleanEnvVarSchema } from "../../../../envcredible-types/src/specification";
+import type { BooleanEnvVarSchema } from "@envcredible/types";
 import {
   createTestStreams,
   waitForIO,

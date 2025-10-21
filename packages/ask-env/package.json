@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@clack/core": "1.0.0-alpha.6",
+    "@envcredible/types": "workspace:*",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
