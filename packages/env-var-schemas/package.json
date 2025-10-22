@@ -6,6 +6,10 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     },
+    "./zod": {
+      "types": "./src/zod/index.ts",
+      "import": "./src/zod/index.ts"
+    },
     "./v4": {
       "types": "./src/v4/index.ts",
       "import": "./src/v4/index.ts"

@@ -28,8 +28,9 @@
       "dependencies": {
         "@clack/core": "1.0.0-alpha.6",
         "@envcredible/channels": "workspace:*",
+        "@envcredible/converters": "workspace:*",
         "@envcredible/core": "workspace:*",
-        "@envcredible/reflection": "workspace:*",
+        "env-var-schemas": "workspace:*",
         "picocolors": "^1.1.1",
       },
       "devDependencies": {
@@ -60,21 +61,21 @@
         "zod": "^3 || ^4",
       },
     },
-    "packages/envcredible-core": {
-      "name": "@envcredible/core",
-      "version": "0.1.0",
-      "devDependencies": {
-        "typescript": "^5.0.0",
-      },
-    },
-    "packages/envcredible-reflection": {
-      "name": "@envcredible/reflection",
+    "packages/envcredible-converters": {
+      "name": "@envcredible/converters",
       "dependencies": {
         "@envcredible/core": "workspace:*",
       },
       "devDependencies": {
         "@standard-schema/spec": "^1.0.0",
         "zod": "^3.25.0 || ^4.0.0",
+      },
+    },
+    "packages/envcredible-core": {
+      "name": "@envcredible/core",
+      "version": "0.1.0",
+      "devDependencies": {
+        "typescript": "^5.0.0",
       },
     },
     "packages/envrw": {
@@ -164,9 +165,9 @@
 
     "@envcredible/channels": ["@envcredible/channels@workspace:packages/envcredible-channels"],
 
-    "@envcredible/core": ["@envcredible/core@workspace:packages/envcredible-core"],
+    "@envcredible/converters": ["@envcredible/converters@workspace:packages/envcredible-converters"],
 
-    "@envcredible/reflection": ["@envcredible/reflection@workspace:packages/envcredible-reflection"],
+    "@envcredible/core": ["@envcredible/core@workspace:packages/envcredible-core"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.25.10", "", { "os": "aix", "cpu": "ppc64" }, "sha512-0NFWnA+7l41irNuaSVlLfgNT12caWJVLzp5eAVhZ0z1qpxbockccEt3s+149rE64VUI3Ml2zt8Nv5JVc4QXTsw=="],
 

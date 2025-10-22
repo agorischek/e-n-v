@@ -72,30 +72,24 @@ export function applyCustomPreprocessing<T>(
   schema: TypedEnvVarSchema,
   preprocessorOptions?: PreprocessorOptions
 ): T | undefined {
-  try {
-    // Apply preprocessing
-    const processedValue = applyPreprocessing(value, schema.type, preprocessorOptions);
+  // Apply preprocessing
+  const processedValue = applyPreprocessing(value, schema.type, preprocessorOptions);
 
-    // If the preprocessing function returned the target type, use it directly
-    if (schema.type === "boolean" && typeof processedValue === "boolean") {
-      return processedValue as T;
-    }
-    if (schema.type === "number" && typeof processedValue === "number") {
-      return processedValue as T;
-    }
-
-    // If it's still a string, pass it through the schema processor
-    if (typeof processedValue === "string") {
-      return (schema as any).process(processedValue) as T | undefined;
-    }
-
-    // Fallback to original schema processing
-    return (schema as any).process(value) as T | undefined;
-  } catch (error) {
-    // Instead of throwing, return undefined and let the UI handle the invalid value
-    // The validation error will be shown as an annotation and the user can skip validation
-    return undefined;
+  // If the preprocessing function returned the target type, use it directly
+  if (schema.type === "boolean" && typeof processedValue === "boolean") {
+    return processedValue as T;
   }
+  if (schema.type === "number" && typeof processedValue === "number") {
+    return processedValue as T;
+  }
+
+  // If it's still a string, pass it through the schema processor
+  if (typeof processedValue === "string") {
+    return (schema as any).process(processedValue) as T | undefined;
+  }
+
+  // Fallback to original schema processing
+  return (schema as any).process(value) as T | undefined;
 }
 
 /**

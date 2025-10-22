@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import { z } from "zod";
-import { fromZodSchema } from "@envcredible/reflection";
+import { fromZodSchema } from "@envcredible/converters";
 import { applyCustomPreprocessing } from "../createPrompt.js";
 
 describe("Custom preprocessing functionality", () => {

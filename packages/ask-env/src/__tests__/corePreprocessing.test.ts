@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import { z } from "zod";
-import { fromZodSchema } from "@envcredible/reflection";
+import { fromZodSchema } from "@envcredible/converters";
 import { applyPreprocessing } from "@envcredible/core";
 
 describe("Core preprocessing integration", () => {

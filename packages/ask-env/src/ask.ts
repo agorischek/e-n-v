@@ -9,9 +9,9 @@ import type { AskEnvOptions } from "./AskEnvOptions";
 import * as defaults from "./defaults";
 import { resolveChannel } from "@envcredible/channels/resolveChannel";
 import { Session } from "./session/Session";
-import { fromZodSchema } from "@envcredible/reflection";
-import { isEnvVarSchema } from "@envcredible/reflection";
-import { isCompatibleZodSchema } from "@envcredible/reflection";
+import { fromZodSchema } from "@envcredible/converters";
+import { isEnvVarSchema } from "@envcredible/converters";
+import { isCompatibleZodSchema } from "@envcredible/converters";
 
 function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);

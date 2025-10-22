@@ -1,5 +1,5 @@
 {
-  "name": "@envcredible/reflection",
+  "name": "@envcredible/converters",
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {

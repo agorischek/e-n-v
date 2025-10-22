@@ -85,7 +85,7 @@ describe("Coercion for Environment Variables", () => {
     it("should throw error for invalid boolean strings", () => {
       const schema = fromZodSchema(z.boolean());
       
-      expect(() => schema.process("maybe")).toThrow("Expected boolean value");
+      expect(() => schema.process("maybe")).toThrow('Invalid option: expected one of "true"|"1"|"yes"|"on"|"y"|"enabled"|"false"|"0"|"no"|"off"|"n"|"disabled"');
     });
   });
 

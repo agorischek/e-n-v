@@ -1,1 +1,2 @@
-export * from "./v4";export * from "./v4";
+// Export envcredible schemas by default
+export * from "./envcredible";

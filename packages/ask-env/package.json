@@ -5,8 +5,9 @@
   "dependencies": {
     "@clack/core": "1.0.0-alpha.6",
     "@envcredible/channels": "workspace:*",
-    "@envcredible/reflection": "workspace:*",
+    "@envcredible/converters": "workspace:*",
     "@envcredible/core": "workspace:*",
+    "env-var-schemas": "workspace:*",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
