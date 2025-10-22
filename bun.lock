@@ -67,16 +67,7 @@
         "typescript": "^5.0.0",
       },
     },
-    "packages/envrw": {
-      "name": "envrw",
-      "devDependencies": {
-        "@types/bun": "latest",
-      },
-      "peerDependencies": {
-        "typescript": "^5",
-      },
-    },
-    "packages/schematization": {
+    "packages/envcredible-schematization": {
       "name": "@envcredible/schematization",
       "dependencies": {
         "@envcredible/core": "workspace:*",
@@ -84,6 +75,15 @@
       "devDependencies": {
         "@standard-schema/spec": "^1.0.0",
         "zod": "^3.25.0 || ^4.0.0",
+      },
+    },
+    "packages/envrw": {
+      "name": "envrw",
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
       },
     },
   },
@@ -166,7 +166,7 @@
 
     "@envcredible/core": ["@envcredible/core@workspace:packages/envcredible-core"],
 
-    "@envcredible/schematization": ["@envcredible/schematization@workspace:packages/schematization"],
+    "@envcredible/schematization": ["@envcredible/schematization@workspace:packages/envcredible-schematization"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.25.10", "", { "os": "aix", "cpu": "ppc64" }, "sha512-0NFWnA+7l41irNuaSVlLfgNT12caWJVLzp5eAVhZ0z1qpxbockccEt3s+149rE64VUI3Ml2zt8Nv5JVc4QXTsw=="],
 

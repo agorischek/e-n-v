@@ -1,15 +1,9 @@
-export * from "./BooleanEnvVarSchema";
-export * from "./EnumEnvVarSchema";
-export * from "./EnvChannel";
-export * from "./EnvVarSchema";
-export * from "./EnvVarSchemaDetails";
-export * from "./EnvVarSchemaSharedInput";
-export type { TypedEnvVarSchema } from "./TypedEnvVarSchema";
-export * from "./EnvVarType";
-export * from "./NumberEnvVarSchema";
-export * from "./Processor";
-export * from "./processors";
-export * from "./StringEnvVarSchema";
+// Export everything from organized subdirectories
+export * from "./schemas";
+export * from "./types";
+export * from "./processors/Processor";
+export * from "./processors/processors";
+export * from "./channels";
 
 // Legacy export for backward compatibility
-export type { TypedEnvVarSchema as EnvVarSchemaUnion } from "./TypedEnvVarSchema";
+export type { TypedEnvVarSchema as EnvVarSchemaUnion } from "./schemas/TypedEnvVarSchema";

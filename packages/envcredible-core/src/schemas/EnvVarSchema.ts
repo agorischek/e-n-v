@@ -1,5 +1,5 @@
-import type { Processor } from "./Processor";
-import type { EnvVarType } from "./EnvVarType";
+import type { Processor } from "../processors/Processor";
+import type { EnvVarType } from "../types/EnvVarType";
 import type { EnvVarSchemaSharedInput } from "./EnvVarSchemaSharedInput";
 
 export abstract class EnvVarSchema<T> {

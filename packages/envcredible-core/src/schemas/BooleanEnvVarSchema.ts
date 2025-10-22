@@ -1,7 +1,7 @@
 import { EnvVarSchema } from "./EnvVarSchema";
-import type { Processor } from "./Processor";
+import type { Processor } from "../processors/Processor";
 import type { EnvVarSchemaSharedInput } from "./EnvVarSchemaSharedInput";
-import { processors } from "./processors";
+import { processors } from "../processors/processors";
 
 export interface BooleanEnvVarSchemaInput extends EnvVarSchemaSharedInput<boolean> {}
 

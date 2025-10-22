@@ -1,6 +1,6 @@
 import { EnvVarSchema } from "./EnvVarSchema";
 import type { EnvVarSchemaSharedInput } from "./EnvVarSchemaSharedInput";
-import { processors } from "./processors";
+import { processors } from "../processors/processors";
 
 export interface EnumEnvVarSchemaInput extends EnvVarSchemaSharedInput<string> {
   values: readonly string[];
