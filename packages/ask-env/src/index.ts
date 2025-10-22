@@ -6,7 +6,7 @@ export type { DotEnvXChannelConfig } from "@envcredible/channels/channels/dotenv
 export type { DefaultChannelConfig } from "@envcredible/channels/channels/default/DefaultChannelConfig";
 export { resolveChannel } from "@envcredible/channels/resolveChannel";
 
-export * as schemas from "../../env-var-schemas/src/v4/index";
+export * as schemas from "../../env-var-schemas/src";
 
 export * as defaults from "./defaults";
 

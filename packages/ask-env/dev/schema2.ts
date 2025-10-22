@@ -7,8 +7,4 @@ await ask({
     required: true,
     description: "Demo variable",
   }),
-  DEMO2: s.enum({
-    default: "hello",
-    values: ["hello", "world"],
-  }),
 });

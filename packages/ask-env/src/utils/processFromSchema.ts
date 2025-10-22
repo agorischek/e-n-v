@@ -1,1 +1,0 @@
-export { processFromSchema } from "@envcredible/schematization";
