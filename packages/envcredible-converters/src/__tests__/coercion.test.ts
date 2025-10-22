@@ -1,11 +1,11 @@
 import { describe, it, expect } from "bun:test";
-import { fromZodSchema } from "../fromZodSchema";
+import { resolveSchema } from "../resolveSchema";
 import { z } from "zod";
 
 describe("Coercion for Environment Variables", () => {
   describe("Number coercion", () => {
     it("should coerce string numbers to numbers", () => {
-      const schema = fromZodSchema(z.number());
+      const schema = resolveSchema(z.number());
       
       // Environment variables are always strings, so test string input
       const result = schema.process("42");
@@ -14,7 +14,7 @@ describe("Coercion for Environment Variables", () => {
     });
 
     it("should coerce string decimals to numbers", () => {
-      const schema = fromZodSchema(z.number());
+      const schema = resolveSchema(z.number());
       
       const result = schema.process("3.14");
       expect(result).toBe(3.14);
@@ -22,7 +22,7 @@ describe("Coercion for Environment Variables", () => {
     });
 
     it("should throw error for invalid number strings", () => {
-      const schema = fromZodSchema(z.number());
+      const schema = resolveSchema(z.number());
       
       expect(() => schema.process("not-a-number")).toThrow();
     });
@@ -30,7 +30,7 @@ describe("Coercion for Environment Variables", () => {
 
   describe("Boolean coercion", () => {
     it("should coerce 'true' string to boolean true", () => {
-      const schema = fromZodSchema(z.boolean());
+      const schema = resolveSchema(z.boolean());
       
       const result = schema.process("true");
       expect(result).toBe(true);
@@ -38,7 +38,7 @@ describe("Coercion for Environment Variables", () => {
     });
 
     it("should coerce 'false' string to boolean false", () => {
-      const schema = fromZodSchema(z.boolean());
+      const schema = resolveSchema(z.boolean());
       
       const result = schema.process("false");
       expect(result).toBe(false);
@@ -46,35 +46,35 @@ describe("Coercion for Environment Variables", () => {
     });
 
     it("should coerce '1' to boolean true", () => {
-      const schema = fromZodSchema(z.boolean());
+      const schema = resolveSchema(z.boolean());
       
       const result = schema.process("1");
       expect(result).toBe(true);
     });
 
     it("should coerce '0' to boolean false", () => {
-      const schema = fromZodSchema(z.boolean());
+      const schema = resolveSchema(z.boolean());
       
       const result = schema.process("0");
       expect(result).toBe(false);
     });
 
     it("should coerce 'yes' to boolean true", () => {
-      const schema = fromZodSchema(z.boolean());
+      const schema = resolveSchema(z.boolean());
       
       const result = schema.process("yes");
       expect(result).toBe(true);
     });
 
     it("should coerce 'no' to boolean false", () => {
-      const schema = fromZodSchema(z.boolean());
+      const schema = resolveSchema(z.boolean());
       
       const result = schema.process("no");
       expect(result).toBe(false);
     });
 
     it("should handle case insensitive values", () => {
-      const schema = fromZodSchema(z.boolean());
+      const schema = resolveSchema(z.boolean());
       
       expect(schema.process("TRUE")).toBe(true);
       expect(schema.process("False")).toBe(false);
@@ -83,7 +83,7 @@ describe("Coercion for Environment Variables", () => {
     });
 
     it("should throw error for invalid boolean strings", () => {
-      const schema = fromZodSchema(z.boolean());
+      const schema = resolveSchema(z.boolean());
       
       expect(() => schema.process("maybe")).toThrow('Invalid option: expected one of "true"|"1"|"yes"|"on"|"y"|"enabled"|"false"|"0"|"no"|"off"|"n"|"disabled"');
     });
@@ -91,7 +91,7 @@ describe("Coercion for Environment Variables", () => {
 
   describe("String schemas should not be coerced", () => {
     it("should keep strings as strings", () => {
-      const schema = fromZodSchema(z.string());
+      const schema = resolveSchema(z.string());
       
       const result = schema.process("hello");
       expect(result).toBe("hello");

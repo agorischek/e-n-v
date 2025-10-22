@@ -1,14 +1,14 @@
 import { describe, it, expect } from "bun:test";
-import { fromZodSchema } from "../fromZodSchema";
+import { resolveSchema } from "../resolveSchema";
 import { StringEnvVarSchema } from "@envcredible/core";
 import { z } from "zod";
 
 describe("SchemaSource", () => {
-  describe("fromZodSchema", () => {
+  describe("resolveSchema", () => {
     it("should transform Zod schema to EnvVarSchema", () => {
       const zodSchema = z.string().describe("Test zod schema");
       
-      const result = fromZodSchema(zodSchema);
+      const result = resolveSchema(zodSchema);
       expect(result.type).toBe("string");
       expect(result.description).toBe("Test zod schema");
     });
@@ -18,9 +18,9 @@ describe("SchemaSource", () => {
       const numberSchema = z.number();
       const booleanSchema = z.boolean();
       
-      const stringResult = fromZodSchema(stringSchema);
-      const numberResult = fromZodSchema(numberSchema);
-      const booleanResult = fromZodSchema(booleanSchema);
+      const stringResult = resolveSchema(stringSchema);
+      const numberResult = resolveSchema(numberSchema);
+      const booleanResult = resolveSchema(booleanSchema);
       
       expect(stringResult.type).toBe("string");
       expect(numberResult.type).toBe("number");

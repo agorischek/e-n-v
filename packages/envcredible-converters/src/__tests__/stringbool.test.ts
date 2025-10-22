@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { describe, test, expect } from "bun:test";
-import { fromZodSchema } from "../fromZodSchema.js";
+import { resolveSchema } from "../resolveSchema.js";
 
 describe("stringbool support", () => {
   test("z.stringbool() is recognized as boolean type", () => {
     const schema = z.stringbool();
-    const envVarSchema = fromZodSchema(schema);
+    const envVarSchema = resolveSchema(schema);
     
     expect(envVarSchema.type).toBe("boolean");
     expect(envVarSchema.constructor.name).toBe("BooleanEnvVarSchema");
@@ -13,7 +13,7 @@ describe("stringbool support", () => {
 
   test("z.stringbool() processes string values to booleans correctly", () => {
     const schema = z.stringbool();
-    const envVarSchema = fromZodSchema(schema);
+    const envVarSchema = resolveSchema(schema);
     
     // Test truthy values
     expect(envVarSchema.process("true")).toBe(true);
@@ -28,7 +28,7 @@ describe("stringbool support", () => {
 
   test("z.stringbool() processes values case-insensitively", () => {
     const schema = z.stringbool();
-    const envVarSchema = fromZodSchema(schema);
+    const envVarSchema = resolveSchema(schema);
     
     expect(envVarSchema.process("TRUE")).toBe(true);
     expect(envVarSchema.process("True")).toBe(true);
@@ -38,7 +38,7 @@ describe("stringbool support", () => {
 
   test("z.stringbool() throws for invalid boolean strings", () => {
     const schema = z.stringbool();
-    const envVarSchema = fromZodSchema(schema);
+    const envVarSchema = resolveSchema(schema);
     
     expect(() => envVarSchema.process("invalid")).toThrow();
     expect(() => envVarSchema.process("maybe")).toThrow();

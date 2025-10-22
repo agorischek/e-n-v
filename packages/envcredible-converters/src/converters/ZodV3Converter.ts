@@ -10,6 +10,25 @@ import {
   StringEnvVarSchema,
   EnumEnvVarSchema,
 } from "@envcredible/core";
+import type { SchemaConverter } from "../SchemaConverter";
+
+/**
+ * Zod v3 schema converter implementation
+ */
+export class ZodV3Converter implements SchemaConverter<ZodTypeAny> {
+  applies(schema: unknown): schema is ZodTypeAny {
+    return isZodV3Schema(schema);
+  }
+
+  convert(schema: ZodTypeAny): TypedEnvVarSchema {
+    return convertFromZodV3Schema(schema);
+  }
+}
+
+/**
+ * Default instance of the Zod v3 converter
+ */
+export const zodV3Converter = new ZodV3Converter();
 
 /**
  * Zod v3 schema definition
@@ -281,3 +300,4 @@ export function convertFromZodV3Schema(schema: ZodTypeAny): TypedEnvVarSchema {
     }
   }
 }
+
