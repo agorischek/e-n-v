@@ -87,7 +87,7 @@ export const enumProcessor = (allowedValues: readonly string[]): Processor<strin
 /**
  * Default processors map for each environment variable type
  */
-export const defaultProcessors = {
+export const processors = {
   string: stringProcessor,
   number: numberProcessor,
   boolean: booleanProcessor,

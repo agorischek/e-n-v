@@ -3,13 +3,13 @@ import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import type { EnvVarSchemaUnion, BooleanEnvVarSchema, NumberEnvVarSchema, EnumEnvVarSchema, StringEnvVarSchema } from "@envcredible/types";
+import type { TypedEnvVarSchema, BooleanEnvVarSchema, NumberEnvVarSchema, EnumEnvVarSchema, StringEnvVarSchema } from "@envcredible/types";
 import { defaultProcessors } from "@envcredible/channels";
 import type { Theme } from "./visuals/Theme";
 
 interface CreatePromptOptions {
   key: string;
-  schema: EnvVarSchemaUnion;
+  schema: TypedEnvVarSchema;
   currentValue?: string;
   theme: Theme;
   truncate: number;

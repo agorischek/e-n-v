@@ -1,7 +1,6 @@
 import type { Processor } from "./Processor";
 import type { EnvVarType } from "./EnvVarType";
 import type { EnvVarSchemaSharedInput } from "./EnvVarSchemaSharedInput";
-import { defaultProcessors } from "./processors";
 
 export abstract class EnvVarSchema<T> {
   public abstract readonly type: EnvVarType;
@@ -14,8 +13,6 @@ export abstract class EnvVarSchema<T> {
     this.required = input?.required ?? true;
     this.default = input?.default;
     this.description = input?.description;
-    this.process = input.process ?? this.getDefaultProcessor();
+    this.process = input.process!; // Will be guaranteed by concrete classes
   }
-
-  protected abstract getDefaultProcessor(): Processor<T>;
 }

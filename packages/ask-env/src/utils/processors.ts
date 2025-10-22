@@ -4,5 +4,5 @@ export {
   numberProcessor,
   booleanProcessor,
   enumProcessor,
-  defaultProcessors,
+  processors as defaultProcessors,
 } from "@envcredible/types";

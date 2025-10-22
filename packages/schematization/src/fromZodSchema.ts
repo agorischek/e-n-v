@@ -1,7 +1,7 @@
 import type { CompatibleZodSchema } from "./zodCompat";
 import { extractEnumValues, peelSchema, resolveEnvVarType } from "./zodCompat";
 import type {
-  EnvVarSchemaUnion,
+  TypedEnvVarSchema,
 } from "@envcredible/types";
 import {
   BooleanEnvVarSchema as BooleanEnvVarSchemaClass,
@@ -11,7 +11,7 @@ import {
 } from "@envcredible/types";
 import { processFromSchema } from "./processFromSchema";
 
-export function fromZodSchema(schema: CompatibleZodSchema): EnvVarSchemaUnion {
+export function fromZodSchema(schema: CompatibleZodSchema): TypedEnvVarSchema {
   const peeled = peelSchema(schema);
   const type = resolveEnvVarType(peeled.schema);
   const values = extractEnumValues(peeled.schema);
