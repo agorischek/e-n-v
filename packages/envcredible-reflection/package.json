@@ -1,5 +1,5 @@
 {
-  "name": "@envcredible/schematization",
+  "name": "@envcredible/reflection",
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {

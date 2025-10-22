@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fromZodSchema } from "@envcredible/schematization";
+import { fromZodSchema } from "@envcredible/reflection";
 
 // Test that the process function is available
 const numberSchema = z.coerce.number().min(1, "Must be at least 1").max(100, "Must be at most 100");

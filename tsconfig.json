@@ -19,8 +19,8 @@
     "paths": {
       "@envcredible/core": ["./packages/envcredible-core/src/index.ts"],
       "@envcredible/core/*": ["./packages/envcredible-core/src/*"],
-      "@envcredible/schematization": ["./packages/envcredible-schematization/src/index.ts"],
-      "@envcredible/schematization/*": ["./packages/envcredible-schematization/src/*"],
+      "@envcredible/reflection": ["./packages/envcredible-reflection/src/index.ts"],
+      "@envcredible/reflection/*": ["./packages/envcredible-reflection/src/*"],
       "@envcredible/channels": ["./packages/envcredible-channels/src/index.ts"],
       "@envcredible/channels/*": ["./packages/envcredible-channels/src/*"],
       "envrw": ["./packages/envrw/src/index.ts"],

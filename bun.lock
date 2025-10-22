@@ -29,7 +29,7 @@
         "@clack/core": "1.0.0-alpha.6",
         "@envcredible/channels": "workspace:*",
         "@envcredible/core": "workspace:*",
-        "@envcredible/schematization": "workspace:*",
+        "@envcredible/reflection": "workspace:*",
         "picocolors": "^1.1.1",
       },
       "devDependencies": {
@@ -67,8 +67,8 @@
         "typescript": "^5.0.0",
       },
     },
-    "packages/envcredible-schematization": {
-      "name": "@envcredible/schematization",
+    "packages/envcredible-reflection": {
+      "name": "@envcredible/reflection",
       "dependencies": {
         "@envcredible/core": "workspace:*",
       },
@@ -166,7 +166,7 @@
 
     "@envcredible/core": ["@envcredible/core@workspace:packages/envcredible-core"],
 
-    "@envcredible/schematization": ["@envcredible/schematization@workspace:packages/envcredible-schematization"],
+    "@envcredible/reflection": ["@envcredible/reflection@workspace:packages/envcredible-reflection"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.25.10", "", { "os": "aix", "cpu": "ppc64" }, "sha512-0NFWnA+7l41irNuaSVlLfgNT12caWJVLzp5eAVhZ0z1qpxbockccEt3s+149rE64VUI3Ml2zt8Nv5JVc4QXTsw=="],
 

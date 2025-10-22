@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { fromZodSchema } from "@envcredible/schematization";
+import { ask } from "../src/ask";
+import { fromZodSchema } from "@envcredible/reflection";
 import { StringEnvVarSchema, NumberEnvVarSchema, BooleanEnvVarSchema, EnumEnvVarSchema } from "@envcredible/core";
 import { Session } from "../src/session/Session";
 import { processors } from "@envcredible/core";
