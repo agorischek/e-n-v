@@ -1,4 +1,4 @@
 import type { CompatibleZodSchema } from "@envcredible/reflection";
-import type { EnvVarSpec } from "@envcredible/reflection";
+import type { EnvVarSchema } from "@envcredible/reflection";
 
-export type EnvVarSchemaMap = Record<string, CompatibleZodSchema | EnvVarSpec>;
+export type EnvVarSchemaMap = Record<string, CompatibleZodSchema | EnvVarSchema>;

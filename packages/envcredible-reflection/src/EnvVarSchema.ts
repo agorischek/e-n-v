@@ -9,9 +9,6 @@ export type {
   TypedEnvVarSchema as EnvVarSchema,
 } from "@envcredible/core";
 
-// Maintain backward compatibility
-export type EnvVarSpec = import("@envcredible/core").TypedEnvVarSchema;
-
 const ENV_VAR_TYPES = new Set(["string", "number", "boolean", "enum"]);
 
 export function isEnvVarSchema(value: unknown): value is import("@envcredible/core").TypedEnvVarSchema {

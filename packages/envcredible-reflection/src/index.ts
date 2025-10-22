@@ -1,35 +1,15 @@
-// Types and interfaces
+// Types actually used by ask-env
 export type {
-  EnvVarType,
   EnvVarSchema,
-  EnvVarSpec,
-  EnvVarSchemaDetails,
-  StringEnvVarSchema,
-  NumberEnvVarSchema,
-  BooleanEnvVarSchema,
-  EnumEnvVarSchema,
 } from "./EnvVarSchema";
 
-// Zod compatibility types and utilities
 export type {
   CompatibleZodSchema,
-  SchemaDef,
-  PeeledSchemaResult,
 } from "./zodCompat";
 
-// Functions
+// Functions actually used by ask-env
 export { isEnvVarSchema } from "./EnvVarSchema";
 export { fromZodSchema } from "./fromZodSchema";
 export {
   isCompatibleZodSchema,
-  isZodV4Schema,
-  peelSchema,
-  extractEnumValues,
-  resolveEnvVarType,
-  getSchemaDef,
-  getDefType,
-  getSchemaDescription,
-  getInnerSchema,
-  getDefaultFromDef,
 } from "./zodCompat";
-export { processFromSchema } from "./processFromSchema";
