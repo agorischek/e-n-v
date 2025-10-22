@@ -3,7 +3,7 @@
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {
-    "@envcredible/types": "workspace:*"
+    "@envcredible/core": "workspace:*"
   },
   "devDependencies": {
     "@standard-schema/spec": "^1.0.0",

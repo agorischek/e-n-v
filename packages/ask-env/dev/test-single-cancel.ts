@@ -1,5 +1,5 @@
 import { EnvStringPrompt } from "../src/prompts/EnvStringPrompt";
-import { StringEnvVarSchema } from "@envcredible/types";
+import { StringEnvVarSchema } from "@envcredible/core";
 
 console.log("Testing single prompt cancellation");
 console.log("Instructions: Cancel with Ctrl+C to see the rendering");

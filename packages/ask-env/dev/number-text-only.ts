@@ -1,5 +1,5 @@
 import { EnvNumberPrompt } from "../src/prompts/EnvNumberPrompt";
-import { NumberEnvVarSchema } from "@envcredible/types";
+import { NumberEnvVarSchema } from "@envcredible/core";
 
 // Simple number processor
 const numberProcessor = (value: string) => {

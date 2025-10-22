@@ -1,5 +1,5 @@
 import { ask } from "../src";
-import { StringEnvVarSchema } from "@envcredible/types";
+import { StringEnvVarSchema } from "@envcredible/core";
 
 // Create a string processor with validation
 const stringProcessor = (value: string) => {

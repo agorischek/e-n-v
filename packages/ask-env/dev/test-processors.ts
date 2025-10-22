@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { fromZodSchema } from "@envcredible/schematization";
-import { StringEnvVarSchema, NumberEnvVarSchema, BooleanEnvVarSchema, EnumEnvVarSchema } from "@envcredible/types";
+import { StringEnvVarSchema, NumberEnvVarSchema, BooleanEnvVarSchema, EnumEnvVarSchema } from "@envcredible/core";
 import { Session } from "../src/session/Session";
-import { processors } from "@envcredible/types";
+import { processors } from "@envcredible/core";
 
 // Test number processing with z.coerce
 const numberSchema = z.coerce.number().int().min(1).max(100).default(50);

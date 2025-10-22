@@ -1,5 +1,5 @@
 import { EnvEnumPrompt } from "../src/prompts/EnvEnumPrompt";
-import { EnumEnvVarSchema } from "@envcredible/types";
+import { EnumEnvVarSchema } from "@envcredible/core";
 
 const values = ["development", "production", "test"];
 

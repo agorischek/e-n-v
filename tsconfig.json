@@ -17,10 +17,10 @@
     // Path mapping for workspace packages
     "baseUrl": ".",
     "paths": {
-      "@envcredible/types": ["./packages/envcredible-types/src/index.ts"],
-      "@envcredible/types/*": ["./packages/envcredible-types/src/*"],
-      "@envcredible/schematization": ["./packages/schematization/src/index.ts"],
-      "@envcredible/schematization/*": ["./packages/schematization/src/*"],
+      "@envcredible/core": ["./packages/envcredible-core/src/index.ts"],
+      "@envcredible/core/*": ["./packages/envcredible-core/src/*"],
+      "@envcredible/schematization": ["./packages/envcredible-schematization/src/index.ts"],
+      "@envcredible/schematization/*": ["./packages/envcredible-schematization/src/*"],
       "@envcredible/channels": ["./packages/envcredible-channels/src/index.ts"],
       "@envcredible/channels/*": ["./packages/envcredible-channels/src/*"],
       "envrw": ["./packages/envrw/src/index.ts"],

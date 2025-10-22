@@ -1,5 +1,5 @@
 {
-  "name": "@envcredible/types",
+  "name": "@envcredible/core",
   "version": "0.1.0",
   "description": "Shared TypeScript types for envcredible (EnvChannel, EnvVarSchema, etc.)",
   "main": "dist/index.js",

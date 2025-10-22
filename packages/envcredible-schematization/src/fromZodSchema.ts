@@ -2,13 +2,13 @@ import type { CompatibleZodSchema } from "./zodCompat";
 import { extractEnumValues, peelSchema, resolveEnvVarType } from "./zodCompat";
 import type {
   TypedEnvVarSchema,
-} from "@envcredible/types";
+} from "@envcredible/core";
 import {
   BooleanEnvVarSchema as BooleanEnvVarSchemaClass,
   NumberEnvVarSchema as NumberEnvVarSchemaClass,
   StringEnvVarSchema as StringEnvVarSchemaClass,
   EnumEnvVarSchema as EnumEnvVarSchemaClass,
-} from "@envcredible/types";
+} from "@envcredible/core";
 import { processFromSchema } from "./processFromSchema";
 
 export function fromZodSchema(schema: CompatibleZodSchema): TypedEnvVarSchema {

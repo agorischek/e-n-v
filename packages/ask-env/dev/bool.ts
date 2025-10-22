@@ -1,5 +1,5 @@
 import { EnvBooleanPrompt } from "../src/prompts/EnvBooleanPrompt";
-import { BooleanEnvVarSchema } from "@envcredible/types";
+import { BooleanEnvVarSchema } from "@envcredible/core";
 
 const schema = new BooleanEnvVarSchema({
   required: true,

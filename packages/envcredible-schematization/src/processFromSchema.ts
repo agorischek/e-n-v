@@ -1,7 +1,7 @@
 import type { CompatibleZodSchema } from "./zodCompat";
 import { isZodV4Schema } from "./zodCompat";
 import * as z4core from "zod/v4/core";
-import type { EnvVarType } from "@envcredible/types";
+import type { EnvVarType } from "@envcredible/core";
 
 type SafeParseResult =
   | { success: true; data: unknown }

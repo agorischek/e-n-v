@@ -1,5 +1,5 @@
 import { EnvNumberPrompt } from "../src/prompts/EnvNumberPrompt";
-import { processors } from "@envcredible/types";
+import { processors } from "@envcredible/core";
 
 const prompt = new EnvNumberPrompt(
   {

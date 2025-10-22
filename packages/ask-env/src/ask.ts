@@ -1,4 +1,4 @@
-import type { TypedEnvVarSchema } from "@envcredible/types";
+import type { TypedEnvVarSchema } from "@envcredible/core";
 import type { EnvVarSchemaMap } from "./types";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";

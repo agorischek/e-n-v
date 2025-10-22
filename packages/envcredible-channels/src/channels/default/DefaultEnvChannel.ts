@@ -1,4 +1,4 @@
-import type { EnvChannel } from "@envcredible/types";
+import type { EnvChannel } from "@envcredible/core";
 import { EnvSource } from "envrw";
 
 /**

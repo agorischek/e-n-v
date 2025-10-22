@@ -28,8 +28,8 @@
       "dependencies": {
         "@clack/core": "1.0.0-alpha.6",
         "@envcredible/channels": "workspace:*",
+        "@envcredible/core": "workspace:*",
         "@envcredible/schematization": "workspace:*",
-        "@envcredible/types": "workspace:*",
         "picocolors": "^1.1.1",
       },
       "devDependencies": {
@@ -50,7 +50,7 @@
       "name": "@envcredible/channels",
       "version": "0.1.0",
       "dependencies": {
-        "@envcredible/types": "workspace:*",
+        "@envcredible/core": "workspace:*",
         "envrw": "workspace:*",
       },
       "devDependencies": {
@@ -60,8 +60,8 @@
         "zod": "^3 || ^4",
       },
     },
-    "packages/envcredible-types": {
-      "name": "@envcredible/types",
+    "packages/envcredible-core": {
+      "name": "@envcredible/core",
       "version": "0.1.0",
       "devDependencies": {
         "typescript": "^5.0.0",
@@ -79,7 +79,7 @@
     "packages/schematization": {
       "name": "@envcredible/schematization",
       "dependencies": {
-        "@envcredible/types": "workspace:*",
+        "@envcredible/core": "workspace:*",
       },
       "devDependencies": {
         "@standard-schema/spec": "^1.0.0",
@@ -164,9 +164,9 @@
 
     "@envcredible/channels": ["@envcredible/channels@workspace:packages/envcredible-channels"],
 
-    "@envcredible/schematization": ["@envcredible/schematization@workspace:packages/schematization"],
+    "@envcredible/core": ["@envcredible/core@workspace:packages/envcredible-core"],
 
-    "@envcredible/types": ["@envcredible/types@workspace:packages/envcredible-types"],
+    "@envcredible/schematization": ["@envcredible/schematization@workspace:packages/schematization"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.25.10", "", { "os": "aix", "cpu": "ppc64" }, "sha512-0NFWnA+7l41irNuaSVlLfgNT12caWJVLzp5eAVhZ0z1qpxbockccEt3s+149rE64VUI3Ml2zt8Nv5JVc4QXTsw=="],
 

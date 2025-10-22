@@ -8,8 +8,8 @@ import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";
 import { renderSetupHeader } from "../visuals/renderSetupHeader";
 import { S_BAR, S_BAR_END } from "../visuals/symbols";
 import type { Theme } from "../visuals/Theme";
-import type { EnvChannel } from "@envcredible/types";
-import type { TypedEnvVarSchema } from "@envcredible/types";
+import type { EnvChannel } from "@envcredible/core";
+import type { TypedEnvVarSchema } from "@envcredible/core";
 
 export type PromptFlowResult = "success" | "cancelled" | "error";
 

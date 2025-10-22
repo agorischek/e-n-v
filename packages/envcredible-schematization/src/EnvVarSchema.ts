@@ -1,4 +1,4 @@
-// Re-export types from @envcredible/types
+// Re-export types from @envcredible/core
 export type {
   EnvVarType,
   EnvVarSchemaDetails,
@@ -7,19 +7,19 @@ export type {
   BooleanEnvVarSchema,
   EnumEnvVarSchema,
   TypedEnvVarSchema as EnvVarSchema,
-} from "@envcredible/types";
+} from "@envcredible/core";
 
 // Maintain backward compatibility
-export type EnvVarSpec = import("@envcredible/types").TypedEnvVarSchema;
+export type EnvVarSpec = import("@envcredible/core").TypedEnvVarSchema;
 
 const ENV_VAR_TYPES = new Set(["string", "number", "boolean", "enum"]);
 
-export function isEnvVarSchema(value: unknown): value is import("@envcredible/types").TypedEnvVarSchema {
+export function isEnvVarSchema(value: unknown): value is import("@envcredible/core").TypedEnvVarSchema {
   if (!value || typeof value !== "object") {
     return false;
   }
 
-  const candidate = value as Partial<import("@envcredible/types").TypedEnvVarSchema> & {
+  const candidate = value as Partial<import("@envcredible/core").TypedEnvVarSchema> & {
     type?: unknown;
     secret?: unknown;
   };

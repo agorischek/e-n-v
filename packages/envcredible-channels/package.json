@@ -9,7 +9,7 @@
     "dist"
   ],
   "dependencies": {
-    "@envcredible/types": "workspace:*",
+    "@envcredible/core": "workspace:*",
     "envrw": "workspace:*"
   },
   "keywords": ["env", "channels", "processors", "envcredible"],
