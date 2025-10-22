@@ -4,7 +4,6 @@ import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
 import type { TypedEnvVarSchema, BooleanEnvVarSchema, NumberEnvVarSchema, EnumEnvVarSchema, StringEnvVarSchema } from "@envcredible/types";
-import { defaultProcessors } from "@envcredible/channels";
 import type { Theme } from "./visuals/Theme";
 
 interface CreatePromptOptions {

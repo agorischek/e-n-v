@@ -1,5 +1,5 @@
 import { EnvNumberPrompt } from "../src/prompts/EnvNumberPrompt";
-import { defaultProcessors } from "@envcredible/channels";
+import { processors } from "@envcredible/types";
 
 const prompt = new EnvNumberPrompt(
   {
@@ -7,7 +7,7 @@ const prompt = new EnvNumberPrompt(
     required: true,
     description: "API server port (must be between 1024-65535)",
     default: 8080,
-    process: defaultProcessors.number(),
+    process: processors.number(),
   },
   {
     key: "API_PORT",
