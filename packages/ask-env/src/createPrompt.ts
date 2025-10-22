@@ -60,7 +60,7 @@ export function createPrompt({
             : undefined,
       });
     case "enum":
-      return new EnvEnumPrompt(schema as EnumEnvVarSchema, {
+      return new EnvEnumPrompt(schema as EnumEnvVarSchema<any>, {
         ...baseOptions,
         current: currentValue,
       });

@@ -7,4 +7,4 @@ export type TypedEnvVarSchema =
   | StringEnvVarSchema
   | NumberEnvVarSchema
   | BooleanEnvVarSchema
-  | EnumEnvVarSchema;
+  | EnumEnvVarSchema<any>;

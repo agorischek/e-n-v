@@ -6,17 +6,17 @@ import type { PromptAction } from "./types/PromptAction";
 import type { EnumEnvVarSchema } from "@envcredible/core";
 import { padActiveRender } from "./utils/padActiveRender";
 
-export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
+export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumEnvVarSchema<T>> {
   cursor = 0;
-  protected options: EnvPromptOptions<string>;
-  private readonly values: readonly string[];
+  protected options: EnvPromptOptions<T>;
+  private readonly values: readonly T[];
 
-  constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
+  constructor(schema: EnumEnvVarSchema<T>, opts: EnvPromptOptions<T>) {
     const customValidate = opts.validate;
     
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvEnumPrompt) {
+      render: padActiveRender(function (this: EnvEnumPrompt<T>) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -86,7 +86,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
 
         return output;
       }),
-      validate: (value: string | undefined) => {
+      validate: (value: T | undefined) => {
         if (this.getOutcome() !== "commit") {
           return undefined;
         }
