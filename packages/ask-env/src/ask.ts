@@ -1,4 +1,4 @@
-import type { EnvVarSchema } from "@envcredible/types";
+import type { EnvVarSchemaUnion } from "@envcredible/types";
 import type { EnvVarSchemaMap } from "./types";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
@@ -45,8 +45,8 @@ function resolveEnvFilePath(
 /**
  * Resolve mixed schema map (Zod schemas or EnvVarSchema) to pure EnvVarSchema map
  */
-function resolveSchemas(schemas: EnvVarSchemaMap): Record<string, EnvVarSchema> {
-  const resolved: Record<string, EnvVarSchema> = {};
+function resolveSchemas(schemas: EnvVarSchemaMap): Record<string, EnvVarSchemaUnion> {
+  const resolved: Record<string, EnvVarSchemaUnion> = {};
   
   for (const [key, rawSchema] of Object.entries(schemas)) {
     if (isCompatibleZodSchema(rawSchema)) {
@@ -55,7 +55,7 @@ function resolveSchemas(schemas: EnvVarSchemaMap): Record<string, EnvVarSchema> 
       resolved[key] = rawSchema;
     } else {
       // Fallback - treat as already resolved
-      resolved[key] = rawSchema as EnvVarSchema;
+      resolved[key] = rawSchema as EnvVarSchemaUnion;
     }
   }
   

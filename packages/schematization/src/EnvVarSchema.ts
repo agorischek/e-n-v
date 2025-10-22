@@ -1,47 +1,25 @@
-import type { EnvVarType } from "./EnvVarType";
+// Re-export types from @envcredible/types
+export type {
+  EnvVarType,
+  EnvVarSchemaDetails,
+  StringEnvVarSchema,
+  NumberEnvVarSchema,
+  BooleanEnvVarSchema,
+  EnumEnvVarSchema,
+  EnvVarSchemaUnion as EnvVarSchema,
+} from "@envcredible/types";
 
-export interface EnvVarSchemaDetails<TValue> {
-  type: EnvVarType;
-  required: boolean;
-  default?: TValue | null;
-  description?: string;
-  process?: (value: string) => TValue | undefined;
-}
-
-export interface StringEnvVarSchema extends EnvVarSchemaDetails<string> {
-  type: "string";
-  secret?: boolean;
-}
-
-export interface NumberEnvVarSchema extends EnvVarSchemaDetails<number> {
-  type: "number";
-}
-
-export interface BooleanEnvVarSchema extends EnvVarSchemaDetails<boolean> {
-  type: "boolean";
-}
-
-export interface EnumEnvVarSchema extends EnvVarSchemaDetails<string> {
-  type: "enum";
-  values: readonly string[];
-}
-
-export type EnvVarSchema =
-  | StringEnvVarSchema
-  | NumberEnvVarSchema
-  | BooleanEnvVarSchema
-  | EnumEnvVarSchema;
-
-export type EnvVarSpec = EnvVarSchema;
+// Maintain backward compatibility
+export type EnvVarSpec = import("@envcredible/types").EnvVarSchemaUnion;
 
 const ENV_VAR_TYPES = new Set(["string", "number", "boolean", "enum"]);
 
-export function isEnvVarSchema(value: unknown): value is EnvVarSchema {
+export function isEnvVarSchema(value: unknown): value is import("@envcredible/types").EnvVarSchemaUnion {
   if (!value || typeof value !== "object") {
     return false;
   }
 
-  const candidate = value as Partial<EnvVarSchema> & {
+  const candidate = value as Partial<import("@envcredible/types").EnvVarSchemaUnion> & {
     type?: unknown;
     secret?: unknown;
   };

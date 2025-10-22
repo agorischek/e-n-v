@@ -9,20 +9,20 @@ import { renderSetupHeader } from "../visuals/renderSetupHeader";
 import { S_BAR, S_BAR_END } from "../visuals/symbols";
 import type { Theme } from "../visuals/Theme";
 import type { EnvChannel } from "@envcredible/types";
-import type { EnvVarSchema } from "@envcredible/types";
+import type { EnvVarSchemaUnion } from "@envcredible/types";
 
 export type PromptFlowResult = "success" | "cancelled" | "error";
 
 export function resolveShouldMask(
   key: string,
-  schema: EnvVarSchema,
+  schema: EnvVarSchemaUnion,
   patterns: ReadonlyArray<string | RegExp>,
 ): boolean {
   if (schema.type !== "string") {
     return false;
   }
 
-  if (typeof schema.secret === "boolean") {
+  if ("secret" in schema && schema.secret !== undefined) {
     return schema.secret;
   }
 
@@ -30,7 +30,7 @@ export function resolveShouldMask(
 }
 
 export interface SessionOptions {
-  schemas: Record<string, EnvVarSchema>;
+  schemas: Record<string, EnvVarSchemaUnion>;
   channel: EnvChannel;
   secrets: readonly (string | RegExp)[];
   truncate: number;
@@ -41,7 +41,7 @@ export interface SessionOptions {
 }
 
 export class Session {
-  private readonly schemas: Record<string, EnvVarSchema>;
+  private readonly schemas: Record<string, EnvVarSchemaUnion>;
   private readonly newValues: Record<string, string> = {};
   private readonly promptLineHistory: number[] = [];
   private readonly channel: EnvChannel;

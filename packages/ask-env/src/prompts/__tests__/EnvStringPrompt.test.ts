@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EnvStringPrompt } from "../EnvStringPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
 import type { StringEnvVarSchema } from "@envcredible/types";
+import { StringEnvVarSchema as StringEnvVarSchemaClass } from "@envcredible/types";
 import {
   createTestStreams,
   waitForIO,
@@ -22,12 +23,12 @@ function createPrompt(
   } = {},
 ) {
   const streams = createTestStreams();
-  const schema: StringEnvVarSchema = {
-    type: "string",
+  
+  const schema = new StringEnvVarSchemaClass({
     required: options.required ?? false,
     default: options.default,
     description: options.description,
-  };
+  });
 
   const prompt = new EnvStringPrompt(schema, {
     key: options.key ?? "TEST_ENV",

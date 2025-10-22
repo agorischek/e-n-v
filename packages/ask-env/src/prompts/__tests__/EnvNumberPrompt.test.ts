@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EnvNumberPrompt } from "../EnvNumberPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
 import type { NumberEnvVarSchema } from "@envcredible/types";
+import { NumberEnvVarSchema as NumberEnvVarSchemaClass } from "@envcredible/types";
 import {
   createTestStreams,
   waitForIO,
@@ -22,12 +23,12 @@ function createPrompt(
   } = {},
 ) {
   const streams = createTestStreams();
-  const schema: NumberEnvVarSchema = {
-    type: "number",
+  
+  const schema = new NumberEnvVarSchemaClass({
     required: options.required ?? false,
     default: options.default,
     description: options.description,
-  };
+  });
 
   const prompt = new EnvNumberPrompt(schema, {
     key: options.key ?? "NUM_ENV",

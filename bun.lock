@@ -66,9 +66,6 @@
       "devDependencies": {
         "typescript": "^5.0.0",
       },
-      "peerDependencies": {
-        "zod": "^3 || ^4",
-      },
     },
     "packages/envrw": {
       "name": "envrw",
@@ -81,6 +78,9 @@
     },
     "packages/schematization": {
       "name": "@envcredible/schematization",
+      "dependencies": {
+        "@envcredible/types": "workspace:*",
+      },
       "devDependencies": {
         "@standard-schema/spec": "^1.0.0",
         "zod": "^3.25.0 || ^4.0.0",

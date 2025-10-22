@@ -1,6 +1,6 @@
 // Types and interfaces
-export type { EnvVarType } from "./EnvVarType";
 export type {
+  EnvVarType,
   EnvVarSchema,
   EnvVarSpec,
   EnvVarSchemaDetails,

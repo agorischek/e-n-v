@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EnvBooleanPrompt } from "../EnvBooleanPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
 import type { BooleanEnvVarSchema } from "@envcredible/types";
+import { BooleanEnvVarSchema as BooleanEnvVarSchemaClass } from "@envcredible/types";
 import {
   createTestStreams,
   waitForIO,
@@ -20,12 +21,12 @@ type TestPromptOptions = Partial<EnvPromptOptions<boolean>> & {
 
 function createPrompt(options: TestPromptOptions = {}) {
   const streams = createTestStreams();
-  const schema: BooleanEnvVarSchema = {
-    type: "boolean",
+  
+    const schema = new BooleanEnvVarSchemaClass({
     required: options.required ?? false,
-    description: options.description,
     default: options.default,
-  };
+    description: options.description,
+  });
 
   const prompt = new EnvBooleanPrompt(schema, {
     key: options.key ?? "BOOL_ENV",

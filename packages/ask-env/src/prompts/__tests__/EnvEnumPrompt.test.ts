@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { EnvEnumPrompt } from "../EnvEnumPrompt";
 import type { EnvPromptOptions } from "../EnvPrompt";
-import type { EnumEnvVarSchema } from "@envcredible/types";
+import { EnumEnvVarSchema } from "@envcredible/types";
 import { createTestStreams, baseKey } from "./helpers/promptTestUtils";
 
 type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
@@ -16,13 +16,12 @@ function createPrompt(options: TestPromptOptions = {}) {
   const streams = createTestStreams();
   const values = options.options ?? ["alpha", "beta", "gamma"];
 
-  const schema: EnumEnvVarSchema = {
-    type: "enum",
+  const schema = new EnumEnvVarSchema({
     required: options.required ?? false,
-    description: options.description,
     default: options.default,
-    values,
-  };
+    description: options.description,
+    values: values,
+  });
 
   const prompt = new EnvEnumPrompt(schema, {
     key: options.key ?? "TEST_ENV",

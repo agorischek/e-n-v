@@ -3,13 +3,13 @@ import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import type { EnvVarSchema } from "@envcredible/types";
+import type { EnvVarSchemaUnion, BooleanEnvVarSchema, NumberEnvVarSchema, EnumEnvVarSchema, StringEnvVarSchema } from "@envcredible/types";
 import { defaultProcessors } from "@envcredible/channels";
 import type { Theme } from "./visuals/Theme";
 
 interface CreatePromptOptions {
   key: string;
-  schema: EnvVarSchema;
+  schema: EnvVarSchemaUnion;
   currentValue?: string;
   theme: Theme;
   truncate: number;
@@ -45,31 +45,30 @@ export function createPrompt({
 
   switch (schema.type) {
     case "boolean":
-      return new EnvBooleanPrompt(schema, {
+      return new EnvBooleanPrompt(schema as BooleanEnvVarSchema, {
         ...baseOptions,
         current:
           currentValue !== undefined 
-            ? (schema.process || defaultProcessors.boolean())(currentValue)
+            ? (schema as BooleanEnvVarSchema).process(currentValue)
             : undefined,
       });
     case "number":
-      return new EnvNumberPrompt(schema, {
+      return new EnvNumberPrompt(schema as NumberEnvVarSchema, {
         ...baseOptions,
         current:
           currentValue !== undefined 
-            ? (schema.process || defaultProcessors.number())(currentValue)
+            ? (schema as NumberEnvVarSchema).process(currentValue)
             : undefined,
       });
     case "enum":
-      return new EnvEnumPrompt(schema, {
+      return new EnvEnumPrompt(schema as EnumEnvVarSchema, {
         ...baseOptions,
         current: currentValue,
       });
     default:
-      return new EnvStringPrompt(schema, {
+      return new EnvStringPrompt(schema as StringEnvVarSchema, {
         ...baseOptions,
         current: currentValue,
-        secret: shouldMask,
       });
   }
 }

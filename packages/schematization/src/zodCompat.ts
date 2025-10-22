@@ -1,6 +1,6 @@
 import { ZodType, type ZodTypeAny } from "zod";
 import type { $ZodType } from "zod/v4/core";
-import type { EnvVarType } from "./EnvVarType";
+import type { EnvVarType } from "@envcredible/types";
 
 export type CompatibleZodSchema = ZodTypeAny | $ZodType;
 

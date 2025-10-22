@@ -1,16 +1,15 @@
 import { EnvBooleanPrompt } from "../src/prompts/EnvBooleanPrompt";
+import { BooleanEnvVarSchema } from "@envcredible/types";
 
-const prompt = new EnvBooleanPrompt(
-  {
-    type: "boolean",
-    required: true,
-    description: "Enable the feature",
-    default: false,
-  },
-  {
-    key: "IS_ENABLED",
-    current: false,
-  },
-);
+const schema = new BooleanEnvVarSchema({
+  required: true,
+  description: "Enable the feature",
+  default: false,
+});
+
+const prompt = new EnvBooleanPrompt(schema, {
+  key: "IS_ENABLED",
+  current: false,
+});
 
 await prompt.prompt();
