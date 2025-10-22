@@ -1,5 +1,6 @@
 import type { Formatter } from "picocolors/types";
 import type { EnvChannelOptions } from "@envcredible/channels/EnvChannelOptions";
+import type { PreprocessorOptions } from "@envcredible/core";
 
 /**
  * Configuration options for the ask function
@@ -52,4 +53,13 @@ export type AskEnvOptions = {
    * @example color.blue, color.green, color.cyan
    */
   theme?: Formatter;
+
+  /**
+   * Custom preprocessing functions to preprocess values before submitting to schema processors.
+   * If null or undefined, the preprocessing step is skipped for that type.
+   * These functions do not guarantee type casting and can be nullified to skip preprocessing.
+   * @default undefined (uses built-in processors)
+   * @example { number: (s) => s.replace(/,/g, ''), bool: (s) => s === 'on' ? 'true' : s }
+   */
+  preprocess?: PreprocessorOptions;
 };

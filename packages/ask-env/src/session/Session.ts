@@ -38,6 +38,7 @@ export interface SessionOptions {
   input?: Readable;
   output: NodeJS.WriteStream;
   path: string;
+  preprocessorOptions?: import("@envcredible/core").PreprocessorOptions;
 }
 
 export class Session {
@@ -51,6 +52,7 @@ export class Session {
   private readonly output: NodeJS.WriteStream;
   private readonly input: Readable | undefined;
   private readonly displayEnvPath: string;
+  private readonly parseOptions?: import("@envcredible/core").PreprocessorOptions;
 
   constructor({
     channel,
@@ -61,6 +63,7 @@ export class Session {
     input,
     schemas,
     path,
+    preprocessorOptions,
   }: SessionOptions) {
     this.channel = channel;
     this.secrets = secrets;
@@ -70,6 +73,7 @@ export class Session {
     this.input = input;
     this.displayEnvPath = getDisplayEnvPath(path);
     this.schemas = schemas;
+    this.parseOptions = preprocessorOptions;
   }
 
   static fromOptions(options: SessionOptions): Session {
@@ -109,6 +113,7 @@ export class Session {
         hasPrevious: index > 0,
         input: this.input,
         output: this.output,
+        preprocessorOptions: this.parseOptions,
       });
 
       const value = await prompt.prompt();

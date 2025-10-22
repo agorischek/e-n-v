@@ -95,6 +95,7 @@ export async function ask(
     input,
     output,
     path: envPath,
+    preprocessorOptions: options.preprocess,
   });
 
   await session.run();
