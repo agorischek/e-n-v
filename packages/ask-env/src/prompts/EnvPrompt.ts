@@ -33,6 +33,7 @@ export interface EnvPromptOptions<T> {
   input?: Readable;
   output?: Writable;
   validate?: (value: T | undefined) => string | Error | undefined;
+  currentValidationError?: string;
 }
 
 function resolveDefaultFromSpec<T>(
@@ -73,6 +74,7 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
+  protected currentValidationError?: string;
   private skipValidationFlag: boolean;
 
   protected set track(value: boolean) {
@@ -118,6 +120,7 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = promptOptions.previousEnabled ?? true;
+    this.currentValidationError = promptOptions.currentValidationError;
     this.skipValidationFlag = false;
 
     this.on("finalize", () => {

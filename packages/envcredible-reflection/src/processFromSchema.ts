@@ -46,17 +46,23 @@ export function processFromSchema<T>(
   values?: readonly string[]
 ): (value: string) => T | undefined {
   return (value: string): T | undefined => {
-    // First try parsing with the Zod schema (which may include z.coerce)
-    const result = safeParseCompat(schema, value);
-    if (result.success) {
-      return result.data as T;
-    }
-    else {
-      throw new Error(
-        `Failed to parse value "${value}": ${result.error.issues
-          .map((issue) => issue.message)
-          .join("; ")}`,
-      );
+    try {
+      // First try parsing with the Zod schema (which may include z.coerce)
+      const result = safeParseCompat(schema, value);
+      if (result.success) {
+        return result.data as T;
+      }
+      else {
+        throw new Error(
+          `Failed to parse value "${value}": ${result.error.issues
+            .map((issue) => issue.message)
+            .join("; ")}`,
+        );
+      }
+    } catch (error) {
+      // Re-throw with consistent error format
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(message);
     }
   };
 }
