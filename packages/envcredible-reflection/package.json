@@ -10,6 +10,7 @@
     "zod": "^3.25.0 || ^4.0.0"
   },
   "scripts": {
-    "build": "tsup src/index.ts"
+    "build": "tsup src/index.ts",
+    "test": "bun test"
   }
 }

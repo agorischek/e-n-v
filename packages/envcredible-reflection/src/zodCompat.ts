@@ -233,6 +233,18 @@ export function peelSchema(schema: CompatibleZodSchema): PeeledSchemaResult {
       break;
     }
 
+    // Special case: don't unwrap string-to-boolean pipes (like z.stringbool())
+    if (typeTag === "pipe") {
+      const pipeData = def as { in?: CompatibleZodSchema; out?: CompatibleZodSchema };
+      if (pipeData.in && pipeData.out) {
+        const inType = resolveEnvVarType(pipeData.in);
+        const outType = resolveEnvVarType(pipeData.out);
+        if (inType === "string" && outType === "boolean") {
+          break; // Don't unwrap this pipe - it's a meaningful transformation
+        }
+      }
+    }
+
     if (OPTIONAL_TAGS.has(typeTag) || NULLISH_TAGS.has(typeTag)) {
       required = false;
     }
@@ -296,7 +308,21 @@ export function resolveEnvVarType(schema: CompatibleZodSchema): EnvVarType {
       return "number";
     case "boolean":
     case "ZodBoolean":
+    case "stringbool":
+    case "ZodStringBool":
       return "boolean";
+    case "pipe": {
+      // Check if this is a string-to-boolean pipe (z.stringbool())
+      const pipeData = def as { in?: CompatibleZodSchema; out?: CompatibleZodSchema };
+      if (pipeData.in && pipeData.out) {
+        const inType = resolveEnvVarType(pipeData.in);
+        const outType = resolveEnvVarType(pipeData.out);
+        if (inType === "string" && outType === "boolean") {
+          return "boolean";
+        }
+      }
+      return "string"; // Default for pipes we don't recognize
+    }
     case "enum":
     case "ZodEnum":
       return "enum";
