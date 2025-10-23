@@ -44,13 +44,22 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         }
         output += "\n";
 
-        // Create options array for true/false
-        const options = [
-          { value: true, label: "true" },
-          { value: false, label: "false" },
-        ];
-
+        // Build options array. We include a raw-current option when a current
+        // value exists but is invalid so the user can see the raw invalid value.
+        // Options order: [raw-current?] true, false (we'll annotate default/current where appropriate)
         const dimInputs = this.shouldDimInputs();
+
+        type BoolOption = { kind: "raw"; raw: string } | { kind: "bool"; value: boolean; label: string };
+        const options: BoolOption[] = [];
+
+        // If there is a raw current value (stored separately), show it first
+        if (this.currentRaw !== undefined) {
+          options.push({ kind: "raw", raw: this.currentRaw });
+        }
+
+        // Add true/false options always
+        options.push({ kind: "bool", value: true, label: "true" });
+        options.push({ kind: "bool", value: false, label: "false" });
 
         options.forEach((option, index) => {
           const isSelected = index === this.cursor;
@@ -60,21 +69,57 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
               ? this.theme.primary(S_RADIO_ACTIVE)
               : this.colors.dim(S_RADIO_INACTIVE);
 
-          // Determine if this option matches current or default
+          if (option.kind === "raw") {
+            // Raw current value display (invalid or unprocessed)
+            const displayRaw = this.currentValidationError
+              ? this.colors.strikethrough(option.raw)
+              : option.raw;
+            const text = dimInputs
+              ? this.colors.dim(displayRaw)
+              : isSelected
+                ? this.colors.white(displayRaw)
+                : this.colors.subtle(displayRaw);
+            const annotation = this.currentValidationError ? " (current, invalid)" : " (current)";
+            let suffix = "";
+            if (isSelected) {
+              suffix = dimInputs
+                ? this.colors.dim(annotation)
+                : this.colors.subtle(annotation);
+            }
+            output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
+            return;
+          }
+
+          // bool option
+          const boolOption = option as Exclude<BoolOption, { kind: "raw" }>;
+
+          // Determine annotation for bool options
           let annotation = "";
-          if (this.current === option.value && this.default === option.value) {
-            annotation = " (current, default)";
-          } else if (this.current === option.value) {
-            annotation = " (current)";
-          } else if (this.default === option.value) {
+          if (
+            this.current !== undefined &&
+            typeof this.current === "boolean" &&
+            this.current === boolOption.value &&
+            this.default === boolOption.value
+          ) {
+            annotation = this.currentValidationError
+              ? " (current, default, invalid)"
+              : " (current, default)";
+          } else if (
+            this.current !== undefined &&
+            typeof this.current === "boolean" &&
+            this.current === boolOption.value
+          ) {
+            annotation = this.currentValidationError ? " (current, invalid)" : " (current)";
+          } else if (this.default === boolOption.value) {
             annotation = " (default)";
           }
 
+          const displayValue = boolOption.label;
           const text = dimInputs
-            ? this.colors.dim(option.label)
+            ? this.colors.dim(displayValue)
             : isSelected
-              ? this.colors.white(option.label)
-              : this.colors.subtle(option.label);
+              ? this.colors.white(displayValue)
+              : this.colors.subtle(displayValue);
           let suffix = "";
           if (annotation) {
             suffix = dimInputs
@@ -99,6 +144,13 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           return undefined;
         }
 
+        // If a raw current exists and cursor is on it, block submission
+        if (this.currentRaw !== undefined) {
+          if (this.cursor === 0) {
+            return this.currentValidationError ?? "Current value is invalid";
+          }
+        }
+
         // Call custom validation if provided
         if (customValidate) {
           const customValidation = customValidate(value);
@@ -111,17 +163,25 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
       },
     });
 
-    // Set cursor based on priority: current → default → true
-    // cursor 0 = true, cursor 1 = false
-    let initialValue: boolean;
-    if (this.current !== undefined) {
-      initialValue = this.current;
-    } else if (this.default !== undefined) {
-      initialValue = this.default;
-    } else {
-      initialValue = true;
-    }
-    this.cursor = initialValue ? 0 : 1;
+      // Set cursor based on priority: default → current (if valid) → true
+      // If there's a raw invalid current value, show it but do not focus it by default.
+      // Options order: [raw-current?] true, false
+      let baseIndex = 0;
+      if (this.currentRaw !== undefined) {
+        // raw current occupies index 0, so shift subsequent indices
+        baseIndex = 1;
+      }
+
+      if (this.default !== undefined) {
+        // If default exists, focus on its index
+        this.cursor = baseIndex + (this.default ? 0 : 1);
+      } else if (this.current !== undefined && !this.currentValidationError) {
+        // No default, but valid current exists
+        this.cursor = baseIndex + (this.current ? 0 : 1);
+      } else {
+        // No default and current invalid -> focus on first boolean option (not raw)
+        this.cursor = baseIndex + 0; // true option
+      }
 
     // Set initial value to current, or default, or false
     this.setCommittedValue(this.current ?? this.default ?? false);
@@ -138,12 +198,17 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
       }
 
       switch (action) {
-        case "up":
-          this.cursor = this.cursor === 0 ? 1 : 0;
+        case "up": {
+          // Calculate max index (raw? + true + false)
+          const maxIndex = (this.currentRaw !== undefined ? 2 : 1);
+          this.cursor = this.cursor === 0 ? maxIndex : this.cursor - 1;
           break;
-        case "down":
-          this.cursor = this.cursor === 1 ? 0 : 1;
+        }
+        case "down": {
+          const maxIndexDown = (this.currentRaw !== undefined ? 2 : 1);
+          this.cursor = this.cursor === maxIndexDown ? 0 : this.cursor + 1;
           break;
+        }
       }
       this.updateValue();
     });
@@ -168,7 +233,19 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   }
 
   private updateValue() {
-    // cursor 0 = true, cursor 1 = false
+    // Options indices depend on presence of raw current
+    if (this.currentRaw !== undefined) {
+      // indices: 0 = raw, 1 = true, 2 = false
+      if (this.cursor === 0) {
+        // raw selected -> do not commit raw string; use default as fallback
+        this.setCommittedValue(this.default ?? false);
+        return;
+      }
+      this.setCommittedValue(this.cursor === 1);
+      return;
+    }
+
+    // indices: 0 = true, 1 = false
     this.setCommittedValue(this.cursor === 0);
   }
 }

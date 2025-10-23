@@ -57,19 +57,31 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
 
           // Determine if this option matches current or default
           let annotation = "";
+          let displayValue: string = option;
+          
           if (this.current === option && this.default === option) {
-            annotation = " (current, default)";
+            if (this.currentValidationError) {
+              annotation = " (current, default, invalid)";
+              displayValue = this.colors.strikethrough(option);
+            } else {
+              annotation = " (current, default)";
+            }
           } else if (this.current === option) {
-            annotation = " (current)";
+            if (this.currentValidationError) {
+              annotation = " (current, invalid)";
+              displayValue = this.colors.strikethrough(option);
+            } else {
+              annotation = " (current)";
+            }
           } else if (this.default === option) {
             annotation = " (default)";
           }
 
           const text = dimInputs
-            ? this.colors.dim(option)
+            ? this.colors.dim(displayValue)
             : isSelected
-              ? this.colors.white(option)
-              : this.colors.subtle(option);
+              ? this.colors.white(displayValue)
+              : this.colors.subtle(displayValue);
           let suffix = "";
           if (annotation) {
             suffix = dimInputs
@@ -91,6 +103,15 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
           return undefined;
         }
 
+        // Block submission if selecting an invalid current value
+        if (this.current !== undefined && this.currentValidationError) {
+          const isSelectingInvalidCurrent = this.values[this.cursor] === this.current;
+          
+          if (isSelectingInvalidCurrent) {
+            return this.currentValidationError;
+          }
+        }
+
         // Call custom validation if provided
         if (customValidate) {
           const customValidation = customValidate(value);
@@ -109,12 +130,16 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
     // Set initial value to current, or default, or first option
     this.setCommittedValue(this.current ?? this.default ?? this.values[0]);
 
-    // Set initial cursor position based on current/default value
-    const initialIndex = this.current
-      ? this.values.indexOf(this.current)
-      : this.default
-        ? this.values.indexOf(this.default)
-        : 0;
+    // Set initial cursor position based on priority: default → current (if valid) → first option
+    // Never default focus to an invalid current value
+    let initialIndex: number;
+    if (this.default !== undefined) {
+      initialIndex = this.values.indexOf(this.default);
+    } else if (this.current !== undefined && !this.currentValidationError) {
+      initialIndex = this.values.indexOf(this.current);
+    } else {
+      initialIndex = 0;
+    }
     this.cursor = Math.max(0, initialIndex);
 
     this.on("cursor", (action?: PromptAction) => {

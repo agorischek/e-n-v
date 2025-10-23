@@ -279,6 +279,28 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       this.track = true;
       this.setCommittedValue(this.getDefaultValue());
     } else {
+      // Set initial cursor position based on priority: default → current (if valid) → first valid option
+      // Never default focus to an invalid current value
+      let initialCursor = 0;
+      
+      if (this.default !== undefined) {
+        // If there's a default, focus on it
+        if (this.current !== undefined && this.current !== this.default) {
+          // current exists and is different: cursor 1 = default
+          initialCursor = 1;
+        } else {
+          // current doesn't exist or equals default: cursor 0 = current/default
+          initialCursor = 0;
+        }
+      } else if (this.current !== undefined && !this.currentValidationError) {
+        // No default, but valid current exists: focus on current
+        initialCursor = 0;
+      } else {
+        // No default, invalid or no current: focus on "Other" option
+        initialCursor = this.getTextInputIndex();
+      }
+      
+      this.cursor = initialCursor;
       // Set initial value to current
       this.setCommittedValue(this.current ?? this.getDefaultValue());
     }

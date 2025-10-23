@@ -8,10 +8,10 @@ import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";
 import { renderSetupHeader } from "../visuals/renderSetupHeader";
 import { S_BAR, S_BAR_END } from "../visuals/symbols";
 import type { Theme } from "../visuals/Theme";
-import type { EnvChannel, PreprocessorOptions } from "@envcredible/core";
+import type { EnvChannel } from "@envcredible/core";
 import type { EnvVarSchema } from "@envcredible/core";
-
-export type PromptFlowResult = "success" | "cancelled" | "error";
+import type { SessionOptions } from "./SessionOptions";
+import type { SessionResult } from "./SessionResult";
 
 export function resolveShouldMask(
   key: string,
@@ -29,17 +29,7 @@ export function resolveShouldMask(
   return isSecretKey(key, schema.description, patterns);
 }
 
-export interface SessionOptions {
-  schemas: Record<string, EnvVarSchema>;
-  channel: EnvChannel;
-  secrets: readonly (string | RegExp)[];
-  truncate: number;
-  theme: Theme;
-  input?: Readable;
-  output: NodeJS.WriteStream;
-  path: string;
-  preprocessorOptions?: PreprocessorOptions;
-}
+
 
 export class Session {
   private readonly schemas: Record<string, EnvVarSchema>;
@@ -79,7 +69,7 @@ export class Session {
   static fromOptions(options: SessionOptions): Session {
     return new Session(options);
   }
-  async run(): Promise<PromptFlowResult> {
+  async run(): Promise<SessionResult> {
     renderSetupHeader(this.output, this.theme, this.displayEnvPath);
 
     let currentValues = await this.channel.get();
@@ -177,7 +167,7 @@ export class Session {
 
 export async function runPromptFlow(
   options: SessionOptions,
-): Promise<PromptFlowResult> {
+): Promise<SessionResult> {
   const session = Session.fromOptions(options);
   return session.run();
 }
