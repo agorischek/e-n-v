@@ -49,7 +49,7 @@ describe("resolveSchema", () => {
   });
 
   it("should throw error for unsupported schemas", () => {
-    const unsupportedSchema = { notAZodSchema: true };
+    const unsupportedSchema = { notAZodSchema: true } as any;
 
     expect(() => resolveSchema(unsupportedSchema)).toThrow(
       "No converter found for schema"

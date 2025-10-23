@@ -1,6 +1,9 @@
 // Main API - resolveSchema is the primary entry point
 export { resolveSchema, resolveSchemas } from "./resolve";
-export type { EnvVarSchemaMap, SchemaMapValue } from "./resolve";
+export type { EnvVarSchemaMap } from "./resolve";
+
+// Types
+export type { SupportedSchema } from "./SupportedSchema";
 
 // Schema converter interface and implementations
 export type { SchemaConverter } from "./SchemaConverter";

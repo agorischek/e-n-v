@@ -3,6 +3,12 @@ import { isTypedEnvVarSchema } from "@envcredible/core";
 import type { SchemaConverter } from "./SchemaConverter";
 import { zodV3Converter } from "./converters/ZodV3Converter";
 import { zodV4Converter } from "./converters/ZodV4Converter";
+import type { SupportedSchema } from "./SupportedSchema";
+
+/**
+ * Map of environment variable names to supported schema types
+ */
+export type EnvVarSchemaMap = Record<string, SupportedSchema>;
 
 /**
  * Registry of available schema converters
@@ -11,17 +17,6 @@ const converters: SchemaConverter[] = [
   zodV4Converter, // Try v4 first as it's more specific
   zodV3Converter,
 ];
-
-/**
- * Type that represents any schema value in an EnvVarSchemaMap.
- * This includes Zod schemas (v3 or v4) and already-resolved EnvVarSchemas.
- */
-export type SchemaMapValue = unknown;
-
-/**
- * Map of environment variable names to schemas (Zod or EnvVar schemas)
- */
-export type EnvVarSchemaMap = Record<string, SchemaMapValue>;
 
 /**
  * Resolve any supported schema to a TypedEnvVarSchema.
@@ -34,7 +29,7 @@ export type EnvVarSchemaMap = Record<string, SchemaMapValue>;
  * @returns TypedEnvVarSchema that can be used with envcredible
  * @throws Error if no converter can handle the schema
  */
-export function resolveSchema(schema: unknown): TypedEnvVarSchema {
+export function resolveSchema(schema: SupportedSchema): TypedEnvVarSchema {
   // If it's already a TypedEnvVarSchema, return it directly
   if (isTypedEnvVarSchema(schema)) {
     return schema;
