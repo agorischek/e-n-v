@@ -1,5 +1,5 @@
 import { isCancel } from "@clack/core";
-import type { Readable } from "node:stream";
+import type { Readable, Writable } from "node:stream";
 import * as color from "picocolors";
 import { createPrompt } from "../createPrompt";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
@@ -39,10 +39,10 @@ export class Session {
   private readonly secrets: readonly (string | RegExp)[];
   private readonly truncate: number;
   private readonly theme: Theme;
-  private readonly output: NodeJS.WriteStream;
+  private readonly output: Writable
   private readonly input: Readable | undefined;
   private readonly displayEnvPath: string;
-  private readonly parseOptions?: import("@envcredible/core").PreprocessorOptions;
+  private readonly parseOptions?: import("@envcredible/core").Preprocessors;
 
   constructor({
     channel,
@@ -59,7 +59,7 @@ export class Session {
     this.secrets = secrets;
     this.truncate = truncate;
     this.theme = theme;
-    this.output = output;
+    this.output = output ?? process.stdout;
     this.input = input;
     this.displayEnvPath = getDisplayEnvPath(path);
     this.schemas = schemas;

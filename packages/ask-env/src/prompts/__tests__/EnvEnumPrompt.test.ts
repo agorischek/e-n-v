@@ -25,11 +25,11 @@ function createPrompt(options: TestPromptOptions = {}) {
 
   const prompt = new EnvEnumPrompt(schema, {
     key: options.key ?? "TEST_ENV",
-    current: options.current,
+    existing: options.existing,
     theme: options.theme,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
-    maxDisplayLength: options.maxDisplayLength,
+    truncate: options.truncate,
     secret: options.secret,
     mask: options.mask,
     secretToggleShortcut: options.secretToggleShortcut,
@@ -43,7 +43,7 @@ function createPrompt(options: TestPromptOptions = {}) {
 describe("EnvEnumPrompt", () => {
   it("initializes value from current before default and options", () => {
     const { prompt } = createPrompt({
-      current: "beta",
+      existing: "beta",
       default: "gamma",
       options: ["alpha", "beta", "gamma"],
     });
@@ -67,7 +67,7 @@ describe("EnvEnumPrompt", () => {
   it("wraps cursor navigation through the available options", () => {
     const { prompt } = createPrompt({
       options: ["one", "two", "three"],
-      current: "one",
+      existing: "one",
     });
 
     expect(prompt.cursor).toBe(0);
@@ -129,7 +129,7 @@ describe("EnvEnumPrompt", () => {
     };
 
     const { prompt } = createPrompt({
-      current: "alpha",
+      existing: "alpha",
       options: ["alpha", "beta"],
       validate: validationSpy,
     });

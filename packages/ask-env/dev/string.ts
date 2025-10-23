@@ -9,7 +9,7 @@ const schema = new StringEnvVarSchema({
 
 const prompt = new EnvStringPrompt(schema, {
   key: "SERVICE_URL",
-  current: "awesome",
+  existing: "awesome",
 });
 
 await prompt.prompt();

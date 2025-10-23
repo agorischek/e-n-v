@@ -32,8 +32,8 @@ function createPrompt(
 
   const prompt = new EnvNumberPrompt(schema, {
     key: options.key ?? "NUM_ENV",
-    current: options.current,
-    maxDisplayLength: options.maxDisplayLength,
+    existing: options.existing,
+    truncate: options.truncate,
     theme: options.theme,
     previousEnabled: options.previousEnabled,
     input: options.input ?? streams.input,
@@ -75,7 +75,7 @@ describe("EnvNumberPrompt", () => {
   });
 
   it("navigates current, default, and custom options", async () => {
-    const { prompt } = createPrompt({ current: "1", default: 2 });
+    const { prompt } = createPrompt({ existing: "1", default: 2 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -130,7 +130,7 @@ describe("EnvNumberPrompt", () => {
   });
 
   it("starts typing when printable characters are entered on a selection", async () => {
-    const { prompt } = createPrompt({ current: "5", default: 6 });
+    const { prompt } = createPrompt({ existing: "5", default: 6 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -150,7 +150,7 @@ describe("EnvNumberPrompt", () => {
   });
 
   it("prevents submitting empty or invalid numeric entries", async () => {
-    const { prompt } = createPrompt({ current: "1", default: 2 });
+    const { prompt } = createPrompt({ existing: "1", default: 2 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -189,7 +189,7 @@ describe("EnvNumberPrompt", () => {
       return undefined;
     };
 
-    const { prompt } = createPrompt({ current: "1", default: 2, validate });
+    const { prompt } = createPrompt({ existing: "1", default: 2, validate });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -225,7 +225,7 @@ describe("EnvNumberPrompt", () => {
   });
 
   it("exits typing mode with escape and resets the input", async () => {
-    const { prompt } = createPrompt({ current: "4", default: 5 });
+    const { prompt } = createPrompt({ existing: "4", default: 5 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -246,7 +246,7 @@ describe("EnvNumberPrompt", () => {
   });
 
   it("renders cancelled prompts", async () => {
-    const { prompt, output } = createPrompt({ current: "8" });
+    const { prompt, output } = createPrompt({ existing: "8" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -260,7 +260,7 @@ describe("EnvNumberPrompt", () => {
   });
 
   it("dims options while the footer picker is open", async () => {
-    const { prompt, output } = createPrompt({ current: "3", default: 4 });
+    const { prompt, output } = createPrompt({ existing: "3", default: 4 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 

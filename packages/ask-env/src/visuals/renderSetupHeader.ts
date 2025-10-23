@@ -1,9 +1,10 @@
 import * as color from "picocolors";
 import type { Theme } from "./Theme";
 import { S_BAR_START } from "./symbols";
+import { Writable } from "node:stream";
 
 export function renderSetupHeader(
-  output: NodeJS.WriteStream,
+  output: Writable,
   theme: Theme,
   displayEnvPath: string,
 ): void {

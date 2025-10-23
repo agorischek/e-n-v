@@ -44,17 +44,17 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         }
         output += "\n";
 
-        // Build options array. We include a raw-current option when a current
+        // Build options array. We include a raw-existing option when an existing
         // value exists but is invalid so the user can see the raw invalid value.
-        // Options order: [raw-current?] true, false (we'll annotate default/current where appropriate)
+        // Options order: [raw-existing?] true, false (we'll annotate default/current where appropriate)
         const dimInputs = this.shouldDimInputs();
 
         type BoolOption = { kind: "raw"; raw: string } | { kind: "bool"; value: boolean; label: string };
         const options: BoolOption[] = [];
 
-        // If there is a raw current value (stored separately), show it first
-        if (this.currentRaw !== undefined) {
-          options.push({ kind: "raw", raw: this.currentRaw });
+        // If there is an existing value that's invalid, show it first
+        if (this.existing !== undefined && this.existingValidationError) {
+          options.push({ kind: "raw", raw: this.existing });
         }
 
         // Add true/false options always
@@ -70,8 +70,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
               : this.colors.dim(S_RADIO_INACTIVE);
 
           if (option.kind === "raw") {
-            // Raw current value display (invalid or unprocessed)
-            const displayRaw = this.currentValidationError
+            // Raw existing value display (invalid or unprocessed)
+            const displayRaw = this.existingValidationError
               ? this.colors.strikethrough(option.raw)
               : option.raw;
             const text = dimInputs
@@ -79,7 +79,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
               : isSelected
                 ? this.colors.white(displayRaw)
                 : this.colors.subtle(displayRaw);
-            const annotation = this.currentValidationError ? " (current, invalid)" : " (current)";
+            const annotation = this.existingValidationError ? " (existing, invalid)" : " (existing)";
             let suffix = "";
             if (isSelected) {
               suffix = dimInputs
@@ -101,7 +101,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
             this.current === boolOption.value &&
             this.default === boolOption.value
           ) {
-            annotation = this.currentValidationError
+            annotation = this.existingValidationError
               ? " (current, default, invalid)"
               : " (current, default)";
           } else if (
@@ -109,7 +109,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
             typeof this.current === "boolean" &&
             this.current === boolOption.value
           ) {
-            annotation = this.currentValidationError ? " (current, invalid)" : " (current)";
+            annotation = this.existingValidationError ? " (current, invalid)" : " (current)";
           } else if (this.default === boolOption.value) {
             annotation = " (default)";
           }
@@ -144,10 +144,10 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           return undefined;
         }
 
-        // If a raw current exists and cursor is on it, block submission
-        if (this.currentRaw !== undefined) {
+        // If an existing value exists and cursor is on it, block submission
+        if (this.existing !== undefined && this.existingValidationError) {
           if (this.cursor === 0) {
-            return this.currentValidationError ?? "Current value is invalid";
+            return this.existingValidationError ?? "Existing value is invalid";
           }
         }
 
@@ -163,23 +163,23 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
       },
     });
 
-      // Set cursor based on priority: default → current (if valid) → true
-      // If there's a raw invalid current value, show it but do not focus it by default.
-      // Options order: [raw-current?] true, false
+      // Set cursor based on priority: current (if valid) → default → true
+      // If there's a raw invalid existing value, show it but do not focus it by default.
+      // Options order: [raw-existing?] true, false
       let baseIndex = 0;
-      if (this.currentRaw !== undefined) {
-        // raw current occupies index 0, so shift subsequent indices
+      if (this.existing !== undefined && this.existingValidationError) {
+        // raw existing occupies index 0, so shift subsequent indices
         baseIndex = 1;
       }
 
-      if (this.default !== undefined) {
-        // If default exists, focus on its index
-        this.cursor = baseIndex + (this.default ? 0 : 1);
-      } else if (this.current !== undefined && !this.currentValidationError) {
-        // No default, but valid current exists
+      if (this.current !== undefined && typeof this.current === "boolean" && !this.existingValidationError) {
+        // Valid current exists, focus on it
         this.cursor = baseIndex + (this.current ? 0 : 1);
+      } else if (this.default !== undefined) {
+        // No valid current, but default exists, focus on it
+        this.cursor = baseIndex + (this.default ? 0 : 1);
       } else {
-        // No default and current invalid -> focus on first boolean option (not raw)
+        // No valid current and no default -> focus on first boolean option (true)
         this.cursor = baseIndex + 0; // true option
       }
 
@@ -200,13 +200,13 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
       switch (action) {
         case "up": {
           // Calculate max index (raw? + true + false)
-          const maxIndex = (this.currentRaw !== undefined ? 2 : 1);
+          const maxIndex = (this.existing !== undefined && this.existingValidationError ? 2 : 1);
           this.cursor = this.cursor === 0 ? maxIndex : this.cursor - 1;
           break;
         }
         case "down": {
-          const maxIndexDown = (this.currentRaw !== undefined ? 2 : 1);
-          this.cursor = this.cursor === maxIndexDown ? 0 : this.cursor + 1;
+          const maxIndex = (this.existing !== undefined && this.existingValidationError ? 2 : 1);
+          this.cursor = this.cursor === maxIndex ? 0 : this.cursor + 1;
           break;
         }
       }
@@ -233,14 +233,15 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   }
 
   private updateValue() {
-    // Options indices depend on presence of raw current
-    if (this.currentRaw !== undefined) {
+    // Options indices depend on presence of raw existing
+    if (this.existing !== undefined && this.existingValidationError) {
       // indices: 0 = raw, 1 = true, 2 = false
       if (this.cursor === 0) {
         // raw selected -> do not commit raw string; use default as fallback
         this.setCommittedValue(this.default ?? false);
         return;
       }
+      // cursor 1 = true, cursor 2 = false
       this.setCommittedValue(this.cursor === 1);
       return;
     }

@@ -1,5 +1,6 @@
-import type { EnvVarSchema, EnvChannel, PreprocessorOptions } from "@envcredible/core";
+import type { EnvVarSchema, EnvChannel, Preprocessors } from "@envcredible/core";
 import type { Theme } from "../visuals/Theme";
+import { Readable, Writable } from "node:stream";
 
 export interface SessionOptions {
   schemas: Record<string, EnvVarSchema>;
@@ -8,7 +9,7 @@ export interface SessionOptions {
   truncate: number;
   theme: Theme;
   input?: Readable;
-  output: NodeJS.WriteStream;
+  output?: Writable;
   path: string;
-  preprocessorOptions?: PreprocessorOptions;
+  preprocessorOptions?: Preprocessors;
 }

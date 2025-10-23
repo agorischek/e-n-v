@@ -32,8 +32,8 @@ function createPrompt(
 
   const prompt = new EnvStringPrompt(schema, {
     key: options.key ?? "TEST_ENV",
-    current: options.current,
-    maxDisplayLength: options.maxDisplayLength,
+    existing: options.existing,
+    truncate: options.truncate,
     secret: options.secret,
     mask: options.mask,
     theme: options.theme,
@@ -87,7 +87,7 @@ describe("EnvStringPrompt", () => {
   });
 
   it("navigates current and default selections with arrow keys", async () => {
-    const { prompt } = createPrompt({ current: "current", default: "default" });
+    const { prompt } = createPrompt({ existing: "current", default: "default" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -133,7 +133,7 @@ describe("EnvStringPrompt", () => {
   });
 
   it("enters typing mode and tracks input when characters are pressed", async () => {
-    const { prompt } = createPrompt({ current: "current", default: "default" });
+    const { prompt } = createPrompt({ existing: "current", default: "default" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -154,7 +154,7 @@ describe("EnvStringPrompt", () => {
   });
 
   it("exits typing mode with escape and resets the input", async () => {
-    const { prompt } = createPrompt({ current: "current", default: "default" });
+    const { prompt } = createPrompt({ existing: "current", default: "default" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -196,7 +196,7 @@ describe("EnvStringPrompt", () => {
     const { prompt, output } = createPrompt({
       secret: true,
       mask: "#",
-      maxDisplayLength: 4,
+      truncate: 4,
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -213,7 +213,7 @@ describe("EnvStringPrompt", () => {
   });
 
   it("renders cancelled prompts using the cancel renderer", async () => {
-    const { prompt, output } = createPrompt({ current: "value" });
+    const { prompt, output } = createPrompt({ existing: "value" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -228,7 +228,7 @@ describe("EnvStringPrompt", () => {
 
   it("dimms inputs while the option picker is open", async () => {
     const { prompt, output } = createPrompt({
-      current: "same",
+      existing: "same",
       default: "same",
     });
     const promptPromise = prompt.prompt();
@@ -252,7 +252,7 @@ describe("EnvStringPrompt", () => {
   it("returns focus to previous selection when toggling secret and skips validation", async () => {
     const calls: Array<string | undefined> = [];
     const { prompt } = createPrompt({
-      current: "curr",
+      existing: "curr",
       default: "def",
       secret: true,
       required: true,
@@ -299,7 +299,7 @@ describe("EnvStringPrompt", () => {
 
   it("prevents submitting empty custom entries when required", async () => {
     const { prompt } = createPrompt({
-      current: "curr",
+      existing: "curr",
       default: "def",
       required: true,
     });
@@ -325,7 +325,7 @@ describe("EnvStringPrompt", () => {
 
   it("allows optional custom entries to remain empty", async () => {
     const { prompt } = createPrompt({
-      current: "curr",
+      existing: "curr",
       default: "def",
       required: false,
     });
@@ -357,7 +357,7 @@ describe("EnvStringPrompt", () => {
     };
 
     const { prompt } = createPrompt({
-      current: "curr",
+      existing: "curr",
       default: "def",
       validate,
     });
@@ -390,7 +390,7 @@ describe("EnvStringPrompt", () => {
     };
 
     const { prompt } = createPrompt({
-      current: "curr",
+      existing: "curr",
       default: "def",
       validate,
     });
@@ -425,7 +425,7 @@ describe("EnvStringPrompt", () => {
   });
 
   it("respects custom validateInput responses", async () => {
-    const { prompt } = createPrompt({ current: "curr", default: "def" });
+    const { prompt } = createPrompt({ existing: "curr", default: "def" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -481,7 +481,7 @@ describe("EnvStringPrompt", () => {
   });
 
   it("updates values when selecting between current, default, and other", async () => {
-    const { prompt } = createPrompt({ current: "curr", default: "def" });
+    const { prompt } = createPrompt({ existing: "curr", default: "def" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -506,7 +506,7 @@ describe("EnvStringPrompt", () => {
 
   it("exposes helper utilities for masking and display", async () => {
     const { prompt } = createPrompt({
-      current: "curr",
+      existing: "curr",
       default: "def",
       secret: true,
       mask: "*",

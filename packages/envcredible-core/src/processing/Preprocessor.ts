@@ -5,7 +5,7 @@ import type { EnvVarType } from "../types/EnvVarType";
  * If null or undefined, the preprocessing step is skipped for that type.
  * These functions do not guarantee type casting and can be nullified to skip preprocessing.
  */
-export interface PreprocessorOptions {
+export interface Preprocessors {
   /**
    * Custom string preprocessing function
    * Receives the string value and should return a string value
@@ -95,7 +95,7 @@ const defaultBooleanPreprocessor = (value: string): string => {
 export function applyPreprocessing<T>(
   value: string,
   envVarType: EnvVarType,
-  preprocessorOptions?: PreprocessorOptions
+  preprocessorOptions?: Preprocessors
 ): T | string {
   let processedValue: string | number | boolean = value;
 

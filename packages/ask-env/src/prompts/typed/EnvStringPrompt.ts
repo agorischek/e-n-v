@@ -47,8 +47,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         const dimInputs = this.shouldDimInputs();
 
-        // If both current and default are undefined, show only text input
-        if (this.current === undefined && this.default === undefined) {
+        // If both current and default are undefined AND no invalid existing value, show only text input
+        if (this.current === undefined && this.default === undefined && !this.existingValidationError) {
           if (this.isTyping) {
             const displayText = dimInputs
               ? this.colors.dim(this.getInputDisplay(false))
@@ -73,19 +73,23 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           { value: string | undefined; label: string } | string
         > = [];
 
-        // Add current value if it exists
+        // Add existing invalid value if it exists and is invalid
+        if (this.existing !== undefined && this.existingValidationError) {
+          let label = "(current, invalid)";
+          if (this.default !== undefined && this.existing === this.default) {
+            label = "(current, default, invalid)";
+          }
+          options.push({
+            value: this.existing,
+            label,
+          });
+        }
+
+        // Add current value if it exists (valid processed value)
         if (this.current !== undefined) {
           let label = "(current)";
           if (this.default !== undefined && this.current === this.default) {
             label = "(current, default)";
-          }
-          // Add validation error annotation if present
-          if (this.currentValidationError) {
-            if (this.default !== undefined && this.current === this.default) {
-              label = "(current, default, invalid)";
-            } else {
-              label = "(current, invalid)";
-            }
           }
           options.push({
             value: this.current,
@@ -133,9 +137,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             // Current/Default options
             let displayValue = this.formatValue(option.value);
             
-            // Apply strikethrough if this is an invalid current value
-            const isInvalidCurrent = option.value === this.current && this.currentValidationError;
-            if (isInvalidCurrent) {
+            // Apply strikethrough if this is an invalid existing value
+            const isInvalidExisting = option.value === this.existing && this.existingValidationError;
+            if (isInvalidExisting) {
               displayValue = this.colors.strikethrough(displayValue);
             }
             
@@ -167,6 +171,12 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         if (this.getOutcome() !== "commit") {
           return undefined;
         }
+
+        // Block submission if selecting an invalid existing value
+        if (this.existing !== undefined && this.existingValidationError && value === this.existing) {
+          return this.existingValidationError;
+        }
+
         // If both current and default are undefined, we're in text-only mode
         if (this.current === undefined && this.default === undefined) {
           if (!this.userInput || !this.userInput.trim()) {
@@ -246,7 +256,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         // For non-typing cases (selecting current/default), check for validation errors first
         // If the user is selecting the current value and it has a validation error, block submission
-        if (!this.isTyping && this.current !== undefined && this.currentValidationError) {
+        if (!this.isTyping && this.current !== undefined && this.existingValidationError) {
           // Check if user is selecting the current value option
           let isSelectingCurrentValue = false;
           let optionIndex = 0;
@@ -257,7 +267,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           }
           
           if (isSelectingCurrentValue) {
-            return this.currentValidationError;
+            return this.existingValidationError;
           }
         }
 
@@ -273,30 +283,27 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       },
     });
 
-    // If both current and default are undefined, start in typing mode
+    // Determine initialization strategy
     if (this.current === undefined && this.default === undefined) {
+      // No valid values - start in typing mode (even if there's an invalid existing value to display)
       this.isTyping = true;
       this.track = true;
+      this.cursor = this.getTextInputIndex(); // Position cursor on text input
       this.setCommittedValue(this.getDefaultValue());
     } else {
-      // Set initial cursor position based on priority: default → current (if valid) → first valid option
-      // Never default focus to an invalid current value
+      // We have valid current or default values - show options with navigation
       let initialCursor = 0;
       
-      if (this.default !== undefined) {
-        // If there's a default, focus on it
-        if (this.current !== undefined && this.current !== this.default) {
-          // current exists and is different: cursor 1 = default
-          initialCursor = 1;
-        } else {
-          // current doesn't exist or equals default: cursor 0 = current/default
-          initialCursor = 0;
-        }
-      } else if (this.current !== undefined && !this.currentValidationError) {
-        // No default, but valid current exists: focus on current
-        initialCursor = 0;
+      if (this.current !== undefined) {
+        // Valid current exists: focus on current (account for invalid existing option)
+        const hasInvalidExisting = this.existing !== undefined && this.existingValidationError;
+        initialCursor = hasInvalidExisting ? 1 : 0; // Skip invalid existing option if present
+      } else if (this.default !== undefined) {
+        // No valid current, but default exists: focus on default (account for invalid existing option)
+        const hasInvalidExisting = this.existing !== undefined && this.existingValidationError;
+        initialCursor = hasInvalidExisting ? 1 : 0; // Skip invalid existing option if present
       } else {
-        // No default, invalid or no current: focus on "Other" option
+        // No valid current or default: focus on "Other" option
         initialCursor = this.getTextInputIndex();
       }
       
@@ -312,8 +319,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         this.error = "";
       }
 
-      // If both current and default are undefined, we're in text-only mode - no cursor navigation
-      if (this.current === undefined && this.default === undefined) {
+      // If both current and default are undefined AND no invalid existing value, we're in text-only mode - no cursor navigation
+      if (this.current === undefined && this.default === undefined && !this.existingValidationError) {
         return;
       }
 
@@ -325,7 +332,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         case "up":
           // Calculate max index based on actual options
           let optionsCount = 0;
-          if (this.current !== undefined) optionsCount++;
+          if (this.existing !== undefined && this.existingValidationError) optionsCount++; // Invalid existing option
+          if (this.current !== undefined) optionsCount++; // Valid current option
           if (this.default !== undefined && this.current !== this.default)
             optionsCount++;
           optionsCount++; // For "Other" option
@@ -342,7 +350,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         case "down":
           // Calculate max index based on actual options
           let optionsCountDown = 0;
-          if (this.current !== undefined) optionsCountDown++;
+          if (this.existing !== undefined && this.existingValidationError) optionsCountDown++; // Invalid existing option
+          if (this.current !== undefined) optionsCountDown++; // Valid current option
           if (this.default !== undefined && this.current !== this.default)
             optionsCountDown++;
           optionsCountDown++; // For "Other" option
@@ -465,8 +474,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   private updateValue() {
-    // If both current and default are undefined, we're in text-only mode
-    if (this.current === undefined && this.default === undefined) {
+    // If both current and default are undefined AND no invalid existing value, we're in text-only mode
+    if (this.current === undefined && this.default === undefined && !this.existingValidationError) {
       try {
         const parsed = this.parseInput(this.userInput);
         this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -479,6 +488,13 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     if (!this.isTyping) {
       // Dynamically determine what option the cursor is on
       let optionIndex = 0;
+
+      // Check if cursor is on invalid existing value
+      if (this.existing !== undefined && this.existingValidationError && this.cursor === optionIndex) {
+        this.setCommittedValue(this.existing);
+        return;
+      }
+      if (this.existing !== undefined && this.existingValidationError) optionIndex++;
 
       // Check if cursor is on current value
       if (this.current !== undefined && this.cursor === optionIndex) {
@@ -540,7 +556,11 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
   private getTextInputIndex(): number {
     let index = 0;
+    // Count invalid existing value option if present
+    if (this.existing !== undefined && this.existingValidationError) index++;
+    // Count current value option if present
     if (this.current !== undefined) index++;
+    // Count default value option if present and different from current
     if (this.default !== undefined && this.current !== this.default) index++;
     return index;
   }

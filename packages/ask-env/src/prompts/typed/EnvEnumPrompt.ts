@@ -60,14 +60,14 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
           let displayValue: string = option;
           
           if (this.current === option && this.default === option) {
-            if (this.currentValidationError) {
+            if (this.existingValidationError) {
               annotation = " (current, default, invalid)";
               displayValue = this.colors.strikethrough(option);
             } else {
               annotation = " (current, default)";
             }
           } else if (this.current === option) {
-            if (this.currentValidationError) {
+            if (this.existingValidationError) {
               annotation = " (current, invalid)";
               displayValue = this.colors.strikethrough(option);
             } else {
@@ -104,11 +104,11 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
         }
 
         // Block submission if selecting an invalid current value
-        if (this.current !== undefined && this.currentValidationError) {
+        if (this.current !== undefined && this.existingValidationError) {
           const isSelectingInvalidCurrent = this.values[this.cursor] === this.current;
           
           if (isSelectingInvalidCurrent) {
-            return this.currentValidationError;
+            return this.existingValidationError;
           }
         }
 
@@ -130,13 +130,13 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
     // Set initial value to current, or default, or first option
     this.setCommittedValue(this.current ?? this.default ?? this.values[0]);
 
-    // Set initial cursor position based on priority: default → current (if valid) → first option
+    // Set initial cursor position based on priority: current (if valid) → default → first option
     // Never default focus to an invalid current value
     let initialIndex: number;
-    if (this.default !== undefined) {
-      initialIndex = this.values.indexOf(this.default);
-    } else if (this.current !== undefined && !this.currentValidationError) {
+    if (this.current !== undefined && !this.existingValidationError) {
       initialIndex = this.values.indexOf(this.current);
+    } else if (this.default !== undefined) {
+      initialIndex = this.values.indexOf(this.default);
     } else {
       initialIndex = 0;
     }

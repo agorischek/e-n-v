@@ -1,4 +1,4 @@
-import type { EnvVarSchemaDetails, PreprocessorOptions } from "@envcredible/core";
+import type { EnvVarSchemaDetails, Preprocessors } from "@envcredible/core";
 import { applyPreprocessing } from "@envcredible/core";
 
 export interface ProcessingResult<T> {
@@ -14,7 +14,7 @@ export interface ProcessingResult<T> {
 export function processValue<T>(
   value: string,
   schema: EnvVarSchemaDetails<T>,
-  preprocessorOptions?: PreprocessorOptions
+  preprocessorOptions?: Preprocessors
 ): ProcessingResult<T> {
   try {
     // Apply preprocessing

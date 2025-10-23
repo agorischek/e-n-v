@@ -1,5 +1,3 @@
-import type { EnvVarSchema } from "@envcredible/core";
-import type { EnvVarSchemaMap } from "@envcredible/converters";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { stdin, stdout } from "node:process";
@@ -9,7 +7,7 @@ import type { AskEnvOptions } from "./AskEnvOptions";
 import * as defaults from "./defaults";
 import { resolveChannel } from "@envcredible/channels/resolveChannel";
 import { Session } from "./session/Session";
-import { resolveSchemas } from "@envcredible/converters";
+import { resolveSchemas, type Schema } from "@envcredible/converters";
 
 function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);
@@ -46,7 +44,7 @@ function resolveEnvFilePath(
  * @param options - Configuration options
  */
 export async function ask(
-  schemas: EnvVarSchemaMap,
+  schemas: Record<string, Schema>,
   options: AskEnvOptions = {},
 ): Promise<void> {
   const rootDirectory = resolveRootDirectory(options.root);

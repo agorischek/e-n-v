@@ -69,24 +69,28 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
         // Create options array dynamically based on what values exist
         const options: Array<
-          { value: number | undefined; label: string } | string
+          { value: number | string | undefined; label: string } | string
         > = [];
 
-        // Add current value if it exists
+        // Add existing invalid value if it exists and is invalid
+        if (this.existing !== undefined && this.existingValidationError) {
+          let label = "(current, invalid)";
+          if (this.default !== undefined && this.existing === String(this.default)) {
+            label = "(current, default, invalid)";
+          }
+          options.push({
+            value: this.existing, // Keep as string to display the invalid value
+            label,
+          });
+        }
+
+        // Add current value if it exists (valid processed value)
         if (this.current !== undefined) {
           let label: string;
           if (this.default !== undefined && this.current === this.default) {
             label = "(current, default)";
           } else {
             label = "(current)";
-          }
-          // Add validation error annotation if present
-          if (this.currentValidationError) {
-            if (this.default !== undefined && this.current === this.default) {
-              label = "(current, default, invalid)";
-            } else {
-              label = "(current, invalid)";
-            }
           }
           options.push({
             value: this.current,
@@ -132,11 +136,18 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
             }
           } else {
             // Current/Default options
-            let displayValue = this.formatValue(option.value);
+            let displayValue: string;
+            if (typeof option.value === 'string') {
+              // Invalid existing value - display as-is
+              displayValue = option.value;
+            } else {
+              // Valid number value - format normally
+              displayValue = this.formatValue(option.value);
+            }
             
-            // Apply strikethrough if this is an invalid current value
-            const isInvalidCurrent = option.value === this.current && this.currentValidationError;
-            if (isInvalidCurrent) {
+            // Apply strikethrough if this is an invalid existing value
+            const isInvalidExisting = option.value === this.existing && this.existingValidationError;
+            if (isInvalidExisting) {
               displayValue = this.colors.strikethrough(displayValue);
             }
             
@@ -247,9 +258,18 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           return undefined;
         }
 
+                if (this.getOutcome() !== "commit") {
+          return undefined;
+        }
+
+        // Block submission if selecting an invalid existing value
+        if (this.existing !== undefined && this.existingValidationError && String(value) === this.existing) {
+          return this.existingValidationError;
+        }
+
         // For non-typing cases (selecting current/default), check for validation errors first
         // If the user is selecting the current value and it has a validation error, block submission
-        if (!this.isTyping && this.current !== undefined && this.currentValidationError) {
+        if (!this.isTyping && this.current !== undefined && this.existingValidationError) {
           // Check if user is selecting the current value option
           let isSelectingCurrentValue = false;
           let optionIndex = 0;
@@ -260,7 +280,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           }
           
           if (isSelectingCurrentValue) {
-            return this.currentValidationError;
+            return this.existingValidationError;
           }
         }
 
@@ -282,24 +302,24 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       this.track = true;
       this.setCommittedValue(this.getDefaultValue());
     } else {
-      // Set initial cursor position based on priority: default → current (if valid) → first valid option
+      // Set initial cursor position based on priority: current (if valid) → default → first valid option
       // Never default focus to an invalid current value
       let initialCursor = 0;
       
-      if (this.default !== undefined) {
-        // If there's a default, focus on it
+      if (this.current !== undefined && !this.existingValidationError) {
+        // Valid current exists: focus on current (cursor 0)
+        initialCursor = 0;
+      } else if (this.default !== undefined) {
+        // No valid current, but default exists: focus on default
         if (this.current !== undefined && this.current !== this.default) {
-          // current exists and is different: cursor 1 = default
+          // current exists but is invalid, and is different from default: cursor 1 = default
           initialCursor = 1;
         } else {
-          // current doesn't exist or equals default: cursor 0 = current/default
+          // current doesn't exist or equals default: cursor 0 = default
           initialCursor = 0;
         }
-      } else if (this.current !== undefined && !this.currentValidationError) {
-        // No default, but valid current exists: focus on current
-        initialCursor = 0;
       } else {
-        // No default, invalid or no current: focus on "Other" option
+        // No valid current or default: focus on "Other" option
         initialCursor = this.getTextInputIndex();
       }
       
@@ -315,8 +335,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         this.error = "";
       }
 
-      // If both current and default are undefined, we're in text-only mode - no cursor navigation
-      if (this.current === undefined && this.default === undefined) {
+      // If both current and default are undefined AND no invalid existing value, we're in text-only mode - no cursor navigation
+      if (this.current === undefined && this.default === undefined && !this.existingValidationError) {
         return;
       }
 
@@ -328,7 +348,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         case "up":
           // Calculate max index based on actual options
           let optionsCount = 0;
-          if (this.current !== undefined) optionsCount++;
+          if (this.existing !== undefined && this.existingValidationError) optionsCount++; // Invalid existing option
+          if (this.current !== undefined) optionsCount++; // Valid current option
           if (this.default !== undefined && this.current !== this.default)
             optionsCount++;
           optionsCount++; // For "Other" option
@@ -345,7 +366,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         case "down":
           // Calculate max index based on actual options
           let optionsCountDown = 0;
-          if (this.current !== undefined) optionsCountDown++;
+          if (this.existing !== undefined && this.existingValidationError) optionsCountDown++; // Invalid existing option
+          if (this.current !== undefined) optionsCountDown++; // Valid current option
           if (this.default !== undefined && this.current !== this.default)
             optionsCountDown++;
           optionsCountDown++; // For "Other" option
@@ -503,6 +525,13 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       // Dynamically determine what option the cursor is on
       let optionIndex = 0;
 
+      // Check if cursor is on invalid existing value
+      if (this.existing !== undefined && this.existingValidationError && this.cursor === optionIndex) {
+        this.setCommittedValue(this.existing as any); // Will be blocked by validation
+        return;
+      }
+      if (this.existing !== undefined && this.existingValidationError) optionIndex++;
+
       // Check if cursor is on current value
       if (this.current !== undefined && this.cursor === optionIndex) {
         this.setCommittedValue(this.current);
@@ -571,7 +600,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
   private getTextInputIndex(): number {
     let index = 0;
+    // Count invalid existing value option if present
+    if (this.existing !== undefined && this.existingValidationError) index++;
+    // Count current value option if present
     if (this.current !== undefined) index++;
+    // Count default value option if present and different from current
     if (this.default !== undefined && this.current !== this.default) index++;
     return index;
   }

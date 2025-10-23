@@ -9,7 +9,7 @@ import {
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptOptions } from "../vendor/PromptOptions";
-import type { EnvVarSchemaDetails, PreprocessorOptions } from "@envcredible/core";
+import type { EnvVarSchemaDetails, Preprocessors } from "@envcredible/core";
 import type { EnvPromptOptions } from "./options/EnvPromptOptions";
 import { processValue, type ProcessingResult } from "./processing/processValue";
 import type { FooterOption } from "../types/FooterOption";
@@ -23,7 +23,7 @@ export abstract class EnvPrompt<
   protected readonly required: boolean;
   protected key: string;
   protected current?: T;
-  protected currentRaw?: string; // Store the raw current value
+  protected existing?: string;
   protected default?: T;
   protected maxDisplayLength: number;
   protected secret: boolean;
@@ -36,8 +36,8 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
-  protected currentValidationError?: string;
-  protected preprocessorOptions?: PreprocessorOptions;
+  protected existingValidationError?: string;
+  protected preprocessorOptions?: Preprocessors;
   private skipValidationFlag: boolean;
 
   protected set track(value: boolean) {
@@ -72,7 +72,7 @@ export abstract class EnvPrompt<
     this.outcome = "commit";
     this.key = promptOptions.key;
     this.default = promptOptions.default;
-    this.maxDisplayLength = promptOptions.maxDisplayLength ?? 40;
+    this.maxDisplayLength = promptOptions.truncate ?? 40;
     this.secret = Boolean(promptOptions.secret);
     this.mask = promptOptions.mask ?? SECRET_MASK;
     this.revealSecret = false;
@@ -82,21 +82,21 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = promptOptions.previousEnabled ?? true;
-    this.preprocessorOptions = promptOptions.preprocessorOptions;
+    this.preprocessorOptions = promptOptions.preprocessors;
     this.skipValidationFlag = false;
 
     // Process current value if it exists, but don't throw on validation errors
-    this.currentRaw = promptOptions.current;
-    if (this.currentRaw !== undefined) {
-      const processingResult = processValue(this.currentRaw, this.spec, this.preprocessorOptions);
+    this.existing = promptOptions.existing;
+    if (this.existing !== undefined) {
+      const processingResult = processValue(this.existing, this.spec, this.preprocessorOptions);
       if (processingResult.isValid) {
         this.current = processingResult.value;
-        this.currentValidationError = undefined;
+        this.existingValidationError = undefined;
       } else {
-        // For invalid values, we want to display the raw value in the UI
-        // but mark it as invalid so the user can see it and choose to skip validation
-        this.current = processingResult.rawValue as T; // Cast needed for display purposes
-        this.currentValidationError = processingResult.error;
+        // For invalid values, keep current undefined so initialization logic works correctly
+        // We'll access the raw value via this.existing when needed for display
+        this.current = undefined;
+        this.existingValidationError = processingResult.error;
       }
     }
 
