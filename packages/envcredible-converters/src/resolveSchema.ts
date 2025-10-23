@@ -2,6 +2,7 @@ import type { TypedEnvVarSchema } from "@envcredible/core";
 import type { SchemaConverter } from "./SchemaConverter";
 import { zodV3Converter } from "./converters/ZodV3Converter";
 import { zodV4Converter } from "./converters/ZodV4Converter";
+import { envalidConverter } from "./converters/EnvalidConverter";
 
 /**
  * Registry of available schema converters
@@ -9,6 +10,7 @@ import { zodV4Converter } from "./converters/ZodV4Converter";
 const converters: SchemaConverter[] = [
   zodV4Converter, // Try v4 first as it's more specific
   zodV3Converter,
+  envalidConverter,
 ];
 
 /**
@@ -29,7 +31,7 @@ export function resolveSchema(schema: unknown): TypedEnvVarSchema {
   }
   
   throw new Error(
-    `No converter found for schema. Supported types: Zod v3, Zod v4. ` +
+    `No converter found for schema. Supported types: Zod v3, Zod v4, Envalid. ` +
     `Received: ${typeof schema}`
   );
 }
