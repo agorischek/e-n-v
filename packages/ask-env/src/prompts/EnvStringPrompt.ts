@@ -418,6 +418,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           // Enable value tracking and set the initial character
           this.track = true;
           this._setUserInput(char);
+          // Manually set the cursor position to be after the character
+          (this as any)._cursor = char.length;
           this.updateValue();
           return;
         }
@@ -530,12 +532,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       return base;
     }
 
+    const internalCursor = (this as unknown as { _cursor?: number })._cursor;
     const rawCursor = this.isTyping
-      ? Math.max(
-          0,
-          (this as unknown as { _cursor?: number })._cursor ??
-            inputValue.length,
-        )
+      ? Math.max(0, internalCursor ?? 0)
       : 0;
     const maskLength = isMasked ? Math.max(1, this.mask.length) : 1;
     const cursorIndex = Math.min(rawCursor * maskLength, base.length);
