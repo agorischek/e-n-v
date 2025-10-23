@@ -9,6 +9,24 @@ import {
   EnumEnvVarSchema,
 } from "@envcredible/core";
 import type { SchemaConverter } from "../SchemaConverter";
+import type { JoiSchema } from "../../types";
+import Joi from "joi";
+
+/**
+ * Extended description interface to include properties we need
+ */
+interface JoiDescription {
+  type?: string;
+  flags?: {
+    description?: string;
+    default?: unknown;
+    presence?: "required" | "optional" | "forbidden";
+    only?: boolean;
+    [key: string]: any;
+  };
+  allow?: unknown[];
+  [key: string]: any;
+}
 
 /**
  * Joi schema converter implementation
@@ -24,174 +42,88 @@ export class JoiConverter implements SchemaConverter<JoiSchema> {
 }
 
 /**
- * Joi schema interface
- */
-interface JoiSchema {
-  _type?: string;
-  _flags?: {
-    default?: unknown;
-    description?: string;
-    only?: boolean;
-    presence?: "required" | "optional" | "forbidden";
-    insensitive?: boolean;
-  };
-  _valids?: {
-    _values?: Set<unknown>;
-    _refs?: unknown[];
-  };
-  _invalids?: {
-    _values?: Set<unknown>;
-    _refs?: unknown[];
-  };
-  _rules?: Array<{
-    name?: string;
-    args?: any;
-  }>;
-  _preferences?: {
-    convert?: boolean;
-  };
-  _ids?: {
-    _byKey?: Map<string, unknown>;
-    _byId?: Map<string, unknown>;
-  };
-  validate?: (value: unknown, options?: any) => { error?: any; value?: unknown };
-  describe?: () => JoiDescription;
-}
-
-/**
- * Joi description interface
- */
-interface JoiDescription {
-  type?: string;
-  flags?: {
-    default?: unknown;
-    description?: string;
-    only?: boolean;
-    presence?: "required" | "optional" | "forbidden";
-  };
-  allow?: unknown[];
-  invalid?: unknown[];
-  rules?: Array<{
-    name?: string;
-    args?: any;
-  }>;
-}
-
-/**
- * Check if a schema is a Joi schema
+ * Check if a schema is a Joi schema using the official API
  */
 export function isJoiSchema(schema: unknown): schema is JoiSchema {
-  if (!schema || typeof schema !== "object") return false;
-  
-  const candidate = schema as any;
-  
-  // Check for Joi-specific properties
-  return Boolean(
-    candidate.isJoi === true || // Joi v17+
-    (candidate._type && typeof candidate.validate === "function") || // Earlier versions
-    (candidate.$_terms && typeof candidate.validate === "function") // Alternative check
-  );
+  return Joi.isSchema(schema);
 }
 
 /**
- * Get description from Joi schema
+ * Get description from Joi schema using public API first, internal as fallback
  */
 function getJoiDescription(schema: JoiSchema): string | undefined {
-  // Try flags first
-  if (schema._flags?.description) {
-    return schema._flags.description;
-  }
-
-  // Try description method
   try {
-    const description = schema.describe?.();
-    if (description?.flags?.description) {
-      return description.flags.description;
-    }
+    const description = schema.describe() as JoiDescription;
+    return description?.flags?.description;
   } catch {
-    // Ignore errors from describe method
+    // Fallback to internal property if describe() fails
+    return schema._flags?.description;
   }
-
-  return undefined;
 }
 
 /**
- * Check if schema is required
+ * Check if schema is required using public API first, internal as fallback
  */
 function isJoiRequired(schema: JoiSchema): boolean {
-  // Check flags first
-  if (schema._flags?.presence === "required") {
-    return true;
-  }
-  if (schema._flags?.presence === "optional") {
-    return false;
-  }
-
-  // Try description method
   try {
-    const description = schema.describe?.();
-    if (description?.flags?.presence === "required") {
-      return true;
-    }
-    if (description?.flags?.presence === "optional") {
-      return false;
-    }
+    const description = schema.describe() as JoiDescription;
+    const presence = description?.flags?.presence;
+    
+    if (presence === "required") return true;
+    if (presence === "optional") return false;
+    
+    // If no explicit presence flag, default to required (Joi's default behavior)
+    return presence === undefined;
   } catch {
-    // Ignore errors
+    // Fallback to internal properties if describe() fails
+    const flags = schema._flags;
+    if (flags?.presence === "required") return true;
+    if (flags?.presence === "optional") return false;
+    return true; // Default to required
   }
-
-  // Default to required if no explicit presence flag
-  return true;
 }
 
 /**
- * Get default value from Joi schema
+ * Get default value from Joi schema using public API first, internal as fallback
  */
 function getJoiDefaultValue(schema: JoiSchema): unknown {
-  // Try flags first
-  if (schema._flags?.default !== undefined) {
-    const defaultValue = schema._flags.default;
-    return typeof defaultValue === "function" ? defaultValue() : defaultValue;
-  }
-
-  // Try description method
   try {
-    const description = schema.describe?.();
-    if (description?.flags?.default !== undefined) {
-      const defaultValue = description.flags.default;
+    const description = schema.describe() as JoiDescription;
+    const defaultValue = description?.flags?.default;
+    return typeof defaultValue === "function" ? defaultValue() : defaultValue;
+  } catch {
+    // Fallback to internal properties if describe() fails
+    const flags = schema._flags;
+    if (flags?.default !== undefined) {
+      const defaultValue = flags.default;
       return typeof defaultValue === "function" ? defaultValue() : defaultValue;
     }
-  } catch {
-    // Ignore errors
+    return undefined;
   }
-
-  return undefined;
 }
 
 /**
- * Get valid values for enum-like schemas
+ * Get valid values for enum-like schemas using public API first, internal as fallback
  */
 function getJoiValidValues(schema: JoiSchema): string[] | undefined {
   const values: unknown[] = [];
+  let isOnlySchema = false;
 
-  // Try _valids first
-  if (schema._valids?._values) {
-    values.push(...Array.from(schema._valids._values));
-  }
-
-  // Try description method
   try {
-    const description = schema.describe?.();
+    // Try public API first
+    const description = schema.describe() as JoiDescription;
     if (description?.allow && Array.isArray(description.allow)) {
       values.push(...description.allow);
     }
+    isOnlySchema = description?.flags?.only === true;
   } catch {
-    // Ignore errors
+    // Fallback to internal properties
+    if (schema._valids?._values) {
+      values.push(...Array.from(schema._valids._values));
+    }
+    isOnlySchema = schema._flags?.only === true;
   }
 
-  // Check if this is an only() schema (enum-like)
-  const isOnlySchema = schema._flags?.only === true;
-  
   if (isOnlySchema && values.length > 0) {
     return values.map(v => String(v));
   }
@@ -200,20 +132,18 @@ function getJoiValidValues(schema: JoiSchema): string[] | undefined {
 }
 
 /**
- * Resolve environment variable type from Joi schema
+ * Resolve environment variable type from Joi schema using public API first, internal as fallback
  */
 function resolveJoiEnvVarType(schema: JoiSchema): EnvVarType {
-  // Get type from schema
-  let type = schema._type;
+  let type: string | undefined;
 
-  // Try description method if no direct type
-  if (!type) {
-    try {
-      const description = schema.describe?.();
-      type = description?.type;
-    } catch {
-      // Ignore errors
-    }
+  try {
+    // Try public API first
+    const description = schema.describe() as JoiDescription;
+    type = description?.type;
+  } catch {
+    // Fallback to internal properties
+    type = schema._type || schema.type;
   }
 
   // Check for enum-like behavior
@@ -265,10 +195,6 @@ function createJoiProcessFunction<T>(
       }
 
       // Validate with Joi
-      if (!schema.validate) {
-        throw new Error("Schema does not have validate method");
-      }
-
       const result = schema.validate(processValue, { convert: true });
       
       if (result.error) {

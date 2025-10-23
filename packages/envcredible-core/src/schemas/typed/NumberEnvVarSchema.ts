@@ -1,7 +1,7 @@
 import { EnvVarSchema } from "../EnvVarSchema";
-import type { Processor } from "../../processors/Processor";
+import type { Processor } from "../../processing/Processor";
 import type { EnvVarSchemaInput } from "../EnvVarSchemaInput";
-import { processors } from "../../processors/processors";
+import { processors } from "../../processing/processors";
 
 export interface NumberEnvVarSchemaInput extends EnvVarSchemaInput<number> { }
 

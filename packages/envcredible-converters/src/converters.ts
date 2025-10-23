@@ -1,7 +1,7 @@
-import { ZodV3Converter } from "./converters/ZodV3Converter";
-import { ZodV4Converter } from "./converters/ZodV4Converter";
-import { JoiConverter } from "./converters/JoiConverter";
-import type { SchemaConverter } from "./SchemaConverter";
+import { ZodV3Converter } from "./converters/zod/ZodV3Converter";
+import { ZodV4Converter } from "./converters/zod/ZodV4Converter";
+import { JoiConverter } from "./converters/joi/JoiConverter";
+import type { SchemaConverter } from "./converters/SchemaConverter";
 
 /**
  * Registry of available schema converters
