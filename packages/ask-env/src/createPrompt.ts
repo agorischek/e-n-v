@@ -170,25 +170,25 @@ export function createPrompt({
 
   switch (schema.type) {
     case "boolean":
-      return new EnvBooleanPrompt(schema as BooleanEnvVarSchema, {
+      return new EnvBooleanPrompt(schema, {
         ...baseOptions,
         current: processedCurrent,
         currentValidationError,
       });
     case "number":
-      return new EnvNumberPrompt(schema as NumberEnvVarSchema, {
+      return new EnvNumberPrompt(schema, {
         ...baseOptions,
         current: processedCurrent,
         currentValidationError,
       });
     case "enum":
-      return new EnvEnumPrompt(schema as EnumEnvVarSchema<any>, {
+      return new EnvEnumPrompt(schema, {
         ...baseOptions,
         current: processedCurrent,
         currentValidationError,
       });
     default:
-      return new EnvStringPrompt(schema as StringEnvVarSchema, {
+      return new EnvStringPrompt(schema, {
         ...baseOptions,
         current: processedCurrent,
         currentValidationError,

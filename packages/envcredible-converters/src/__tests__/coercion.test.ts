@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { resolveSchema } from "../resolveSchema";
+import { resolveSchema } from "../resolve";
 import { z } from "zod";
 
 describe("Coercion for Environment Variables", () => {

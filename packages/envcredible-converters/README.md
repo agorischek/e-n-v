@@ -32,35 +32,7 @@ const booleanSchema = resolveSchema(z.boolean().default(false));
 const enumSchema = resolveSchema(z.enum(["dev", "prod", "test"]));
 ```
 
-## Extensibility
-
-### Custom Converters
-
-You can register custom converters for additional schema libraries:
-
-```typescript
-import { registerConverter, type SchemaConverter } from "@envcredible/converters";
-import { StringEnvVarSchema } from "@envcredible/core";
-
-// Example custom converter for a hypothetical schema library
-const myCustomConverter: SchemaConverter<MySchemaType> = {
-  applies: (schema: unknown): schema is MySchemaType => {
-    return schema instanceof MySchemaType;
-  },
-  
-  convert: (schema: MySchemaType): TypedEnvVarSchema => {
-    return new StringEnvVarSchema({
-      process: (value: string) => schema.parse(value),
-      required: !schema.isOptional(),
-      description: schema.getDescription(),
-    });
-  },
-};
-
-registerConverter(myCustomConverter);
-```
-
-### Built-in Converters
+## Built-in Converters
 
 The package includes converters for:
 
@@ -86,19 +58,6 @@ All Zod modifier combinations are supported:
 - `.nullable()` → handled appropriately
 - `.describe(text)` → extracts description
 - Complex nesting of modifiers
-
-## Type Safety
-
-The converter interface is fully typed:
-
-```typescript
-interface SchemaConverter<T = unknown> {
-  applies(schema: unknown): schema is T;
-  convert(schema: T): TypedEnvVarSchema;
-}
-```
-
-This ensures type safety when implementing custom converters and using the resolution system.
 
 ## Type Checking
 
