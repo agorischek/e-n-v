@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { constraints, descriptions, messages } from "../shared/oauth";
+import { constraints, descriptions, messages } from "../../shared/oauth";
 
 export const oauthClientId = () =>
   z

@@ -5,7 +5,7 @@ import {
   descriptions,
   messages,
   patterns,
-} from "../shared/redis";
+} from "../../shared/redis";
 
 export const redisUrl = () =>
   z

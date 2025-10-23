@@ -4,7 +4,7 @@ import {
   descriptions,
   messages,
   patterns,
-} from "../shared/infrastructure";
+} from "../../shared/infrastructure";
 
 export const awsAccessKeyId = () =>
   z

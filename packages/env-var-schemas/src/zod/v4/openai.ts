@@ -5,7 +5,7 @@ import {
   descriptions,
   messages,
   patterns,
-} from "../shared/openai";
+} from "../../shared/openai";
 
 export const openaiApiKey = () =>
   z

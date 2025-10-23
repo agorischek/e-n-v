@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { descriptions, messages } from "../shared/apiService";
+import { descriptions, messages } from "../../shared/apiService";
 
 export const cors = () =>
   z

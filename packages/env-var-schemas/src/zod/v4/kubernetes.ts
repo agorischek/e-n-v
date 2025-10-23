@@ -4,7 +4,7 @@ import {
   messages,
   defaults,
   patterns,
-} from "../shared/infrastructure";
+} from "../../shared/infrastructure";
 
 export const kubernetesNamespace = () =>
   z

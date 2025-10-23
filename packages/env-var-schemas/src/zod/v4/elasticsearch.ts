@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { descriptions, messages } from "../shared/infrastructure";
-import { patterns } from "../shared/apiService";
+import { descriptions, messages } from "../../shared/infrastructure";
+import { patterns } from "../../shared/apiService";
 
 export const elasticsearchUrl = () =>
   z

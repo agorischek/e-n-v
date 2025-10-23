@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { defaults, descriptions } from "../shared/apiService";
+import { defaults, descriptions } from "../../shared/apiService";
 
 const schema = z.string().describe(descriptions.host).default(defaults.host);
 

@@ -4,8 +4,8 @@ import {
   messages,
   defaults,
   constraints,
-} from "../shared/database";
-import { patterns } from "../shared/database";
+} from "../../shared/database";
+import { patterns } from "../../shared/database";
 
 export const databaseUrl = () =>
   z

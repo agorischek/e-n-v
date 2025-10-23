@@ -5,7 +5,7 @@ import {
   descriptions,
   messages,
   patterns,
-} from "../shared/applicationInsights";
+} from "../../shared/applicationInsights";
 
 export const applicationInsightsConnectionString = () =>
   z

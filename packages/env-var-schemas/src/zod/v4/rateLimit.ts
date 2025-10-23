@@ -4,7 +4,7 @@ import {
   defaults,
   descriptions,
   messages,
-} from "../shared/apiService";
+} from "../../shared/apiService";
 
 export const rateLimitRpm = () =>
   z

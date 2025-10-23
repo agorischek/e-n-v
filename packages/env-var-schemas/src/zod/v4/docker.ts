@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { descriptions, messages } from "../shared/infrastructure";
+import { descriptions, messages } from "../../shared/infrastructure";
 
 export const dockerRegistryUrl = () =>
   z

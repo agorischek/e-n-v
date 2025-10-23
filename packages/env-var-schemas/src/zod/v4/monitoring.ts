@@ -5,7 +5,7 @@ import {
   defaults,
   constraints,
   patterns,
-} from "../shared/infrastructure";
+} from "../../shared/infrastructure";
 
 export const newRelicLicenseKey = () =>
   z
