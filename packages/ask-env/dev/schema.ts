@@ -1,12 +1,9 @@
-import { ask } from "../src";
-import { schema } from "@envcredible/core";
+import { ask, s } from "../src";
 
-const DEMO = schema.string({
+const DEMO = s.string({
   description: "Demo variable",
   required: true,
   default: "hello",
 });
 
-await ask({
-  DEMO
-});
+await ask({ DEMO });

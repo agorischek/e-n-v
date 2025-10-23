@@ -1,5 +1,4 @@
 import { ThemedPrompt } from "./ThemedPrompt";
-import type { Theme } from "../visuals/Theme";
 import { SECRET_MASK } from "../visuals/symbols";
 import {
   S_STEP_CANCEL,
@@ -10,49 +9,10 @@ import {
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptOptions } from "../vendor/PromptOptions";
-import type { EnvVarSchemaDetails } from "@envcredible/core";
-import { Readable, Writable } from "node:stream";
-
-export type PromptOutcome = "commit" | "skip" | "previous";
-
-export interface EnvPromptResult<T> {
-  outcome: PromptOutcome;
-  value?: T;
-}
-
-export interface EnvPromptOptions<T> {
-  key: string;
-  current?: T;
-  default?: T;
-  theme?: Theme;
-  maxDisplayLength?: number;
-  secret?: boolean;
-  mask?: string;
-  secretToggleShortcut?: string;
-  previousEnabled?: boolean;
-  input?: Readable;
-  output?: Writable;
-  validate?: (value: T | undefined) => string | Error | undefined;
-  currentValidationError?: string;
-}
-
-function resolveDefaultFromSpec<T>(
-  spec: EnvVarSchemaDetails<T>,
-): T | undefined {
-  switch (spec.type) {
-    case "boolean":
-      return typeof spec.default === "boolean"
-        ? (spec.default as T)
-        : undefined;
-    case "number":
-      return typeof spec.default === "number" ? (spec.default as T) : undefined;
-    case "enum":
-    case "string":
-      return typeof spec.default === "string" ? (spec.default as T) : undefined;
-    default:
-      return undefined;
-  }
-}
+import type { EnvVarSchemaDetails, PreprocessorOptions } from "@envcredible/core";
+import type { PromptOutcome, EnvPromptResult, FooterOption } from "./types";
+import type { EnvPromptOptions } from "./options";
+import { processValue, type ProcessingResult } from "./processing";
 
 export abstract class EnvPrompt<
   T,
@@ -62,6 +22,7 @@ export abstract class EnvPrompt<
   protected readonly required: boolean;
   protected key: string;
   protected current?: T;
+  protected currentRaw?: string; // Store the raw current value
   protected default?: T;
   protected maxDisplayLength: number;
   protected secret: boolean;
@@ -75,6 +36,7 @@ export abstract class EnvPrompt<
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
   protected currentValidationError?: string;
+  protected preprocessorOptions?: PreprocessorOptions;
   private skipValidationFlag: boolean;
 
   protected set track(value: boolean) {
@@ -94,7 +56,7 @@ export abstract class EnvPrompt<
     opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>,
   ) {
     const resolvedDefault =
-      opts.default !== undefined ? opts.default : resolveDefaultFromSpec(spec);
+      opts.default !== undefined ? opts.default : spec.default;
 
     const promptOptions = {
       ...opts,
@@ -108,7 +70,6 @@ export abstract class EnvPrompt<
     this.track = false;
     this.outcome = "commit";
     this.key = promptOptions.key;
-    this.current = promptOptions.current;
     this.default = promptOptions.default;
     this.maxDisplayLength = promptOptions.maxDisplayLength ?? 40;
     this.secret = Boolean(promptOptions.secret);
@@ -120,8 +81,23 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = promptOptions.previousEnabled ?? true;
-    this.currentValidationError = promptOptions.currentValidationError;
+    this.preprocessorOptions = promptOptions.preprocessorOptions;
     this.skipValidationFlag = false;
+
+    // Process current value if it exists, but don't throw on validation errors
+    this.currentRaw = promptOptions.current;
+    if (this.currentRaw !== undefined) {
+      const processingResult = processValue(this.currentRaw, this.spec, this.preprocessorOptions);
+      if (processingResult.isValid) {
+        this.current = processingResult.value;
+        this.currentValidationError = undefined;
+      } else {
+        // For invalid values, we want to display the raw value in the UI
+        // but mark it as invalid so the user can see it and choose to skip validation
+        this.current = processingResult.rawValue as T; // Cast needed for display purposes
+        this.currentValidationError = processingResult.error;
+      }
+    }
 
     this.on("finalize", () => {
       const shouldConsumeSubmit =
@@ -485,12 +461,12 @@ export abstract class EnvPrompt<
     this.skipValidationFlag = false;
     return true;
   }
-}
 
-interface FooterOption {
-  key: "skip" | "previous" | "toggleSecret" | "close";
-  label: string;
-  icon?: string;
-  activeIcon?: string;
-  disabled?: boolean;
+  /**
+   * Apply preprocessing and schema validation to a value
+   * Available to subclasses for validating user input
+   */
+  protected processValueWithSchema(value: string): ProcessingResult<T> {
+    return processValue<T>(value, this.spec, this.preprocessorOptions);
+  }
 }

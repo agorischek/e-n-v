@@ -1,5 +1,5 @@
 import { EnvPrompt } from "./EnvPrompt";
-import type { EnvPromptOptions } from "./EnvPrompt";
+import type { EnvPromptOptions } from "./options";
 import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "./types/PromptAction";
