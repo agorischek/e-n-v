@@ -188,9 +188,11 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
 
     this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
+      if (this.error) {
+        this.error = "";
+      }
       if (this.state === "error") {
         this.state = "active";
-        this.error = "";
       }
 
       if (this.isOptionPickerOpen()) {
@@ -217,9 +219,11 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
       if (!info) return; // Guard against undefined info
 
       // Clear error state when user types (like base Prompt class does)
+      if (this.error) {
+        this.error = "";
+      }
       if (this.state === "error") {
         this.state = "active";
-        this.error = "";
       }
 
       if (this.handleFooterKey(char, info)) {

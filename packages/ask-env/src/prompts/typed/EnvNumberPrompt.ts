@@ -330,9 +330,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
     this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
+      if (this.error) {
+        this.error = "";
+      }
       if (this.state === "error") {
         this.state = "active";
-        this.error = "";
       }
 
       // If both current and default are undefined AND no invalid existing value, we're in text-only mode - no cursor navigation
@@ -388,9 +390,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     // Listen for user input changes (when typing)
     this.on("userInput", (input: string) => {
       // Clear error state when user is typing (like base Prompt class does)
+      if (this.error) {
+        this.error = "";
+      }
       if (this.state === "error") {
         this.state = "active";
-        this.error = "";
       }
 
       if (this.isTyping) {
@@ -408,9 +412,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       if (!info) return; // Guard against undefined info
 
       // Clear error state when user types (like base Prompt class does)
+      if (this.error) {
+        this.error = "";
+      }
       if (this.state === "error") {
         this.state = "active";
-        this.error = "";
       }
 
       // Delegate Tab and footer navigation to the shared handler

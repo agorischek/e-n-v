@@ -131,7 +131,8 @@ describe("EnvBooleanPrompt", () => {
 
     await pressKey(prompt, { name: "up" });
     await waitForIO(2);
-    expect(prompt.state).toBe("active");
+  expect(prompt.state).toBe("active");
+  expect(prompt.error).toBe("");
     expect(prompt.cursor).toBe(0);
 
     submitPrompt(prompt);

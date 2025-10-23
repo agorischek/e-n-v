@@ -314,9 +314,11 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
     this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
+      if (this.error) {
+        this.error = "";
+      }
       if (this.state === "error") {
         this.state = "active";
-        this.error = "";
       }
 
       // If both current and default are undefined AND no invalid existing value, we're in text-only mode - no cursor navigation
@@ -372,9 +374,11 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     // Listen for user input changes (when typing)
     this.on("userInput", (input: string) => {
       // Clear error state when user is typing (like base Prompt class does)
+      if (this.error) {
+        this.error = "";
+      }
       if (this.state === "error") {
         this.state = "active";
-        this.error = "";
       }
 
       if (this.isTyping) {
@@ -392,9 +396,11 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       if (!info) return; // Guard against undefined info
 
       // Clear error state when user types (like base Prompt class does)
+      if (this.error) {
+        this.error = "";
+      }
       if (this.state === "error") {
         this.state = "active";
-        this.error = "";
       }
 
       if (this.handleFooterKey(char, info)) {

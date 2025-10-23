@@ -78,7 +78,7 @@ export class Session {
 
     while (index < schemaKeys.length) {
       const key = schemaKeys[index]!;
-      const envVarSchema = this.schemas[key]!;
+      const schema = this.schemas[key]!;
 
       let addedLines = 0;
 
@@ -87,19 +87,19 @@ export class Session {
         addedLines++;
       }
 
-      const shouldMask = resolveShouldMask(key, envVarSchema, this.secrets);
+      const shouldMask = resolveShouldMask(key, schema, this.secrets);
 
       const storedValue = this.newValues[key] ?? currentValues[key];
-      const current =
+      const existing =
         storedValue && storedValue.trim() !== "" ? storedValue : undefined;
 
       const prompt = createPrompt({
         key,
-        schema: envVarSchema,
-        currentValue: current,
+        schema,
+        existing,
         theme: this.theme,
         truncate: this.truncate,
-        shouldMask,
+        // shouldMask,
         hasPrevious: index > 0,
         input: this.input,
         output: this.output,
@@ -163,11 +163,4 @@ export class Session {
 
     return "success";
   }
-}
-
-export async function runPromptFlow(
-  options: SessionOptions,
-): Promise<SessionResult> {
-  const session = Session.fromOptions(options);
-  return session.run();
 }

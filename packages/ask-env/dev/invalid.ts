@@ -42,7 +42,7 @@ class InvalidEnvChannel implements EnvChannel {
 
 // Define schemas that will validate against the invalid values
 const vars = {
-  EMAIL: z.string().email().describe("User email address"),
+  EMAIL: z.email().describe("User email address"),
   PORT: z.number().min(1024).max(65535).describe("Server port number").default(3000),
   DEBUG: z.boolean().describe("Enable debug mode").default(false),
   NODE_ENV: z.enum(["development", "production", "test"]).describe("Node environment").default("development"),

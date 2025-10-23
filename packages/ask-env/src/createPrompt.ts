@@ -10,10 +10,9 @@ import type { AskEnvOptions } from "./AskEnvOptions";
 interface CreatePromptOptions {
   key: string;
   schema: EnvVarSchema;
-  currentValue?: string;
+  existing?: string;
   theme: Theme;
   truncate: number;
-  shouldMask: boolean;
   hasPrevious: boolean;
   input?: Readable;
   output?: Writable;
@@ -23,10 +22,9 @@ interface CreatePromptOptions {
 export function createPrompt({
   key,
   schema,
-  currentValue,
+  existing,
   theme,
   truncate,
-  shouldMask,
   hasPrevious,
   input,
   output,
@@ -43,7 +41,7 @@ export function createPrompt({
     previousEnabled: hasPrevious,
     input,
     output,
-    existing: currentValue, // Pass raw existing value
+    existing: existing, // Pass raw existing value
     preprocessorOptions, // Pass preprocessor options
   } as const;
 
