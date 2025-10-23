@@ -1,7 +1,7 @@
 import type { ZodTypeAny } from "zod";
 import { z } from "zod";
 import type {
-  TypedEnvVarSchema,
+  EnvVarSchema,
   EnvVarType,
 } from "@envcredible/core";
 import {
@@ -20,7 +20,7 @@ export class ZodV3Converter implements SchemaConverter<ZodTypeAny> {
     return isZodV3Schema(schema);
   }
 
-  convert(schema: ZodTypeAny): TypedEnvVarSchema {
+  convert(schema: ZodTypeAny): EnvVarSchema {
     return convertFromZodV3Schema(schema);
   }
 }
@@ -240,7 +240,7 @@ function createV3ProcessFunction<T>(
 /**
  * Convert Zod v3 schema to EnvVarSchema
  */
-export function convertFromZodV3Schema(schema: ZodTypeAny): TypedEnvVarSchema {
+export function convertFromZodV3Schema(schema: ZodTypeAny): EnvVarSchema {
   const peeled = peelV3Schema(schema);
   const type = resolveV3EnvVarType(peeled.schema);
   const def = getV3Def(peeled.schema);

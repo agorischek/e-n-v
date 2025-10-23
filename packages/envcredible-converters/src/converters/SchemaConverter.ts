@@ -1,8 +1,8 @@
-import type { TypedEnvVarSchema } from "@envcredible/core";
+import type { EnvVarSchema } from "@envcredible/core";
 
 /**
  * Interface for schema converters that can convert external schema types
- * to envcredible's TypedEnvVarSchema format.
+ * to envcredible's EnvVarSchema format.
  */
 export interface SchemaConverter<T = unknown> {
   /**
@@ -11,7 +11,7 @@ export interface SchemaConverter<T = unknown> {
   applies(schema: unknown): schema is T;
   
   /**
-   * Convert the schema to a TypedEnvVarSchema
+   * Convert the schema to a EnvVarSchema
    */
-  convert(schema: T): TypedEnvVarSchema;
+  convert(schema: T): EnvVarSchema;
 }

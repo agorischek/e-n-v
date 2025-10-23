@@ -1,5 +1,5 @@
 import type {
-  TypedEnvVarSchema,
+  EnvVarSchema,
   EnvVarType,
 } from "@envcredible/core";
 import {
@@ -9,8 +9,8 @@ import {
   EnumEnvVarSchema,
 } from "@envcredible/core";
 import type { SchemaConverter } from "../SchemaConverter";
-import type { JoiSchema } from "../../types";
-import Joi from "joi";
+import Joi, { type AnySchema } from "joi";
+import type { JoiSchemaInternals } from "./JoiSchemaInternals";
 
 /**
  * Extended description interface to include properties we need
@@ -31,12 +31,12 @@ interface JoiDescription {
 /**
  * Joi schema converter implementation
  */
-export class JoiConverter implements SchemaConverter<JoiSchema> {
-  applies(schema: unknown): schema is JoiSchema {
+export class JoiConverter implements SchemaConverter<AnySchema> {
+  applies(schema: unknown): schema is AnySchema {
     return isJoiSchema(schema);
   }
 
-  convert(schema: JoiSchema): TypedEnvVarSchema {
+  convert(schema: AnySchema): EnvVarSchema {
     return convertFromJoiSchema(schema);
   }
 }
@@ -44,14 +44,14 @@ export class JoiConverter implements SchemaConverter<JoiSchema> {
 /**
  * Check if a schema is a Joi schema using the official API
  */
-export function isJoiSchema(schema: unknown): schema is JoiSchema {
+export function isJoiSchema(schema: unknown): schema is AnySchema {
   return Joi.isSchema(schema);
 }
 
 /**
  * Get description from Joi schema using public API first, internal as fallback
  */
-function getJoiDescription(schema: JoiSchema): string | undefined {
+function getJoiDescription(schema: AnySchema): string | undefined {
   try {
     const description = schema.describe() as JoiDescription;
     return description?.flags?.description;
@@ -64,7 +64,7 @@ function getJoiDescription(schema: JoiSchema): string | undefined {
 /**
  * Check if schema is required using public API first, internal as fallback
  */
-function isJoiRequired(schema: JoiSchema): boolean {
+function isJoiRequired(schema: AnySchema): boolean {
   try {
     const description = schema.describe() as JoiDescription;
     const presence = description?.flags?.presence;
@@ -86,7 +86,7 @@ function isJoiRequired(schema: JoiSchema): boolean {
 /**
  * Get default value from Joi schema using public API first, internal as fallback
  */
-function getJoiDefaultValue(schema: JoiSchema): unknown {
+function getJoiDefaultValue(schema: AnySchema): unknown {
   try {
     const description = schema.describe() as JoiDescription;
     const defaultValue = description?.flags?.default;
@@ -105,7 +105,7 @@ function getJoiDefaultValue(schema: JoiSchema): unknown {
 /**
  * Get valid values for enum-like schemas using public API first, internal as fallback
  */
-function getJoiValidValues(schema: JoiSchema): string[] | undefined {
+function getJoiValidValues(schema: AnySchema & JoiSchemaInternals): string[] | undefined {
   const values: unknown[] = [];
   let isOnlySchema = false;
 
@@ -134,8 +134,9 @@ function getJoiValidValues(schema: JoiSchema): string[] | undefined {
 /**
  * Resolve environment variable type from Joi schema using public API first, internal as fallback
  */
-function resolveJoiEnvVarType(schema: JoiSchema): EnvVarType {
+function resolveJoiEnvVarType(schema: AnySchema): EnvVarType {
   let type: string | undefined;
+  const exposedSchema = schema as AnySchema & JoiSchemaInternals
 
   try {
     // Try public API first
@@ -143,7 +144,7 @@ function resolveJoiEnvVarType(schema: JoiSchema): EnvVarType {
     type = description?.type;
   } catch {
     // Fallback to internal properties
-    type = schema._type || schema.type;
+    type = exposedSchema._type || schema.type;
   }
 
   // Check for enum-like behavior
@@ -168,7 +169,7 @@ function resolveJoiEnvVarType(schema: JoiSchema): EnvVarType {
  * Create a process function for Joi schemas
  */
 function createJoiProcessFunction<T>(
-  schema: JoiSchema,
+  schema: AnySchema,
   type: EnvVarType
 ): (value: string) => T | undefined {
   return (value: string): T | undefined => {
@@ -213,9 +214,9 @@ function createJoiProcessFunction<T>(
 }
 
 /**
- * Convert Joi schema to TypedEnvVarSchema
+ * Convert Joi schema to EnvVarSchema
  */
-export function convertFromJoiSchema(schema: JoiSchema): TypedEnvVarSchema {
+export function convertFromJoiSchema(schema: AnySchema): EnvVarSchema {
   const type = resolveJoiEnvVarType(schema);
   const required = isJoiRequired(schema);
   const defaultValue = getJoiDefaultValue(schema);

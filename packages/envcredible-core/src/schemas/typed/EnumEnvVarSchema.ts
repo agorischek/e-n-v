@@ -1,4 +1,4 @@
-import { EnvVarSchema } from "../EnvVarSchema";
+import { EnvVarSchemaBase } from "../EnvVarSchemaBase";
 import type { EnvVarSchemaInput } from "../EnvVarSchemaInput";
 import { processors } from "../../processing/processors";
 
@@ -6,7 +6,7 @@ export interface EnumEnvVarSchemaInput<T extends string = string> extends EnvVar
   values: readonly T[];
 }
 
-export class EnumEnvVarSchema<T extends string = string> extends EnvVarSchema<T> {
+export class EnumEnvVarSchema<T extends string = string> extends EnvVarSchemaBase<T> {
   public readonly type = "enum" as const;
   public readonly values: readonly T[];
 

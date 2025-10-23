@@ -1,11 +1,10 @@
-import { EnvVarSchema } from "../EnvVarSchema";
-import type { Processor } from "../../processing/Processor";
+import { EnvVarSchemaBase } from "../EnvVarSchemaBase";
 import type { EnvVarSchemaInput } from "../EnvVarSchemaInput";
 import { processors } from "../../processing/processors";
 
 export interface NumberEnvVarSchemaInput extends EnvVarSchemaInput<number> { }
 
-export class NumberEnvVarSchema extends EnvVarSchema<number> {
+export class NumberEnvVarSchema extends EnvVarSchemaBase<number> {
   public readonly type = "number" as const;
 
   constructor(input: NumberEnvVarSchemaInput = {}) {

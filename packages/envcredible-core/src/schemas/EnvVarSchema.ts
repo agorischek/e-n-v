@@ -1,18 +1,26 @@
-import type { Processor } from "../processing/Processor";
-import type { EnvVarType } from "../types/EnvVarType";
-import type { EnvVarSchemaInput } from "./EnvVarSchemaInput";
+import type { StringEnvVarSchema } from "./typed/StringEnvVarSchema";
+import type { NumberEnvVarSchema } from "./typed/NumberEnvVarSchema";
+import type { BooleanEnvVarSchema } from "./typed/BooleanEnvVarSchema";
+import type { EnumEnvVarSchema } from "./typed/EnumEnvVarSchema";
 
-export abstract class EnvVarSchema<T> {
-  public abstract readonly type: EnvVarType;
-  public readonly required: boolean;
-  public readonly default?: T | null;
-  public readonly description?: string;
-  public readonly process: Processor<T>;
+// Import the actual classes for instanceof checks
+import { StringEnvVarSchema as StringEnvVarSchemaClass } from "./typed/StringEnvVarSchema";
+import { NumberEnvVarSchema as NumberEnvVarSchemaClass } from "./typed/NumberEnvVarSchema";
+import { BooleanEnvVarSchema as BooleanEnvVarSchemaClass } from "./typed/BooleanEnvVarSchema";
+import { EnumEnvVarSchema as EnumEnvVarSchemaClass } from "./typed/EnumEnvVarSchema";
 
-  constructor(input: EnvVarSchemaInput<T>) {
-    this.required = input?.required ?? true;
-    this.default = input?.default;
-    this.description = input?.description;
-    this.process = input.process!; // Will be guaranteed by concrete classes
-  }
+export type EnvVarSchema =
+  | StringEnvVarSchema
+  | NumberEnvVarSchema
+  | BooleanEnvVarSchema
+  | EnumEnvVarSchema<any>;
+
+/**
+ * Type guard to check if a value is a EnvVarSchema instance
+ */
+export function isEnvVarSchema(value: unknown): value is EnvVarSchema {
+  return value instanceof StringEnvVarSchemaClass ||
+         value instanceof NumberEnvVarSchemaClass ||
+         value instanceof BooleanEnvVarSchemaClass ||
+         value instanceof EnumEnvVarSchemaClass;
 }
