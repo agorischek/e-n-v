@@ -74,14 +74,24 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
         // Add current value if it exists
         if (this.current !== undefined) {
+          let label: string;
           if (this.default !== undefined && this.current === this.default) {
-            options.push({
-              value: this.current,
-              label: "(current, default)",
-            });
+            label = "(current, default)";
           } else {
-            options.push({ value: this.current, label: "(current)" });
+            label = "(current)";
           }
+          // Add validation error annotation if present
+          if (this.currentValidationError) {
+            if (this.default !== undefined && this.current === this.default) {
+              label = "(current, default, invalid)";
+            } else {
+              label = "(current, invalid)";
+            }
+          }
+          options.push({
+            value: this.current,
+            label,
+          });
         }
 
         // Add default value if it exists and is different from current
@@ -122,7 +132,14 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
             }
           } else {
             // Current/Default options
-            const displayValue = this.formatValue(option.value);
+            let displayValue = this.formatValue(option.value);
+            
+            // Apply strikethrough if this is an invalid current value
+            const isInvalidCurrent = option.value === this.current && this.currentValidationError;
+            if (isInvalidCurrent) {
+              displayValue = this.colors.strikethrough(displayValue);
+            }
+            
             const text = dimInputs
               ? this.colors.dim(displayValue)
               : isSelected
@@ -161,7 +178,20 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, processing is done
+          // Validate against the schema processor
+          let parsedValue: number | undefined;
+          try {
+            parsedValue = this.parseInput(this.userInput);
+            // Also run through schema validation
+            if (parsedValue !== undefined) {
+              (this.spec as any).process(parsedValue.toString());
+            }
+          } catch (error) {
+            // Schema validation failed
+            const message = error instanceof Error ? error.message : String(error);
+            return message;
+          }
+          // If format and schema validation are valid, processing is done
           return undefined;
         }
 
@@ -194,12 +224,18 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run custom validation if provided
+          // Validate against the schema processor
           let parsedValue: number | undefined;
           try {
             parsedValue = this.parseInput(this.userInput);
-          } catch {
-            parsedValue = undefined;
+            // Also run through schema validation
+            if (parsedValue !== undefined) {
+              (this.spec as any).process(parsedValue.toString());
+            }
+          } catch (error) {
+            // Schema validation failed
+            const message = error instanceof Error ? error.message : String(error);
+            return message;
           }
           // Call custom validation if provided
           if (customValidate) {
@@ -209,6 +245,23 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
             }
           }
           return undefined;
+        }
+
+        // For non-typing cases (selecting current/default), check for validation errors first
+        // If the user is selecting the current value and it has a validation error, block submission
+        if (!this.isTyping && this.current !== undefined && this.currentValidationError) {
+          // Check if user is selecting the current value option
+          let isSelectingCurrentValue = false;
+          let optionIndex = 0;
+          
+          // Check if cursor is on current value
+          if (this.current !== undefined && this.cursor === optionIndex) {
+            isSelectingCurrentValue = true;
+          }
+          
+          if (isSelectingCurrentValue) {
+            return this.currentValidationError;
+          }
         }
 
         // For non-typing cases (selecting current/default), run custom validation
