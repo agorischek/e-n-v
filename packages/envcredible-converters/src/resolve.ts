@@ -1,22 +1,7 @@
 import type { TypedEnvVarSchema } from "@envcredible/core";
 import { isTypedEnvVarSchema } from "@envcredible/core";
-import type { SchemaConverter } from "./SchemaConverter";
-import { zodV3Converter } from "./converters/ZodV3Converter";
-import { zodV4Converter } from "./converters/ZodV4Converter";
-import type { SupportedSchema } from "./SupportedSchema";
-
-/**
- * Map of environment variable names to supported schema types
- */
-export type EnvVarSchemaMap = Record<string, SupportedSchema>;
-
-/**
- * Registry of available schema converters
- */
-const converters: SchemaConverter[] = [
-  zodV4Converter, // Try v4 first as it's more specific
-  zodV3Converter,
-];
+import type { EnvVarSchemaMap, SupportedSchema } from "./types";
+import { converters } from "./converters";
 
 /**
  * Resolve any supported schema to a TypedEnvVarSchema.
@@ -34,14 +19,14 @@ export function resolveSchema(schema: SupportedSchema): TypedEnvVarSchema {
   if (isTypedEnvVarSchema(schema)) {
     return schema;
   }
-  
+
   // Try to convert using registered converters
   for (const converter of converters) {
     if (converter.applies(schema)) {
       return converter.convert(schema);
     }
   }
-  
+
   throw new Error(
     `No converter found for schema. Supported types: Zod v3, Zod v4, TypedEnvVarSchema. ` +
     `Received: ${typeof schema}`
@@ -63,7 +48,7 @@ export function resolveSchema(schema: SupportedSchema): TypedEnvVarSchema {
  */
 export function resolveSchemas(schemas: EnvVarSchemaMap): Record<string, TypedEnvVarSchema> {
   const resolved: Record<string, TypedEnvVarSchema> = {};
-  
+
   for (const [key, schema] of Object.entries(schemas)) {
     try {
       resolved[key] = resolveSchema(schema);
@@ -74,6 +59,6 @@ export function resolveSchemas(schemas: EnvVarSchemaMap): Record<string, TypedEn
       );
     }
   }
-  
+
   return resolved;
 }

@@ -26,11 +26,6 @@ export class ZodV3Converter implements SchemaConverter<ZodTypeAny> {
 }
 
 /**
- * Default instance of the Zod v3 converter
- */
-export const zodV3Converter = new ZodV3Converter();
-
-/**
  * Zod v3 schema definition
  */
 interface ZodV3Def {

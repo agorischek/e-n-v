@@ -27,11 +27,6 @@ export class ZodV4Converter implements SchemaConverter<$ZodType> {
 }
 
 /**
- * Default instance of the Zod v4 converter
- */
-export const zodV4Converter = new ZodV4Converter();
-
-/**
  * Zod v4 schema definition
  */
 interface ZodV4Def {
