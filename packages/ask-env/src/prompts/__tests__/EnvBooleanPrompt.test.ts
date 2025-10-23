@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { EnvBooleanPrompt } from "../EnvBooleanPrompt";
+import { EnvBooleanPrompt } from "../typed/EnvBooleanPrompt";
 import { BooleanEnvVarSchema } from "@envcredible/core";
 import type { EnvPromptOptions } from "../options";
 import { BooleanEnvVarSchema as BooleanEnvVarSchemaClass } from "@envcredible/core";
@@ -55,7 +55,7 @@ const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
 
 describe("EnvBooleanPrompt", () => {
   it("initializes cursor from current before default and wraps with arrows", async () => {
-    const { prompt } = createPrompt({ current: false, default: true });
+    const { prompt } = createPrompt({ current: "false", default: true });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -77,7 +77,7 @@ describe("EnvBooleanPrompt", () => {
 
   it("renders annotations for current and default values", async () => {
     const { prompt, output } = createPrompt({
-      current: true,
+      current: "true",
       default: true,
       description: "Choose wisely",
     });
@@ -108,7 +108,7 @@ describe("EnvBooleanPrompt", () => {
       return undefined;
     };
 
-    const { prompt } = createPrompt({ current: false, validate });
+    const { prompt } = createPrompt({ current: "false", validate });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -137,7 +137,7 @@ describe("EnvBooleanPrompt", () => {
   });
 
   it("renders cancelled prompts", async () => {
-    const { prompt, output } = createPrompt({ current: true });
+    const { prompt, output } = createPrompt({ current: "true" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -172,7 +172,7 @@ describe("EnvBooleanPrompt", () => {
   });
 
   it("renders submitted values in ENV_KEY=value format", async () => {
-    const { prompt, output } = createPrompt({ current: true });
+    const { prompt, output } = createPrompt({ current: "true" });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 

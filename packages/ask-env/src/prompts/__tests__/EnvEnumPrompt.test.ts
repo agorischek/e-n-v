@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { EnvEnumPrompt } from "../EnvEnumPrompt";
+import { EnvEnumPrompt } from "../typed/EnvEnumPrompt";
 import { EnumEnvVarSchema } from "@envcredible/core";
 import type { EnvPromptOptions } from "../options";
 import { createTestStreams, baseKey } from "./helpers/promptTestUtils";

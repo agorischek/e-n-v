@@ -1,4 +1,4 @@
-import { EnvBooleanPrompt } from "../src/prompts/EnvBooleanPrompt";
+import { EnvBooleanPrompt } from "../src/prompts/typed/EnvBooleanPrompt";
 import { BooleanEnvVarSchema } from "@envcredible/core";
 
 const schema = new BooleanEnvVarSchema({
@@ -9,7 +9,7 @@ const schema = new BooleanEnvVarSchema({
 
 const prompt = new EnvBooleanPrompt(schema, {
   key: "IS_ENABLED",
-  current: false,
+  current: "false",
 });
 
 await prompt.prompt();

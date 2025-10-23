@@ -1,4 +1,4 @@
-import { EnvNumberPrompt } from "../src/prompts/EnvNumberPrompt";
+import { EnvNumberPrompt } from "../src/prompts/typed/EnvNumberPrompt";
 import { processors } from "@envcredible/core";
 
 const prompt = new EnvNumberPrompt(
@@ -11,7 +11,7 @@ const prompt = new EnvNumberPrompt(
   },
   {
     key: "API_PORT",
-    current: 3000,
+    current: "3000",
   },
 );
 

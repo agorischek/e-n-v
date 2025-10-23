@@ -15,5 +15,5 @@ export interface EnvPromptOptions<T> {
   input?: Readable;
   output?: Writable;
   validate?: (value: T | undefined) => string | Error | undefined;
-  preprocessorOptions?: PreprocessorOptions; // Added preprocessor options
+  preprocessorOptions?: PreprocessorOptions;
 }

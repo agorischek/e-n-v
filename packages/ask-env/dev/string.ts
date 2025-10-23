@@ -1,4 +1,4 @@
-import { EnvStringPrompt } from "../src/prompts/EnvStringPrompt";
+import { EnvStringPrompt } from "../src/prompts/typed/EnvStringPrompt";
 import { StringEnvVarSchema } from "@envcredible/core";
 
 const schema = new StringEnvVarSchema({

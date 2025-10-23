@@ -10,9 +10,9 @@ import {
 import type { Key } from "node:readline";
 import type { PromptOptions } from "../vendor/PromptOptions";
 import type { EnvVarSchemaDetails, PreprocessorOptions } from "@envcredible/core";
-import type { PromptOutcome, EnvPromptResult, FooterOption } from "./types";
 import type { EnvPromptOptions } from "./options";
 import { processValue, type ProcessingResult } from "./processing";
+import type { FooterOption, PromptOutcome } from "../types";
 
 export abstract class EnvPrompt<
   T,

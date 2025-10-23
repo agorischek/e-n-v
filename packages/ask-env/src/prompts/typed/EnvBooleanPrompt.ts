@@ -1,32 +1,31 @@
-import { EnvPrompt } from "./EnvPrompt";
-import type { EnvPromptOptions } from "./options";
-import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../visuals/symbols";
+import { EnvPrompt } from "../EnvPrompt";
+import type { EnvPromptOptions } from "../options";
+import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../../visuals/symbols";
 import type { Key } from "node:readline";
-import type { PromptAction } from "./types/PromptAction";
-import type { EnumEnvVarSchema } from "@envcredible/core";
-import { padActiveRender } from "./utils/padActiveRender";
+import type { PromptAction } from "../../types/PromptAction";
+import type { BooleanEnvVarSchema } from "@envcredible/core";
+import { padActiveRender } from "../utils/padActiveRender";
 
-export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumEnvVarSchema<T>> {
-  cursor = 0;
-  protected options: EnvPromptOptions<T>;
-  private readonly values: readonly T[];
+export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
+  cursor: number;
 
-  constructor(schema: EnumEnvVarSchema<T>, opts: EnvPromptOptions<T>) {
+  constructor(schema: BooleanEnvVarSchema, opts: EnvPromptOptions<boolean>) {
     const customValidate = opts.validate;
     
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvEnumPrompt<T>) {
+      render: padActiveRender(function (this: EnvBooleanPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
             return outcomeResult;
           }
 
+          const valueStr = this.value ? "true" : "false";
           return `${this.getSymbol()}  ${this.colors.bold(
             this.colors.white(this.key),
           )}${this.colors.subtle("=")}${this.colors.white(
-            this.truncateValue(this.value ?? ""),
+            this.truncateValue(valueStr),
           )}`;
         }
 
@@ -45,9 +44,15 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
         }
         output += "\n";
 
-        // Display enum options
+        // Create options array for true/false
+        const options = [
+          { value: true, label: "true" },
+          { value: false, label: "false" },
+        ];
+
         const dimInputs = this.shouldDimInputs();
-        this.values.forEach((option, index) => {
+
+        options.forEach((option, index) => {
           const isSelected = index === this.cursor;
           const circle = dimInputs
             ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
@@ -57,19 +62,19 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
 
           // Determine if this option matches current or default
           let annotation = "";
-          if (this.current === option && this.default === option) {
+          if (this.current === option.value && this.default === option.value) {
             annotation = " (current, default)";
-          } else if (this.current === option) {
+          } else if (this.current === option.value) {
             annotation = " (current)";
-          } else if (this.default === option) {
+          } else if (this.default === option.value) {
             annotation = " (default)";
           }
 
           const text = dimInputs
-            ? this.colors.dim(option)
+            ? this.colors.dim(option.label)
             : isSelected
-              ? this.colors.white(option)
-              : this.colors.subtle(option);
+              ? this.colors.white(option.label)
+              : this.colors.subtle(option.label);
           let suffix = "";
           if (annotation) {
             suffix = dimInputs
@@ -86,7 +91,10 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
 
         return output;
       }),
-      validate: (value: T | undefined) => {
+      validate: (value: boolean | undefined) => {
+        if (this.consumeSkipValidation()) {
+          return undefined;
+        }
         if (this.getOutcome() !== "commit") {
           return undefined;
         }
@@ -103,19 +111,20 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
       },
     });
 
-    this.options = opts;
-    this.values = [...schema.values];
+    // Set cursor based on priority: current → default → true
+    // cursor 0 = true, cursor 1 = false
+    let initialValue: boolean;
+    if (this.current !== undefined) {
+      initialValue = this.current;
+    } else if (this.default !== undefined) {
+      initialValue = this.default;
+    } else {
+      initialValue = true;
+    }
+    this.cursor = initialValue ? 0 : 1;
 
-    // Set initial value to current, or default, or first option
-    this.setCommittedValue(this.current ?? this.default ?? this.values[0]);
-
-    // Set initial cursor position based on current/default value
-    const initialIndex = this.current
-      ? this.values.indexOf(this.current)
-      : this.default
-        ? this.values.indexOf(this.default)
-        : 0;
-    this.cursor = Math.max(0, initialIndex);
+    // Set initial value to current, or default, or false
+    this.setCommittedValue(this.current ?? this.default ?? false);
 
     this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
@@ -130,12 +139,10 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
 
       switch (action) {
         case "up":
-          this.cursor =
-            this.cursor === 0 ? this.values.length - 1 : this.cursor - 1;
+          this.cursor = this.cursor === 0 ? 1 : 0;
           break;
         case "down":
-          this.cursor =
-            this.cursor === this.values.length - 1 ? 0 : this.cursor + 1;
+          this.cursor = this.cursor === 1 ? 0 : 1;
           break;
       }
       this.updateValue();
@@ -161,6 +168,7 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
   }
 
   private updateValue() {
-    this.setCommittedValue(this.values[this.cursor]);
+    // cursor 0 = true, cursor 1 = false
+    this.setCommittedValue(this.cursor === 0);
   }
 }

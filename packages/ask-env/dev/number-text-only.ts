@@ -1,4 +1,4 @@
-import { EnvNumberPrompt } from "../src/prompts/EnvNumberPrompt";
+import { EnvNumberPrompt } from "../src/prompts/typed/EnvNumberPrompt";
 import { NumberEnvVarSchema } from "@envcredible/core";
 
 // Simple number processor

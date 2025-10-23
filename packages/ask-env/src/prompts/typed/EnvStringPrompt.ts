@@ -1,11 +1,11 @@
-import { EnvPrompt } from "./EnvPrompt";
-import type { EnvPromptOptions } from "./options";
-import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../visuals/symbols";
+import { EnvPrompt } from "../EnvPrompt";
+import type { EnvPromptOptions } from "../options";
+import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../../visuals/symbols";
 import type { Key } from "node:readline";
-import type { PromptAction } from "./types/PromptAction";
-import { maskSecretValue } from "../utils/secrets";
+import type { PromptAction } from "../../types/PromptAction";
+import { maskSecretValue } from "../../utils/secrets";
 import type { StringEnvVarSchema } from "@envcredible/core";
-import { padActiveRender } from "./utils/padActiveRender";
+import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   cursor = 0;

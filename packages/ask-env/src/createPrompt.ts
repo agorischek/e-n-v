@@ -1,8 +1,8 @@
 import { Readable, Writable } from "node:stream";
-import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
-import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
-import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
-import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
+import { EnvBooleanPrompt } from "./prompts/typed/EnvBooleanPrompt";
+import { EnvEnumPrompt } from "./prompts/typed/EnvEnumPrompt";
+import { EnvNumberPrompt } from "./prompts/typed/EnvNumberPrompt";
+import { EnvStringPrompt } from "./prompts/typed/EnvStringPrompt";
 import type { TypedEnvVarSchema, BooleanEnvVarSchema, NumberEnvVarSchema, EnumEnvVarSchema, StringEnvVarSchema, PreprocessorOptions } from "@envcredible/core";
 import type { Theme } from "./visuals/Theme";
 import type { AskEnvOptions } from "./AskEnvOptions";
