@@ -1,8 +1,8 @@
-import { EnvVarSchema } from "./EnvVarSchema";
-import type { EnvVarSchemaSharedInput } from "./EnvVarSchemaSharedInput";
-import { processors } from "../processors/processors";
+import { EnvVarSchema } from "../EnvVarSchema";
+import type { EnvVarSchemaInput } from "../EnvVarSchemaInput";
+import { processors } from "../../processors/processors";
 
-export interface EnumEnvVarSchemaInput<T extends string = string> extends EnvVarSchemaSharedInput<T> {
+export interface EnumEnvVarSchemaInput<T extends string = string> extends EnvVarSchemaInput<T> {
   values: readonly T[];
 }
 

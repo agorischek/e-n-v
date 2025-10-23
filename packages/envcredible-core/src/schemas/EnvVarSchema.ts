@@ -1,6 +1,6 @@
 import type { Processor } from "../processors/Processor";
 import type { EnvVarType } from "../types/EnvVarType";
-import type { EnvVarSchemaSharedInput } from "./EnvVarSchemaSharedInput";
+import type { EnvVarSchemaInput } from "./EnvVarSchemaInput";
 
 export abstract class EnvVarSchema<T> {
   public abstract readonly type: EnvVarType;
@@ -9,7 +9,7 @@ export abstract class EnvVarSchema<T> {
   public readonly description?: string;
   public readonly process: Processor<T>;
 
-  constructor(input: EnvVarSchemaSharedInput<T>) {
+  constructor(input: EnvVarSchemaInput<T>) {
     this.required = input?.required ?? true;
     this.default = input?.default;
     this.description = input?.description;

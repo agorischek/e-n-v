@@ -1,9 +1,9 @@
-import { EnvVarSchema } from "./EnvVarSchema";
-import type { Processor } from "../processors/Processor";
-import type { EnvVarSchemaSharedInput } from "./EnvVarSchemaSharedInput";
-import { processors } from "../processors/processors";
+import { EnvVarSchema } from "../EnvVarSchema";
+import type { Processor } from "../../processors/Processor";
+import type { EnvVarSchemaInput } from "../EnvVarSchemaInput";
+import { processors } from "../../processors/processors";
 
-export interface StringEnvVarSchemaInput extends EnvVarSchemaSharedInput<string> {
+export interface StringEnvVarSchemaInput extends EnvVarSchemaInput<string> {
   secret?: boolean;
 }
 
