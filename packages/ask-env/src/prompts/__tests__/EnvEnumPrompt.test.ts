@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { EnvEnumPrompt } from "../typed/EnvEnumPrompt";
 import { EnumEnvVarSchema } from "@envcredible/core";
-import type { EnvPromptOptions } from "../options";
+import type { EnvPromptOptions } from "../options/EnvPromptOptions";
 import { createTestStreams, baseKey } from "./helpers/promptTestUtils";
 
 type TestPromptOptions = Partial<EnvPromptOptions<string>> & {

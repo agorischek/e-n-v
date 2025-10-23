@@ -2,7 +2,7 @@ import { ask } from "../src";
 import { z } from "zod";
 import { resolveSchema } from "@envcredible/converters";
 
-// Import Zod schemas from the new zod export
+// Import Zod schemas from the zod export
 import { apiKey as zodApiKey, apiBaseUrl as zodApiBaseUrl } from "env-var-schemas/zod";
 
 // Import envcredible schemas from the default export

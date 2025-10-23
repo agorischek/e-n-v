@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { EnvNumberPrompt } from "../typed/EnvNumberPrompt";
 import { NumberEnvVarSchema } from "@envcredible/core";
-import type { EnvPromptOptions } from "../options";
+import type { EnvPromptOptions } from "../options/EnvPromptOptions";
 import { NumberEnvVarSchema as NumberEnvVarSchemaClass } from "@envcredible/core";
 import {
   createTestStreams,

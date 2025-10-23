@@ -1,15 +1,11 @@
-import type { 
-  StringEnvVarSchemaInput, 
-  NumberEnvVarSchemaInput, 
-  BooleanEnvVarSchemaInput, 
-  EnumEnvVarSchemaInput 
-} from "./schemas";
-import { 
-  StringEnvVarSchema, 
-  NumberEnvVarSchema, 
-  BooleanEnvVarSchema, 
-  EnumEnvVarSchema 
-} from "./schemas";
+import type { StringEnvVarSchemaInput } from "./schemas/StringEnvVarSchema";
+import type { NumberEnvVarSchemaInput } from "./schemas/NumberEnvVarSchema";
+import type { BooleanEnvVarSchemaInput } from "./schemas/BooleanEnvVarSchema";
+import type { EnumEnvVarSchemaInput } from "./schemas/EnumEnvVarSchema";
+import { StringEnvVarSchema } from "./schemas/StringEnvVarSchema";
+import { NumberEnvVarSchema } from "./schemas/NumberEnvVarSchema";
+import { BooleanEnvVarSchema } from "./schemas/BooleanEnvVarSchema";
+import { EnumEnvVarSchema } from "./schemas/EnumEnvVarSchema";
 
 export const schema = {
   string: (input: StringEnvVarSchemaInput = {}) => 
