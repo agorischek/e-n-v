@@ -1,5 +1,6 @@
 import { ask } from "../src";
-import { fromZodSchema } from "@envcredible/converters";
+import { z } from "zod";
+import { resolveSchema } from "@envcredible/converters";
 
 // Import Zod schemas from the new zod export
 import { apiKey as zodApiKey, apiBaseUrl as zodApiBaseUrl } from "env-var-schemas/zod";
@@ -12,8 +13,8 @@ console.log("=== Comparing Zod vs Envcredible Schemas ===\n");
 // Method 1: Using Zod schemas (need conversion)
 console.log("1. Using Zod schemas (requires fromZodSchema conversion):");
 const zodSchemas = {
-  API_KEY: fromZodSchema(zodApiKey()),
-  API_BASE_URL: fromZodSchema(zodApiBaseUrl()),
+  API_KEY: resolveSchema(zodApiKey()),
+  API_BASE_URL: resolveSchema(zodApiBaseUrl()),
 };
 
 // Method 2: Using envcredible schemas (direct use)

@@ -1,11 +1,11 @@
 import { describe, test, expect } from "bun:test";
 import { z } from "zod";
-import { fromZodSchema } from "@envcredible/converters";
+import { resolveSchema } from "@envcredible/converters";
 import { applyCustomPreprocessing } from "../createPrompt.js";
 
 describe("Custom preprocessing functionality", () => {
   describe("number preprocessing", () => {
-    const numberSchema = fromZodSchema(z.number());
+    const numberSchema = resolveSchema(z.number());
     
     test("applies custom number preprocessor", () => {
       const preprocessorOptions = {
@@ -49,7 +49,7 @@ describe("Custom preprocessing functionality", () => {
   });
   
   describe("boolean preprocessing", () => {
-    const booleanSchema = fromZodSchema(z.boolean());
+    const booleanSchema = resolveSchema(z.boolean());
     
     test("applies custom boolean preprocessor", () => {
       const preprocessorOptions = {
@@ -89,8 +89,8 @@ describe("Custom preprocessing functionality", () => {
     });
   });
   
-  describe("string schemas", () => {
-    const stringSchema = fromZodSchema(z.string());
+  describe("string preprocessing", () => {
+    const stringSchema = resolveSchema(z.string());
     
     test("applies string preprocessing", () => {
       const preprocessorOptions = {
@@ -112,8 +112,8 @@ describe("Custom preprocessing functionality", () => {
     });
   });
   
-  describe("enum schemas", () => {
-    const enumSchema = fromZodSchema(z.enum(["dev", "prod", "test"]));
+  describe("enum preprocessing", () => {
+    const enumSchema = resolveSchema(z.enum(["dev", "prod", "test"]));
     
     test("applies enum preprocessing", () => {
       const preprocessorOptions = {

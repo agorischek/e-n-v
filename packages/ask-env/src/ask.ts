@@ -9,9 +9,7 @@ import type { AskEnvOptions } from "./AskEnvOptions";
 import * as defaults from "./defaults";
 import { resolveChannel } from "@envcredible/channels/resolveChannel";
 import { Session } from "./session/Session";
-import { fromZodSchema } from "@envcredible/converters";
-import { isEnvVarSchema } from "@envcredible/converters";
-import { isCompatibleZodSchema } from "@envcredible/converters";
+import { resolveSchemas } from "@envcredible/converters";
 
 function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);
@@ -40,26 +38,6 @@ function resolveEnvFilePath(
   }
 
   return resolvePath(rootDir, pathOption);
-}
-
-/**
- * Resolve mixed schema map (Zod schemas or EnvVarSchema) to pure EnvVarSchema map
- */
-function resolveSchemas(schemas: EnvVarSchemaMap): Record<string, TypedEnvVarSchema> {
-  const resolved: Record<string, TypedEnvVarSchema> = {};
-  
-  for (const [key, rawSchema] of Object.entries(schemas)) {
-    if (isCompatibleZodSchema(rawSchema)) {
-      resolved[key] = fromZodSchema(rawSchema);
-    } else if (isEnvVarSchema(rawSchema)) {
-      resolved[key] = rawSchema;
-    } else {
-      // Fallback - treat as already resolved
-      resolved[key] = rawSchema as TypedEnvVarSchema;
-    }
-  }
-  
-  return resolved;
 }
 
 /**
