@@ -1,12 +1,12 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import { descriptions, messages } from "../shared/apiService";
 
 export const corsOrigin = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.corsOrigin,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().refine(
         (val) => {
           if (val === "*") return true;
@@ -22,7 +22,6 @@ export const corsOrigin = (input: Partial<StringEnvVarSchemaInput> = {}) =>
         },
         { message: messages.corsOriginInvalid },
       ),
-      "string"
     ),
     ...input,
   });

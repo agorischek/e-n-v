@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, NumberEnvVarSchema, type StringEnvVarSchemaInput, type NumberEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import {
   constraints,
@@ -12,11 +12,10 @@ import {
 export const openaiApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiKey,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string()
         .min(constraints.apiKeyMinLength, { message: messages.apiKeyMinLength })
         .regex(patterns.apiKey, { message: messages.apiKeyFormat }),
-      "string"
     ),
     secret: true,
     ...input,
@@ -25,9 +24,8 @@ export const openaiApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const openaiOrganizationId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.organizationId,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.organizationId, { message: messages.organizationFormat }),
-      "string"
     ),
     required: false,
     ...input,
@@ -36,9 +34,8 @@ export const openaiOrganizationId = (input: Partial<StringEnvVarSchemaInput> = {
 export const openaiProjectId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.projectId,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.projectId, { message: messages.projectFormat }),
-      "string"
     ),
     required: false,
     ...input,
@@ -47,13 +44,12 @@ export const openaiProjectId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const openaiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.baseUrl,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string()
         .url({ message: messages.baseUrlInvalid })
         .refine((value) => value.startsWith("https://"), {
           message: messages.baseUrlProtocol,
         }),
-      "string"
     ),
     required: false,
     ...input,
@@ -62,9 +58,8 @@ export const openaiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const openaiModel = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.model,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().min(1, { message: messages.modelRequired }),
-      "string"
     ),
     required: false,
     ...input,
@@ -74,12 +69,11 @@ export const openaiTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.timeout,
     default: defaults.timeout,
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .int({ message: messages.timeoutInteger })
         .min(constraints.timeoutMin, { message: messages.timeoutMin })
         .max(constraints.timeoutMax, { message: messages.timeoutMax }),
-      "number"
     ),
     ...input,
   });

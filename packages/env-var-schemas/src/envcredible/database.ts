@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, NumberEnvVarSchema, BooleanEnvVarSchema, type StringEnvVarSchemaInput, type NumberEnvVarSchemaInput, type BooleanEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import {
   descriptions,
@@ -12,11 +12,10 @@ import {
 export const databaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseUrl,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.genericDatabaseUrl, {
         message: messages.genericDatabaseUrlFormat,
-      }),
-      "string"
+      })
     ),
     secret: true,
     ...input,
@@ -25,9 +24,8 @@ export const databaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const databaseHost = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseHost,
-    process: processWithZodSchema<string>(
-      z.string().min(1, { message: messages.databaseHostRequired }),
-      "string"
+    process: createZodProcessor(
+      z.string().min(1, { message: messages.databaseHostRequired })
     ),
     ...input,
   });
@@ -35,12 +33,11 @@ export const databaseHost = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const databasePort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.databasePort,
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .int({ message: messages.databasePortInt })
         .min(constraints.databasePortMin, { message: messages.databasePortMin })
-        .max(constraints.databasePortMax, { message: messages.databasePortMax }),
-      "number"
+        .max(constraints.databasePortMax, { message: messages.databasePortMax })
     ),
     ...input,
   });
@@ -48,9 +45,8 @@ export const databasePort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
 export const databaseName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseName,
-    process: processWithZodSchema<string>(
-      z.string().min(1, { message: messages.databaseNameRequired }),
-      "string"
+    process: createZodProcessor(
+      z.string().min(1, { message: messages.databaseNameRequired })
     ),
     ...input,
   });
@@ -58,9 +54,8 @@ export const databaseName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const databaseUsername = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseUsername,
-    process: processWithZodSchema<string>(
-      z.string().min(1, { message: messages.databaseUsernameRequired }),
-      "string"
+    process: createZodProcessor(
+      z.string().min(1, { message: messages.databaseUsernameRequired })
     ),
     ...input,
   });
@@ -68,9 +63,8 @@ export const databaseUsername = (input: Partial<StringEnvVarSchemaInput> = {}) =
 export const databasePassword = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databasePassword,
-    process: processWithZodSchema<string>(
-      z.string().min(1, { message: messages.databasePasswordRequired }),
-      "string"
+    process: createZodProcessor(
+      z.string().min(1, { message: messages.databasePasswordRequired })
     ),
     secret: true,
     ...input,
@@ -79,9 +73,8 @@ export const databasePassword = (input: Partial<StringEnvVarSchemaInput> = {}) =
 export const databaseSchema = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseSchema,
-    process: processWithZodSchema<string>(
-      z.string(),
-      "string"
+    process: createZodProcessor(
+      z.string()
     ),
     required: false,
     ...input,
@@ -91,12 +84,11 @@ export const databasePoolSize = (input: Partial<NumberEnvVarSchemaInput> = {}) =
   new NumberEnvVarSchema({
     description: descriptions.databasePoolSize,
     default: defaults.databasePoolSize,
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .int({ message: messages.databasePoolSizeInt })
         .min(constraints.databasePoolSizeMin, { message: messages.databasePoolSizeMin })
-        .max(constraints.databasePoolSizeMax, { message: messages.databasePoolSizeMax }),
-      "number"
+        .max(constraints.databasePoolSizeMax, { message: messages.databasePoolSizeMax })
     ),
     ...input,
   });
@@ -105,12 +97,11 @@ export const databaseTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.databaseTimeout,
     default: defaults.databaseTimeout,
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .int({ message: messages.databaseTimeoutInt })
         .min(constraints.databaseTimeoutMin, { message: messages.databaseTimeoutMin })
-        .max(constraints.databaseTimeoutMax, { message: messages.databaseTimeoutMax }),
-      "number"
+        .max(constraints.databaseTimeoutMax, { message: messages.databaseTimeoutMax })
     ),
     ...input,
   });

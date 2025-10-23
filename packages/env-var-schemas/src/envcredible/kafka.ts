@@ -1,16 +1,15 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import { descriptions, messages, patterns } from "../shared/infrastructure";
 
 export const kafkaBrokers = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.kafkaBrokers,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.hostPortList, {
         message: messages.hostPortListFormat,
       }),
-      "string"
     ),
     ...input,
   });
@@ -18,9 +17,8 @@ export const kafkaBrokers = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const kafkaClientId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.kafkaClientId,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().min(1, { message: messages.kafkaClientIdRequired }),
-      "string"
     ),
     ...input,
   });

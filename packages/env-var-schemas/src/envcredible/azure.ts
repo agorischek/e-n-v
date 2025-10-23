@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import {
   descriptions,
@@ -10,11 +10,10 @@ import {
 export const azureStorageConnectionString = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageConnectionString,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.azureStorageConnectionString, {
         message: messages.azureStorageConnectionStringFormat,
       }),
-      "string"
     ),
     secret: true,
     ...input,
@@ -23,11 +22,10 @@ export const azureStorageConnectionString = (input: Partial<StringEnvVarSchemaIn
 export const azureStorageAccountName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageAccountName,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.azureStorageAccountName, {
         message: messages.azureStorageAccountNameFormat,
       }),
-      "string"
     ),
     ...input,
   });
@@ -35,9 +33,8 @@ export const azureStorageAccountName = (input: Partial<StringEnvVarSchemaInput> 
 export const azureStorageAccountKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageAccountKey,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().min(1, { message: messages.azureStorageAccountKeyRequired }),
-      "string"
     ),
     secret: true,
     ...input,
@@ -46,11 +43,10 @@ export const azureStorageAccountKey = (input: Partial<StringEnvVarSchemaInput> =
 export const azureServiceBusConnectionString = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.azureServiceBusConnectionString,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.azureServiceBusConnectionString, {
         message: messages.azureServiceBusConnectionStringFormat,
       }),
-      "string"
     ),
     secret: true,
     ...input,
@@ -59,11 +55,10 @@ export const azureServiceBusConnectionString = (input: Partial<StringEnvVarSchem
 export const azureEventHubConnectionString = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.azureEventHubConnectionString,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.azureEventHubConnectionString, {
         message: messages.azureEventHubConnectionStringFormat,
       }),
-      "string"
     ),
     secret: true,
     ...input,

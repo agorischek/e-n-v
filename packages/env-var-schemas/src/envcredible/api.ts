@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, NumberEnvVarSchema, type StringEnvVarSchemaInput, type NumberEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import {
   constraints,
@@ -12,9 +12,8 @@ import {
 export const apiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiKey,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().min(constraints.apiKeyMinLength, { message: messages.apiKeyMin }),
-      "string"
     ),
     ...input,
   });
@@ -22,14 +21,13 @@ export const apiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const apiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiBaseUrl,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string()
         .url({ message: "Must be a valid URL" })
         .refine(
           (url) => patterns.httpProtocol.test(url),
           { message: messages.httpProtocolRequired }
         ),
-      "string"
     ),
     ...input,
   });
@@ -38,12 +36,11 @@ export const apiTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.apiTimeout,
     default: defaults.apiTimeout,
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .int({ message: messages.apiTimeoutInt })
         .min(constraints.apiTimeoutMin, { message: messages.apiTimeoutMin })
         .max(constraints.apiTimeoutMax, { message: messages.apiTimeoutMax }),
-      "number"
     ),
     ...input,
   });

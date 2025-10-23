@@ -1,16 +1,15 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import { descriptions, messages, patterns } from "../shared/infrastructure";
 
 export const rabbitmqUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.rabbitmqUrl,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.rabbitmqUrl, {
         message: messages.rabbitmqUrlFormat,
       }),
-      "string"
     ),
     secret: true,
     ...input,

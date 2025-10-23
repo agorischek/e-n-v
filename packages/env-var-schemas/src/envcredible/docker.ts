@@ -1,14 +1,13 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import { descriptions, messages } from "../shared/infrastructure";
 
 export const dockerRegistryUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.dockerRegistryUrl,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().url({ message: messages.dockerRegistryUrlFormat }),
-      "string"
     ),
     ...input,
   });
@@ -16,9 +15,8 @@ export const dockerRegistryUrl = (input: Partial<StringEnvVarSchemaInput> = {}) 
 export const dockerRegistryUsername = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.dockerRegistryUsername,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string(),
-      "string"
     ),
     required: false,
     ...input,
@@ -27,9 +25,8 @@ export const dockerRegistryUsername = (input: Partial<StringEnvVarSchemaInput> =
 export const dockerRegistryPassword = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.dockerRegistryPassword,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string(),
-      "string"
     ),
     secret: true,
     required: false,

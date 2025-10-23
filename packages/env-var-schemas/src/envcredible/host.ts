@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import { defaults, descriptions } from "../shared/apiService";
 
@@ -7,9 +7,8 @@ export const host = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.host,
     default: defaults.host,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string(),
-      "string"
     ),
     ...input,
   });

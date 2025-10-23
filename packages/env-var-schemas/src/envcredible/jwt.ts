@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import { patterns } from "../shared/apiService";
 import {
@@ -12,9 +12,8 @@ import {
 export const jwtSecret = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.jwtSecret,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().min(constraints.jwtSecretMinLength, { message: messages.jwtSecretMin }),
-      "string"
     ),
     secret: true,
     ...input,
@@ -24,9 +23,8 @@ export const jwtAccessTokenExpiresIn = (input: Partial<StringEnvVarSchemaInput> 
   new StringEnvVarSchema({
     description: descriptions.jwtAccessTokenExpiresIn,
     default: defaults.jwtAccessTokenExpiresIn,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.jwtTokenDuration, { message: messages.jwtDurationFormat }),
-      "string"
     ),
     ...input,
   });
@@ -35,9 +33,8 @@ export const jwtRefreshTokenExpiresIn = (input: Partial<StringEnvVarSchemaInput>
   new StringEnvVarSchema({
     description: descriptions.jwtRefreshTokenExpiresIn,
     default: defaults.jwtRefreshTokenExpiresIn,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.jwtTokenDuration, { message: messages.jwtDurationFormat }),
-      "string"
     ),
     ...input,
   });

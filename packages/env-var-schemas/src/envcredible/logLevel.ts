@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import { defaults, descriptions, enumOptions } from "../shared/apiService";
 
@@ -7,9 +7,8 @@ export const logLevel = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.logLevel,
     default: defaults.logLevel,
-    process: processWithZodSchema<string>(
-      z.enum([...enumOptions.logLevel]),
-      "string"
+    process: createZodProcessor(
+      z.enum([...enumOptions.logLevel])
     ),
     ...input,
   });

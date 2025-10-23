@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "../helpers/zodHelpers";
 import { z } from "zod";
 import { descriptions, messages } from "../shared/infrastructure";
 import { patterns } from "../shared/apiService";
@@ -7,13 +7,12 @@ import { patterns } from "../shared/apiService";
 export const elasticsearchUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchUrl,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string()
         .url({ message: messages.elasticsearchUrlFormat })
         .regex(patterns.httpProtocol, {
           message: messages.elasticsearchUrlProtocol,
         }),
-      "string"
     ),
     ...input,
   });
@@ -21,9 +20,8 @@ export const elasticsearchUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =
 export const elasticsearchUsername = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchUsername,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string(),
-      "string"
     ),
     required: false,
     ...input,
@@ -32,9 +30,8 @@ export const elasticsearchUsername = (input: Partial<StringEnvVarSchemaInput> = 
 export const elasticsearchPassword = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchPassword,
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string(),
-      "string"
     ),
     secret: true,
     required: false,

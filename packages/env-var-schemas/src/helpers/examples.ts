@@ -4,7 +4,7 @@
  */
 
 import { StringEnvVarSchema, NumberEnvVarSchema } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "./zodHelpers";
 import { z } from "zod";
 
 // Example patterns (these would come from shared files)
@@ -37,9 +37,8 @@ const constraints = {
 export const simpleApiKey = (input = {}) =>
   new StringEnvVarSchema({
     description: "API key for authentication",
-    process: processWithZodSchema<string>(
-      z.string().min(constraints.apiKeyMinLength, { message: messages.apiKeyMin }),
-      "string"
+    process: createZodProcessor(
+      z.string().min(constraints.apiKeyMinLength, { message: messages.apiKeyMin })
     ),
     ...input,
   });
@@ -48,11 +47,10 @@ export const simpleApiKey = (input = {}) =>
 export const openaiApiKey = (input = {}) =>
   new StringEnvVarSchema({
     description: "OpenAI API key for authenticating requests",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string()
         .min(constraints.openaiApiKeyMinLength, { message: "Must be at least 40 characters" })
         .regex(patterns.openaiApiKey, { message: messages.openaiApiKeyFormat }),
-      "string"
     ),
     ...input,
   });
@@ -61,14 +59,13 @@ export const openaiApiKey = (input = {}) =>
 export const webhookUrl = (input = {}) =>
   new StringEnvVarSchema({
     description: "Webhook URL for notifications",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string()
         .url({ message: "Must be a valid URL" })
         .refine(
           (url) => patterns.httpsProtocol.test(url),
           { message: messages.httpsRequired }
         ),
-      "string"
     ),
     ...input,
   });
@@ -77,9 +74,8 @@ export const webhookUrl = (input = {}) =>
 export const redisUrl = (input = {}) =>
   new StringEnvVarSchema({
     description: "Redis connection URL",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.redisUrl, { message: "Must be a valid Redis URL format" }),
-      "string"
     ),
     ...input,
   });
@@ -88,9 +84,8 @@ export const redisUrl = (input = {}) =>
 export const databaseHost = (input = {}) =>
   new StringEnvVarSchema({
     description: "Database host address",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().min(1, { message: "Database host is required" }),
-      "string"
     ),
     ...input,
   });
@@ -99,9 +94,8 @@ export const databaseHost = (input = {}) =>
 export const newRelicLicenseKey = (input = {}) =>
   new StringEnvVarSchema({
     description: "New Relic license key",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().length(40, { message: messages.exactLength40 }),
-      "string"
     ),
     ...input,
   });
@@ -110,9 +104,8 @@ export const newRelicLicenseKey = (input = {}) =>
 export const jwtTokenDuration = (input = {}) =>
   new StringEnvVarSchema({
     description: "JWT token duration",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.jwtTokenDuration, { message: messages.jwtDurationFormat }),
-      "string"
     ),
     default: "15m",
     ...input,
@@ -122,12 +115,11 @@ export const jwtTokenDuration = (input = {}) =>
 export const appPort = (input = {}) =>
   new NumberEnvVarSchema({
     description: "Application port number",
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .int({ message: "Must be an integer" })
         .min(1024, { message: "Port must be >= 1024 (avoid reserved ports)" })
         .max(65535, { message: "Port must be <= 65535" }),
-      "number"
     ),
     default: 3000,
     ...input,
@@ -137,12 +129,11 @@ export const appPort = (input = {}) =>
 export const databasePort = (input = {}) =>
   new NumberEnvVarSchema({
     description: "Database port number",
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .int({ message: "Must be an integer" })
         .min(1, { message: "Port must be >= 1" })
         .max(65535, { message: "Port must be <= 65535" }),
-      "number"
     ),
     ...input,
   });
@@ -151,12 +142,11 @@ export const databasePort = (input = {}) =>
 export const requestTimeout = (input = {}) =>
   new NumberEnvVarSchema({
     description: "Request timeout in seconds",
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .int({ message: "Must be an integer" })
         .min(1, { message: "Timeout must be at least 1 second" })
         .max(300, { message: "Timeout should not exceed 300 seconds" }),
-      "number"
     ),
     default: 30,
     ...input,
@@ -166,11 +156,10 @@ export const requestTimeout = (input = {}) =>
 export const samplingRate = (input = {}) =>
   new NumberEnvVarSchema({
     description: "Sampling rate percentage",
-    process: processWithZodSchema<number>(
+    process: createZodProcessor(
       z.coerce.number()
         .min(0, { message: "Must be >= 0" })
         .max(100, { message: "Must be <= 100" }),
-      "number"
     ),
     default: 100,
     ...input,
@@ -180,11 +169,10 @@ export const samplingRate = (input = {}) =>
 export const azureStorageConnectionString = (input = {}) =>
   new StringEnvVarSchema({
     description: "Azure Storage connection string",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(patterns.azureConnectionString, {
         message: "Must be a valid Azure Storage connection string"
       }),
-      "string"
     ),
     ...input,
   });
@@ -193,9 +181,8 @@ export const azureStorageConnectionString = (input = {}) =>
 export const organizationId = (input = {}) =>
   new StringEnvVarSchema({
     description: "Organization identifier",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string().regex(/^org-[A-Za-z0-9_-]{8,}$/, { message: "Must start with 'org-'" }),
-      "string"
     ),
     required: false,
     ...input,
@@ -205,7 +192,7 @@ export const organizationId = (input = {}) =>
 export const complexApiKey = (input = {}) =>
   new StringEnvVarSchema({
     description: "Complex API key with multiple validation rules",
-    process: processWithZodSchema<string>(
+    process: createZodProcessor(
       z.string()
         .min(32, { message: "Must be at least 32 characters" })
         .max(128, { message: "Must be no more than 128 characters" })
@@ -214,7 +201,6 @@ export const complexApiKey = (input = {}) =>
           (key) => !key.includes('test') && !key.includes('example'),
           { message: "Cannot contain 'test' or 'example'" }
         ),
-      "string"
     ),
     secret: true,
     ...input,

@@ -1,5 +1,5 @@
 import type { StringEnvVarSchemaInput, NumberEnvVarSchemaInput } from "../../../envcredible-core/src";
-import { processWithZodSchema } from "@envcredible/converters";
+import { createZodProcessor } from "./zodHelpers";
 import { z } from "zod";
 
 /**
@@ -22,7 +22,7 @@ export const createUrlValidator = (
     );
   }
   
-  return processWithZodSchema<string>(schema, "string");
+  return createZodProcessor(schema);
 };
 
 /**
@@ -40,7 +40,7 @@ export const createStringLengthValidator = (
     schema = schema.max(maxLength, { message: maxLengthMessage });
   }
   
-  return processWithZodSchema<string>(schema, "string");
+  return createZodProcessor(schema);
 };
 
 /**
@@ -49,9 +49,8 @@ export const createStringLengthValidator = (
 export const createExactLengthValidator = (
   length: number,
   errorMessage: string
-) => processWithZodSchema<string>(
+) => createZodProcessor(
   z.string().length(length, { message: errorMessage }),
-  "string"
 );
 
 /**
@@ -60,9 +59,8 @@ export const createExactLengthValidator = (
 export const createPatternValidator = (
   pattern: RegExp,
   errorMessage: string
-) => processWithZodSchema<string>(
+) => createZodProcessor(
   z.string().regex(pattern, { message: errorMessage }),
-  "string"
 );
 
 /**
@@ -70,9 +68,8 @@ export const createPatternValidator = (
  */
 export const createRequiredStringValidator = (
   errorMessage: string
-) => processWithZodSchema<string>(
+) => createZodProcessor(
   z.string().min(1, { message: errorMessage }),
-  "string"
 );
 
 /**
@@ -93,7 +90,7 @@ export const createNumberRangeValidator = (
     schema = schema.int({ message: "Must be an integer" });
   }
   
-  return processWithZodSchema<number>(schema, "number");
+  return createZodProcessor(schema);
 };
 
 /**
@@ -166,11 +163,10 @@ export const createApiKeyValidator = (
   pattern: RegExp,
   minLengthMessage: string,
   patternMessage: string
-) => processWithZodSchema<string>(
+) => createZodProcessor(
   z.string()
     .min(minLength, { message: minLengthMessage })
     .regex(pattern, { message: patternMessage }),
-  "string"
 );
 
 /**
