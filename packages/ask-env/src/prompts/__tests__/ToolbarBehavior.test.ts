@@ -1,10 +1,7 @@
 import { describe, it, expect } from "bun:test";
 import { NumberEnvVarSchema } from "@envcredible/core";
 import { EnvNumberPrompt } from "../typed/EnvNumberPrompt";
-import { waitForIO, pressKey, toOutputString } from "./helpers/promptTestUtils";
-
-const STRIP_ANSI = /\x1b\[[0-9;]*m/g;
-const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
+import { waitForIO, pressKey } from "./helpers/promptTestUtils";
 
 function createPrompt(
   options: {

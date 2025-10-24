@@ -1,5 +1,3 @@
-import type { PromptOutcome } from "../../types/PromptOutcome";
-
 /**
  * Primary interaction kinds for the prompt
  */
