@@ -11,7 +11,6 @@ import type { EnvPromptOptions } from "./options/EnvPromptOptions";
 import type { PromptOutcome } from "../types/PromptOutcome";
 import { ClackPromptInternals } from "./utils/ClackPromptInternals";
 import { Toolbar } from "./toolbar";
-import { PromptStateMachine } from "./state/PromptState";
 
 export type FooterState = "hint" | "warn" | "tools";
 
