@@ -12,10 +12,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   isTyping = false;
 
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
-    const customValidate = opts.validate;
-    
     super(schema, {
       ...opts,
+      originalValidate: opts.validate,
       render: padActiveRender(function (this: EnvStringPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
@@ -75,22 +74,14 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         // Add current value if it exists
         if (this.current !== undefined) {
-          let label = "(current)";
           if (this.default !== undefined && this.current === this.default) {
-            label = "(current, default)";
+            options.push({
+              value: this.current,
+              label: "(current, default)",
+            });
+          } else {
+            options.push({ value: this.current, label: "(current)" });
           }
-          // Add validation error annotation if present
-          if (this.currentValidationError) {
-            if (this.default !== undefined && this.current === this.default) {
-              label = "(current, default, invalid)";
-            } else {
-              label = "(current, invalid)";
-            }
-          }
-          options.push({
-            value: this.current,
-            label,
-          });
         }
 
         // Add default value if it exists and is different from current
@@ -131,14 +122,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             }
           } else {
             // Current/Default options
-            let displayValue = this.formatValue(option.value);
-            
-            // Apply strikethrough if this is an invalid current value
-            const isInvalidCurrent = option.value === this.current && this.currentValidationError;
-            if (isInvalidCurrent) {
-              displayValue = this.colors.strikethrough(displayValue);
-            }
-            
+            const displayValue = this.formatValue(option.value);
             const text = dimInputs
               ? this.colors.dim(displayValue)
               : isSelected
@@ -157,7 +141,6 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         // Add validation output or placeholder text with L-shaped pipe
         output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
-
         return output;
       }),
       validate: (value: string | undefined) => {
@@ -186,6 +169,12 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             parsedValue = this.parseInput(this.userInput);
           } catch {
             parsedValue = undefined;
+          }
+          const customValidation = this.runCustomValidate(parsedValue);
+          if (customValidation) {
+            return customValidation instanceof Error
+              ? customValidation.message
+              : customValidation;
           }
           return undefined;
         }
@@ -221,54 +210,32 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // Validate against the schema processor
+          // If format is valid, run custom validation if provided
           let parsedValue: string | undefined;
           try {
             parsedValue = this.parseInput(this.userInput);
-            // Also run through schema validation
-            if (parsedValue !== undefined) {
-              (this.spec as any).process(parsedValue);
-            }
-          } catch (error) {
-            // Schema validation failed
-            const message = error instanceof Error ? error.message : String(error);
-            return message;
+          } catch {
+            parsedValue = undefined;
           }
-          // Call custom validation if provided
-          if (customValidate) {
-            const customValidation = customValidate(parsedValue);
-            if (customValidation) {
-              return customValidation;
-            }
-          }
-          return undefined;
-        }
-
-        // For non-typing cases (selecting current/default), check for validation errors first
-        // If the user is selecting the current value and it has a validation error, block submission
-        if (!this.isTyping && this.current !== undefined && this.currentValidationError) {
-          // Check if user is selecting the current value option
-          let isSelectingCurrentValue = false;
-          let optionIndex = 0;
-          
-          // Check if cursor is on current value
-          if (this.current !== undefined && this.cursor === optionIndex) {
-            isSelectingCurrentValue = true;
-          }
-          
-          if (isSelectingCurrentValue) {
-            return this.currentValidationError;
-          }
-        }
-
-        // For non-typing cases (selecting current/default), run custom validation
-        if (customValidate) {
-          const customValidation = customValidate(value);
+          const customValidation = this.runCustomValidate(parsedValue);
           if (customValidation) {
-            return customValidation;
+            return customValidation instanceof Error
+              ? customValidation.message
+              : customValidation;
           }
         }
 
+        // For non-typing cases (selecting current/default), validate the selected value
+        if (!this.isTyping) {
+          const customValidation = this.runCustomValidate(value);
+          if (customValidation) {
+            return customValidation instanceof Error
+              ? customValidation.message
+              : customValidation;
+          }
+        }
+
+        // All other cases are valid
         return undefined;
       },
     });
@@ -418,8 +385,6 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           // Enable value tracking and set the initial character
           this.track = true;
           this._setUserInput(char);
-          // Manually set the cursor position to be after the character
-          (this as any)._cursor = char.length;
           this.updateValue();
           return;
         }
@@ -532,9 +497,12 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       return base;
     }
 
-    const internalCursor = (this as unknown as { _cursor?: number })._cursor;
     const rawCursor = this.isTyping
-      ? Math.max(0, internalCursor ?? 0)
+      ? Math.max(
+          0,
+          (this as unknown as { _cursor?: number })._cursor ??
+            inputValue.length,
+        )
       : 0;
     const maskLength = isMasked ? Math.max(1, this.mask.length) : 1;
     const cursorIndex = Math.min(rawCursor * maskLength, base.length);

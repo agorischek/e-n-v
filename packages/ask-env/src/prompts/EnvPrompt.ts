@@ -9,11 +9,32 @@ import {
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptOptions } from "../vendor/PromptOptions";
-import type { EnvVarSchemaDetails, PreprocessorOptions } from "@envcredible/core";
+import type { EnvVarSchemaDetails } from "@envcredible/core";
 import type { EnvPromptOptions } from "./options/EnvPromptOptions";
-import { processValue, type ProcessingResult } from "./processing/processValue";
 import type { FooterOption } from "../types/FooterOption";
 import type { PromptOutcome } from "../types/PromptOutcome";
+
+function resolveDefaultFromSpec<T>(
+  spec: EnvVarSchemaDetails<T>,
+): T | undefined {
+  switch (spec.type) {
+    case "boolean":
+      return typeof spec.default === "boolean"
+        ? (spec.default as T)
+        : undefined;
+    case "number":
+      return typeof spec.default === "number"
+        ? (spec.default as T)
+        : undefined;
+    case "enum":
+    case "string":
+      return typeof spec.default === "string"
+        ? (spec.default as T)
+        : undefined;
+    default:
+      return undefined;
+  }
+}
 
 export abstract class EnvPrompt<
   T,
@@ -23,7 +44,6 @@ export abstract class EnvPrompt<
   protected readonly required: boolean;
   protected key: string;
   protected current?: T;
-  protected currentRaw?: string; // Store the raw current value
   protected default?: T;
   protected maxDisplayLength: number;
   protected secret: boolean;
@@ -36,8 +56,7 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
-  protected currentValidationError?: string;
-  protected preprocessorOptions?: PreprocessorOptions;
+  private customValidate?: (value: T | undefined) => string | Error | undefined;
   private skipValidationFlag: boolean;
 
   protected set track(value: boolean) {
@@ -56,11 +75,17 @@ export abstract class EnvPrompt<
     spec: TSpec,
     opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>,
   ) {
+    const { originalValidate, ...restOptions } = opts as (EnvPromptOptions<T> &
+      PromptOptions<T, EnvPrompt<T, TSpec>> &
+      { originalValidate?: (value: T | undefined) => string | Error | undefined });
+
     const resolvedDefault =
-      opts.default !== undefined ? opts.default : spec.default;
+      restOptions.default !== undefined
+        ? restOptions.default
+        : resolveDefaultFromSpec(spec);
 
     const promptOptions = {
-      ...opts,
+      ...restOptions,
       default: resolvedDefault,
     } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>;
 
@@ -71,6 +96,7 @@ export abstract class EnvPrompt<
     this.track = false;
     this.outcome = "commit";
     this.key = promptOptions.key;
+    this.current = promptOptions.current;
     this.default = promptOptions.default;
     this.maxDisplayLength = promptOptions.maxDisplayLength ?? 40;
     this.secret = Boolean(promptOptions.secret);
@@ -82,23 +108,8 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = promptOptions.previousEnabled ?? true;
-    this.preprocessorOptions = promptOptions.preprocessorOptions;
+    this.customValidate = originalValidate;
     this.skipValidationFlag = false;
-
-    // Process current value if it exists, but don't throw on validation errors
-    this.currentRaw = promptOptions.current;
-    if (this.currentRaw !== undefined) {
-      const processingResult = processValue(this.currentRaw, this.spec, this.preprocessorOptions);
-      if (processingResult.isValid) {
-        this.current = processingResult.value;
-        this.currentValidationError = undefined;
-      } else {
-        // For invalid values, we want to display the raw value in the UI
-        // but mark it as invalid so the user can see it and choose to skip validation
-        this.current = processingResult.rawValue as T; // Cast needed for display purposes
-        this.currentValidationError = processingResult.error;
-      }
-    }
 
     this.on("finalize", () => {
       const shouldConsumeSubmit =
@@ -120,6 +131,15 @@ export abstract class EnvPrompt<
         this.outcome = "commit";
       }
     });
+  }
+
+  protected runCustomValidate(
+    value: T | undefined,
+  ): string | Error | undefined {
+    if (!this.customValidate) {
+      return undefined;
+    }
+    return this.customValidate(value);
   }
 
   protected setCommittedValue(value: T | undefined): void {
@@ -461,13 +481,5 @@ export abstract class EnvPrompt<
     }
     this.skipValidationFlag = false;
     return true;
-  }
-
-  /**
-   * Apply preprocessing and schema validation to a value
-   * Available to subclasses for validating user input
-   */
-  protected processValueWithSchema(value: string): ProcessingResult<T> {
-    return processValue<T>(value, this.spec, this.preprocessorOptions);
   }
 }

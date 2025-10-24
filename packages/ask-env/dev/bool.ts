@@ -9,7 +9,7 @@ const schema = new BooleanEnvVarSchema({
 
 const prompt = new EnvBooleanPrompt(schema, {
   key: "IS_ENABLED",
-  current: "false",
+  current: false,
 });
 
 await prompt.prompt();

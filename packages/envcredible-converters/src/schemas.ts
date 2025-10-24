@@ -10,3 +10,7 @@ export type ZodV3Schema = ZodTypeAny;
 export type ZodV4Schema = $ZodType;
 
 export type Schema = ZodV3Schema | ZodV4Schema | JoiSchema | EnvVarSchema;
+
+export type SupportedSchema = Schema;
+
+export type EnvVarSchemaMap = Record<string, SupportedSchema>;

@@ -6,17 +6,16 @@ import type { PromptAction } from "../../types/PromptAction";
 import type { EnumEnvVarSchema } from "@envcredible/core";
 import { padActiveRender } from "../utils/padActiveRender";
 
-export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumEnvVarSchema<T>> {
+export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   cursor = 0;
-  protected options: EnvPromptOptions<T>;
-  private readonly values: readonly T[];
+  protected options: EnvPromptOptions<string>;
+  private readonly values: readonly string[];
 
-  constructor(schema: EnumEnvVarSchema<T>, opts: EnvPromptOptions<T>) {
-    const customValidate = opts.validate;
-    
+  constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvEnumPrompt<T>) {
+      originalValidate: opts.validate,
+      render: padActiveRender(function (this: EnvEnumPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -86,19 +85,17 @@ export class EnvEnumPrompt<T extends string = string> extends EnvPrompt<T, EnumE
 
         return output;
       }),
-      validate: (value: T | undefined) => {
+      validate: (value: string | undefined) => {
         if (this.getOutcome() !== "commit") {
           return undefined;
         }
 
-        // Call custom validation if provided
-        if (customValidate) {
-          const customValidation = customValidate(value);
-          if (customValidation) {
-            return customValidation;
-          }
+        const customValidation = this.runCustomValidate(value);
+        if (customValidation) {
+          return customValidation instanceof Error
+            ? customValidation.message
+            : customValidation;
         }
-
         return undefined;
       },
     });
