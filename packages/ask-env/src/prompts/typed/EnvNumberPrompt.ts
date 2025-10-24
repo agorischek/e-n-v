@@ -47,7 +47,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
         // If both current and default are undefined, show only text input
         if (this.current === undefined && this.default === undefined) {
-          if (this.substate.isInMode("typing")) {
+          if (this.mode.isInInteraction("typing")) {
             const displayText = dimInputs
               ? this.colors.dim(this.getInputDisplay(false))
               : this.colors.white(this.getInputDisplay(true));
@@ -92,7 +92,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         options.push("Other");
 
         options.forEach((option, index) => {
-          const isSelected = index === this.substate.getCursor();
+          const isSelected = index === this.mode.getCursor();
           const circle = dimInputs
             ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
             : isSelected
@@ -101,7 +101,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
           if (typeof option === "string") {
             // "Other" option
-            if (this.substate.isInMode("typing")) {
+            if (this.mode.isInInteraction("typing")) {
               const displayText = dimInputs
                 ? this.colors.dim(this.getInputDisplay(false))
                 : this.colors.white(this.getInputDisplay(true));
@@ -168,24 +168,24 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         // textInputIndex now points to the "Other" option
 
         // If we're on the custom entry option but not typing yet, start typing mode
-        if (this.substate.getCursor() === textInputIndex && !this.substate.isInMode("typing")) {
+        if (this.mode.getCursor() === textInputIndex && !this.mode.isInInteraction("typing")) {
           // Start typing mode instead of submitting
-          this.substate.enterTypingMode();
+          this.mode.enterTyping();
           this.updateValue();
           return "Please enter a number"; // Show error since no input provided yet
         }
 
         // If we're typing on the custom option but haven't entered anything, prevent submission
         if (
-          this.substate.getCursor() === textInputIndex &&
-          this.substate.isInMode("typing") &&
+          this.mode.getCursor() === textInputIndex &&
+          this.mode.isInInteraction("typing") &&
           (!this.userInput || !this.userInput.trim())
         ) {
           return "Please enter a number";
         }
 
         // If we're typing, validate the input
-        if (this.substate.isInMode("typing") && this.userInput) {
+        if (this.mode.isInInteraction("typing") && this.userInput) {
           const inputValidation = this.validateInput(this.userInput);
           if (inputValidation) {
             return inputValidation;
@@ -198,7 +198,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         }
 
         // For non-typing cases (selecting current/default), validate the selected value
-        if (!this.substate.isInMode("typing")) {
+        if (!this.mode.isInInteraction("typing")) {
           const validation = this.runSchemaValidation(value?.toString());
           if (!validation.success) {
             return validation.error;
@@ -212,7 +212,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
     // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {
-      this.substate.enterTypingMode();
+      this.mode.enterTyping();
       this.setCommittedValue(this.getDefaultValue());
     } else {
       // Set initial value based on cursor position
@@ -246,11 +246,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           const maxIndex = optionsCount - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
-          if (this.substate.isInMode("typing") || this.substate.getCursor() === maxIndex) {
-            this.substate.exitTypingMode();
+          if (this.mode.isInInteraction("typing") || this.mode.getCursor() === maxIndex) {
+            this.mode.exitTyping();
             this._clearUserInput(); // This clears the internal readline state too
           }
-          this.substate.moveCursor("up", maxIndex);
+          this.mode.moveCursor("up", maxIndex);
           break;
         case "down":
           // Calculate max index based on actual options
@@ -262,11 +262,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           const maxIndexDown = optionsCountDown - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
-          if (this.substate.isInMode("typing") || this.substate.getCursor() === maxIndexDown) {
-            this.substate.exitTypingMode();
+          if (this.mode.isInInteraction("typing") || this.mode.getCursor() === maxIndexDown) {
+            this.mode.exitTyping();
             this._clearUserInput(); // This clears the internal readline state too
           }
-          this.substate.moveCursor("down", maxIndexDown);
+          this.mode.moveCursor("down", maxIndexDown);
           break;
       }
       this.updateValue();
@@ -280,8 +280,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.substate.isInMode("typing")) {
-        this.substate.updateInput(input);
+        if (this.mode.isInInteraction("typing")) {
+          this.mode.updateInput(input);
         try {
           const parsed = this.parseInput(input);
           this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -313,7 +313,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       // If both current and default are undefined, we're in text-only mode
       if (this.current === undefined && this.default === undefined) {
         // Already in typing mode, just update the value as the user types
-        if (this.substate.isInMode("typing")) {
+        if (this.mode.isInInteraction("typing")) {
           try {
             const parsed = this.parseInput(this.userInput);
             this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -331,7 +331,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         char.length === 1 &&
         !info.ctrl &&
         !info.meta &&
-        !this.substate.isInMode("typing")
+        !this.mode.isInInteraction("typing")
       ) {
         const isArrowKey = ["up", "down", "left", "right"].includes(
           info.name || "",
@@ -344,8 +344,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           // Calculate the text input index dynamically
           const textInputIndex = this.getTextInputIndex();
 
-          this.substate.setCursor(textInputIndex); // Jump to the "Other" option
-          this.substate.enterTypingMode(char);
+          this.mode.setCursor(textInputIndex); // Jump to the "Other" option
+          this.mode.enterTyping(char);
           this._setUserInput(char);
           this.updateValue();
           return;
@@ -355,11 +355,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       // Calculate the text input index dynamically
       const textInputIndex = this.getTextInputIndex();
 
-      if (this.substate.getCursor() === textInputIndex) {
+      if (this.mode.getCursor() === textInputIndex) {
         // Text input option
         if (info.name === "escape") {
           // Exit typing mode
-          this.substate.exitTypingMode();
+          this.mode.exitTyping();
           this._clearUserInput(); // Clear the internal readline state
           this.updateValue();
           return; // Prevent default Escape behavior
@@ -369,12 +369,12 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   }
 
   private getInputDisplay(includeCursor: boolean): string {
-    const inputValue = this.substate.getInputValue();
+  const inputValue = this.mode.getInputValue();
     if (!includeCursor) {
       return inputValue;
     }
 
-    const rawCursor = this.substate.isInMode("typing")
+    const rawCursor = this.mode.isInInteraction("typing")
       ? Math.max(
           0,
           (this as unknown as { _cursor?: number })._cursor ??
@@ -398,7 +398,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     // If both current and default are undefined, we're in text-only mode
     if (this.current === undefined && this.default === undefined) {
       try {
-        const parsed = this.parseInput(this.substate.getInputValue());
+  const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());
@@ -406,12 +406,12 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       return;
     }
 
-    if (!this.substate.isInMode("typing")) {
+  if (!this.mode.isInInteraction("typing")) {
       // Dynamically determine what option the cursor is on
       let optionIndex = 0;
 
       // Check if cursor is on current value
-      if (this.current !== undefined && this.substate.getCursor() === optionIndex) {
+  if (this.current !== undefined && this.mode.getCursor() === optionIndex) {
         this.setCommittedValue(this.current);
         return;
       }
@@ -421,7 +421,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       if (
         this.default !== undefined &&
         this.current !== this.default &&
-        this.substate.getCursor() === optionIndex
+        this.mode.getCursor() === optionIndex
       ) {
         this.setCommittedValue(this.default);
         return;
@@ -433,7 +433,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       this.setCommittedValue(this.getDefaultValue());
     } else {
       try {
-        const parsed = this.parseInput(this.substate.getInputValue());
+  const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());
