@@ -96,7 +96,7 @@ describe("EnvEnumPrompt", () => {
     prompt.emit("cursor", "down");
     expect(prompt.cursor).toBe(initialCursor);
 
-    prompt.emit("key", undefined, baseKey({ name: "escape" }));
+    prompt.emit("key", undefined, baseKey({ name: "tab" }));
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
   });
 

@@ -36,6 +36,7 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected index: number;
   protected total: number;
+  protected isToolbarOpen: boolean = false;
   protected outcome: PromptOutcome;
   protected readonly internals: ClackPromptInternals<EnvPrompt<T, TSchema>>;
   protected readonly toolbar: Toolbar;
@@ -71,20 +72,16 @@ export abstract class EnvPrompt<
     this.skipValidationFlag = false;
 
     // Initialize toolbar with callback methods
-    this.toolbar = new Toolbar(
-      {
-        index: this.index,
-        secret: this.secret,
-        isSecretRevealed: this.revealSecret,
-        actions: {
-          toggleSecret: () => this.handleToggleSecret(),
-          skip: () => this.handleSkip(),
-          previous: () => this.handlePrevious(),
-          close: () => this.handleClose(),
-        },
+    this.toolbar = new Toolbar({
+      index: this.index,
+      secret: this.secret ? (this.revealSecret ? "shown" : "hidden") : false,
+      theme: this.theme,
+      actions: {
+        toggleSecret: () => this.handleToggleSecret(),
+        skip: () => this.handleSkip(),
+        previous: () => this.handlePrevious(),
       },
-      this.theme,
-    );
+    });
 
     this.on("finalize", () => {
       const shouldConsumeSubmit =
@@ -152,9 +149,9 @@ export abstract class EnvPrompt<
     }
 
     // 2. "tools" - Show toolbar when open
-    this.toolbar.updateConfig({
-      isSecretRevealed: this.revealSecret,
-    });
+    if (this.secret) {
+      this.toolbar.secret = this.revealSecret ? "shown" : "hidden";
+    }
 
     const toolbarOutput = this.toolbar.render();
     if (toolbarOutput) {
@@ -168,16 +165,19 @@ export abstract class EnvPrompt<
 
   protected getFooterState(): FooterState {
     if (this.error) return "warn";
-    if (this.toolbar.isToolbarOpen()) return "tools"; 
+    if (this.isToolbarOpen) return "tools"; 
     return "hint";
   }
 
   protected handleToolbarKey(char: string | undefined, info: Key): boolean {
     const handled = this.toolbar.handleKey(char, info);
     
+    // Sync toolbar state
+    this.isToolbarOpen = this.toolbar.isOpen;
+    
     // Handle special cases for key handling flow
     if (handled && info?.name === "tab") {
-      if (!this.toolbar.isToolbarOpen()) {
+      if (!this.isToolbarOpen) {
         this.consumeNextSubmit = false;
         this.allowSubmitFromOption = false;
       }
@@ -211,11 +211,11 @@ export abstract class EnvPrompt<
   }
 
   protected shouldDimInputs(): boolean {
-    return this.toolbar.isToolbarOpen();
+    return this.isToolbarOpen;
   }
 
   protected isOptionPickerOpen(): boolean {
-    return this.toolbar.isToolbarOpen();
+    return this.isToolbarOpen;
   }
 
   protected truncateValue(value: string): string {
@@ -263,10 +263,10 @@ export abstract class EnvPrompt<
       return;
     }
     this.revealSecret = !this.revealSecret;
-    // Update toolbar config when secret reveal state changes
-    this.toolbar.updateConfig({
-      isSecretRevealed: this.revealSecret,
-    });
+    // Update toolbar when secret reveal state changes
+    if (this.secret) {
+      this.toolbar.secret = this.revealSecret ? "shown" : "hidden";
+    }
   }
 
   protected resetSecretReveal(): void {
@@ -300,11 +300,6 @@ export abstract class EnvPrompt<
     this.outcome = "previous";
     this.value = undefined as T;
     this.state = "submit";
-  }
-
-  private handleClose(): void {
-    this.consumeNextSubmit = true;
-    this.skipValidationFlag = true;
   }
 
   protected consumeSkipValidation(): boolean {

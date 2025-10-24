@@ -181,7 +181,7 @@ describe("EnvBooleanPrompt", () => {
     const dimOutput = stripAnsi(toOutputString(output));
     expect(dimOutput).toContain("Skip");
 
-    await pressKey(prompt, { name: "escape" });
+    await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
 

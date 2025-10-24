@@ -2,55 +2,39 @@ import type { Key } from "node:readline";
 import type { ToolbarEntry } from "./ToolbarEntry";
 import type { ToolbarConfig } from "./ToolbarConfig";
 import type { Theme } from "../../visuals/Theme";
-import color from "picocolors";
-import {
-  S_TOOL_ACTIVE,
-  S_TOOL_INACTIVE,
-} from "../../visuals/symbols";
+import { S_TOOL_ACTIVE, S_TOOL_INACTIVE } from "../../visuals/symbols";
 
 export class Toolbar {
-  private isOpen: boolean = false;
+  private _isOpen: boolean = false;
   private cursor: number = 0;
-  private config: ToolbarConfig;
-  private theme: Theme;
+  private readonly index: number;
+  private readonly theme: Theme;
+  private readonly actions: {
+    toggleSecret: () => void;
+    skip: () => void;
+    previous: () => void;
+  };
 
-  constructor(
-    config: ToolbarConfig,
-    theme: Theme,
-  ) {
-    this.config = config;
-    this.theme = theme;
+  public secret: "shown" | "hidden" | false;
+
+  constructor(config: ToolbarConfig) {
+    this.index = config.index;
+    this.secret = config.secret;
+    this.theme = config.theme;
+    this.actions = config.actions;
   }
 
-  /**
-   * Color utilities for consistent theming
-   */
-  private get colors() {
-    return {
-      primary: this.theme.primary,
-      subtle: this.theme.subtle,
-      warn: this.theme.warn,
-      error: this.theme.error,
-      // Common colors
-      white: color.white,
-      bold: color.bold,
-      dim: color.dim,
-      inverse: color.inverse,
-      strikethrough: color.strikethrough,
-    };
-  }
-
-  public isToolbarOpen(): boolean {
-    return this.isOpen;
+  public get isOpen(): boolean {
+    return this._isOpen;
   }
 
   public open(): void {
-    this.isOpen = true;
+    this._isOpen = true;
     this.cursor = 0;
   }
 
   public close(): void {
-    this.isOpen = false;
+    this._isOpen = false;
     this.cursor = 0;
   }
 
@@ -60,7 +44,7 @@ export class Toolbar {
     }
 
     if (info.name === "tab") {
-      if (!this.isOpen) {
+      if (!this._isOpen) {
         this.open();
       } else {
         this.close();
@@ -68,7 +52,7 @@ export class Toolbar {
       return true;
     }
 
-    if (!this.isOpen) {
+    if (!this._isOpen) {
       return false;
     }
 
@@ -85,12 +69,6 @@ export class Toolbar {
       case "enter":
         this.activateOption();
         return true;
-      case "escape":
-        this.close();
-        return true;
-      case "backspace":
-        this.close();
-        return false;
     }
 
     if (char && char.length === 1 && !info.ctrl && !info.meta) {
@@ -102,34 +80,32 @@ export class Toolbar {
   }
 
   public render(): string {
-    if (!this.isOpen) {
+    if (!this._isOpen) {
       return "";
     }
 
     const options = this.getOptions();
     this.ensureCursor(options);
     if (!options.length) {
-      return this.colors.subtle("");
+      return this.theme.subtle("Tab to return");
     }
 
-    const separator = this.colors.subtle(" / ");
+    const separator = this.theme.subtle(" / ");
     const optionStrings = options.map((option, index) => {
       const isFocused = index === this.cursor;
-      const icon = isFocused
-        ? (option.activeIcon ?? option.icon)
-        : option.icon;
-      const label = icon ? `${icon} ${option.label}` : option.label;
+      const icon = isFocused ? S_TOOL_ACTIVE : S_TOOL_INACTIVE;
+      const label = `${icon} ${option.label}`;
 
       return isFocused
         ? this.theme.primary(label)
-        : this.colors.subtle(label);
+        : this.theme.subtle(label);
     });
 
-    return optionStrings.join(separator);
-  }
+    const leftSide = optionStrings.join(separator);
+    const rightSide = this.theme.subtle("Tab to return");
 
-  public updateConfig(config: Partial<ToolbarConfig>): void {
-    this.config = { ...this.config, ...config };
+    // Add separator between left entries and right hint
+    return `${leftSide}${separator}${rightSide}`;
   }
 
   private shiftCursor(delta: number): void {
@@ -159,10 +135,10 @@ export class Toolbar {
     if (selected.key !== "toggleSecret") {
       this.close();
     }
-    
+
     // Execute the action
     selected.action();
-    
+
     // Close toolbar after toggleSecret action
     if (selected.key === "toggleSecret") {
       this.close();
@@ -185,39 +161,25 @@ export class Toolbar {
       {
         key: "skip",
         label: "Skip",
-        icon: S_TOOL_INACTIVE,
-        activeIcon: S_TOOL_ACTIVE,
-        action: this.config.actions.skip,
+        action: this.actions.skip,
       },
     ];
 
-    if (this.config.index > 0) {
+    if (this.index > 0) {
       options.push({
         key: "previous",
         label: "Previous",
-        icon: S_TOOL_INACTIVE,
-        activeIcon: S_TOOL_ACTIVE,
-        action: this.config.actions.previous,
+        action: this.actions.previous,
       });
     }
 
-    if (this.config.secret) {
+    if (this.secret !== false) {
       options.push({
         key: "toggleSecret",
-        label: this.config.isSecretRevealed ? "Hide" : "Show",
-        icon: S_TOOL_INACTIVE,
-        activeIcon: S_TOOL_ACTIVE,
-        action: this.config.actions.toggleSecret,
+        label: this.secret === "shown" ? "Hide" : "Show",
+        action: this.actions.toggleSecret,
       });
     }
-
-    options.push({
-      key: "close",
-      label: "Return",
-      icon: S_TOOL_INACTIVE,
-      activeIcon: S_TOOL_ACTIVE,
-      action: this.config.actions.close,
-    });
 
     return options;
   }

@@ -243,7 +243,7 @@ describe("EnvStringPrompt", () => {
     expect((prompt as any).isOptionPickerOpen()).toBe(true);
     expect(openRender).toContain("(current, default)");
 
-    await pressKey(prompt, { name: "escape" });
+    await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
 

@@ -1,8 +1,6 @@
 export interface ToolbarEntry {
-  key: "skip" | "previous" | "toggleSecret" | "close";
+  key: "skip" | "previous" | "toggleSecret";
   label: string;
-  icon?: string;
-  activeIcon?: string;
   disabled?: boolean;
   action: () => void;
 }
