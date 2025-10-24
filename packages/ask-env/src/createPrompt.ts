@@ -14,10 +14,11 @@ interface CreatePromptOptions {
   theme: Theme;
   truncate: number;
   shouldMask: boolean;
-  hasPrevious: boolean;
+  index: number;
+  total: number;
   input?: Readable;
   output?: Writable;
-  preprocessorOptions?: PreprocessorOptions;
+  preprocess?: PreprocessorOptions;
 }
 
 export function createPrompt({
@@ -27,10 +28,11 @@ export function createPrompt({
   theme,
   truncate,
   shouldMask,
-  hasPrevious,
+  index,
+  total,
   input,
   output,
-  preprocessorOptions,
+  preprocess,
 }: CreatePromptOptions):
   | EnvBooleanPrompt
   | EnvNumberPrompt
@@ -39,11 +41,12 @@ export function createPrompt({
   const baseOptions = {
     key,
     theme,
-    maxDisplayLength: truncate,
-    previousEnabled: hasPrevious,
+    truncate,
+    index,
+    total,
     input,
     output,
-    preprocessorOptions,
+    preprocess,
   } as const;
 
   switch (schema.type) {

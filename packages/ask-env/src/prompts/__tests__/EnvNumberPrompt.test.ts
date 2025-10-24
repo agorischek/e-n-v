@@ -18,7 +18,7 @@ function createPrompt(
     key?: string;
     description?: string;
     required?: boolean;
-    validate?: (value: number | undefined) => string | Error | undefined;
+    default?: number;
   } = {},
 ) {
   const streams = createTestStreams();
@@ -32,12 +32,31 @@ function createPrompt(
   const prompt = new EnvNumberPrompt(schema, {
     key: options.key ?? "NUM_ENV",
     current: options.current,
-    maxDisplayLength: options.maxDisplayLength,
+    truncate: options.truncate,
     theme: options.theme,
-    previousEnabled: options.previousEnabled,
+    index: options.index,
+    total: options.total,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
-    validate: options.validate,
+  });
+
+  return { prompt, ...streams };
+}
+
+function createPromptWithSchema(
+  schema: NumberEnvVarSchema,
+  options: Partial<EnvPromptOptions<number>> & {
+    key?: string;
+    current?: number;
+  } = {},
+) {
+  const streams = createTestStreams();
+
+  const prompt = new EnvNumberPrompt(schema, {
+    key: options.key ?? "NUM_ENV",
+    current: options.current,
+    input: options.input ?? streams.input,
+    output: options.output ?? streams.output,
   });
 
   return { prompt, ...streams };
@@ -180,15 +199,28 @@ describe("EnvNumberPrompt", () => {
 
   it("applies custom validation for selected and typed values", async () => {
     const calls: Array<number | undefined> = [];
-    const validate = (value?: number) => {
-      calls.push(value);
-      if (value === 1) return "one blocked";
-      if (value === 2) return new Error("two blocked");
-      if (value === 7) return "seven blocked";
-      return undefined;
-    };
 
-    const { prompt } = createPrompt({ current: 1, default: 2, validate });
+    // Create a schema with custom validation logic
+    const schema = new NumberEnvVarSchema({
+      default: 2,
+      process: (value: string) => {
+        const numValue = parseInt(value, 10);
+        calls.push(numValue);
+
+        if (numValue === 1) {
+          throw new Error("one blocked");
+        }
+        if (numValue === 2) {
+          throw new Error("two blocked");
+        }
+        if (numValue === 7) {
+          throw new Error("seven blocked");
+        }
+        return numValue;
+      },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, { current: 1 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -258,7 +290,7 @@ describe("EnvNumberPrompt", () => {
     expect(rendered).toMatch(/✕/);
   });
 
-  it("dims options while the footer picker is open", async () => {
+  it("dims options while the toolbar picker is open", async () => {
     const { prompt, output } = createPrompt({ current: 3, default: 4 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -270,7 +302,7 @@ describe("EnvNumberPrompt", () => {
     const dimmed = stripAnsi(toOutputString(output));
     expect(dimmed).toContain("Skip");
 
-    await pressKey(prompt, { name: "escape" });
+    await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
 

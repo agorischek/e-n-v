@@ -5,7 +5,7 @@ import type { EnvVarSchemaInput } from "./EnvVarSchemaInput";
 export abstract class EnvVarSchemaBase<T> {
   public abstract readonly type: EnvVarType;
   public readonly required: boolean;
-  public readonly default?: T | null;
+  public readonly default?: T;
   public readonly description?: string;
   public readonly process: Processor<T>;
 

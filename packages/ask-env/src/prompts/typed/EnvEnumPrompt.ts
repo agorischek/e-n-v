@@ -14,7 +14,6 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-      originalValidate: opts.validate,
       render: padActiveRender(function (this: EnvEnumPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
@@ -39,8 +38,8 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         output += `${this.getSymbol()}  ${this.colors.bold(
           this.colors.white(this.key),
         )}`;
-        if (this.spec.description) {
-          output += ` ${this.colors.subtle(this.spec.description)}`;
+        if (this.schema.description) {
+          output += ` ${this.colors.subtle(this.schema.description)}`;
         }
         output += "\n";
 
@@ -90,15 +89,13 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
           return undefined;
         }
 
-        const customValidation = this.runCustomValidate(value);
-        if (customValidation) {
-          return customValidation instanceof Error
-            ? customValidation.message
-            : customValidation;
+        const validation = this.runSchemaValidation(value);
+        if (!validation.success) {
+          return validation.error;
         }
         return undefined;
       },
-    });
+    } as any);
 
     this.options = opts;
     this.values = [...schema.values];
@@ -147,7 +144,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.handleFooterKey(char, info)) {
+      if (this.handleToolbarKey(char, info)) {
         return;
       }
 

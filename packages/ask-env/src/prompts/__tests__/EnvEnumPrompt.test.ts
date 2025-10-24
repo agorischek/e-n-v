@@ -9,7 +9,7 @@ type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
   options?: string[];
   required?: boolean;
   description?: string;
-  validate?: (value: string | undefined) => string | Error | undefined;
+  default?: string;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -29,12 +29,10 @@ function createPrompt(options: TestPromptOptions = {}) {
     theme: options.theme,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
-    maxDisplayLength: options.maxDisplayLength,
+    truncate: options.truncate,
     secret: options.secret,
-    mask: options.mask,
-    secretToggleShortcut: options.secretToggleShortcut,
-    previousEnabled: options.previousEnabled,
-    validate: options.validate,
+    index: options.index,
+    total: options.total,
   });
 
   return { prompt, ...streams };
@@ -86,7 +84,7 @@ describe("EnvEnumPrompt", () => {
     expect(prompt.value).toBe("two");
   });
 
-  it("ignores cursor events while the footer option picker is open", () => {
+  it("ignores cursor events while the toolbar option picker is open", () => {
     const { prompt } = createPrompt();
 
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
@@ -98,7 +96,7 @@ describe("EnvEnumPrompt", () => {
     prompt.emit("cursor", "down");
     expect(prompt.cursor).toBe(initialCursor);
 
-    prompt.emit("key", undefined, baseKey({ name: "escape" }));
+    prompt.emit("key", undefined, baseKey({ name: "tab" }));
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
   });
 
@@ -116,39 +114,5 @@ describe("EnvEnumPrompt", () => {
     expect(output).toContain("TEST_ENV");
     expect(output).toContain("beta");
     expect(output).toContain("=");
-  });
-
-  it("applies custom validation when values are regular strings", () => {
-    const calls: Array<string | undefined> = [];
-    const validationSpy = (value?: string | undefined) => {
-      calls.push(value);
-      if (value === "beta") {
-        return "beta is not allowed";
-      }
-      return undefined;
-    };
-
-    const { prompt } = createPrompt({
-      current: "alpha",
-      options: ["alpha", "beta"],
-      validate: validationSpy,
-    });
-
-    prompt.emit("cursor", "down");
-    expect(prompt.value).toBe("beta");
-
-    const opts = Reflect.get(prompt as any, "options") as
-      | {
-          validate?: (
-            value: string | symbol | undefined,
-          ) => string | Error | undefined;
-        }
-      | undefined;
-
-    expect(typeof opts?.validate).toBe("function");
-    expect(opts?.validate?.call(prompt, prompt.value)).toBe(
-      "beta is not allowed",
-    );
-    expect(calls).toEqual(["beta"]);
   });
 });

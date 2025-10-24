@@ -12,7 +12,6 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   constructor(schema: BooleanEnvVarSchema, opts: EnvPromptOptions<boolean>) {
     super(schema, {
       ...opts,
-      originalValidate: opts.validate,
       render: padActiveRender(function (this: EnvBooleanPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
@@ -38,8 +37,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         output += `${this.getSymbol()}  ${this.colors.bold(
           this.colors.white(this.key),
         )}`;
-        if (this.spec.description) {
-          output += ` ${this.colors.subtle(this.spec.description)}`;
+        if (this.schema.description) {
+          output += ` ${this.colors.subtle(this.schema.description)}`;
         }
         output += "\n";
 
@@ -98,15 +97,13 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           return undefined;
         }
 
-        const customValidation = this.runCustomValidate(value);
-        if (customValidation) {
-          return customValidation instanceof Error
-            ? customValidation.message
-            : customValidation;
+        const validation = this.runSchemaValidation(value?.toString());
+        if (!validation.success) {
+          return validation.error;
         }
         return undefined;
       },
-    });
+    } as any);
 
     // Set cursor based on priority: current → default → true
     // cursor 0 = true, cursor 1 = false
@@ -154,7 +151,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.handleFooterKey(char, info)) {
+      if (this.handleToolbarKey(char, info)) {
         return;
       }
 

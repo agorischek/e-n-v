@@ -6,6 +6,8 @@ words:
   - desm
   - envcredible
   - envrw
+  - oxlint
   - RABBITMQ
+  - tsgo
 ignoreWords: []
 import: []

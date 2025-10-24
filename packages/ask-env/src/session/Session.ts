@@ -38,7 +38,7 @@ export interface SessionOptions {
   input?: Readable;
   output: NodeJS.WriteStream;
   path: string;
-  preprocessorOptions?: PreprocessorOptions;
+  preprocess?: PreprocessorOptions;
 }
 
 export class Session {
@@ -63,7 +63,7 @@ export class Session {
     input,
     schemas,
     path,
-    preprocessorOptions,
+    preprocess,
   }: SessionOptions) {
     this.channel = channel;
     this.secrets = secrets;
@@ -73,7 +73,7 @@ export class Session {
     this.input = input;
     this.displayEnvPath = getDisplayEnvPath(path);
     this.schemas = schemas;
-    this.parseOptions = preprocessorOptions;
+    this.parseOptions = preprocess;
   }
 
   static fromOptions(options: SessionOptions): Session {
@@ -110,10 +110,11 @@ export class Session {
         theme: this.theme,
         truncate: this.truncate,
         shouldMask,
-        hasPrevious: index > 0,
+        index,
+        total: schemaKeys.length,
         input: this.input,
         output: this.output,
-        preprocessorOptions: this.parseOptions,
+        preprocess: this.parseOptions,
       });
 
       const value = await prompt.prompt();

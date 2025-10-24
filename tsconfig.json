@@ -14,8 +14,6 @@
     "verbatimModuleSyntax": true,
     "noEmit": true,
 
-    // Path mapping for workspace packages
-    "baseUrl": ".",
     "paths": {
       "@envcredible/core": ["./packages/envcredible-core/src/index.ts"],
       "@envcredible/core/*": ["./packages/envcredible-core/src/*"],

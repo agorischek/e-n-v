@@ -18,7 +18,7 @@ function createPrompt(
     key?: string;
     description?: string;
     required?: boolean;
-    validate?: (value: string | undefined) => string | Error | undefined;
+    default?: string;
   } = {},
 ) {
   const streams = createTestStreams();
@@ -32,15 +32,38 @@ function createPrompt(
   const prompt = new EnvStringPrompt(schema, {
     key: options.key ?? "TEST_ENV",
     current: options.current,
-    maxDisplayLength: options.maxDisplayLength,
+    truncate: options.truncate,
     secret: options.secret,
-    mask: options.mask,
     theme: options.theme,
-    secretToggleShortcut: options.secretToggleShortcut,
-    previousEnabled: options.previousEnabled,
+    index: options.index,
+    total: options.total,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
-    validate: options.validate,
+  });
+
+  return { prompt, ...streams };
+}
+
+function createPromptWithSchema(
+  schema: StringEnvVarSchemaClass,
+  options: Partial<EnvPromptOptions<string>> & {
+    key?: string;
+    current?: string;
+    secret?: boolean;
+    index?: number;
+    total?: number;
+  } = {},
+) {
+  const streams = createTestStreams();
+
+  const prompt = new EnvStringPrompt(schema, {
+    key: options.key ?? "TEST_ENV",
+    current: options.current,
+    secret: options.secret,
+    index: options.index,
+    total: options.total,
+    input: options.input ?? streams.input,
+    output: options.output ?? streams.output,
   });
 
   return { prompt, ...streams };
@@ -173,29 +196,10 @@ describe("EnvStringPrompt", () => {
     await promptPromise;
   });
 
-  it("toggles secret reveal with Ctrl+R", async () => {
-    const { prompt } = createPrompt({ secret: true });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
-
-    expect((prompt as any).isSecretRevealed()).toBe(false);
-
-    await pressKey(prompt, { name: "r", ctrl: true });
-    expect((prompt as any).isSecretRevealed()).toBe(true);
-
-    await pressKey(prompt, { name: "r", ctrl: true });
-    expect((prompt as any).isSecretRevealed()).toBe(false);
-
-    submitPrompt(prompt as any);
-    await waitForIO(2);
-    await promptPromise;
-  });
-
   it("renders submitted masked values using the prompt format", async () => {
     const { prompt, output } = createPrompt({
       secret: true,
-      mask: "#",
-      maxDisplayLength: 4,
+      truncate: 4,
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -208,7 +212,7 @@ describe("EnvStringPrompt", () => {
     const rendered = stripAnsi(toOutputString(output));
     expect(rendered).toContain("TEST_ENV");
     expect(rendered).toContain("=");
-    expect(rendered).toContain("####...");
+    expect(rendered).toContain("••••...");
   });
 
   it("renders cancelled prompts using the cancel renderer", async () => {
@@ -239,7 +243,7 @@ describe("EnvStringPrompt", () => {
     expect((prompt as any).isOptionPickerOpen()).toBe(true);
     expect(openRender).toContain("(current, default)");
 
-    await pressKey(prompt, { name: "escape" });
+    await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
 
@@ -250,19 +254,25 @@ describe("EnvStringPrompt", () => {
 
   it("returns focus to previous selection when toggling secret and skips validation", async () => {
     const calls: Array<string | undefined> = [];
-    const { prompt } = createPrompt({
-      current: "curr",
-      default: "def",
-      secret: true,
+
+    // Create a schema with validation that requires a value
+    const schema = new StringEnvVarSchemaClass({
       required: true,
-      previousEnabled: false,
-      validate: (value?: string) => {
+      default: "def",
+      process: (value: string) => {
         calls.push(value);
-        if (!value) {
-          return "missing";
+        if (!value || value.trim() === "") {
+          throw new Error("missing");
         }
-        return undefined;
+        return value;
       },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, {
+      current: "curr",
+      secret: true,
+      index: 0,
+      total: 1,
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -273,11 +283,9 @@ describe("EnvStringPrompt", () => {
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     expect((prompt as any).isOptionPickerOpen()).toBe(true);
-    expect(Reflect.get(prompt, "optionCursor")).toBe(0);
 
     await pressKey(prompt, { name: "right" });
     await waitForIO(2);
-    expect(Reflect.get(prompt, "optionCursor")).toBe(1);
 
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);
@@ -349,16 +357,22 @@ describe("EnvStringPrompt", () => {
 
   it("applies custom validation for selected values", async () => {
     const calls: Array<string | undefined> = [];
-    const validate = (value?: string) => {
-      calls.push(value);
-      if (value === "def") return "blocked";
-      return undefined;
-    };
 
-    const { prompt } = createPrompt({
-      current: "curr",
+    // Create a schema with custom validation that blocks "def"
+    const schema = new StringEnvVarSchemaClass({
+      required: false,
       default: "def",
-      validate,
+      process: (value: string) => {
+        calls.push(value);
+        if (value === "def") {
+          throw new Error("blocked");
+        }
+        return value;
+      },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, {
+      current: "curr",
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -381,17 +395,25 @@ describe("EnvStringPrompt", () => {
 
   it("applies custom validation to typed input", async () => {
     const calls: Array<string | undefined> = [];
-    const validate = (value?: string) => {
-      calls.push(value);
-      if (value === "warn") return "warn";
-      if (value === "bad") return new Error("bad input");
-      return undefined;
-    };
 
-    const { prompt } = createPrompt({
-      current: "curr",
+    // Create a schema with custom validation
+    const schema = new StringEnvVarSchemaClass({
+      required: false,
       default: "def",
-      validate,
+      process: (value: string) => {
+        calls.push(value);
+        if (value === "warn") {
+          throw new Error("warn");
+        }
+        if (value === "bad") {
+          throw new Error("bad input");
+        }
+        return value;
+      },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, {
+      current: "curr",
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -508,7 +530,6 @@ describe("EnvStringPrompt", () => {
       current: "curr",
       default: "def",
       secret: true,
-      mask: "*",
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -519,11 +540,8 @@ describe("EnvStringPrompt", () => {
 
     expect((prompt as any).getTextInputIndex()).toBe(2);
     expect((prompt as any).getEntryHint()).toBe("Enter a secret value");
-    expect((prompt as any).getInputDisplay(false)).toBe("******");
-    expect((prompt as any).formatValue("secret")).toBe("******");
-
-    await pressKey(prompt, { name: "r", ctrl: true });
-    expect((prompt as any).getInputDisplay(true)).toBe("secret█");
+    expect((prompt as any).getInputDisplay(false)).toBe("••••••");
+    expect((prompt as any).formatValue("secret")).toBe("••••••");
 
     submitPrompt(prompt as any);
     await waitForIO(2);

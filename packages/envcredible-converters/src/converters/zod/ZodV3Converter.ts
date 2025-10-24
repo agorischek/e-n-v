@@ -290,8 +290,8 @@ export function convertFromZodV3Schema(schema: ZodTypeAny): EnvVarSchema {
     default: {
       const process = createV3ProcessFunction<string>(peeled.schema, "string");
       const defaultValue =
-        typeof peeled.default === "string" || peeled.default === null
-          ? (peeled.default as string | null | undefined)
+        typeof peeled.default === "string"
+          ? (peeled.default as string)
           : undefined;
 
       return new StringEnvVarSchema({

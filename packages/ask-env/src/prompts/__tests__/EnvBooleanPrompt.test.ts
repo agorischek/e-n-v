@@ -15,7 +15,7 @@ type TestPromptOptions = Partial<EnvPromptOptions<boolean>> & {
   key?: string;
   description?: string;
   required?: boolean;
-  validate?: (value: boolean | undefined) => string | Error | undefined;
+  default?: boolean;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -31,14 +31,28 @@ function createPrompt(options: TestPromptOptions = {}) {
     key: options.key ?? "BOOL_ENV",
     current: options.current,
     theme: options.theme,
-    previousEnabled: options.previousEnabled,
+    index: options.index,
+    total: options.total,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
-    maxDisplayLength: options.maxDisplayLength,
+    truncate: options.truncate,
     secret: options.secret,
-    mask: options.mask,
-    secretToggleShortcut: options.secretToggleShortcut,
-    validate: options.validate,
+  });
+
+  return { prompt, ...streams };
+}
+
+function createPromptWithSchema(
+  schema: BooleanEnvVarSchema,
+  options: Partial<TestPromptOptions> = {},
+) {
+  const streams = createTestStreams();
+
+  const prompt = new EnvBooleanPrompt(schema, {
+    key: options.key ?? "BOOL_ENV",
+    current: options.current,
+    input: options.input ?? streams.input,
+    output: options.output ?? streams.output,
   });
 
   return { prompt, ...streams };
@@ -95,19 +109,25 @@ describe("EnvBooleanPrompt", () => {
   it("applies custom validation, handles navigation, and eventually succeeds", async () => {
     const calls: Array<boolean | undefined> = [];
     let allowTrue = false;
-    const validate = (value?: boolean) => {
-      calls.push(value);
-      if (value === false) {
-        return "false not allowed";
-      }
-      if (value === true && !allowTrue) {
-        allowTrue = true;
-        return new Error("true not allowed once");
-      }
-      return undefined;
-    };
 
-    const { prompt } = createPrompt({ current: false, validate });
+    // Create a schema with custom validation logic
+    const schema = new BooleanEnvVarSchema({
+      process: (value: string) => {
+        const boolValue = value.toLowerCase() === "true";
+        calls.push(boolValue);
+
+        if (boolValue === false) {
+          throw new Error("false not allowed");
+        }
+        if (boolValue === true && !allowTrue) {
+          allowTrue = true;
+          throw new Error("true not allowed once");
+        }
+        return boolValue;
+      },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, { current: false });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
@@ -149,7 +169,7 @@ describe("EnvBooleanPrompt", () => {
     expect(rendered).toMatch(/✕/);
   });
 
-  it("dims options while the footer picker is open", async () => {
+  it("dims options while the toolbar picker is open", async () => {
     const { prompt, output } = createPrompt();
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -161,7 +181,7 @@ describe("EnvBooleanPrompt", () => {
     const dimOutput = stripAnsi(toOutputString(output));
     expect(dimOutput).toContain("Skip");
 
-    await pressKey(prompt, { name: "escape" });
+    await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
 

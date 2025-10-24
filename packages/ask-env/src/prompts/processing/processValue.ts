@@ -15,17 +15,19 @@ export interface ProcessingResult<T> {
  * Process a value through schema validation and return detailed results
  */
 export function processValue<T>(
-  value: string,
+  envKey: string,
+  value: string | undefined,
   schema: EnvVarSchemaDetails<T>,
-  preprocessorOptions?: PreprocessorOptions,
+  preprocess?: PreprocessorOptions,
 ): ProcessingResult<T> {
   try {
+    // Handle undefined/empty values early
+    if (!value || value.trim() === "") {
+      return { value: undefined, rawValue: value, isValid: true };
+    }
+
     // Apply preprocessing
-    const processedValue = applyPreprocessing(
-      value,
-      schema.type,
-      preprocessorOptions,
-    );
+    const processedValue = applyPreprocessing(value, schema.type, preprocess);
 
     // If the preprocessing function returned the target type, use it directly
     if (schema.type === "boolean" && typeof processedValue === "boolean") {

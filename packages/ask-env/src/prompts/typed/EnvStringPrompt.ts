@@ -4,6 +4,7 @@ import {
   S_RADIO_ACTIVE,
   S_RADIO_INACTIVE,
   S_CURSOR,
+  SECRET_MASK,
 } from "../../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
@@ -18,7 +19,6 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-      originalValidate: opts.validate,
       render: padActiveRender(function (this: EnvStringPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
@@ -43,8 +43,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         output += `${this.getSymbol()}  ${this.colors.bold(
           this.colors.white(this.key),
         )}`;
-        if (this.spec.description) {
-          output += ` ${this.colors.subtle(this.spec.description)}`;
+        if (this.schema.description) {
+          output += ` ${this.colors.subtle(this.schema.description)}`;
         }
         output += "\n";
 
@@ -167,18 +167,10 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run custom validation if provided
-          let parsedValue: string | undefined;
-          try {
-            parsedValue = this.parseInput(this.userInput);
-          } catch {
-            parsedValue = undefined;
-          }
-          const customValidation = this.runCustomValidate(parsedValue);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
+          // If format is valid, run schema validation if provided
+          const validation = this.runSchemaValidation(this.userInput);
+          if (!validation.success) {
+            return validation.error;
           }
           return undefined;
         }
@@ -190,7 +182,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         if (this.cursor === textInputIndex && !this.isTyping) {
           // Start typing mode instead of submitting
           this.isTyping = true;
-          this.track = true;
+          this.internals.track = true;
           this._setUserInput("");
           this.updateValue();
           return "Value cannot be empty"; // This will cause validation to fail and stay active
@@ -214,40 +206,30 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run custom validation if provided
-          let parsedValue: string | undefined;
-          try {
-            parsedValue = this.parseInput(this.userInput);
-          } catch {
-            parsedValue = undefined;
-          }
-          const customValidation = this.runCustomValidate(parsedValue);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
+          // If format is valid, run schema validation if provided
+          const validation = this.runSchemaValidation(this.userInput);
+          if (!validation.success) {
+            return validation.error;
           }
         }
 
         // For non-typing cases (selecting current/default), validate the selected value
         if (!this.isTyping) {
-          const customValidation = this.runCustomValidate(value);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
+          const validation = this.runSchemaValidation(value);
+          if (!validation.success) {
+            return validation.error;
           }
         }
 
         // All other cases are valid
         return undefined;
       },
-    });
+    } as any);
 
     // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
-      this.track = true;
+      this.internals.track = true;
       this.setCommittedValue(this.getDefaultValue());
     } else {
       // Set initial value to current
@@ -283,7 +265,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           // If we're typing or on the text option, clear input and exit typing mode
           if (this.isTyping || this.cursor === maxIndex) {
             this.isTyping = false;
-            this.track = false;
+            this.internals.track = false;
             this._clearUserInput(); // This clears the internal readline state too
           }
           this.cursor = this.cursor === 0 ? maxIndex : this.cursor - 1;
@@ -300,7 +282,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           // If we're typing or on the text option, clear input and exit typing mode
           if (this.isTyping || this.cursor === maxIndexDown) {
             this.isTyping = false;
-            this.track = false;
+            this.internals.track = false;
             this._clearUserInput(); // This clears the internal readline state too
           }
           this.cursor = this.cursor === maxIndexDown ? 0 : this.cursor + 1;
@@ -337,12 +319,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.handleFooterKey(char, info)) {
-        return;
-      }
-
-      if (this.secret && info.ctrl && info.name === "r") {
-        this.toggleSecretReveal();
+      if (this.handleToolbarKey(char, info)) {
         return;
       }
 
@@ -387,7 +364,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           this.cursor = textInputIndex; // Jump to the "Other" option
           this.isTyping = true;
           // Enable value tracking and set the initial character
-          this.track = true;
+          this.internals.track = true;
           this._setUserInput(char);
           this.updateValue();
           return;
@@ -402,7 +379,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         if (info.name === "escape") {
           // Exit typing mode
           this.isTyping = false;
-          this.track = false;
+          this.internals.track = false;
           this._clearUserInput(); // Clear the internal readline state
           this.updateValue();
           return; // Prevent default Escape behavior
@@ -482,7 +459,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   private maskValue(value: string): string {
-    return maskSecretValue(value, this.mask);
+    return maskSecretValue(value, SECRET_MASK);
   }
 
   private getTextInputIndex(): number {
@@ -508,7 +485,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             inputValue.length,
         )
       : 0;
-    const maskLength = isMasked ? Math.max(1, this.mask.length) : 1;
+    const maskLength = isMasked ? Math.max(1, SECRET_MASK.length) : 1;
     const cursorIndex = Math.min(rawCursor * maskLength, base.length);
 
     if (cursorIndex >= base.length) {

@@ -72,7 +72,7 @@ export async function ask(
     input,
     output,
     path: envPath,
-    preprocessorOptions: options.preprocess,
+    preprocess: options.preprocess,
   });
 
   await session.run();

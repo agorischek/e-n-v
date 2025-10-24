@@ -1,112 +1,80 @@
 import { ThemedPrompt } from "./ThemedPrompt";
-import { SECRET_MASK } from "../visuals/symbols";
 import {
   S_STEP_CANCEL,
   S_STEP_PREVIOUS,
   S_STEP_SKIP,
-  S_TOOL_ACTIVE,
-  S_TOOL_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptOptions } from "../vendor/PromptOptions";
 import type { EnvVarSchemaDetails } from "@envcredible/core";
 import type { EnvPromptOptions } from "./options/EnvPromptOptions";
-import type { FooterOption } from "../types/FooterOption";
 import type { PromptOutcome } from "../types/PromptOutcome";
+import { ClackPromptInternals } from "./utils/ClackPromptInternals";
+import { Toolbar } from "./toolbar";
 
-function resolveDefaultFromSpec<T>(
-  spec: EnvVarSchemaDetails<T>,
-): T | undefined {
-  switch (spec.type) {
-    case "boolean":
-      return typeof spec.default === "boolean"
-        ? (spec.default as T)
-        : undefined;
-    case "number":
-      return typeof spec.default === "number" ? (spec.default as T) : undefined;
-    case "enum":
-    case "string":
-      return typeof spec.default === "string" ? (spec.default as T) : undefined;
-    default:
-      return undefined;
-  }
-}
+export type FooterState = "hint" | "warn" | "tools";
 
 export abstract class EnvPrompt<
-  T,
-  TSpec extends EnvVarSchemaDetails<T> = EnvVarSchemaDetails<T>,
-> extends ThemedPrompt<T> {
-  protected readonly spec: TSpec;
+  TVar,
+  TSchema extends EnvVarSchemaDetails<TVar> = EnvVarSchemaDetails<TVar>,
+> extends ThemedPrompt<TVar> {
+  protected readonly schema: TSchema;
   protected readonly required: boolean;
-  protected key: string;
-  protected current?: T;
-  protected default?: T;
-  protected maxDisplayLength: number;
+  protected readonly key: string;
+  protected current?: TVar;
+  protected default?: TVar;
+  protected truncate: number;
   protected secret: boolean;
-  protected mask: string;
   protected revealSecret: boolean;
-  protected secretToggleShortcut: string;
-  protected optionMode: boolean;
-  protected optionCursor: number;
   protected allowSubmitFromOption: boolean;
   protected consumeNextSubmit: boolean;
-  protected previousEnabled: boolean;
+  protected index: number;
+  protected total: number;
   protected outcome: PromptOutcome;
-  private customValidate?: (value: T | undefined) => string | Error | undefined;
+  protected readonly internals: ClackPromptInternals<EnvPrompt<TVar, TSchema>>;
+  protected readonly toolbar: Toolbar;
   private skipValidationFlag: boolean;
 
-  protected set track(value: boolean) {
-    (this as any)._track = value;
-  }
-
-  protected get track(): boolean {
-    return (this as any)._track;
-  }
-
-  private get hasAnyPreviousValue(): boolean {
-    return this.previousEnabled;
-  }
-
   constructor(
-    spec: TSpec,
-    opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>,
+    schema: TSchema,
+    opts: EnvPromptOptions<TVar> &
+      PromptOptions<TVar, EnvPrompt<TVar, TSchema>>,
   ) {
-    const { originalValidate, ...restOptions } = opts as EnvPromptOptions<T> &
-      PromptOptions<T, EnvPrompt<T, TSpec>> & {
-        originalValidate?: (value: T | undefined) => string | Error | undefined;
-      };
-
-    const resolvedDefault =
-      restOptions.default !== undefined
-        ? restOptions.default
-        : resolveDefaultFromSpec(spec);
-
     const promptOptions = {
-      ...restOptions,
-      default: resolvedDefault,
-    } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>;
+      ...opts, // Include the subclass's validate function
+      default: schema.default,
+    } as EnvPromptOptions<TVar> & PromptOptions<TVar, EnvPrompt<TVar, TSchema>>;
 
     super(promptOptions);
-    this.spec = spec;
-    this.required = spec.required;
+    this.schema = schema;
+    this.internals = new ClackPromptInternals(this);
+    this.required = schema.required;
     // Disable base Prompt input tracking by default; subclasses toggle as needed
-    this.track = false;
+    this.internals.track = false;
     this.outcome = "commit";
     this.key = promptOptions.key;
     this.current = promptOptions.current;
-    this.default = promptOptions.default;
-    this.maxDisplayLength = promptOptions.maxDisplayLength ?? 40;
+    this.default = schema.default;
+    this.truncate = promptOptions.truncate ?? 40;
     this.secret = Boolean(promptOptions.secret);
-    this.mask = promptOptions.mask ?? SECRET_MASK;
     this.revealSecret = false;
-    this.secretToggleShortcut = promptOptions.secretToggleShortcut ?? "Ctrl+R";
-    this.optionMode = false;
-    this.optionCursor = 0;
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
-    this.previousEnabled = promptOptions.previousEnabled ?? true;
-    this.customValidate = originalValidate;
+    this.index = promptOptions.index ?? 0;
+    this.total = promptOptions.total ?? 1;
     this.skipValidationFlag = false;
+
+    // Initialize toolbar with callback methods
+    this.toolbar = new Toolbar({
+      previous: this.index > 0,
+      secret: this.secret ? (this.revealSecret ? "shown" : "hidden") : false,
+      theme: this.theme,
+      actions: {
+        toggleSecret: () => this.handleToggleSecret(),
+        skip: () => this.handleSkip(),
+        previous: () => this.handlePrevious(),
+      },
+    });
 
     this.on("finalize", () => {
       const shouldConsumeSubmit =
@@ -116,7 +84,7 @@ export abstract class EnvPrompt<
         this.resetSecretReveal();
       }
 
-      this.closeOptions(this.outcome === "commit");
+      this.toolbar.close();
 
       this.consumeNextSubmit = false;
       this.allowSubmitFromOption = false;
@@ -130,18 +98,28 @@ export abstract class EnvPrompt<
     });
   }
 
-  protected runCustomValidate(
-    value: T | undefined,
-  ): string | Error | undefined {
-    if (!this.customValidate) {
-      return undefined;
+  protected runSchemaValidation(
+    value: string | undefined,
+  ):
+    | { success: true; value: TVar | undefined }
+    | { success: false; error: string } {
+    if (!value || value.trim() === "") {
+      return { success: true, value: undefined };
     }
-    return this.customValidate(value);
+
+    try {
+      const processedValue = this.schema.process?.(value);
+      return { success: true, value: processedValue };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      return { success: false, error: errorMessage };
+    }
   }
 
-  protected setCommittedValue(value: T | undefined): void {
+  protected setCommittedValue(value: TVar | undefined): void {
     this.outcome = "commit";
-    this.value = value as T;
+    this.value = value as TVar;
   }
 
   public getOutcome(): PromptOutcome {
@@ -160,109 +138,84 @@ export abstract class EnvPrompt<
   }
 
   protected renderFooter(baseHint?: string): string {
-    if (this.optionMode) {
-      const options = this.getFooterOptions();
-      this.ensureOptionCursor(options);
-      if (!options.length) {
-        return this.colors.subtle("");
-      }
-
-      const separator = this.colors.subtle(" / ");
-      const optionStrings = options.map((option, index) => {
-        const isFocused = index === this.optionCursor;
-        const icon = isFocused
-          ? (option.activeIcon ?? option.icon)
-          : option.icon;
-        const label = icon ? `${icon} ${option.label}` : option.label;
-
-        if (option.disabled) {
-          return this.colors.dim(label);
-        }
-
-        return isFocused
-          ? this.theme.primary(label)
-          : this.colors.subtle(label);
-      });
-
-      return optionStrings.join(separator);
-    }
-
+    // The footer displays different content based on current state:
+    // 1. "warn" - Show validation errors
     if (this.error) {
       return this.colors.warn(this.error);
     }
 
+    // 2. "tools" - Show toolbar when open
+    if (this.secret) {
+      this.toolbar.secret = this.revealSecret ? "shown" : "hidden";
+    }
+
+    const toolbarOutput = this.toolbar.render();
+    if (toolbarOutput) {
+      return toolbarOutput;
+    }
+
+    // 3. "hint" - Show helpful hints when no error or toolbar
     const hint = this.buildSkipHint(baseHint);
     return this.colors.subtle(hint);
   }
 
-  protected handleFooterKey(char: string | undefined, info: Key): boolean {
-    if (!info) {
-      return false;
-    }
+  protected getFooterState(): FooterState {
+    if (this.error) return "warn";
+    if (this.toolbar.isOpen) return "tools";
+    return "hint";
+  }
 
-    if (info.name === "tab") {
-      if (!this.optionMode) {
-        this.openOptions();
-      } else {
+  protected handleToolbarKey(char: string | undefined, info: Key): boolean {
+    const handled = this.toolbar.handleKey(char, info);
+
+    // Handle special cases for key handling flow
+    if (handled && info?.name === "tab") {
+      if (!this.toolbar.isOpen) {
         this.consumeNextSubmit = false;
         this.allowSubmitFromOption = false;
-        this.closeOptions();
       }
       return true;
     }
 
-    if (!this.optionMode) {
-      return false;
+    if (handled && (info?.name === "return" || info?.name === "enter")) {
+      // When toolbar handles return/enter, prevent any further processing
+      return true;
     }
 
-    switch (info.name) {
-      case "left":
-      case "up":
-        this.shiftOptionCursor(-1);
-        return true;
-      case "right":
-      case "down":
-        this.shiftOptionCursor(1);
-        return true;
-      case "return":
-      case "enter":
-        this.activateOption();
-        return true;
-      case "escape":
-        this.consumeNextSubmit = false;
-        this.allowSubmitFromOption = false;
-        this.closeOptions();
-        return true;
-      case "backspace":
-        this.consumeNextSubmit = false;
-        this.allowSubmitFromOption = false;
-        this.closeOptions();
-        return false;
-    }
-
-    if (char && char.length === 1 && !info.ctrl && !info.meta) {
+    if (handled && info?.name === "escape") {
       this.consumeNextSubmit = false;
       this.allowSubmitFromOption = false;
-      this.closeOptions();
+      return true;
+    }
+
+    if (handled && info?.name === "backspace") {
+      this.consumeNextSubmit = false;
+      this.allowSubmitFromOption = false;
       return false;
     }
 
-    return false;
+    if (handled && char && char.length === 1 && !info?.ctrl && !info?.meta) {
+      this.consumeNextSubmit = false;
+      this.allowSubmitFromOption = false;
+      return false;
+    }
+
+    return handled;
   }
 
   protected shouldDimInputs(): boolean {
-    return this.optionMode;
+    return this.getFooterState() === "tools";
   }
 
   protected isOptionPickerOpen(): boolean {
-    return this.optionMode;
+    return this.getFooterState() === "tools";
   }
 
   protected truncateValue(value: string): string {
-    if (value.length <= this.maxDisplayLength) {
+    if (value.length <= this.truncate) {
       return value;
     }
-    return value.substring(0, this.maxDisplayLength) + "...";
+    return value.substring(0, this.truncate) + "...";
   }
 
   protected renderSkipped(): string {
@@ -303,8 +256,9 @@ export abstract class EnvPrompt<
       return;
     }
     this.revealSecret = !this.revealSecret;
-    if (this.optionMode) {
-      this.syncOptionCursor();
+    // Update toolbar when secret reveal state changes
+    if (this.secret) {
+      this.toolbar.secret = this.revealSecret ? "shown" : "hidden";
     }
   }
 
@@ -319,157 +273,26 @@ export abstract class EnvPrompt<
     return this.secret && this.revealSecret;
   }
 
-  protected getSecretToggleHint(): string {
-    const action = this.revealSecret ? "hide" : "show";
-    return `${this.secretToggleShortcut} to ${action}`;
+  private handleToggleSecret(): void {
+    this.consumeNextSubmit = true;
+    this.skipValidationFlag = true;
+    this.toggleSecretReveal();
   }
 
-  private openOptions(): void {
-    this.optionMode = true;
+  private handleSkip(): void {
+    this.allowSubmitFromOption = true;
     this.consumeNextSubmit = false;
-    this.allowSubmitFromOption = false;
-    const options = this.getFooterOptions();
-    this.optionCursor = this.findInitialCursor(options);
+    this.outcome = "skip";
+    this.value = undefined as TVar;
+    this.state = "submit";
   }
 
-  protected closeOptions(resetOutcome = true): void {
-    this.optionMode = false;
-    this.optionCursor = 0;
-    if (resetOutcome) {
-      this.outcome = "commit";
-    }
-  }
-
-  private shiftOptionCursor(delta: number): void {
-    const options = this.getFooterOptions();
-    if (!options.length) {
-      return;
-    }
-
-    let nextIndex = this.optionCursor;
-    const len = options.length;
-    for (let step = 0; step < len; step++) {
-      nextIndex = (nextIndex + delta + len) % len;
-      const option = options[nextIndex];
-      if (option && !option.disabled) {
-        this.optionCursor = nextIndex;
-        return;
-      }
-    }
-  }
-
-  private activateOption(): void {
-    const options = this.getFooterOptions();
-    this.ensureOptionCursor(options);
-    const selected = options[this.optionCursor];
-    if (!selected || selected.disabled) {
-      return;
-    }
-
-    this.allowSubmitFromOption = false;
-
-    switch (selected.key) {
-      case "skip":
-        this.allowSubmitFromOption = true;
-        this.consumeNextSubmit = false;
-        this.outcome = "skip";
-        this.value = undefined as T;
-        this.closeOptions(false);
-        this.state = "submit";
-        break;
-      case "previous":
-        this.allowSubmitFromOption = true;
-        this.consumeNextSubmit = false;
-        this.outcome = "previous";
-        this.value = undefined as T;
-        this.closeOptions(false);
-        this.state = "submit";
-        break;
-      case "toggleSecret":
-        this.consumeNextSubmit = true;
-        this.skipValidationFlag = true;
-        this.toggleSecretReveal();
-        this.closeOptions();
-        break;
-      case "close":
-        this.consumeNextSubmit = true;
-        this.skipValidationFlag = true;
-        this.closeOptions();
-        break;
-    }
-  }
-
-  private syncOptionCursor(): void {
-    if (!this.optionMode) {
-      return;
-    }
-
-    const options = this.getFooterOptions();
-    this.ensureOptionCursor(options);
-  }
-
-  private ensureOptionCursor(options: FooterOption[]): void {
-    if (!options.length) {
-      this.optionCursor = 0;
-      return;
-    }
-
-    if (this.optionCursor >= options.length) {
-      this.optionCursor = this.findInitialCursor(options);
-    }
-
-    const current = options[this.optionCursor];
-    if (current?.disabled) {
-      this.optionCursor = this.findInitialCursor(options);
-    }
-  }
-
-  private findInitialCursor(options: FooterOption[]): number {
-    if (!options.length) {
-      return 0;
-    }
-
-    const enabledIndex = options.findIndex((option) => !option.disabled);
-    return enabledIndex >= 0 ? enabledIndex : 0;
-  }
-
-  private getFooterOptions(): FooterOption[] {
-    const options: FooterOption[] = [
-      {
-        key: "skip",
-        label: "Skip",
-        icon: S_TOOL_INACTIVE,
-        activeIcon: S_TOOL_ACTIVE,
-      },
-    ];
-
-    if (this.previousEnabled) {
-      options.push({
-        key: "previous",
-        label: "Previous",
-        icon: S_TOOL_INACTIVE,
-        activeIcon: S_TOOL_ACTIVE,
-        disabled: !this.hasAnyPreviousValue,
-      });
-    }
-
-    if (this.secret) {
-      options.push({
-        key: "toggleSecret",
-        label: this.isSecretRevealed() ? "Hide" : "Show",
-        icon: S_TOOL_INACTIVE,
-        activeIcon: S_TOOL_ACTIVE,
-      });
-    }
-
-    options.push({
-      key: "close",
-      label: "Return",
-      icon: S_TOOL_INACTIVE,
-      activeIcon: S_TOOL_ACTIVE,
-    });
-
-    return options;
+  private handlePrevious(): void {
+    this.allowSubmitFromOption = true;
+    this.consumeNextSubmit = false;
+    this.outcome = "previous";
+    this.value = undefined as TVar;
+    this.state = "submit";
   }
 
   protected consumeSkipValidation(): boolean {
