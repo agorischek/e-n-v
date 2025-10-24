@@ -131,18 +131,11 @@ export class Toolbar {
       return;
     }
 
-    // Close toolbar first (except for toggleSecret which handles its own timing)
-    if (selected.key !== "toggleSecret") {
-      this.close();
-    }
+    // Close toolbar first
+    this.close();
 
     // Execute the action
     selected.action();
-
-    // Close toolbar after toggleSecret action
-    if (selected.key === "toggleSecret") {
-      this.close();
-    }
   }
 
   private ensureCursor(options: ToolbarEntry[]): void {

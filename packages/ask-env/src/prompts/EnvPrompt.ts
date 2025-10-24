@@ -1,5 +1,4 @@
 import { ThemedPrompt } from "./ThemedPrompt";
-import { SECRET_MASK } from "../visuals/symbols";
 import {
   S_STEP_CANCEL,
   S_STEP_PREVIOUS,
@@ -11,12 +10,7 @@ import type { EnvVarSchemaDetails } from "@envcredible/core";
 import type { EnvPromptOptions } from "./options/EnvPromptOptions";
 import type { PromptOutcome } from "../types/PromptOutcome";
 import { ClackPromptInternals } from "./utils/ClackPromptInternals";
-import { Toolbar, type ToolbarConfig } from "./toolbar";
-
-// NOTE: Schema defaults are typed as `default?: T` in `EnvVarSchemaDetails`.
-// We no longer coerce `null` or attempt ad-hoc runtime normalization here —
-// the prompt will rely on the schema's `default` directly when an explicit
-// prompt default isn't provided.
+import { Toolbar } from "./toolbar";
 
 export type FooterState = "hint" | "warn" | "tools";
 
