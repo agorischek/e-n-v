@@ -322,11 +322,6 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         return;
       }
 
-      if (this.secret && info.ctrl && info.name === "r") {
-        this.toggleSecretReveal();
-        return;
-      }
-
       if (this.isOptionPickerOpen()) {
         return;
       }

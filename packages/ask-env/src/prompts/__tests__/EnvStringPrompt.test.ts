@@ -36,7 +36,6 @@ function createPrompt(
     secret: options.secret,
     mask: options.mask,
     theme: options.theme,
-    secretToggleShortcut: options.secretToggleShortcut,
     previousEnabled: options.previousEnabled,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
@@ -189,24 +188,6 @@ describe("EnvStringPrompt", () => {
     expect(prompt.isTyping).toBe(false);
     expect(prompt.userInput).toBe("");
     expect(prompt.value).toBe("");
-
-    submitPrompt(prompt as any);
-    await waitForIO(2);
-    await promptPromise;
-  });
-
-  it("toggles secret reveal with Ctrl+R", async () => {
-    const { prompt } = createPrompt({ secret: true });
-    const promptPromise = prompt.prompt();
-    await waitForIO(2);
-
-    expect((prompt as any).isSecretRevealed()).toBe(false);
-
-    await pressKey(prompt, { name: "r", ctrl: true });
-    expect((prompt as any).isSecretRevealed()).toBe(true);
-
-    await pressKey(prompt, { name: "r", ctrl: true });
-    expect((prompt as any).isSecretRevealed()).toBe(false);
 
     submitPrompt(prompt as any);
     await waitForIO(2);
@@ -562,9 +543,6 @@ describe("EnvStringPrompt", () => {
     expect((prompt as any).getEntryHint()).toBe("Enter a secret value");
     expect((prompt as any).getInputDisplay(false)).toBe("******");
     expect((prompt as any).formatValue("secret")).toBe("******");
-
-    await pressKey(prompt, { name: "r", ctrl: true });
-    expect((prompt as any).getInputDisplay(true)).toBe("secret█");
 
     submitPrompt(prompt as any);
     await waitForIO(2);

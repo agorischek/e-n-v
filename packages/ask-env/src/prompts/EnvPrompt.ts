@@ -33,7 +33,6 @@ export abstract class EnvPrompt<
   protected secret: boolean;
   protected mask: string;
   protected revealSecret: boolean;
-  protected secretToggleShortcut: string;
   protected optionMode: boolean;
   protected optionCursor: number;
   protected allowSubmitFromOption: boolean;
@@ -71,7 +70,6 @@ export abstract class EnvPrompt<
     this.secret = Boolean(promptOptions.secret);
     this.mask = promptOptions.mask ?? SECRET_MASK;
     this.revealSecret = false;
-    this.secretToggleShortcut = promptOptions.secretToggleShortcut ?? "Ctrl+R";
     this.optionMode = false;
     this.optionCursor = 0;
     this.allowSubmitFromOption = false;
@@ -295,11 +293,6 @@ export abstract class EnvPrompt<
 
   protected isSecretRevealed(): boolean {
     return this.secret && this.revealSecret;
-  }
-
-  protected getSecretToggleHint(): string {
-    const action = this.revealSecret ? "hide" : "show";
-    return `${this.secretToggleShortcut} to ${action}`;
   }
 
   private openOptions(): void {

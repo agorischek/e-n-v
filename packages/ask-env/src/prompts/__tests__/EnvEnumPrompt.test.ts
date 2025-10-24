@@ -32,7 +32,6 @@ function createPrompt(options: TestPromptOptions = {}) {
     maxDisplayLength: options.maxDisplayLength,
     secret: options.secret,
     mask: options.mask,
-    secretToggleShortcut: options.secretToggleShortcut,
     previousEnabled: options.previousEnabled,
   });
 

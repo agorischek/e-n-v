@@ -9,7 +9,6 @@ export interface EnvPromptOptions<T> {
   maxDisplayLength?: number;
   secret?: boolean;
   mask?: string;
-  secretToggleShortcut?: string;
   previousEnabled?: boolean;
   input?: Readable;
   output?: Writable;
