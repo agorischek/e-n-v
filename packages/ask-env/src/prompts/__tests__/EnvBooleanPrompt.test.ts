@@ -16,7 +16,6 @@ type TestPromptOptions = Partial<EnvPromptOptions<boolean>> & {
   description?: string;
   required?: boolean;
   default?: boolean;
-  validate?: (value: boolean | undefined) => string | Error | undefined;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -39,7 +38,22 @@ function createPrompt(options: TestPromptOptions = {}) {
     secret: options.secret,
     mask: options.mask,
     secretToggleShortcut: options.secretToggleShortcut,
-    validate: options.validate,
+  });
+
+  return { prompt, ...streams };
+}
+
+function createPromptWithSchema(
+  schema: BooleanEnvVarSchema,
+  options: Partial<TestPromptOptions> = {},
+) {
+  const streams = createTestStreams();
+
+  const prompt = new EnvBooleanPrompt(schema, {
+    key: options.key ?? "BOOL_ENV",
+    current: options.current,
+    input: options.input ?? streams.input,
+    output: options.output ?? streams.output,
   });
 
   return { prompt, ...streams };
@@ -96,19 +110,25 @@ describe("EnvBooleanPrompt", () => {
   it("applies custom validation, handles navigation, and eventually succeeds", async () => {
     const calls: Array<boolean | undefined> = [];
     let allowTrue = false;
-    const validate = (value?: boolean) => {
-      calls.push(value);
-      if (value === false) {
-        return "false not allowed";
-      }
-      if (value === true && !allowTrue) {
-        allowTrue = true;
-        return new Error("true not allowed once");
-      }
-      return undefined;
-    };
+    
+    // Create a schema with custom validation logic
+    const schema = new BooleanEnvVarSchema({
+      process: (value: string) => {
+        const boolValue = value.toLowerCase() === "true";
+        calls.push(boolValue);
+        
+        if (boolValue === false) {
+          throw new Error("false not allowed");
+        }
+        if (boolValue === true && !allowTrue) {
+          allowTrue = true;
+          throw new Error("true not allowed once");
+        }
+        return boolValue;
+      },
+    });
 
-    const { prompt } = createPrompt({ current: false, validate });
+    const { prompt } = createPromptWithSchema(schema, { current: false });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 

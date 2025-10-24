@@ -10,7 +10,6 @@ type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
   required?: boolean;
   description?: string;
   default?: string;
-  validate?: (value: string | undefined) => string | Error | undefined;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -35,7 +34,6 @@ function createPrompt(options: TestPromptOptions = {}) {
     mask: options.mask,
     secretToggleShortcut: options.secretToggleShortcut,
     previousEnabled: options.previousEnabled,
-    validate: options.validate,
   });
 
   return { prompt, ...streams };
@@ -119,37 +117,5 @@ describe("EnvEnumPrompt", () => {
     expect(output).toContain("=");
   });
 
-  it("applies custom validation when values are regular strings", () => {
-    const calls: Array<string | undefined> = [];
-    const validationSpy = (value?: string | undefined) => {
-      calls.push(value);
-      if (value === "beta") {
-        return "beta is not allowed";
-      }
-      return undefined;
-    };
 
-    const { prompt } = createPrompt({
-      current: "alpha",
-      options: ["alpha", "beta"],
-      validate: validationSpy,
-    });
-
-    prompt.emit("cursor", "down");
-    expect(prompt.value).toBe("beta");
-
-    const opts = Reflect.get(prompt as any, "options") as
-      | {
-          validate?: (
-            value: string | symbol | undefined,
-          ) => string | Error | undefined;
-        }
-      | undefined;
-
-    expect(typeof opts?.validate).toBe("function");
-    expect(opts?.validate?.call(prompt, prompt.value)).toBe(
-      "beta is not allowed",
-    );
-    expect(calls).toEqual(["beta"]);
-  });
 });

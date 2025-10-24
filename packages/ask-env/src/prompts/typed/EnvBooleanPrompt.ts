@@ -10,9 +10,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
 
   constructor(schema: BooleanEnvVarSchema, opts: EnvPromptOptions<boolean>) {
-    super(schema, {
+    super(schema, ({
       ...opts,
-      originalValidate: opts.validate,
       render: padActiveRender(function (this: EnvBooleanPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
@@ -98,15 +97,13 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           return undefined;
         }
 
-        const customValidation = this.runCustomValidate(value);
-        if (customValidation) {
-          return customValidation instanceof Error
-            ? customValidation.message
-            : customValidation;
+        const validation = this.runSchemaValidation(value?.toString());
+        if (!validation.success) {
+          return validation.error;
         }
         return undefined;
       },
-    });
+    }) as any);
 
     // Set cursor based on priority: current → default → true
     // cursor 0 = true, cursor 1 = false

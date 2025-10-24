@@ -12,9 +12,8 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   private readonly values: readonly string[];
 
   constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
-    super(schema, {
+    super(schema, ({
       ...opts,
-      originalValidate: opts.validate,
       render: padActiveRender(function (this: EnvEnumPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
@@ -90,15 +89,13 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
           return undefined;
         }
 
-        const customValidation = this.runCustomValidate(value);
-        if (customValidation) {
-          return customValidation instanceof Error
-            ? customValidation.message
-            : customValidation;
+        const validation = this.runSchemaValidation(value);
+        if (!validation.success) {
+          return validation.error;
         }
         return undefined;
       },
-    });
+    }) as any);
 
     this.options = opts;
     this.values = [...schema.values];

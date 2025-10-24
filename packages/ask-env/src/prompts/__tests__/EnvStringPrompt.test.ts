@@ -19,7 +19,6 @@ function createPrompt(
     description?: string;
     required?: boolean;
     default?: string;
-    validate?: (value: string | undefined) => string | Error | undefined;
   } = {},
 ) {
   const streams = createTestStreams();
@@ -41,7 +40,29 @@ function createPrompt(
     previousEnabled: options.previousEnabled,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
-    validate: options.validate,
+  });
+
+  return { prompt, ...streams };
+}
+
+function createPromptWithSchema(
+  schema: StringEnvVarSchemaClass,
+  options: Partial<EnvPromptOptions<string>> & {
+    key?: string;
+    current?: string;
+    secret?: boolean;
+    previousEnabled?: boolean;
+  } = {},
+) {
+  const streams = createTestStreams();
+
+  const prompt = new EnvStringPrompt(schema, {
+    key: options.key ?? "TEST_ENV",
+    current: options.current,
+    secret: options.secret,
+    previousEnabled: options.previousEnabled,
+    input: options.input ?? streams.input,
+    output: options.output ?? streams.output,
   });
 
   return { prompt, ...streams };
@@ -251,19 +272,24 @@ describe("EnvStringPrompt", () => {
 
   it("returns focus to previous selection when toggling secret and skips validation", async () => {
     const calls: Array<string | undefined> = [];
-    const { prompt } = createPrompt({
-      current: "curr",
-      default: "def",
-      secret: true,
+    
+    // Create a schema with validation that requires a value
+    const schema = new StringEnvVarSchemaClass({
       required: true,
-      previousEnabled: false,
-      validate: (value?: string) => {
+      default: "def",
+      process: (value: string) => {
         calls.push(value);
-        if (!value) {
-          return "missing";
+        if (!value || value.trim() === "") {
+          throw new Error("missing");
         }
-        return undefined;
+        return value;
       },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, {
+      current: "curr",
+      secret: true,
+      previousEnabled: false,
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -350,16 +376,22 @@ describe("EnvStringPrompt", () => {
 
   it("applies custom validation for selected values", async () => {
     const calls: Array<string | undefined> = [];
-    const validate = (value?: string) => {
-      calls.push(value);
-      if (value === "def") return "blocked";
-      return undefined;
-    };
-
-    const { prompt } = createPrompt({
-      current: "curr",
+    
+    // Create a schema with custom validation that blocks "def"
+    const schema = new StringEnvVarSchemaClass({
+      required: false,
       default: "def",
-      validate,
+      process: (value: string) => {
+        calls.push(value);
+        if (value === "def") {
+          throw new Error("blocked");
+        }
+        return value;
+      },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, {
+      current: "curr",
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -382,17 +414,25 @@ describe("EnvStringPrompt", () => {
 
   it("applies custom validation to typed input", async () => {
     const calls: Array<string | undefined> = [];
-    const validate = (value?: string) => {
-      calls.push(value);
-      if (value === "warn") return "warn";
-      if (value === "bad") return new Error("bad input");
-      return undefined;
-    };
-
-    const { prompt } = createPrompt({
-      current: "curr",
+    
+    // Create a schema with custom validation
+    const schema = new StringEnvVarSchemaClass({
+      required: false,
       default: "def",
-      validate,
+      process: (value: string) => {
+        calls.push(value);
+        if (value === "warn") {
+          throw new Error("warn");
+        }
+        if (value === "bad") {
+          throw new Error("bad input");
+        }
+        return value;
+      },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, {
+      current: "curr",
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);

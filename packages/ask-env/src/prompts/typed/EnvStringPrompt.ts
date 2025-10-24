@@ -16,9 +16,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   isTyping = false;
 
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
-    super(schema, {
+    super(schema, ({
       ...opts,
-      originalValidate: opts.validate,
       render: padActiveRender(function (this: EnvStringPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
@@ -167,18 +166,10 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run custom validation if provided
-          let parsedValue: string | undefined;
-          try {
-            parsedValue = this.parseInput(this.userInput);
-          } catch {
-            parsedValue = undefined;
-          }
-          const customValidation = this.runCustomValidate(parsedValue);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
+          // If format is valid, run schema validation if provided
+          const validation = this.runSchemaValidation(this.userInput);
+          if (!validation.success) {
+            return validation.error;
           }
           return undefined;
         }
@@ -214,35 +205,25 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run custom validation if provided
-          let parsedValue: string | undefined;
-          try {
-            parsedValue = this.parseInput(this.userInput);
-          } catch {
-            parsedValue = undefined;
-          }
-          const customValidation = this.runCustomValidate(parsedValue);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
+          // If format is valid, run schema validation if provided
+          const validation = this.runSchemaValidation(this.userInput);
+          if (!validation.success) {
+            return validation.error;
           }
         }
 
         // For non-typing cases (selecting current/default), validate the selected value
         if (!this.isTyping) {
-          const customValidation = this.runCustomValidate(value);
-          if (customValidation) {
-            return customValidation instanceof Error
-              ? customValidation.message
-              : customValidation;
+          const validation = this.runSchemaValidation(value);
+          if (!validation.success) {
+            return validation.error;
           }
         }
 
         // All other cases are valid
         return undefined;
       },
-    });
+    }) as any);
 
     // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {

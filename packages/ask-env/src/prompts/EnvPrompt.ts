@@ -41,7 +41,7 @@ export abstract class EnvPrompt<
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
   protected readonly internals: ClackPromptInternals<EnvPrompt<T, TSchema>>;
-  private customValidate?: (value: T | undefined) => string | Error | undefined;
+  private userValidate?: (value: T | undefined) => string | Error | undefined;
   private skipValidationFlag: boolean;
 
   private get hasAnyPreviousValue(): boolean {
@@ -52,13 +52,8 @@ export abstract class EnvPrompt<
     schema: TSchema,
     opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSchema>>,
   ) {
-    const { originalValidate, ...restOptions } = opts as EnvPromptOptions<T> &
-      PromptOptions<T, EnvPrompt<T, TSchema>> & {
-        originalValidate?: (value: T | undefined) => string | Error | undefined;
-      };
-
     const promptOptions = {
-      ...restOptions,
+      ...opts, // Include the subclass's validate function
       default: schema.default,
     } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSchema>>;
 
@@ -82,7 +77,6 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = promptOptions.previousEnabled ?? true;
-    this.customValidate = originalValidate;
     this.skipValidationFlag = false;
 
     this.on("finalize", () => {
@@ -107,13 +101,20 @@ export abstract class EnvPrompt<
     });
   }
 
-  protected runCustomValidate(
-    value: T | undefined,
-  ): string | Error | undefined {
-    if (!this.customValidate) {
-      return undefined;
+  protected runSchemaValidation(
+    value: string | undefined,
+  ): { success: true; value: T | undefined } | { success: false; error: string } {
+    if (!value || value.trim() === "") {
+      return { success: true, value: undefined };
     }
-    return this.customValidate(value);
+
+    try {
+      const processedValue = this.schema.process?.(value);
+      return { success: true, value: processedValue };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return { success: false, error: errorMessage };
+    }
   }
 
   protected setCommittedValue(value: T | undefined): void {
