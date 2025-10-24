@@ -43,10 +43,6 @@ export abstract class EnvPrompt<
   private userValidate?: (value: T | undefined) => string | Error | undefined;
   private skipValidationFlag: boolean;
 
-  private get hasAnyPreviousValue(): boolean {
-    return this.index > 0;
-  }
-
   constructor(
     schema: TSchema,
     opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSchema>>,
@@ -150,10 +146,6 @@ export abstract class EnvPrompt<
           ? (option.activeIcon ?? option.icon)
           : option.icon;
         const label = icon ? `${icon} ${option.label}` : option.label;
-
-        if (option.disabled) {
-          return this.colors.dim(label);
-        }
 
         return isFocused
           ? this.theme.primary(label)
@@ -299,8 +291,7 @@ export abstract class EnvPrompt<
     this.optionMode = true;
     this.consumeNextSubmit = false;
     this.allowSubmitFromOption = false;
-    const options = this.getFooterOptions();
-    this.optionCursor = this.findInitialCursor(options);
+    this.optionCursor = 0;
   }
 
   protected closeOptions(resetOutcome = true): void {
@@ -321,11 +312,8 @@ export abstract class EnvPrompt<
     const len = options.length;
     for (let step = 0; step < len; step++) {
       nextIndex = (nextIndex + delta + len) % len;
-      const option = options[nextIndex];
-      if (option && !option.disabled) {
-        this.optionCursor = nextIndex;
-        return;
-      }
+      this.optionCursor = nextIndex;
+      return;
     }
   }
 
@@ -333,7 +321,7 @@ export abstract class EnvPrompt<
     const options = this.getFooterOptions();
     this.ensureOptionCursor(options);
     const selected = options[this.optionCursor];
-    if (!selected || selected.disabled) {
+    if (!selected) {
       return;
     }
 
@@ -386,22 +374,8 @@ export abstract class EnvPrompt<
     }
 
     if (this.optionCursor >= options.length) {
-      this.optionCursor = this.findInitialCursor(options);
+      this.optionCursor = 0;
     }
-
-    const current = options[this.optionCursor];
-    if (current?.disabled) {
-      this.optionCursor = this.findInitialCursor(options);
-    }
-  }
-
-  private findInitialCursor(options: FooterOption[]): number {
-    if (!options.length) {
-      return 0;
-    }
-
-    const enabledIndex = options.findIndex((option) => !option.disabled);
-    return enabledIndex >= 0 ? enabledIndex : 0;
   }
 
   private getFooterOptions(): FooterOption[] {
@@ -420,7 +394,6 @@ export abstract class EnvPrompt<
         label: "Previous",
         icon: S_TOOL_INACTIVE,
         activeIcon: S_TOOL_ACTIVE,
-        disabled: !this.hasAnyPreviousValue,
       });
     }
 
