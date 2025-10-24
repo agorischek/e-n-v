@@ -308,8 +308,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         this.error = "";
       }
 
-      // Delegate Tab and footer navigation to the shared handler
-      if (this.handleFooterKey(char, info)) {
+      // Delegate Tab and toolbar navigation to the shared handler
+      if (this.handleToolbarKey(char, info)) {
         return;
       }
 

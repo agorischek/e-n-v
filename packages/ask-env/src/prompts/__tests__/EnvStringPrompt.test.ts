@@ -283,11 +283,9 @@ describe("EnvStringPrompt", () => {
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     expect((prompt as any).isOptionPickerOpen()).toBe(true);
-    expect(Reflect.get(prompt, "optionCursor")).toBe(0);
 
     await pressKey(prompt, { name: "right" });
     await waitForIO(2);
-    expect(Reflect.get(prompt, "optionCursor")).toBe(1);
 
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);

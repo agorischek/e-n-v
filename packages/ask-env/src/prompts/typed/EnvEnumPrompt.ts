@@ -144,7 +144,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.handleFooterKey(char, info)) {
+      if (this.handleToolbarKey(char, info)) {
         return;
       }
 

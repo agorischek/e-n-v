@@ -319,7 +319,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.handleFooterKey(char, info)) {
+      if (this.handleToolbarKey(char, info)) {
         return;
       }
 

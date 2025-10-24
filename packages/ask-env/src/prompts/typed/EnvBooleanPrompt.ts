@@ -151,7 +151,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.handleFooterKey(char, info)) {
+      if (this.handleToolbarKey(char, info)) {
         return;
       }
 

@@ -169,7 +169,7 @@ describe("EnvBooleanPrompt", () => {
     expect(rendered).toMatch(/✕/);
   });
 
-  it("dims options while the footer picker is open", async () => {
+  it("dims options while the toolbar picker is open", async () => {
     const { prompt, output } = createPrompt();
     const promptPromise = prompt.prompt();
     await waitForIO(2);

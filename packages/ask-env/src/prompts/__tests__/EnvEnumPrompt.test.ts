@@ -84,7 +84,7 @@ describe("EnvEnumPrompt", () => {
     expect(prompt.value).toBe("two");
   });
 
-  it("ignores cursor events while the footer option picker is open", () => {
+  it("ignores cursor events while the toolbar option picker is open", () => {
     const { prompt } = createPrompt();
 
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
