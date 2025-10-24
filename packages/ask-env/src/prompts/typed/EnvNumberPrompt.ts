@@ -11,6 +11,10 @@ import type { NumberEnvVarSchema } from "@envcredible/core";
 import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
+  private otherInputCache = "";
+  private shouldStitchInput = false;
+  private isRestoringInput = false;
+
   constructor(schema: NumberEnvVarSchema, opts: EnvPromptOptions<number>) {
     super(schema, {
       ...opts,
@@ -171,6 +175,9 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         if (this.mode.getCursor() === textInputIndex && !this.mode.isInInteraction("typing")) {
           // Start typing mode instead of submitting
           this.mode.enterTyping();
+          this.mode.clearInput();
+          this._setUserInput("");
+          this.otherInputCache = "";
           this.updateValue();
           return "Please enter a number"; // Show error since no input provided yet
         }
@@ -213,6 +220,9 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {
       this.mode.enterTyping();
+      this.mode.clearInput();
+      this._setUserInput("");
+      this.otherInputCache = "";
       this.setCommittedValue(this.getDefaultValue());
     } else {
       // Set initial value based on cursor position
@@ -249,6 +259,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           if (this.mode.isInInteraction("typing") || this.mode.getCursor() === maxIndex) {
             this.mode.exitTyping();
             this._clearUserInput(); // This clears the internal readline state too
+            this.mode.clearInput();
+            this.otherInputCache = "";
           }
           this.mode.moveCursor("up", maxIndex);
           break;
@@ -265,6 +277,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           if (this.mode.isInInteraction("typing") || this.mode.getCursor() === maxIndexDown) {
             this.mode.exitTyping();
             this._clearUserInput(); // This clears the internal readline state too
+            this.mode.clearInput();
+            this.otherInputCache = "";
           }
           this.mode.moveCursor("down", maxIndexDown);
           break;
@@ -273,22 +287,53 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     });
 
     // Listen for user input changes (when typing)
-    this.on("userInput", (input: string) => {
+    this.on("userInput", (rawInput: string) => {
       // Clear error state when user is typing (like base Prompt class does)
       if (this.state === "error") {
         this.state = "active";
         this.error = "";
       }
 
-        if (this.mode.isInInteraction("typing")) {
-          this.mode.updateInput(input);
+      let input = rawInput.includes("\t")
+        ? rawInput.replace(/\t/g, "")
+        : rawInput;
+
+      if (this.isRestoringInput) {
+        this.isRestoringInput = false;
+        this.otherInputCache = input;
+        return;
+      }
+
+      if (this.mode.isInInteraction("typing")) {
+        let nextInput = input;
+
+        if (this.shouldStitchInput && this.otherInputCache) {
+          if (!input || input === this.otherInputCache) {
+            nextInput = this.otherInputCache;
+            // keep shouldStitchInput true until new characters arrive
+          } else if (input.startsWith(this.otherInputCache)) {
+            nextInput = input;
+            this.shouldStitchInput = false;
+          } else {
+            nextInput = `${this.otherInputCache}${input}`;
+            this.shouldStitchInput = false;
+          }
+        } else {
+          this.shouldStitchInput = false;
+        }
+
+        this.mode.updateInput(nextInput);
+        (this as unknown as { userInput: string }).userInput = nextInput;
+        this.otherInputCache = nextInput;
         try {
-          const parsed = this.parseInput(input);
+          const parsed = this.parseInput(nextInput);
           this.setCommittedValue(parsed ?? this.getDefaultValue());
         } catch {
           // If parsing fails, keep the current value but still update display
           // The validation will catch this
         }
+      } else {
+        this.shouldStitchInput = false;
       }
     });
 
@@ -345,8 +390,19 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           const textInputIndex = this.getTextInputIndex();
 
           this.mode.setCursor(textInputIndex); // Jump to the "Other" option
-          this.mode.enterTyping(char);
-          this._setUserInput(char);
+          const existingInput =
+            this.mode.getInputValue() ||
+            this.userInput ||
+            this.otherInputCache ||
+            "";
+
+          this.mode.enterTyping(existingInput);
+
+          const nextInput = `${existingInput}${char}`;
+          this.otherInputCache = nextInput;
+          this._setUserInput(nextInput);
+          this.mode.updateInput(nextInput);
+          this.syncCursorToInputEnd();
           this.updateValue();
           return;
         }
@@ -361,6 +417,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           // Exit typing mode
           this.mode.exitTyping();
           this._clearUserInput(); // Clear the internal readline state
+          this.mode.clearInput();
+          this.otherInputCache = "";
           this.updateValue();
           return; // Prevent default Escape behavior
         }
@@ -369,7 +427,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   }
 
   private getInputDisplay(includeCursor: boolean): string {
-  const inputValue = this.mode.getInputValue();
+    const inputValue = this.mode.getInputValue();
     if (!includeCursor) {
       return inputValue;
     }
@@ -394,11 +452,48 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     return `${before}${this.colors.inverse(cursorChar)}${after}`;
   }
 
+  private syncCursorToInputEnd(): void {
+    const cursorHost = this as unknown as { _cursor?: number };
+    cursorHost._cursor = this.mode.getInputValue().length;
+  }
+
+  protected override toggleSecretReveal(): void {
+    const cachedInput =
+      this.mode.getInputValue() || this.userInput || this.otherInputCache;
+
+    super.toggleSecretReveal();
+
+    if (!cachedInput) {
+      return;
+    }
+
+    this.shouldStitchInput = Boolean(this.otherInputCache || cachedInput);
+    const stitchedBaseline = cachedInput;
+
+    queueMicrotask(() => {
+      const restored = this.otherInputCache || stitchedBaseline;
+      if (!restored) {
+        return;
+      }
+
+      if (!this.mode.isInInteraction("typing")) {
+        this.mode.enterTyping(restored);
+      }
+
+      this.isRestoringInput = true;
+      this.internals.track = true;
+      this.mode.updateInput(restored);
+      this.otherInputCache = restored;
+      this._setUserInput(restored, true);
+      this.syncCursorToInputEnd();
+    });
+  }
+
   private updateValue() {
     // If both current and default are undefined, we're in text-only mode
     if (this.current === undefined && this.default === undefined) {
       try {
-  const parsed = this.parseInput(this.mode.getInputValue());
+        const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());
@@ -406,12 +501,12 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       return;
     }
 
-  if (!this.mode.isInInteraction("typing")) {
+    if (!this.mode.isInInteraction("typing")) {
       // Dynamically determine what option the cursor is on
       let optionIndex = 0;
 
       // Check if cursor is on current value
-  if (this.current !== undefined && this.mode.getCursor() === optionIndex) {
+      if (this.current !== undefined && this.mode.getCursor() === optionIndex) {
         this.setCommittedValue(this.current);
         return;
       }
@@ -433,7 +528,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       this.setCommittedValue(this.getDefaultValue());
     } else {
       try {
-  const parsed = this.parseInput(this.mode.getInputValue());
+        const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());

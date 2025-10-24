@@ -33,6 +33,7 @@ function createPrompt(
     key: options.key ?? "NUM_ENV",
     current: options.current,
     truncate: options.truncate,
+    secret: options.secret,
     theme: options.theme,
     index: options.index,
     total: options.total,
@@ -55,6 +56,7 @@ function createPromptWithSchema(
   const prompt = new EnvNumberPrompt(schema, {
     key: options.key ?? "NUM_ENV",
     current: options.current,
+    secret: options.secret,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
   });
@@ -306,6 +308,73 @@ describe("EnvNumberPrompt", () => {
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     expect((prompt as any).isOptionPickerOpen()).toBe(false);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
+  it("preserves numeric custom input when toggling secret via the toolbar", async () => {
+    const { prompt } = createPrompt({
+      current: 11,
+      default: 22,
+      secret: true,
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    await pressKey(prompt, { name: "down" });
+    await typeText(prompt, "12");
+    expect(prompt.userInput).toBe("12");
+    expect(prompt.value).toBe(12);
+
+    await pressKey(prompt, { name: "tab" });
+    await waitForIO(2);
+    await pressKey(prompt, { name: "right" });
+    await waitForIO(2);
+    await pressKey(prompt, { name: "return" });
+    await waitForIO(2);
+
+    expect(prompt.userInput).toBe("12");
+    expect(prompt.value).toBe(12);
+
+    await typeText(prompt, "3");
+    expect(prompt.userInput).toBe("123");
+    expect(prompt.value).toBe(123);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
+  it("appends multiple digits after toggling secret", async () => {
+    const { prompt } = createPrompt({
+      current: 11,
+      default: 22,
+      secret: true,
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    await pressKey(prompt, { name: "down" });
+    await typeText(prompt, "45");
+    expect(prompt.userInput).toBe("45");
+    expect(prompt.value).toBe(45);
+
+    await pressKey(prompt, { name: "tab" });
+    await waitForIO(2);
+    await pressKey(prompt, { name: "right" });
+    await waitForIO(2);
+    await pressKey(prompt, { name: "return" });
+    await waitForIO(2);
+
+    expect(prompt.userInput).toBe("45");
+
+    await typeText(prompt, "67");
+    expect(prompt.userInput).toBe("4567");
+    expect(prompt.value).toBe(4567);
 
     submitPrompt(prompt);
     await waitForIO(2);

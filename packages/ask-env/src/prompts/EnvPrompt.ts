@@ -163,19 +163,39 @@ export abstract class EnvPrompt<
   }
 
   protected renderFooter(baseHint?: string): string {
-    if (this.error) {
-      return this.colors.warn(this.error);
+    const errorFooter = this.renderFooterError();
+    if (errorFooter) {
+      return errorFooter;
     }
 
+    const toolbarFooter = this.renderFooterToolbar();
+    if (toolbarFooter) {
+      return toolbarFooter;
+    }
+
+    return this.renderFooterHint(baseHint);
+  }
+
+  private renderFooterError(): string | undefined {
+    if (!this.error) {
+      return undefined;
+    }
+    return this.colors.warn(this.error);
+  }
+
+  private renderFooterToolbar(): string | undefined {
     if (this.mode.hasSecret()) {
       this.toolbar.secret = this.mode.isSecretRevealed() ? "shown" : "hidden";
     }
 
     const toolbarOutput = this.toolbar.render();
-    if (toolbarOutput) {
-      return toolbarOutput;
+    if (!toolbarOutput) {
+      return undefined;
     }
+    return toolbarOutput;
+  }
 
+  private renderFooterHint(baseHint?: string): string {
     const hint = this.buildSkipHint(baseHint);
     return this.colors.subtle(hint);
   }

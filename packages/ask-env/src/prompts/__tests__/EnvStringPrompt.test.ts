@@ -547,4 +547,68 @@ describe("EnvStringPrompt", () => {
     await waitForIO(2);
     await promptPromise;
   });
+
+  it("preserves custom input when toggling secret via the toolbar", async () => {
+    const { prompt } = createPrompt({
+      current: "curr",
+      default: "def",
+      secret: true,
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    await pressKey(prompt, { name: "down" });
+    await typeText(prompt as any, "seed");
+    expect(prompt.userInput).toBe("seed");
+
+    await pressKey(prompt, { name: "tab" });
+    await waitForIO(2);
+    await pressKey(prompt, { name: "right" });
+    await waitForIO(2);
+    await pressKey(prompt, { name: "return" });
+    await waitForIO(2);
+
+    expect(prompt.userInput).toBe("seed");
+
+    await typeText(prompt as any, "x");
+    expect(prompt.userInput).toBe("seedx");
+    expect(prompt.value).toBe("seedx");
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
+  it("preserves and appends multiple characters after toggling secret", async () => {
+    const { prompt } = createPrompt({
+      current: "curr",
+      default: "def",
+      secret: true,
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    await pressKey(prompt, { name: "down" });
+    await typeText(prompt as any, "seed");
+    expect(prompt.userInput).toBe("seed");
+
+    await pressKey(prompt, { name: "tab" });
+    await waitForIO(2);
+    await pressKey(prompt, { name: "right" });
+    await waitForIO(2);
+    await pressKey(prompt, { name: "return" });
+    await waitForIO(2);
+
+    expect(prompt.userInput).toBe("seed");
+
+    await typeText(prompt as any, "xy");
+    expect(prompt.userInput).toBe("seedxy");
+    expect(prompt.value).toBe("seedxy");
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    await promptPromise;
+  });
 });

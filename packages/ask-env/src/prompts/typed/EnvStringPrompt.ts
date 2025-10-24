@@ -13,6 +13,10 @@ import type { StringEnvVarSchema } from "@envcredible/core";
 import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
+  private otherInputCache = "";
+  private shouldStitchInput = false;
+  private isRestoringInput = false;
+
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
@@ -162,6 +166,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           this.mode.enterTyping();
           this.mode.clearInput();
           this._setUserInput("");
+          this.otherInputCache = "";
           this.updateValue();
           return "Value cannot be empty";
         }
@@ -203,6 +208,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       this.mode.enterTyping();
       this.mode.clearInput();
       this._setUserInput("");
+      this.otherInputCache = "";
       this.setCommittedValue(this.getDefaultValue());
     } else {
       this.setCommittedValue(this.current ?? this.getDefaultValue());
@@ -238,6 +244,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             this.mode.exitTyping();
             this._clearUserInput();
             this.mode.clearInput();
+            this.otherInputCache = "";
           }
           this.mode.moveCursor("up", maxIndex);
           break;
@@ -257,6 +264,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             this.mode.exitTyping();
             this._clearUserInput();
             this.mode.clearInput();
+            this.otherInputCache = "";
           }
           this.mode.moveCursor("down", maxIndex);
           break;
@@ -265,20 +273,51 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       this.updateValue();
     });
 
-    this.on("userInput", (input: string) => {
+    this.on("userInput", (rawInput: string) => {
       if (this.state === "error") {
         this.state = "active";
         this.error = "";
       }
 
+      let input = rawInput.includes("\t")
+        ? rawInput.replace(/\t/g, "")
+        : rawInput;
+
+      if (this.isRestoringInput) {
+        this.isRestoringInput = false;
+        this.otherInputCache = input;
+        return;
+      }
+
       if (this.mode.isInInteraction("typing")) {
-        this.mode.updateInput(input);
+        let nextInput = input;
+
+        if (this.shouldStitchInput && this.otherInputCache) {
+          if (!input || input === this.otherInputCache) {
+            nextInput = this.otherInputCache;
+            // keep shouldStitchInput true until new characters arrive
+          } else if (input.startsWith(this.otherInputCache)) {
+            nextInput = input;
+            this.shouldStitchInput = false;
+          } else {
+            nextInput = `${this.otherInputCache}${input}`;
+            this.shouldStitchInput = false;
+          }
+        } else {
+          this.shouldStitchInput = false;
+        }
+
+        this.mode.updateInput(nextInput);
+        (this as unknown as { userInput: string }).userInput = nextInput;
+        this.otherInputCache = nextInput;
         try {
-          const parsed = this.parseInput(input);
+          const parsed = this.parseInput(nextInput);
           this.setCommittedValue(parsed ?? this.getDefaultValue());
         } catch {
           // Keep the current value; validation will surface errors when needed.
         }
+      } else {
+        this.shouldStitchInput = false;
       }
     });
 
@@ -327,9 +366,18 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         if (!isArrowKey && !isControlKey) {
           const textInputIndex = this.getTextInputIndex();
           this.mode.setCursor(textInputIndex);
-          this.mode.enterTyping(char);
-          this._setUserInput(char);
-          this.mode.updateInput(char);
+          const existingInput =
+            this.mode.getInputValue() ||
+            this.userInput ||
+            this.otherInputCache ||
+            "";
+
+          this.mode.enterTyping(existingInput);
+          const nextInput = `${existingInput}${char}`;
+          this.otherInputCache = nextInput;
+          this._setUserInput(nextInput);
+          this.mode.updateInput(nextInput);
+          this.syncCursorToInputEnd();
           this.updateValue();
           return;
         }
@@ -342,6 +390,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           this.mode.exitTyping();
           this._clearUserInput();
           this.mode.clearInput();
+          this.otherInputCache = "";
           this.updateValue();
           return;
         }
@@ -432,7 +481,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   private getInputDisplay(includeCursor: boolean): string {
-  const inputValue = this.mode.getInputValue();
+    const inputValue = this.mode.getInputValue();
     const isMasked = this.secret && inputValue && !this.isSecretRevealed();
     const base = isMasked ? this.maskValue(inputValue) : inputValue;
 
@@ -465,5 +514,43 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
   private getEntryHint(): string {
     return this.secret ? "Enter a secret value" : "Enter a value";
+  }
+
+  private syncCursorToInputEnd(): void {
+    const cursorHost = this as unknown as { _cursor?: number };
+    const inputValue = this.mode.getInputValue();
+    cursorHost._cursor = inputValue.length;
+  }
+
+  protected override toggleSecretReveal(): void {
+    const cachedInput =
+      this.mode.getInputValue() || this.userInput || this.otherInputCache;
+
+    super.toggleSecretReveal();
+
+    if (!cachedInput) {
+      return;
+    }
+
+    this.shouldStitchInput = Boolean(this.otherInputCache || cachedInput);
+    const stitchedBaseline = cachedInput;
+
+    queueMicrotask(() => {
+      const restored = this.otherInputCache || stitchedBaseline;
+      if (!restored) {
+        return;
+      }
+
+      if (!this.mode.isInInteraction("typing")) {
+        this.mode.enterTyping(restored);
+      }
+
+      this.isRestoringInput = true;
+      this.internals.track = true;
+      this.mode.updateInput(restored);
+      this.otherInputCache = restored;
+      this._setUserInput(restored, true);
+      this.syncCursorToInputEnd();
+    });
   }
 }
