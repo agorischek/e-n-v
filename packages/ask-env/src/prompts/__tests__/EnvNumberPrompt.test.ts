@@ -199,14 +199,14 @@ describe("EnvNumberPrompt", () => {
 
   it("applies custom validation for selected and typed values", async () => {
     const calls: Array<number | undefined> = [];
-    
+
     // Create a schema with custom validation logic
     const schema = new NumberEnvVarSchema({
       default: 2,
       process: (value: string) => {
         const numValue = parseInt(value, 10);
         calls.push(numValue);
-        
+
         if (numValue === 1) {
           throw new Error("one blocked");
         }

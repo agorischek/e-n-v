@@ -254,7 +254,7 @@ describe("EnvStringPrompt", () => {
 
   it("returns focus to previous selection when toggling secret and skips validation", async () => {
     const calls: Array<string | undefined> = [];
-    
+
     // Create a schema with validation that requires a value
     const schema = new StringEnvVarSchemaClass({
       required: true,
@@ -357,7 +357,7 @@ describe("EnvStringPrompt", () => {
 
   it("applies custom validation for selected values", async () => {
     const calls: Array<string | undefined> = [];
-    
+
     // Create a schema with custom validation that blocks "def"
     const schema = new StringEnvVarSchemaClass({
       required: false,
@@ -395,7 +395,7 @@ describe("EnvStringPrompt", () => {
 
   it("applies custom validation to typed input", async () => {
     const calls: Array<string | undefined> = [];
-    
+
     // Create a schema with custom validation
     const schema = new StringEnvVarSchemaClass({
       required: false,

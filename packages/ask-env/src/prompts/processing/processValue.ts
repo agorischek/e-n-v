@@ -27,11 +27,7 @@ export function processValue<T>(
     }
 
     // Apply preprocessing
-    const processedValue = applyPreprocessing(
-      value,
-      schema.type,
-      preprocess,
-    );
+    const processedValue = applyPreprocessing(value, schema.type, preprocess);
 
     // If the preprocessing function returned the target type, use it directly
     if (schema.type === "boolean" && typeof processedValue === "boolean") {

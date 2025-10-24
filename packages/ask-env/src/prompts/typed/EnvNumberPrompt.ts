@@ -15,7 +15,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   isTyping = false;
 
   constructor(schema: NumberEnvVarSchema, opts: EnvPromptOptions<number>) {
-    super(schema, ({
+    super(schema, {
       ...opts,
       render: padActiveRender(function (this: EnvNumberPrompt) {
         if (this.state === "submit") {
@@ -213,12 +213,12 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         // All other cases are valid
         return undefined;
       },
-    }) as any);
+    } as any);
 
     // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
-  this.internals.track = true;
+      this.internals.track = true;
       this.setCommittedValue(this.getDefaultValue());
     } else {
       // Set initial value based on cursor position

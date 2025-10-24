@@ -17,7 +17,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   isTyping = false;
 
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
-    super(schema, ({
+    super(schema, {
       ...opts,
       render: padActiveRender(function (this: EnvStringPrompt) {
         if (this.state === "submit") {
@@ -224,12 +224,12 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         // All other cases are valid
         return undefined;
       },
-    }) as any);
+    } as any);
 
     // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {
       this.isTyping = true;
-  this.internals.track = true;
+      this.internals.track = true;
       this.setCommittedValue(this.getDefaultValue());
     } else {
       // Set initial value to current

@@ -96,9 +96,7 @@ export class Toolbar {
       const icon = isFocused ? S_TOOL_ACTIVE : S_TOOL_INACTIVE;
       const label = `${icon} ${option.label}`;
 
-      return isFocused
-        ? this.theme.primary(label)
-        : this.theme.subtle(label);
+      return isFocused ? this.theme.primary(label) : this.theme.subtle(label);
     });
 
     const leftSide = optionStrings.join(separator);

@@ -115,6 +115,4 @@ describe("EnvEnumPrompt", () => {
     expect(output).toContain("beta");
     expect(output).toContain("=");
   });
-
-
 });

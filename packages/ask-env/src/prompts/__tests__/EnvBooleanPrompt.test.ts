@@ -109,13 +109,13 @@ describe("EnvBooleanPrompt", () => {
   it("applies custom validation, handles navigation, and eventually succeeds", async () => {
     const calls: Array<boolean | undefined> = [];
     let allowTrue = false;
-    
+
     // Create a schema with custom validation logic
     const schema = new BooleanEnvVarSchema({
       process: (value: string) => {
         const boolValue = value.toLowerCase() === "true";
         calls.push(boolValue);
-        
+
         if (boolValue === false) {
           throw new Error("false not allowed");
         }

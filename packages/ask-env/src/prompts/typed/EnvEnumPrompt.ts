@@ -12,7 +12,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   private readonly values: readonly string[];
 
   constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
-    super(schema, ({
+    super(schema, {
       ...opts,
       render: padActiveRender(function (this: EnvEnumPrompt) {
         if (this.state === "submit") {
@@ -95,7 +95,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         }
         return undefined;
       },
-    }) as any);
+    } as any);
 
     this.options = opts;
     this.values = [...schema.values];

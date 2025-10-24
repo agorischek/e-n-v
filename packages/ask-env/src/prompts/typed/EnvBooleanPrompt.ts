@@ -10,7 +10,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
 
   constructor(schema: BooleanEnvVarSchema, opts: EnvPromptOptions<boolean>) {
-    super(schema, ({
+    super(schema, {
       ...opts,
       render: padActiveRender(function (this: EnvBooleanPrompt) {
         if (this.state === "submit") {
@@ -103,7 +103,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         }
         return undefined;
       },
-    }) as any);
+    } as any);
 
     // Set cursor based on priority: current → default → true
     // cursor 0 = true, cursor 1 = false

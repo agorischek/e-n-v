@@ -11,6 +11,7 @@ import type { EnvPromptOptions } from "./options/EnvPromptOptions";
 import type { PromptOutcome } from "../types/PromptOutcome";
 import { ClackPromptInternals } from "./utils/ClackPromptInternals";
 import { Toolbar } from "./toolbar";
+import { PromptStateMachine } from "./state/PromptState";
 
 export type FooterState = "hint" | "warn" | "tools";
 
@@ -37,7 +38,8 @@ export abstract class EnvPrompt<
 
   constructor(
     schema: TSchema,
-    opts: EnvPromptOptions<TVar> & PromptOptions<TVar, EnvPrompt<TVar, TSchema>>,
+    opts: EnvPromptOptions<TVar> &
+      PromptOptions<TVar, EnvPrompt<TVar, TSchema>>,
   ) {
     const promptOptions = {
       ...opts, // Include the subclass's validate function
@@ -99,7 +101,9 @@ export abstract class EnvPrompt<
 
   protected runSchemaValidation(
     value: string | undefined,
-  ): { success: true; value: TVar | undefined } | { success: false; error: string } {
+  ):
+    | { success: true; value: TVar | undefined }
+    | { success: false; error: string } {
     if (!value || value.trim() === "") {
       return { success: true, value: undefined };
     }
@@ -108,7 +112,8 @@ export abstract class EnvPrompt<
       const processedValue = this.schema.process?.(value);
       return { success: true, value: processedValue };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       return { success: false, error: errorMessage };
     }
   }
@@ -157,13 +162,13 @@ export abstract class EnvPrompt<
 
   protected getFooterState(): FooterState {
     if (this.error) return "warn";
-    if (this.toolbar.isOpen) return "tools"; 
+    if (this.toolbar.isOpen) return "tools";
     return "hint";
   }
 
   protected handleToolbarKey(char: string | undefined, info: Key): boolean {
     const handled = this.toolbar.handleKey(char, info);
-    
+
     // Handle special cases for key handling flow
     if (handled && info?.name === "tab") {
       if (!this.toolbar.isOpen) {
