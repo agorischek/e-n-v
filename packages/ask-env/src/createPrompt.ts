@@ -5,7 +5,6 @@ import { EnvNumberPrompt } from "./prompts/typed/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/typed/EnvStringPrompt";
 import type { EnvVarSchema, PreprocessorOptions } from "@envcredible/core";
 import type { Theme } from "./visuals/Theme";
-import type { AskEnvOptions } from "./AskEnvOptions";
 import { parseBoolean } from "./utils/parseBoolean";
 
 interface CreatePromptOptions {

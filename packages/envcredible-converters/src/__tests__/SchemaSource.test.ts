@@ -1,6 +1,5 @@
 import { describe, it, expect } from "bun:test";
 import { resolveSchema } from "../resolve";
-import { StringEnvVarSchema } from "@envcredible/core";
 import { z } from "zod";
 
 describe("SchemaSource", () => {

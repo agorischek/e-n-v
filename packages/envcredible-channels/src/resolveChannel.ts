@@ -1,7 +1,6 @@
 import type { EnvChannel } from "@envcredible/core";
 import type { EnvChannelOptions } from "./EnvChannelOptions";
 import type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
-import type { DefaultChannelConfig } from "./channels/default/DefaultChannelConfig";
 import { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
 import { DotEnvXChannel } from "./channels/dotenvx/DotEnvXChannel";
 

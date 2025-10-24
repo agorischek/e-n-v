@@ -1,4 +1,3 @@
-import type { DotEnvXInstance } from "./channels/dotenvx/DotEnvXInstance";
 import type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
 import type { DefaultChannelConfig } from "./channels/default/DefaultChannelConfig";
 

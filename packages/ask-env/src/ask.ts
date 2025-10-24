@@ -1,4 +1,3 @@
-import type { EnvVarSchema } from "@envcredible/core";
 import type { EnvVarSchemaMap } from "@envcredible/converters";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
