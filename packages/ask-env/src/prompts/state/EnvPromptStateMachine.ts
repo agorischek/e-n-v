@@ -19,6 +19,14 @@ export class EnvPromptStateMachine {
     this._substate = { ...initialSubstate };
   }
 
+  get intention(): IntentionState {
+    return this._substate.intention;
+  }
+
+  set intention(intention: IntentionState) {
+    this.updateSubstate({ intention });
+  }
+
   /**
    * Get current complete state
    */
@@ -146,7 +154,7 @@ export class EnvPromptStateMachine {
    * Set user intention (commit, skip, previous)
    */
   setIntention(intention: IntentionState): void {
-    this.updateSubstate({ intention });
+    this.intention = intention;
   }
 
   // Secret visibility
@@ -303,6 +311,6 @@ export class EnvPromptStateMachine {
    * Get current intention
    */
   getIntention(): IntentionState {
-    return this._substate.intention;
+    return this.intention;
   }
 }

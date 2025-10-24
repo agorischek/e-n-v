@@ -78,7 +78,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         options.push("Other");
 
         options.forEach((option, index) => {
-          const isSelected = index === this.stateMachine.getCursor();
+          const isSelected = index === this.substate.getCursor();
           const circle = dimInputs
             ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
             : isSelected
@@ -86,7 +86,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
               : this.colors.dim(S_RADIO_INACTIVE);
 
           if (typeof option === "string") {
-            if (this.stateMachine.isInMode("typing")) {
+            if (this.substate.isInMode("typing")) {
               const displayText = dimInputs
                 ? this.colors.dim(this.getInputDisplay(false))
                 : this.colors.white(this.getInputDisplay(true));
@@ -156,19 +156,19 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         const textInputIndex = this.getTextInputIndex();
 
         if (
-          this.stateMachine.getCursor() === textInputIndex &&
-          !this.stateMachine.isInMode("typing")
+          this.substate.getCursor() === textInputIndex &&
+          !this.substate.isInMode("typing")
         ) {
-          this.stateMachine.enterTypingMode();
-          this.stateMachine.clearInput();
+          this.substate.enterTypingMode();
+          this.substate.clearInput();
           this._setUserInput("");
           this.updateValue();
           return "Value cannot be empty";
         }
 
         if (
-          this.stateMachine.getCursor() === textInputIndex &&
-          this.stateMachine.isInMode("typing") &&
+          this.substate.getCursor() === textInputIndex &&
+          this.substate.isInMode("typing") &&
           !(this.userInput && this.userInput.trim())
         ) {
           if (this.required) {
@@ -177,7 +177,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           return undefined;
         }
 
-        if (this.stateMachine.isInMode("typing") && this.userInput) {
+        if (this.substate.isInMode("typing") && this.userInput) {
           const inputValidation = this.validateInput(this.userInput);
           if (inputValidation) {
             return inputValidation;
@@ -188,7 +188,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           }
         }
 
-        if (!this.stateMachine.isInMode("typing")) {
+        if (!this.substate.isInMode("typing")) {
           const validation = this.runSchemaValidation(value);
           if (!validation.success) {
             return validation.error;
@@ -200,8 +200,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     } as any);
 
     if (this.current === undefined && this.default === undefined) {
-      this.stateMachine.enterTypingMode();
-      this.stateMachine.clearInput();
+      this.substate.enterTypingMode();
+      this.substate.clearInput();
       this._setUserInput("");
       this.setCommittedValue(this.getDefaultValue());
     } else {
@@ -232,14 +232,14 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           const maxIndex = optionsCount - 1;
 
           if (
-            this.stateMachine.isInMode("typing") ||
-            this.stateMachine.getCursor() === maxIndex
+            this.substate.isInMode("typing") ||
+            this.substate.getCursor() === maxIndex
           ) {
-            this.stateMachine.exitTypingMode();
+            this.substate.exitTypingMode();
             this._clearUserInput();
-            this.stateMachine.clearInput();
+            this.substate.clearInput();
           }
-          this.stateMachine.moveCursor("up", maxIndex);
+          this.substate.moveCursor("up", maxIndex);
           break;
         }
         case "down": {
@@ -251,14 +251,14 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           const maxIndex = optionsCount - 1;
 
           if (
-            this.stateMachine.isInMode("typing") ||
-            this.stateMachine.getCursor() === maxIndex
+            this.substate.isInMode("typing") ||
+            this.substate.getCursor() === maxIndex
           ) {
-            this.stateMachine.exitTypingMode();
+            this.substate.exitTypingMode();
             this._clearUserInput();
-            this.stateMachine.clearInput();
+            this.substate.clearInput();
           }
-          this.stateMachine.moveCursor("down", maxIndex);
+          this.substate.moveCursor("down", maxIndex);
           break;
         }
       }
@@ -271,8 +271,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.stateMachine.isInMode("typing")) {
-        this.stateMachine.updateInput(input);
+      if (this.substate.isInMode("typing")) {
+        this.substate.updateInput(input);
         try {
           const parsed = this.parseInput(input);
           this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -299,7 +299,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       }
 
       if (this.current === undefined && this.default === undefined) {
-        if (this.stateMachine.isInMode("typing")) {
+        if (this.substate.isInMode("typing")) {
           try {
             const parsed = this.parseInput(this.userInput);
             this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -315,7 +315,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         char.length === 1 &&
         !info.ctrl &&
         !info.meta &&
-        !this.stateMachine.isInMode("typing")
+        !this.substate.isInMode("typing")
       ) {
         const isArrowKey = ["up", "down", "left", "right"].includes(
           info.name || "",
@@ -326,10 +326,10 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         if (!isArrowKey && !isControlKey) {
           const textInputIndex = this.getTextInputIndex();
-          this.stateMachine.setCursor(textInputIndex);
-          this.stateMachine.enterTypingMode(char);
+          this.substate.setCursor(textInputIndex);
+          this.substate.enterTypingMode(char);
           this._setUserInput(char);
-          this.stateMachine.updateInput(char);
+          this.substate.updateInput(char);
           this.updateValue();
           return;
         }
@@ -337,11 +337,11 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
       const textInputIndex = this.getTextInputIndex();
 
-      if (this.stateMachine.getCursor() === textInputIndex) {
+      if (this.substate.getCursor() === textInputIndex) {
         if (info.name === "escape") {
-          this.stateMachine.exitTypingMode();
+          this.substate.exitTypingMode();
           this._clearUserInput();
-          this.stateMachine.clearInput();
+          this.substate.clearInput();
           this.updateValue();
           return;
         }
@@ -350,17 +350,17 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   get cursor(): number {
-    return this.stateMachine.getCursor();
+    return this.substate.getCursor();
   }
 
   get isTyping(): boolean {
-    return this.stateMachine.isInMode("typing");
+    return this.substate.isInMode("typing");
   }
 
   private updateValue() {
     if (this.current === undefined && this.default === undefined) {
       try {
-        const parsed = this.parseInput(this.stateMachine.getInputValue());
+        const parsed = this.parseInput(this.substate.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());
@@ -368,10 +368,10 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       return;
     }
 
-    if (!this.stateMachine.isInMode("typing")) {
+    if (!this.substate.isInMode("typing")) {
       let optionIndex = 0;
 
-      if (this.current !== undefined && this.stateMachine.getCursor() === optionIndex) {
+      if (this.current !== undefined && this.substate.getCursor() === optionIndex) {
         this.setCommittedValue(this.current);
         return;
       }
@@ -380,7 +380,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       if (
         this.default !== undefined &&
         this.current !== this.default &&
-        this.stateMachine.getCursor() === optionIndex
+        this.substate.getCursor() === optionIndex
       ) {
         this.setCommittedValue(this.default);
         return;
@@ -391,7 +391,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       this.setCommittedValue(this.getDefaultValue());
     } else {
       try {
-        const parsed = this.parseInput(this.stateMachine.getInputValue());
+        const parsed = this.parseInput(this.substate.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());
@@ -432,7 +432,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   private getInputDisplay(includeCursor: boolean): string {
-    const inputValue = this.stateMachine.getInputValue();
+    const inputValue = this.substate.getInputValue();
     const isMasked = this.secret && inputValue && !this.isSecretRevealed();
     const base = isMasked ? this.maskValue(inputValue) : inputValue;
 
@@ -440,7 +440,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       return base;
     }
 
-    const rawCursor = this.stateMachine.isInMode("typing")
+    const rawCursor = this.substate.isInMode("typing")
       ? Math.max(
           0,
           (this as unknown as { _cursor?: number })._cursor ??
