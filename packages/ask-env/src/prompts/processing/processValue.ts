@@ -1,6 +1,7 @@
 import type {
   EnvVarSchemaDetails,
   PreprocessorOptions,
+  TypedPreprocessor,
 } from "@envcredible/core";
 import { applyPreprocessing } from "@envcredible/core";
 
@@ -18,7 +19,7 @@ export function processValue<T>(
   envKey: string,
   value: string | undefined,
   schema: EnvVarSchemaDetails<T>,
-  preprocess?: PreprocessorOptions,
+  preprocess?: TypedPreprocessor<T> | null,
 ): ProcessingResult<T> {
   try {
     // Handle undefined/empty values early
@@ -27,7 +28,15 @@ export function processValue<T>(
     }
 
     // Apply preprocessing
-    const processedValue = applyPreprocessing(value, schema.type, preprocess);
+    const resolvedPreprocessors = createTypedPreprocessorOptions(
+      schema.type,
+      preprocess,
+    );
+    const processedValue = applyPreprocessing(
+      value,
+      schema.type,
+      resolvedPreprocessors,
+    );
 
     // If the preprocessing function returned the target type, use it directly
     if (schema.type === "boolean" && typeof processedValue === "boolean") {
@@ -55,5 +64,27 @@ export function processValue<T>(
       isValid: false,
       error: message,
     };
+  }
+}
+
+function createTypedPreprocessorOptions<T>(
+  type: EnvVarSchemaDetails<T>["type"],
+  preprocess: TypedPreprocessor<T> | null | undefined,
+): PreprocessorOptions | undefined {
+  if (preprocess === undefined) {
+    return undefined;
+  }
+
+  switch (type) {
+    case "string":
+      return { string: preprocess as PreprocessorOptions["string"] };
+    case "number":
+      return { number: preprocess as PreprocessorOptions["number"] };
+    case "boolean":
+      return { bool: preprocess as PreprocessorOptions["bool"] };
+    case "enum":
+      return { enum: preprocess as PreprocessorOptions["enum"] };
+    default:
+      return undefined;
   }
 }

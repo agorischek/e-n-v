@@ -8,16 +8,16 @@ import {
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import type { NumberEnvVarSchema } from "@envcredible/core";
-import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
-  cursor = 0;
-  isTyping = false;
+  private otherInputCache = "";
+  private shouldStitchInput = false;
+  private isRestoringInput = false;
 
   constructor(schema: NumberEnvVarSchema, opts: EnvPromptOptions<number>) {
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvNumberPrompt) {
+      render: function (this: EnvNumberPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -46,11 +46,11 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         }
         output += "\n";
 
-        const dimInputs = this.shouldDimInputs();
+        const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         // If both current and default are undefined, show only text input
         if (this.current === undefined && this.default === undefined) {
-          if (this.isTyping) {
+          if (this.mode.isInInteraction("typing")) {
             const displayText = dimInputs
               ? this.colors.dim(this.getInputDisplay(false))
               : this.colors.white(this.getInputDisplay(true));
@@ -95,7 +95,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         options.push("Other");
 
         options.forEach((option, index) => {
-          const isSelected = index === this.cursor;
+          const isSelected = index === this.mode.getCursor();
           const circle = dimInputs
             ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
             : isSelected
@@ -104,7 +104,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
           if (typeof option === "string") {
             // "Other" option
-            if (this.isTyping) {
+            if (this.mode.isInInteraction("typing")) {
               const displayText = dimInputs
                 ? this.colors.dim(this.getInputDisplay(false))
                 : this.colors.white(this.getInputDisplay(true));
@@ -145,7 +145,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         output += `${this.getBarEnd()}  ${this.renderFooter("Enter a number")}`;
 
         return output;
-      }),
+      },
       validate: (value: number | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;
@@ -171,26 +171,30 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         // textInputIndex now points to the "Other" option
 
         // If we're on the custom entry option but not typing yet, start typing mode
-        if (this.cursor === textInputIndex && !this.isTyping) {
+        if (
+          this.mode.getCursor() === textInputIndex &&
+          !this.mode.isInInteraction("typing")
+        ) {
           // Start typing mode instead of submitting
-          this.isTyping = true;
-          this.internals.track = true;
+          this.mode.enterTyping();
+          this.mode.clearInput();
           this._setUserInput("");
+          this.otherInputCache = "";
           this.updateValue();
           return "Please enter a number"; // Show error since no input provided yet
         }
 
         // If we're typing on the custom option but haven't entered anything, prevent submission
         if (
-          this.cursor === textInputIndex &&
-          this.isTyping &&
+          this.mode.getCursor() === textInputIndex &&
+          this.mode.isInInteraction("typing") &&
           (!this.userInput || !this.userInput.trim())
         ) {
           return "Please enter a number";
         }
 
         // If we're typing, validate the input
-        if (this.isTyping && this.userInput) {
+        if (this.mode.isInInteraction("typing") && this.userInput) {
           const inputValidation = this.validateInput(this.userInput);
           if (inputValidation) {
             return inputValidation;
@@ -203,7 +207,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         }
 
         // For non-typing cases (selecting current/default), validate the selected value
-        if (!this.isTyping) {
+        if (!this.mode.isInInteraction("typing")) {
           const validation = this.runSchemaValidation(value?.toString());
           if (!validation.success) {
             return validation.error;
@@ -217,8 +221,10 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
     // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {
-      this.isTyping = true;
-      this.internals.track = true;
+      this.mode.enterTyping();
+      this.mode.clearInput();
+      this._setUserInput("");
+      this.otherInputCache = "";
       this.setCommittedValue(this.getDefaultValue());
     } else {
       // Set initial value based on cursor position
@@ -237,7 +243,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
@@ -252,12 +258,16 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           const maxIndex = optionsCount - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
-          if (this.isTyping || this.cursor === maxIndex) {
-            this.isTyping = false;
-            this.internals.track = false;
+          if (
+            this.mode.isInInteraction("typing") ||
+            this.mode.getCursor() === maxIndex
+          ) {
+            this.mode.exitTyping();
             this._clearUserInput(); // This clears the internal readline state too
+            this.mode.clearInput();
+            this.otherInputCache = "";
           }
-          this.cursor = this.cursor === 0 ? maxIndex : this.cursor - 1;
+          this.mode.moveCursor("up", maxIndex);
           break;
         case "down":
           // Calculate max index based on actual options
@@ -269,33 +279,69 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           const maxIndexDown = optionsCountDown - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
-          if (this.isTyping || this.cursor === maxIndexDown) {
-            this.isTyping = false;
-            this.internals.track = false;
+          if (
+            this.mode.isInInteraction("typing") ||
+            this.mode.getCursor() === maxIndexDown
+          ) {
+            this.mode.exitTyping();
             this._clearUserInput(); // This clears the internal readline state too
+            this.mode.clearInput();
+            this.otherInputCache = "";
           }
-          this.cursor = this.cursor === maxIndexDown ? 0 : this.cursor + 1;
+          this.mode.moveCursor("down", maxIndexDown);
           break;
       }
       this.updateValue();
     });
 
     // Listen for user input changes (when typing)
-    this.on("userInput", (input: string) => {
+    this.on("userInput", (rawInput: string) => {
       // Clear error state when user is typing (like base Prompt class does)
       if (this.state === "error") {
         this.state = "active";
         this.error = "";
       }
 
-      if (this.isTyping) {
+      let input = rawInput.includes("\t")
+        ? rawInput.replace(/\t/g, "")
+        : rawInput;
+
+      if (this.isRestoringInput) {
+        this.isRestoringInput = false;
+        this.otherInputCache = input;
+        return;
+      }
+
+      if (this.mode.isInInteraction("typing")) {
+        let nextInput = input;
+
+        if (this.shouldStitchInput && this.otherInputCache) {
+          if (!input || input === this.otherInputCache) {
+            nextInput = this.otherInputCache;
+            // keep shouldStitchInput true until new characters arrive
+          } else if (input.startsWith(this.otherInputCache)) {
+            nextInput = input;
+            this.shouldStitchInput = false;
+          } else {
+            nextInput = `${this.otherInputCache}${input}`;
+            this.shouldStitchInput = false;
+          }
+        } else {
+          this.shouldStitchInput = false;
+        }
+
+        this.mode.updateInput(nextInput);
+        (this as unknown as { userInput: string }).userInput = nextInput;
+        this.otherInputCache = nextInput;
         try {
-          const parsed = this.parseInput(input);
+          const parsed = this.parseInput(nextInput);
           this.setCommittedValue(parsed ?? this.getDefaultValue());
         } catch {
           // If parsing fails, keep the current value but still update display
           // The validation will catch this
         }
+      } else {
+        this.shouldStitchInput = false;
       }
     });
 
@@ -313,14 +359,14 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
       // If both current and default are undefined, we're in text-only mode
       if (this.current === undefined && this.default === undefined) {
         // Already in typing mode, just update the value as the user types
-        if (this.isTyping) {
+        if (this.mode.isInInteraction("typing")) {
           try {
             const parsed = this.parseInput(this.userInput);
             this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -338,7 +384,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         char.length === 1 &&
         !info.ctrl &&
         !info.meta &&
-        !this.isTyping
+        !this.mode.isInInteraction("typing")
       ) {
         const isArrowKey = ["up", "down", "left", "right"].includes(
           info.name || "",
@@ -351,11 +397,20 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           // Calculate the text input index dynamically
           const textInputIndex = this.getTextInputIndex();
 
-          this.cursor = textInputIndex; // Jump to the "Other" option
-          this.isTyping = true;
-          // Enable value tracking and set the initial character
-          this.internals.track = true;
-          this._setUserInput(char);
+          this.mode.setCursor(textInputIndex); // Jump to the "Other" option
+          const existingInput =
+            this.mode.getInputValue() ||
+            this.userInput ||
+            this.otherInputCache ||
+            "";
+
+          this.mode.enterTyping(existingInput);
+
+          const nextInput = `${existingInput}${char}`;
+          this.otherInputCache = nextInput;
+          this._setUserInput(nextInput);
+          this.mode.updateInput(nextInput);
+          this.syncCursorToInputEnd();
           this.updateValue();
           return;
         }
@@ -364,13 +419,14 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       // Calculate the text input index dynamically
       const textInputIndex = this.getTextInputIndex();
 
-      if (this.cursor === textInputIndex) {
+      if (this.mode.getCursor() === textInputIndex) {
         // Text input option
         if (info.name === "escape") {
           // Exit typing mode
-          this.isTyping = false;
-          this.internals.track = false;
+          this.mode.exitTyping();
           this._clearUserInput(); // Clear the internal readline state
+          this.mode.clearInput();
+          this.otherInputCache = "";
           this.updateValue();
           return; // Prevent default Escape behavior
         }
@@ -379,12 +435,12 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   }
 
   private getInputDisplay(includeCursor: boolean): string {
-    const inputValue = this.userInput ?? "";
+    const inputValue = this.mode.getInputValue();
     if (!includeCursor) {
       return inputValue;
     }
 
-    const rawCursor = this.isTyping
+    const rawCursor = this.mode.isInInteraction("typing")
       ? Math.max(
           0,
           (this as unknown as { _cursor?: number })._cursor ??
@@ -404,11 +460,48 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     return `${before}${this.colors.inverse(cursorChar)}${after}`;
   }
 
+  private syncCursorToInputEnd(): void {
+    const cursorHost = this as unknown as { _cursor?: number };
+    cursorHost._cursor = this.mode.getInputValue().length;
+  }
+
+  protected override toggleSecretReveal(): void {
+    const cachedInput =
+      this.mode.getInputValue() || this.userInput || this.otherInputCache;
+
+    super.toggleSecretReveal();
+
+    if (!cachedInput) {
+      return;
+    }
+
+    this.shouldStitchInput = Boolean(this.otherInputCache || cachedInput);
+    const stitchedBaseline = cachedInput;
+
+    queueMicrotask(() => {
+      const restored = this.otherInputCache || stitchedBaseline;
+      if (!restored) {
+        return;
+      }
+
+      if (!this.mode.isInInteraction("typing")) {
+        this.mode.enterTyping(restored);
+      }
+
+      this.isRestoringInput = true;
+      this.internals.track = true;
+      this.mode.updateInput(restored);
+      this.otherInputCache = restored;
+      this._setUserInput(restored, true);
+      this.syncCursorToInputEnd();
+    });
+  }
+
   private updateValue() {
     // If both current and default are undefined, we're in text-only mode
     if (this.current === undefined && this.default === undefined) {
       try {
-        const parsed = this.parseInput(this.userInput);
+        const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());
@@ -416,12 +509,12 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       return;
     }
 
-    if (!this.isTyping) {
+    if (!this.mode.isInInteraction("typing")) {
       // Dynamically determine what option the cursor is on
       let optionIndex = 0;
 
       // Check if cursor is on current value
-      if (this.current !== undefined && this.cursor === optionIndex) {
+      if (this.current !== undefined && this.mode.getCursor() === optionIndex) {
         this.setCommittedValue(this.current);
         return;
       }
@@ -431,7 +524,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       if (
         this.default !== undefined &&
         this.current !== this.default &&
-        this.cursor === optionIndex
+        this.mode.getCursor() === optionIndex
       ) {
         this.setCommittedValue(this.default);
         return;
@@ -443,7 +536,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       this.setCommittedValue(this.getDefaultValue());
     } else {
       try {
-        const parsed = this.parseInput(this.userInput);
+        const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());

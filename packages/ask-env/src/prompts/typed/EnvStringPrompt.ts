@@ -10,16 +10,16 @@ import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import { maskSecretValue } from "../../utils/secrets";
 import type { StringEnvVarSchema } from "@envcredible/core";
-import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
-  cursor = 0;
-  isTyping = false;
+  private otherInputCache = "";
+  private shouldStitchInput = false;
+  private isRestoringInput = false;
 
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvStringPrompt) {
+      render: function (this: EnvStringPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -39,7 +39,6 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         let output = "";
 
-        // Add header line with symbol based on state and key in bold white and description in gray if provided
         output += `${this.getSymbol()}  ${this.colors.bold(
           this.colors.white(this.key),
         )}`;
@@ -48,35 +47,22 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         }
         output += "\n";
 
-        const dimInputs = this.shouldDimInputs();
+        const dimInputs = !this.error && this.mode.isToolbarOpen();
 
-        // If both current and default are undefined, show only text input
         if (this.current === undefined && this.default === undefined) {
-          if (this.isTyping) {
-            const displayText = dimInputs
-              ? this.colors.dim(this.getInputDisplay(false))
-              : this.colors.white(this.getInputDisplay(true));
-            output += `${this.getBar()}  ${displayText}`;
-          } else {
-            const idleDisplay = dimInputs
-              ? this.colors.dim(this.getInputDisplay(false))
-              : this.colors.white(this.getInputDisplay(true));
-            output += `${this.getBar()}  ${idleDisplay}`;
-          }
-
-          // Add validation output or placeholder text with L-shaped pipe
+          const displayText = dimInputs
+            ? this.colors.dim(this.getInputDisplay(false))
+            : this.colors.white(this.getInputDisplay(true));
+          output += `${this.getBar()}  ${displayText}`;
           output += "\n";
           output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
-
           return output;
         }
 
-        // Create options array dynamically based on what values exist
         const options: Array<
           { value: string | undefined; label: string } | string
         > = [];
 
-        // Add current value if it exists
         if (this.current !== undefined) {
           if (this.default !== undefined && this.current === this.default) {
             options.push({
@@ -88,16 +74,14 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           }
         }
 
-        // Add default value if it exists and is different from current
         if (this.default !== undefined && this.current !== this.default) {
           options.push({ value: this.default, label: "(default)" });
         }
 
-        // Always add the custom entry option
         options.push("Other");
 
         options.forEach((option, index) => {
-          const isSelected = index === this.cursor;
+          const isSelected = index === this.mode.getCursor();
           const circle = dimInputs
             ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
             : isSelected
@@ -105,8 +89,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
               : this.colors.dim(S_RADIO_INACTIVE);
 
           if (typeof option === "string") {
-            // "Other" option
-            if (this.isTyping) {
+            if (this.mode.isInInteraction("typing")) {
               const displayText = dimInputs
                 ? this.colors.dim(this.getInputDisplay(false))
                 : this.colors.white(this.getInputDisplay(true));
@@ -118,14 +101,12 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
                 output += `${this.getBar()}  ${circle} ${this.colors.white(this.getInputDisplay(true))}\n`;
               }
             } else {
-              // "Other" is gray when not selected
               const text = dimInputs
                 ? this.colors.dim(option)
                 : this.colors.subtle(option);
               output += `${this.getBar()}  ${circle} ${text}\n`;
             }
           } else {
-            // Current/Default options
             const displayValue = this.formatValue(option.value);
             const text = dimInputs
               ? this.colors.dim(displayValue)
@@ -143,10 +124,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           }
         });
 
-        // Add validation output or placeholder text with L-shaped pipe
         output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
         return output;
-      }),
+      },
       validate: (value: string | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;
@@ -154,45 +134,46 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         if (this.getOutcome() !== "commit") {
           return undefined;
         }
-        // If both current and default are undefined, we're in text-only mode
+
         if (this.current === undefined && this.default === undefined) {
-          if (!this.userInput || !this.userInput.trim()) {
+          const input = this.userInput ?? "";
+          if (!input.trim()) {
             if (this.required) {
               return "Please enter a value";
             }
             return undefined;
           }
-          // Validate the user input format first
-          const inputValidation = this.validateInput(this.userInput);
+
+          const inputValidation = this.validateInput(input);
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run schema validation if provided
-          const validation = this.runSchemaValidation(this.userInput);
+
+          const validation = this.runSchemaValidation(input);
           if (!validation.success) {
             return validation.error;
           }
           return undefined;
         }
 
-        // Calculate the text input index dynamically
         const textInputIndex = this.getTextInputIndex();
 
-        // If we're on the custom entry option but not typing yet, prevent submission
-        if (this.cursor === textInputIndex && !this.isTyping) {
-          // Start typing mode instead of submitting
-          this.isTyping = true;
-          this.internals.track = true;
+        if (
+          this.mode.getCursor() === textInputIndex &&
+          !this.mode.isInInteraction("typing")
+        ) {
+          this.mode.enterTyping();
+          this.mode.clearInput();
           this._setUserInput("");
+          this.otherInputCache = "";
           this.updateValue();
-          return "Value cannot be empty"; // This will cause validation to fail and stay active
+          return "Value cannot be empty";
         }
 
-        // If we're typing on the custom option but haven't entered anything, prevent submission
         if (
-          this.cursor === textInputIndex &&
-          this.isTyping &&
-          (!this.userInput || !this.userInput.trim())
+          this.mode.getCursor() === textInputIndex &&
+          this.mode.isInInteraction("typing") &&
+          !(this.userInput && this.userInput.trim())
         ) {
           if (this.required) {
             return "Please enter a value";
@@ -200,120 +181,148 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           return undefined;
         }
 
-        // If we're typing, validate the input
-        if (this.isTyping && this.userInput) {
+        if (this.mode.isInInteraction("typing") && this.userInput) {
           const inputValidation = this.validateInput(this.userInput);
           if (inputValidation) {
             return inputValidation;
           }
-          // If format is valid, run schema validation if provided
           const validation = this.runSchemaValidation(this.userInput);
           if (!validation.success) {
             return validation.error;
           }
         }
 
-        // For non-typing cases (selecting current/default), validate the selected value
-        if (!this.isTyping) {
+        if (!this.mode.isInInteraction("typing")) {
           const validation = this.runSchemaValidation(value);
           if (!validation.success) {
             return validation.error;
           }
         }
 
-        // All other cases are valid
         return undefined;
       },
     } as any);
 
-    // If both current and default are undefined, start in typing mode
     if (this.current === undefined && this.default === undefined) {
-      this.isTyping = true;
-      this.internals.track = true;
+      this.mode.enterTyping();
+      this.mode.clearInput();
+      this._setUserInput("");
+      this.otherInputCache = "";
       this.setCommittedValue(this.getDefaultValue());
     } else {
-      // Set initial value to current
       this.setCommittedValue(this.current ?? this.getDefaultValue());
     }
 
     this.on("cursor", (action?: PromptAction) => {
-      // Clear error state when user navigates (like base Prompt class does)
       if (this.state === "error") {
         this.state = "active";
         this.error = "";
       }
 
-      // If both current and default are undefined, we're in text-only mode - no cursor navigation
       if (this.current === undefined && this.default === undefined) {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
       switch (action) {
-        case "up":
-          // Calculate max index based on actual options
+        case "up": {
           let optionsCount = 0;
           if (this.current !== undefined) optionsCount++;
           if (this.default !== undefined && this.current !== this.default)
             optionsCount++;
-          optionsCount++; // For "Other" option
+          optionsCount++;
           const maxIndex = optionsCount - 1;
 
-          // If we're typing or on the text option, clear input and exit typing mode
-          if (this.isTyping || this.cursor === maxIndex) {
-            this.isTyping = false;
-            this.internals.track = false;
-            this._clearUserInput(); // This clears the internal readline state too
+          if (
+            this.mode.isInInteraction("typing") ||
+            this.mode.getCursor() === maxIndex
+          ) {
+            this.mode.exitTyping();
+            this._clearUserInput();
+            this.mode.clearInput();
+            this.otherInputCache = "";
           }
-          this.cursor = this.cursor === 0 ? maxIndex : this.cursor - 1;
+          this.mode.moveCursor("up", maxIndex);
           break;
-        case "down":
-          // Calculate max index based on actual options
-          let optionsCountDown = 0;
-          if (this.current !== undefined) optionsCountDown++;
+        }
+        case "down": {
+          let optionsCount = 0;
+          if (this.current !== undefined) optionsCount++;
           if (this.default !== undefined && this.current !== this.default)
-            optionsCountDown++;
-          optionsCountDown++; // For "Other" option
-          const maxIndexDown = optionsCountDown - 1;
+            optionsCount++;
+          optionsCount++;
+          const maxIndex = optionsCount - 1;
 
-          // If we're typing or on the text option, clear input and exit typing mode
-          if (this.isTyping || this.cursor === maxIndexDown) {
-            this.isTyping = false;
-            this.internals.track = false;
-            this._clearUserInput(); // This clears the internal readline state too
+          if (
+            this.mode.isInInteraction("typing") ||
+            this.mode.getCursor() === maxIndex
+          ) {
+            this.mode.exitTyping();
+            this._clearUserInput();
+            this.mode.clearInput();
+            this.otherInputCache = "";
           }
-          this.cursor = this.cursor === maxIndexDown ? 0 : this.cursor + 1;
+          this.mode.moveCursor("down", maxIndex);
           break;
+        }
       }
       this.updateValue();
     });
 
-    // Listen for user input changes (when typing)
-    this.on("userInput", (input: string) => {
-      // Clear error state when user is typing (like base Prompt class does)
+    this.on("userInput", (rawInput: string) => {
       if (this.state === "error") {
         this.state = "active";
         this.error = "";
       }
 
-      if (this.isTyping) {
+      let input = rawInput.includes("\t")
+        ? rawInput.replace(/\t/g, "")
+        : rawInput;
+
+      if (this.isRestoringInput) {
+        this.isRestoringInput = false;
+        this.otherInputCache = input;
+        return;
+      }
+
+      if (this.mode.isInInteraction("typing")) {
+        let nextInput = input;
+
+        if (this.shouldStitchInput && this.otherInputCache) {
+          if (!input || input === this.otherInputCache) {
+            nextInput = this.otherInputCache;
+            // keep shouldStitchInput true until new characters arrive
+          } else if (input.startsWith(this.otherInputCache)) {
+            nextInput = input;
+            this.shouldStitchInput = false;
+          } else {
+            nextInput = `${this.otherInputCache}${input}`;
+            this.shouldStitchInput = false;
+          }
+        } else {
+          this.shouldStitchInput = false;
+        }
+
+        this.mode.updateInput(nextInput);
+        (this as unknown as { userInput: string }).userInput = nextInput;
+        this.otherInputCache = nextInput;
         try {
-          const parsed = this.parseInput(input);
+          const parsed = this.parseInput(nextInput);
           this.setCommittedValue(parsed ?? this.getDefaultValue());
         } catch {
-          // If parsing fails, keep the current value but still update display
-          // The validation will catch this
+          // Keep the current value; validation will surface errors when needed.
         }
+      } else {
+        this.shouldStitchInput = false;
       }
     });
 
     this.on("key", (char: string | undefined, info: Key) => {
-      if (!info) return; // Guard against undefined info
+      if (!info) return;
 
-      // Clear error state when user types (like base Prompt class does)
       if (this.state === "error") {
         this.state = "active";
         this.error = "";
@@ -323,32 +332,28 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
-      // If both current and default are undefined, we're in text-only mode
       if (this.current === undefined && this.default === undefined) {
-        // Already in typing mode, just update the value as the user types
-        if (this.isTyping) {
+        if (this.mode.isInInteraction("typing")) {
           try {
             const parsed = this.parseInput(this.userInput);
             this.setCommittedValue(parsed ?? this.getDefaultValue());
           } catch {
-            // Keep current value if parsing fails
+            // Swallow parse errors here; validation handles them later.
           }
         }
         return;
       }
 
-      // If any printable character is pressed and we're not already typing,
-      // jump to the text input option and start typing
       if (
         char &&
         char.length === 1 &&
         !info.ctrl &&
         !info.meta &&
-        !this.isTyping
+        !this.mode.isInInteraction("typing")
       ) {
         const isArrowKey = ["up", "down", "left", "right"].includes(
           info.name || "",
@@ -358,41 +363,52 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         );
 
         if (!isArrowKey && !isControlKey) {
-          // Calculate the text input index dynamically
           const textInputIndex = this.getTextInputIndex();
+          this.mode.setCursor(textInputIndex);
+          const existingInput =
+            this.mode.getInputValue() ||
+            this.userInput ||
+            this.otherInputCache ||
+            "";
 
-          this.cursor = textInputIndex; // Jump to the "Other" option
-          this.isTyping = true;
-          // Enable value tracking and set the initial character
-          this.internals.track = true;
-          this._setUserInput(char);
+          this.mode.enterTyping(existingInput);
+          const nextInput = `${existingInput}${char}`;
+          this.otherInputCache = nextInput;
+          this._setUserInput(nextInput);
+          this.mode.updateInput(nextInput);
+          this.syncCursorToInputEnd();
           this.updateValue();
           return;
         }
       }
 
-      // Calculate the text input index dynamically
       const textInputIndex = this.getTextInputIndex();
 
-      if (this.cursor === textInputIndex) {
-        // Text input option
+      if (this.mode.getCursor() === textInputIndex) {
         if (info.name === "escape") {
-          // Exit typing mode
-          this.isTyping = false;
-          this.internals.track = false;
-          this._clearUserInput(); // Clear the internal readline state
+          this.mode.exitTyping();
+          this._clearUserInput();
+          this.mode.clearInput();
+          this.otherInputCache = "";
           this.updateValue();
-          return; // Prevent default Escape behavior
+          return;
         }
       }
     });
   }
 
+  get cursor(): number {
+    return this.mode.getCursor();
+  }
+
+  get isTyping(): boolean {
+    return this.mode.isInInteraction("typing");
+  }
+
   private updateValue() {
-    // If both current and default are undefined, we're in text-only mode
     if (this.current === undefined && this.default === undefined) {
       try {
-        const parsed = this.parseInput(this.userInput);
+        const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());
@@ -400,22 +416,19 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       return;
     }
 
-    if (!this.isTyping) {
-      // Dynamically determine what option the cursor is on
+    if (!this.mode.isInInteraction("typing")) {
       let optionIndex = 0;
 
-      // Check if cursor is on current value
-      if (this.current !== undefined && this.cursor === optionIndex) {
+      if (this.current !== undefined && this.mode.getCursor() === optionIndex) {
         this.setCommittedValue(this.current);
         return;
       }
       if (this.current !== undefined) optionIndex++;
 
-      // Check if cursor is on default value (and it's different from current)
       if (
         this.default !== undefined &&
         this.current !== this.default &&
-        this.cursor === optionIndex
+        this.mode.getCursor() === optionIndex
       ) {
         this.setCommittedValue(this.default);
         return;
@@ -423,11 +436,10 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       if (this.default !== undefined && this.current !== this.default)
         optionIndex++;
 
-      // If we get here, cursor is on "Other" option
       this.setCommittedValue(this.getDefaultValue());
     } else {
       try {
-        const parsed = this.parseInput(this.userInput);
+        const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
       } catch {
         this.setCommittedValue(this.getDefaultValue());
@@ -449,8 +461,6 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   protected validateInput(_input: string): string | undefined {
-    // For strings, any non-empty input is valid by default
-    // Custom validation will be handled separately
     return undefined;
   }
 
@@ -470,7 +480,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   private getInputDisplay(includeCursor: boolean): string {
-    const inputValue = this.userInput ?? "";
+    const inputValue = this.mode.getInputValue();
     const isMasked = this.secret && inputValue && !this.isSecretRevealed();
     const base = isMasked ? this.maskValue(inputValue) : inputValue;
 
@@ -478,7 +488,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       return base;
     }
 
-    const rawCursor = this.isTyping
+    const rawCursor = this.mode.isInInteraction("typing")
       ? Math.max(
           0,
           (this as unknown as { _cursor?: number })._cursor ??
@@ -503,5 +513,43 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
   private getEntryHint(): string {
     return this.secret ? "Enter a secret value" : "Enter a value";
+  }
+
+  private syncCursorToInputEnd(): void {
+    const cursorHost = this as unknown as { _cursor?: number };
+    const inputValue = this.mode.getInputValue();
+    cursorHost._cursor = inputValue.length;
+  }
+
+  protected override toggleSecretReveal(): void {
+    const cachedInput =
+      this.mode.getInputValue() || this.userInput || this.otherInputCache;
+
+    super.toggleSecretReveal();
+
+    if (!cachedInput) {
+      return;
+    }
+
+    this.shouldStitchInput = Boolean(this.otherInputCache || cachedInput);
+    const stitchedBaseline = cachedInput;
+
+    queueMicrotask(() => {
+      const restored = this.otherInputCache || stitchedBaseline;
+      if (!restored) {
+        return;
+      }
+
+      if (!this.mode.isInInteraction("typing")) {
+        this.mode.enterTyping(restored);
+      }
+
+      this.isRestoringInput = true;
+      this.internals.track = true;
+      this.mode.updateInput(restored);
+      this.otherInputCache = restored;
+      this._setUserInput(restored, true);
+      this.syncCursorToInputEnd();
+    });
   }
 }

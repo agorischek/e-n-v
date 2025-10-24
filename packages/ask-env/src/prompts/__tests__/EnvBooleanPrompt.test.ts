@@ -177,13 +177,13 @@ describe("EnvBooleanPrompt", () => {
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
 
-    expect((prompt as any).isOptionPickerOpen()).toBe(true);
+    expect((prompt as any).mode.isToolbarOpen()).toBe(true);
     const dimOutput = stripAnsi(toOutputString(output));
     expect(dimOutput).toContain("Skip");
 
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
-    expect((prompt as any).isOptionPickerOpen()).toBe(false);
+    expect((prompt as any).mode.isToolbarOpen()).toBe(false);
 
     submitPrompt(prompt);
     await waitForIO(2);

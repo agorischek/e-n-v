@@ -8,6 +8,7 @@ words:
   - envrw
   - oxlint
   - RABBITMQ
+  - Substate
   - tsgo
 ignoreWords: []
 import: []
