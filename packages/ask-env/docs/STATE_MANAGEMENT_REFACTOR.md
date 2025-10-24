@@ -7,6 +7,7 @@ We've successfully refactored the `EnvPrompt` class to use a centralized state m
 ## Before vs After
 
 ### Before: Scattered State Variables
+
 ```typescript
 // Old implementation had these scattered properties:
 protected secret: boolean;
@@ -22,6 +23,7 @@ isTyping = false;
 ```
 
 ### After: Centralized State Machine
+
 ```typescript
 // New implementation uses a unified state machine:
 protected readonly stateMachine: EnvPromptStateMachine;
@@ -29,7 +31,7 @@ protected readonly stateMachine: EnvPromptStateMachine;
 // With clear state interface:
 interface EnvPromptSubstate {
   readonly mode: InteractionMode;        // "selection" | "typing" | "toolbar"
-  readonly intention: IntentionState;    // "commit" | "skip" | "previous"  
+  readonly intention: IntentionState;    // "commit" | "skip" | "previous"
   readonly secretVisibility: SecretVisibility; // "hidden" | "revealed" | "not-secret"
   readonly validation: ValidationState;  // "pending" | "valid" | "invalid" | "suppressed"
   readonly cursor: number;
@@ -41,37 +43,46 @@ interface EnvPromptSubstate {
 ## Key Benefits
 
 ### 1. **Single Source of Truth**
+
 All prompt-specific state lives in the state machine, eliminating inconsistencies.
 
 ### 2. **Explicit State Transitions**
+
 State changes go through named methods like:
+
 - `enterTypingMode()` / `exitTypingMode()`
 - `openToolbar()` / `closeToolbar()`
 - `setIntention()` / `toggleSecretVisibility()`
 
 ### 3. **Computed Properties**
+
 Derived state is calculated, not stored:
+
 ```typescript
 const state = stateMachine.state;
 // These are computed automatically:
-state.canSubmit
-state.shouldTrackInput
-state.shouldDimUI
-state.shouldConsumeSubmit
+state.canSubmit;
+state.shouldTrackInput;
+state.shouldDimUI;
+state.shouldConsumeSubmit;
 ```
 
 ### 4. **Mode-Based Logic**
+
 Behavior changes based on current interaction mode:
+
 - **Selection Mode**: Navigate options with arrow keys
 - **Typing Mode**: Accept text input, track cursor
 - **Toolbar Mode**: Handle toolbar navigation
 
 ### 5. **Testable State Transitions**
+
 State machine can be tested independently of UI rendering.
 
 ## State Transition Examples
 
 ### Entering Typing Mode
+
 ```typescript
 // When user types a character in selection mode:
 stateMachine.setCursor(textInputIndex);
@@ -79,6 +90,7 @@ stateMachine.enterTypingMode(char);
 ```
 
 ### Toolbar Interaction
+
 ```typescript
 // When user presses Tab:
 stateMachine.openToolbar();
@@ -89,6 +101,7 @@ stateMachine.suppressValidation(); // For non-submitting actions
 ```
 
 ### Secret Management
+
 ```typescript
 // Toggle secret visibility:
 stateMachine.toggleSecretVisibility();
@@ -100,16 +113,20 @@ toolbar.secret = state.secretVisibility === "revealed" ? "shown" : "hidden";
 ## Migration Pattern
 
 ### Typed Prompts
+
 Each typed prompt (EnvNumberPrompt, EnvStringPrompt, etc.) no longer needs to manage:
+
 - `cursor` position
-- `isTyping` state  
+- `isTyping` state
 - Secret reveal state
 - Validation suppression
 
 All of this is handled by the state machine.
 
 ### Test Migration
+
 Tests were refactored from checking internal state:
+
 ```typescript
 // OLD: Checking implementation details
 expect(prompt.cursor).toBe(2);
@@ -117,6 +134,7 @@ expect(prompt.isTyping).toBe(true);
 ```
 
 To checking observable behavior:
+
 ```typescript
 // NEW: Checking behavior
 expect(prompt.value).toBe(42);
@@ -134,6 +152,7 @@ The original issue where pressing Enter on toolbar options would submit the prom
 ## Future Extensibility
 
 The state machine design makes it easy to:
+
 - Add new interaction modes
 - Extend validation states
 - Add new intention types

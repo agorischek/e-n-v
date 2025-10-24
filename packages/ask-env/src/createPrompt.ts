@@ -18,7 +18,7 @@ interface CreatePromptOptions {
   total: number;
   input?: Readable;
   output?: Writable;
-  preprocess?: PreprocessorOptions;
+  preprocessors?: PreprocessorOptions;
 }
 
 export function createPrompt({
@@ -32,7 +32,7 @@ export function createPrompt({
   total,
   input,
   output,
-  preprocess,
+  preprocessors,
 }: CreatePromptOptions):
   | EnvBooleanPrompt
   | EnvNumberPrompt
@@ -46,7 +46,6 @@ export function createPrompt({
     total,
     input,
     output,
-    preprocess,
   } as const;
 
   switch (schema.type) {
@@ -55,23 +54,27 @@ export function createPrompt({
         ...baseOptions,
         current:
           currentValue !== undefined ? parseBoolean(currentValue) : undefined,
+        preprocess: preprocessors?.bool,
       });
     case "number":
       return new EnvNumberPrompt(schema, {
         ...baseOptions,
         current:
           currentValue !== undefined ? parseFloat(currentValue) : undefined,
+        preprocess: preprocessors?.number,
       });
     case "enum":
       return new EnvEnumPrompt(schema, {
         ...baseOptions,
         current: currentValue,
+        preprocess: preprocessors?.enum,
       });
     default:
       return new EnvStringPrompt(schema, {
         ...baseOptions,
         current: currentValue,
         secret: shouldMask,
+        preprocess: preprocessors?.string,
       });
   }
 }

@@ -49,7 +49,8 @@ export abstract class EnvPrompt<
 
   constructor(
     schema: TSchema,
-    opts: EnvPromptOptions<TVar> & PromptOptions<TVar, EnvPrompt<TVar, TSchema>>
+    opts: EnvPromptOptions<TVar> &
+      PromptOptions<TVar, EnvPrompt<TVar, TSchema>>,
   ) {
     const { pad = true, ...promptOpts } = opts as EnvPromptOptions<TVar> &
       PromptOptions<TVar, EnvPrompt<TVar, TSchema>> & { padRender?: boolean };
@@ -81,7 +82,7 @@ export abstract class EnvPrompt<
         hasSecret,
         hasOptions,
         initialInputValue: "",
-      })
+      }),
     );
 
     this.mode.subscribe((state: EnvPromptState) => {
@@ -129,7 +130,7 @@ export abstract class EnvPrompt<
   }
 
   protected runSchemaValidation(
-    value: string | undefined
+    value: string | undefined,
   ):
     | { success: true; value: TVar | undefined }
     | { success: false; error: string } {

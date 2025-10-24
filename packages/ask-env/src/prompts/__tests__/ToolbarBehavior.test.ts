@@ -6,11 +6,13 @@ import { waitForIO, pressKey, toOutputString } from "./helpers/promptTestUtils";
 const STRIP_ANSI = /\x1b\[[0-9;]*m/g;
 const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
 
-function createPrompt(options: {
-  current?: number;
-  default?: number;
-  secret?: boolean;
-} = {}) {
+function createPrompt(
+  options: {
+    current?: number;
+    default?: number;
+    secret?: boolean;
+  } = {},
+) {
   const output: string[] = [];
   const mockOutput = {
     write: (chunk: string) => output.push(chunk),
@@ -48,17 +50,17 @@ describe("EnvPrompt Toolbar Behavior", () => {
     // Press Enter on the Show/Hide option (should not submit)
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);
-    
+
     // Prompt should still be active, not submitted
     expect(prompt.state).toBe("active");
 
     // Close toolbar and submit normally
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
-    
+
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);
-    
+
     // Now it should submit
     expect(prompt.state).toBe("submit");
     await promptPromise;
@@ -81,7 +83,7 @@ describe("EnvPrompt Toolbar Behavior", () => {
 
     // Should still be active (not submitted)
     expect(prompt.state).toBe("active");
-    
+
     // Submit normally
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);

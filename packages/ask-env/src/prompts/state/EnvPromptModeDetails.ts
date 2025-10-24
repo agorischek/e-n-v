@@ -93,7 +93,8 @@ export function computeState(
 ): EnvPromptComputedState {
   return {
     canSubmit:
-      modeDetails.intention === "commit" && modeDetails.validation !== "invalid",
+      modeDetails.intention === "commit" &&
+      modeDetails.validation !== "invalid",
     shouldTrackInput: modeDetails.mode === "typing",
     shouldDimUI: modeDetails.toolbarOpen,
     shouldConsumeSubmit: modeDetails.consumeSubmit,
@@ -104,9 +105,7 @@ export function computeState(
 /**
  * Creates complete state by combining mode details and computed properties
  */
-export function createState(
-  modeDetails: EnvPromptModeDetails,
-): EnvPromptState {
+export function createState(modeDetails: EnvPromptModeDetails): EnvPromptState {
   return {
     ...modeDetails,
     ...computeState(modeDetails),

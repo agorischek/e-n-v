@@ -175,7 +175,7 @@ describe("EnvNumberPrompt", () => {
     // Navigate to custom option
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
-    
+
     // Try to submit without entering anything - should show error
     submitPrompt(prompt);
     await waitForIO(2);
@@ -300,14 +300,14 @@ describe("EnvNumberPrompt", () => {
 
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
-  expect((prompt as any).mode.isToolbarOpen()).toBe(true);
+    expect((prompt as any).mode.isToolbarOpen()).toBe(true);
 
     const dimmed = stripAnsi(toOutputString(output));
     expect(dimmed).toContain("Skip");
 
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
-  expect((prompt as any).mode.isToolbarOpen()).toBe(false);
+    expect((prompt as any).mode.isToolbarOpen()).toBe(false);
 
     submitPrompt(prompt);
     await waitForIO(2);

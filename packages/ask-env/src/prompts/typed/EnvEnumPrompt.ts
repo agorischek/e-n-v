@@ -13,7 +13,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-  render: function (this: EnvEnumPrompt) {
+      render: function (this: EnvEnumPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -42,8 +42,8 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         }
         output += "\n";
 
-    // Display enum options
-    const dimInputs = !this.error && this.mode.isToolbarOpen();
+        // Display enum options
+        const dimInputs = !this.error && this.mode.isToolbarOpen();
         this.values.forEach((option, index) => {
           const isSelected = index === this.cursor;
           const circle = dimInputs

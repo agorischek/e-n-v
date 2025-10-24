@@ -53,7 +53,7 @@ export class EnvPromptMode {
 
   private notifyListeners(): void {
     const snapshot = this.state;
-    this._listeners.forEach(listener => listener(snapshot));
+    this._listeners.forEach((listener) => listener(snapshot));
   }
 
   private updateModeDetails(updates: Partial<EnvPromptModeDetails>): void {

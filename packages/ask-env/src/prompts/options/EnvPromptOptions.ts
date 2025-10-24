@@ -1,5 +1,5 @@
 import type { Theme } from "../../visuals/Theme";
-import type { PreprocessorOptions } from "@envcredible/core";
+import type { TypedPreprocessor } from "@envcredible/core";
 import { Readable, Writable } from "node:stream";
 
 export interface EnvPromptOptions<T> {
@@ -33,6 +33,9 @@ export interface EnvPromptOptions<T> {
   /** Output stream for displaying the prompt (defaults to process.stdout) */
   output?: Writable;
 
-  /** Custom preprocessing functions to transform values before schema validation */
-  preprocess?: PreprocessorOptions;
+  /**
+   * Custom preprocessing function to transform values before schema validation.
+   * Set to null to disable preprocessing for this prompt.
+   */
+  preprocess?: TypedPreprocessor<T> | null;
 }

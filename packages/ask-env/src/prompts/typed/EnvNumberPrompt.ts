@@ -17,7 +17,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   constructor(schema: NumberEnvVarSchema, opts: EnvPromptOptions<number>) {
     super(schema, {
       ...opts,
-  render: function (this: EnvNumberPrompt) {
+      render: function (this: EnvNumberPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -44,9 +44,9 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         if (this.schema.description) {
           output += ` ${this.colors.subtle(this.schema.description)}`;
         }
-    output += "\n";
+        output += "\n";
 
-    const dimInputs = !this.error && this.mode.isToolbarOpen();
+        const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         // If both current and default are undefined, show only text input
         if (this.current === undefined && this.default === undefined) {
@@ -171,7 +171,10 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         // textInputIndex now points to the "Other" option
 
         // If we're on the custom entry option but not typing yet, start typing mode
-        if (this.mode.getCursor() === textInputIndex && !this.mode.isInInteraction("typing")) {
+        if (
+          this.mode.getCursor() === textInputIndex &&
+          !this.mode.isInInteraction("typing")
+        ) {
           // Start typing mode instead of submitting
           this.mode.enterTyping();
           this.mode.clearInput();
@@ -255,7 +258,10 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           const maxIndex = optionsCount - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
-          if (this.mode.isInInteraction("typing") || this.mode.getCursor() === maxIndex) {
+          if (
+            this.mode.isInInteraction("typing") ||
+            this.mode.getCursor() === maxIndex
+          ) {
             this.mode.exitTyping();
             this._clearUserInput(); // This clears the internal readline state too
             this.mode.clearInput();
@@ -273,7 +279,10 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           const maxIndexDown = optionsCountDown - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
-          if (this.mode.isInInteraction("typing") || this.mode.getCursor() === maxIndexDown) {
+          if (
+            this.mode.isInInteraction("typing") ||
+            this.mode.getCursor() === maxIndexDown
+          ) {
             this.mode.exitTyping();
             this._clearUserInput(); // This clears the internal readline state too
             this.mode.clearInput();

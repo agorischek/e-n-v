@@ -19,7 +19,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-  render: function (this: EnvStringPrompt) {
+      render: function (this: EnvStringPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -45,9 +45,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         if (this.schema.description) {
           output += ` ${this.colors.subtle(this.schema.description)}`;
         }
-    output += "\n";
+        output += "\n";
 
-    const dimInputs = !this.error && this.mode.isToolbarOpen();
+        const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         if (this.current === undefined && this.default === undefined) {
           const displayText = dimInputs
