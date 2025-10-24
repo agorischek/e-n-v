@@ -11,6 +11,9 @@ import type { EnvPromptOptions } from "./options/EnvPromptOptions";
 import type { PromptOutcome } from "../types/PromptOutcome";
 import { ClackPromptInternals } from "./utils/ClackPromptInternals";
 import { Toolbar } from "./toolbar";
+import { EnvPromptStateMachine } from "./state/EnvPromptStateMachine";
+import { createInitialSubstate } from "./state/EnvPromptSubstate";
+import type { EnvPromptState } from "./state/EnvPromptSubstate";
 
 export type FooterState = "hint" | "warn" | "tools";
 
@@ -24,16 +27,11 @@ export abstract class EnvPrompt<
   protected current?: TVar;
   protected default?: TVar;
   protected truncate: number;
-  protected secret: boolean;
-  protected revealSecret: boolean;
-  protected allowSubmitFromOption: boolean;
-  protected consumeNextSubmit: boolean;
   protected index: number;
   protected total: number;
-  protected outcome: PromptOutcome;
   protected readonly internals: ClackPromptInternals<EnvPrompt<TVar, TSchema>>;
   protected readonly toolbar: Toolbar;
-  private skipValidationFlag: boolean;
+  protected readonly stateMachine: EnvPromptStateMachine;
 
   constructor(
     schema: TSchema,
@@ -51,23 +49,38 @@ export abstract class EnvPrompt<
     this.required = schema.required;
     // Disable base Prompt input tracking by default; subclasses toggle as needed
     this.internals.track = false;
-    this.outcome = "commit";
     this.key = promptOptions.key;
     this.current = promptOptions.current;
     this.default = schema.default;
     this.truncate = promptOptions.truncate ?? 40;
-    this.secret = Boolean(promptOptions.secret);
-    this.revealSecret = false;
-    this.allowSubmitFromOption = false;
-    this.consumeNextSubmit = false;
     this.index = promptOptions.index ?? 0;
     this.total = promptOptions.total ?? 1;
-    this.skipValidationFlag = false;
+
+    // Initialize state machine
+    const hasSecret = Boolean(promptOptions.secret);
+    const hasOptions = this.current !== undefined || this.default !== undefined;
+    this.stateMachine = new EnvPromptStateMachine(
+      createInitialSubstate({
+        hasSecret,
+        hasOptions,
+        initialInputValue: "",
+      })
+    );
+
+    // Subscribe to state changes to update internals and toolbar
+    this.stateMachine.subscribe((state: EnvPromptState) => {
+      this.internals.track = state.shouldTrackInput;
+      
+      // Update toolbar secret display
+      if (this.stateMachine.hasSecret()) {
+        this.toolbar.secret = state.secretVisibility === "revealed" ? "shown" : "hidden";
+      }
+    });
 
     // Initialize toolbar with callback methods
     this.toolbar = new Toolbar({
       previous: this.index > 0,
-      secret: this.secret ? (this.revealSecret ? "shown" : "hidden") : false,
+      secret: hasSecret ? (this.stateMachine.isSecretRevealed() ? "shown" : "hidden") : false,
       theme: this.theme,
       actions: {
         toggleSecret: () => this.handleToggleSecret(),
@@ -77,23 +90,20 @@ export abstract class EnvPrompt<
     });
 
     this.on("finalize", () => {
-      const shouldConsumeSubmit =
-        this.consumeNextSubmit && !this.allowSubmitFromOption;
+      const state = this.stateMachine.state;
+      const shouldConsumeSubmit = state.shouldConsumeSubmit;
 
       if (!shouldConsumeSubmit) {
-        this.resetSecretReveal();
+        this.stateMachine.resetSecretVisibility();
       }
 
       this.toolbar.close();
 
-      this.consumeNextSubmit = false;
-      this.allowSubmitFromOption = false;
-      this.skipValidationFlag = false;
-
       if (shouldConsumeSubmit) {
+        // Reset prompt to active state and clear the suppression
         this.state = "active";
         this.error = "";
-        this.outcome = "commit";
+        this.stateMachine.restoreValidation();
       }
     });
   }
@@ -118,12 +128,12 @@ export abstract class EnvPrompt<
   }
 
   protected setCommittedValue(value: TVar | undefined): void {
-    this.outcome = "commit";
+    this.stateMachine.setIntention("commit");
     this.value = value as TVar;
   }
 
   public getOutcome(): PromptOutcome {
-    return this.outcome;
+    return this.stateMachine.getIntention();
   }
 
   protected buildSkipHint(base?: string): string {
@@ -145,8 +155,8 @@ export abstract class EnvPrompt<
     }
 
     // 2. "tools" - Show toolbar when open
-    if (this.secret) {
-      this.toolbar.secret = this.revealSecret ? "shown" : "hidden";
+    if (this.stateMachine.hasSecret()) {
+      this.toolbar.secret = this.stateMachine.isSecretRevealed() ? "shown" : "hidden";
     }
 
     const toolbarOutput = this.toolbar.render();
@@ -161,7 +171,7 @@ export abstract class EnvPrompt<
 
   protected getFooterState(): FooterState {
     if (this.error) return "warn";
-    if (this.toolbar.isOpen) return "tools";
+    if (this.stateMachine.isToolbarOpen()) return "tools";
     return "hint";
   }
 
@@ -170,33 +180,38 @@ export abstract class EnvPrompt<
 
     // Handle special cases for key handling flow
     if (handled && info?.name === "tab") {
-      if (!this.toolbar.isOpen) {
-        this.consumeNextSubmit = false;
-        this.allowSubmitFromOption = false;
+      // Update state machine to match toolbar state
+      if (this.toolbar.isOpen) {
+        this.stateMachine.openToolbar();
+      } else {
+        this.stateMachine.closeToolbar();
       }
       return true;
     }
 
     if (handled && (info?.name === "return" || info?.name === "enter")) {
-      // When toolbar handles return/enter, prevent any further processing
+      // When toolbar handles return/enter, the action has been executed
+      // If toolbar is still open, it means the action didn't trigger submission
+      if (this.toolbar.isOpen) {
+        // Action like toggle secret - suppress validation to prevent submission
+        this.stateMachine.suppressValidation();
+      }
+      // Always return true to prevent further processing
       return true;
     }
 
     if (handled && info?.name === "escape") {
-      this.consumeNextSubmit = false;
-      this.allowSubmitFromOption = false;
+      this.stateMachine.closeToolbar();
       return true;
     }
 
     if (handled && info?.name === "backspace") {
-      this.consumeNextSubmit = false;
-      this.allowSubmitFromOption = false;
+      this.stateMachine.closeToolbar();
       return false;
     }
 
     if (handled && char && char.length === 1 && !info?.ctrl && !info?.meta) {
-      this.consumeNextSubmit = false;
-      this.allowSubmitFromOption = false;
+      this.stateMachine.closeToolbar();
       return false;
     }
 
@@ -233,11 +248,13 @@ export abstract class EnvPrompt<
   }
 
   protected renderOutcomeResult(): string | undefined {
-    if (this.outcome === "skip") {
+    const intention = this.stateMachine.getIntention();
+    
+    if (intention === "skip") {
       return this.renderSkipped();
     }
 
-    if (this.outcome === "previous") {
+    if (intention === "previous") {
       return this.renderPrevious();
     }
 
@@ -252,54 +269,50 @@ export abstract class EnvPrompt<
   }
 
   protected toggleSecretReveal(): void {
-    if (!this.secret) {
+    if (!this.stateMachine.hasSecret()) {
       return;
     }
-    this.revealSecret = !this.revealSecret;
+    this.stateMachine.toggleSecretVisibility();
     // Update toolbar when secret reveal state changes
-    if (this.secret) {
-      this.toolbar.secret = this.revealSecret ? "shown" : "hidden";
+    if (this.stateMachine.hasSecret()) {
+      this.toolbar.secret = this.stateMachine.isSecretRevealed() ? "shown" : "hidden";
     }
   }
 
   protected resetSecretReveal(): void {
-    if (!this.secret) {
+    if (!this.stateMachine.hasSecret()) {
       return;
     }
-    this.revealSecret = false;
+    this.stateMachine.resetSecretVisibility();
   }
 
   protected isSecretRevealed(): boolean {
-    return this.secret && this.revealSecret;
+    return this.stateMachine.isSecretRevealed();
   }
 
   private handleToggleSecret(): void {
-    this.consumeNextSubmit = true;
-    this.skipValidationFlag = true;
+    // Don't suppress validation here - let the toolbar key handler manage it
     this.toggleSecretReveal();
   }
 
   private handleSkip(): void {
-    this.allowSubmitFromOption = true;
-    this.consumeNextSubmit = false;
-    this.outcome = "skip";
+    this.stateMachine.setIntention("skip");
     this.value = undefined as TVar;
     this.state = "submit";
   }
 
   private handlePrevious(): void {
-    this.allowSubmitFromOption = true;
-    this.consumeNextSubmit = false;
-    this.outcome = "previous";
+    this.stateMachine.setIntention("previous");
     this.value = undefined as TVar;
     this.state = "submit";
   }
 
   protected consumeSkipValidation(): boolean {
-    if (!this.skipValidationFlag) {
-      return false;
+    const state = this.stateMachine.state;
+    if (state.shouldSkipValidation) {
+      this.stateMachine.restoreValidation();
+      return true;
     }
-    this.skipValidationFlag = false;
-    return true;
+    return false;
   }
 }

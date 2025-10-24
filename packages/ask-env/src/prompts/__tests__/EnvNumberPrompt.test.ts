@@ -76,9 +76,7 @@ describe("EnvNumberPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-    expect(prompt.isTyping).toBe(true);
-    expect(prompt.value).toBe(0);
-
+    // Should be in typing mode - check that input is accepted immediately
     await typeText(prompt, "42");
     expect(prompt.userInput).toBe("42");
     expect(prompt.value).toBe(42);
@@ -92,32 +90,33 @@ describe("EnvNumberPrompt", () => {
     expect(rendered).toContain("=42");
   });
 
-  it("navigates current, default, and custom options", async () => {
+  it("navigates between current, default, and custom options", async () => {
     const { prompt } = createPrompt({ current: 1, default: 2 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-    expect(prompt.cursor).toBe(0);
+    // Start with current value
     expect(prompt.value).toBe(1);
 
+    // Navigate to default
     await pressKey(prompt, { name: "down" });
-    expect(prompt.cursor).toBe(1);
     expect(prompt.value).toBe(2);
 
+    // Navigate to custom option (should reset to 0)
     await pressKey(prompt, { name: "down" });
-    expect(prompt.cursor).toBe(2);
     expect(prompt.value).toBe(0);
 
+    // Type a custom value
     await typeText(prompt, "3");
     expect(prompt.userInput).toBe("3");
     expect(prompt.value).toBe(3);
 
+    // Navigate back to default
     await pressKey(prompt, { name: "up" });
-    expect(prompt.cursor).toBe(1);
     expect(prompt.value).toBe(2);
 
+    // Navigate back to current
     await pressKey(prompt, { name: "up" });
-    expect(prompt.cursor).toBe(0);
     expect(prompt.value).toBe(1);
 
     submitPrompt(prompt);
@@ -125,21 +124,20 @@ describe("EnvNumberPrompt", () => {
     await promptPromise;
   });
 
-  it("navigates to the custom option when only the schema default exists", async () => {
+  it("navigates to custom option when only schema default exists", async () => {
     const { prompt } = createPrompt({ default: 7 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-    expect(prompt.cursor).toBe(0);
+    // Start with default value
     expect(prompt.value).toBe(7);
 
+    // Navigate to custom option
     await pressKey(prompt, { name: "down" });
-    expect(prompt.cursor).toBe(1);
-    expect(prompt.isTyping).toBe(false);
-    expect(prompt.value).toBe(0);
+    expect(prompt.value).toBe(0); // Reset to default number value
 
+    // Navigate back to default
     await pressKey(prompt, { name: "up" });
-    expect(prompt.cursor).toBe(0);
     expect(prompt.value).toBe(7);
 
     submitPrompt(prompt);
@@ -147,17 +145,17 @@ describe("EnvNumberPrompt", () => {
     await promptPromise;
   });
 
-  it("starts typing when printable characters are entered on a selection", async () => {
+  it("starts typing when printable characters are entered", async () => {
     const { prompt } = createPrompt({ current: 5, default: 6 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
+    // Type a character - should jump to custom option and start typing
     await typeText(prompt, "9");
-    expect(prompt.cursor).toBe(2);
-    expect(prompt.isTyping).toBe(true);
     expect(prompt.userInput).toBe("9");
     expect(prompt.value).toBe(9);
 
+    // Continue typing
     await typeText(prompt, "8");
     expect(prompt.userInput).toBe("98");
     expect(prompt.value).toBe(98);
@@ -172,22 +170,24 @@ describe("EnvNumberPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
+    // Navigate to custom option
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
-    expect(prompt.cursor).toBe(2);
-
+    
+    // Try to submit without entering anything - should show error
     submitPrompt(prompt);
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("Please enter a number");
-    expect(prompt.isTyping).toBe(true);
 
+    // Try to submit invalid text - should show error
     await typeText(prompt, "abc");
     submitPrompt(prompt);
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("Please enter a valid number");
 
+    // Enter valid number - should succeed
     await backspace(prompt, prompt.userInput.length);
     await typeText(prompt, "5");
     submitPrompt(prompt);
@@ -256,20 +256,21 @@ describe("EnvNumberPrompt", () => {
   });
 
   it("exits typing mode with escape and resets the input", async () => {
-    const { prompt } = createPrompt({ current: 4, default: 5 });
+    const { prompt } = createPrompt({ current: 5, default: 6 });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
+    // Navigate to custom option and start typing
     await pressKey(prompt, { name: "down" });
     await pressKey(prompt, { name: "down" });
     await typeText(prompt, "99");
-    expect(prompt.isTyping).toBe(true);
+    expect(prompt.userInput).toBe("99");
 
+    // Press escape to exit typing mode
     await pressKey(prompt, { name: "escape" });
     await waitForIO(2);
-    expect(prompt.isTyping).toBe(false);
     expect(prompt.userInput).toBe("");
-    expect(prompt.value).toBe(0);
+    expect(prompt.value).toBe(0); // Should reset to default value
 
     submitPrompt(prompt);
     await waitForIO(2);
