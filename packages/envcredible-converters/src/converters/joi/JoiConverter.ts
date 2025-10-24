@@ -258,9 +258,7 @@ export function convertFromJoiSchema(schema: AnySchema): EnvVarSchema {
     default: {
       const process = createJoiProcessFunction<string>(schema, "string");
       const stringDefault =
-        typeof defaultValue === "string" || defaultValue === null
-          ? (defaultValue as string | null | undefined)
-          : undefined;
+        typeof defaultValue === "string" ? (defaultValue as string) : undefined;
 
       return new StringEnvVarSchema({
         process,

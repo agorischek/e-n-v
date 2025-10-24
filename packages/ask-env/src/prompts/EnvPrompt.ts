@@ -15,23 +15,10 @@ import type { FooterOption } from "../types/FooterOption";
 import type { PromptOutcome } from "../types/PromptOutcome";
 import { ClackPromptInternals } from "./utils/ClackPromptInternals";
 
-function resolveDefaultFromSpec<T>(
-  spec: EnvVarSchemaDetails<T>,
-): T | undefined {
-  switch (spec.type) {
-    case "boolean":
-      return typeof spec.default === "boolean"
-        ? (spec.default as T)
-        : undefined;
-    case "number":
-      return typeof spec.default === "number" ? (spec.default as T) : undefined;
-    case "enum":
-    case "string":
-      return typeof spec.default === "string" ? (spec.default as T) : undefined;
-    default:
-      return undefined;
-  }
-}
+// NOTE: Schema defaults are typed as `default?: T` in `EnvVarSchemaDetails`.
+// We no longer coerce `null` or attempt ad-hoc runtime normalization here —
+// the prompt will rely on the spec's `default` directly when an explicit
+// prompt default isn't provided.
 
 export abstract class EnvPrompt<
   T,
@@ -71,9 +58,7 @@ export abstract class EnvPrompt<
       };
 
     const resolvedDefault =
-      restOptions.default !== undefined
-        ? restOptions.default
-        : resolveDefaultFromSpec(spec);
+      restOptions.default !== undefined ? restOptions.default : spec.default;
 
     const promptOptions = {
       ...restOptions,
@@ -82,10 +67,10 @@ export abstract class EnvPrompt<
 
     super(promptOptions);
     this.internals = new ClackPromptInternals(this);
-  this.spec = spec;
-  this.required = spec.required;
-  // Disable base Prompt input tracking by default; subclasses toggle as needed
-  this.internals.track = false;
+    this.spec = spec;
+    this.required = spec.required;
+    // Disable base Prompt input tracking by default; subclasses toggle as needed
+    this.internals.track = false;
     this.outcome = "commit";
     this.key = promptOptions.key;
     this.current = promptOptions.current;

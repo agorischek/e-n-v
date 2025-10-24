@@ -360,9 +360,7 @@ export function convertFromZodV4Schema(schema: $ZodType): EnvVarSchema {
         schema,
       );
       const defaultValue =
-        typeof peeled.default === "string" || peeled.default === null
-          ? (peeled.default as string | null | undefined)
-          : undefined;
+        typeof peeled.default === "string" ? (peeled.default as string) : undefined;
 
       return new StringEnvVarSchema({
         process,
