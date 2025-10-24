@@ -15,16 +15,17 @@ export interface ProcessingResult<T> {
  * Process a value through schema validation and return detailed results
  */
 export function processValue<T>(
-  value: string,
+  envKey: string,
+  value: string | undefined,
   schema: EnvVarSchemaDetails<T>,
-  preprocessorOptions?: PreprocessorOptions,
+  preprocess?: PreprocessorOptions,
 ): ProcessingResult<T> {
   try {
     // Apply preprocessing
     const processedValue = applyPreprocessing(
       value,
       schema.type,
-      preprocessorOptions,
+      preprocess,
     );
 
     // If the preprocessing function returned the target type, use it directly

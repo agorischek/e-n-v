@@ -16,7 +16,7 @@ export type PromptFlowResult = "success" | "cancelled" | "error";
 export function resolveShouldMask(
   key: string,
   schema: EnvVarSchema,
-  patterns: ReadonlyArray<string | RegExp>,
+  patterns: ReadonlyArray<string | RegExp>
 ): boolean {
   if (schema.type !== "string") {
     return false;
@@ -38,7 +38,7 @@ export interface SessionOptions {
   input?: Readable;
   output: NodeJS.WriteStream;
   path: string;
-  preprocessorOptions?: PreprocessorOptions;
+  preprocess?: PreprocessorOptions;
 }
 
 export class Session {
@@ -63,7 +63,7 @@ export class Session {
     input,
     schemas,
     path,
-    preprocessorOptions,
+    preprocess,
   }: SessionOptions) {
     this.channel = channel;
     this.secrets = secrets;
@@ -73,7 +73,7 @@ export class Session {
     this.input = input;
     this.displayEnvPath = getDisplayEnvPath(path);
     this.schemas = schemas;
-    this.parseOptions = preprocessorOptions;
+    this.parseOptions = preprocess;
   }
 
   static fromOptions(options: SessionOptions): Session {
@@ -113,7 +113,7 @@ export class Session {
         hasPrevious: index > 0,
         input: this.input,
         output: this.output,
-        preprocessorOptions: this.parseOptions,
+        preprocess: this.parseOptions,
       });
 
       const value = await prompt.prompt();
@@ -127,7 +127,7 @@ export class Session {
       ) {
         this.output.write(`${color.red("│")}  \n`);
         this.output.write(
-          `${color.red("└")}  ${color.red("Setup cancelled.")}\n\n`,
+          `${color.red("└")}  ${color.red("Setup cancelled.")}\n\n`
         );
         return "cancelled";
       }
@@ -158,8 +158,8 @@ export class Session {
       } catch (error) {
         this.output.write(
           `${color.gray(S_BAR_END)}  ${color.red(
-            `Failed to save ${key}: ${error}`,
-          )}\n\n`,
+            `Failed to save ${key}: ${error}`
+          )}\n\n`
         );
         return "error";
       }
@@ -168,7 +168,7 @@ export class Session {
     }
 
     this.output.write(
-      `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  Setup complete\n\n`,
+      `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  Setup complete\n\n`
     );
 
     return "success";
@@ -176,7 +176,7 @@ export class Session {
 }
 
 export async function runPromptFlow(
-  options: SessionOptions,
+  options: SessionOptions
 ): Promise<PromptFlowResult> {
   const session = Session.fromOptions(options);
   return session.run();

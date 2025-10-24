@@ -17,7 +17,7 @@ interface CreatePromptOptions {
   hasPrevious: boolean;
   input?: Readable;
   output?: Writable;
-  preprocessorOptions?: PreprocessorOptions;
+  preprocess?: PreprocessorOptions;
 }
 
 export function createPrompt({
@@ -30,7 +30,7 @@ export function createPrompt({
   hasPrevious,
   input,
   output,
-  preprocessorOptions,
+  preprocess,
 }: CreatePromptOptions):
   | EnvBooleanPrompt
   | EnvNumberPrompt
@@ -39,11 +39,11 @@ export function createPrompt({
   const baseOptions = {
     key,
     theme,
-    truncate: truncate,
+    truncate,
     previousEnabled: hasPrevious,
     input,
     output,
-    preprocessorOptions,
+    preprocess,
   } as const;
 
   switch (schema.type) {

@@ -12,5 +12,5 @@ export interface EnvPromptOptions<T> {
   previousEnabled?: boolean;
   input?: Readable;
   output?: Writable;
-  preprocessorOptions?: PreprocessorOptions;
+  preprocess?: PreprocessorOptions;
 }
