@@ -7,7 +7,7 @@ import { S_TOOL_ACTIVE, S_TOOL_INACTIVE } from "../../visuals/symbols";
 export class Toolbar {
   private _isOpen: boolean = false;
   private cursor: number = 0;
-  private readonly index: number;
+  private readonly previous: boolean;
   private readonly theme: Theme;
   private readonly actions: {
     toggleSecret: () => void;
@@ -18,7 +18,7 @@ export class Toolbar {
   public secret: "shown" | "hidden" | false;
 
   constructor(config: ToolbarConfig) {
-    this.index = config.index;
+    this.previous = config.previous;
     this.secret = config.secret;
     this.theme = config.theme;
     this.actions = config.actions;
@@ -158,7 +158,7 @@ export class Toolbar {
       },
     ];
 
-    if (this.index > 0) {
+    if (this.previous) {
       options.push({
         key: "previous",
         label: "Previous",

@@ -15,14 +15,14 @@ import { Toolbar } from "./toolbar";
 export type FooterState = "hint" | "warn" | "tools";
 
 export abstract class EnvPrompt<
-  T,
-  TSchema extends EnvVarSchemaDetails<T> = EnvVarSchemaDetails<T>,
-> extends ThemedPrompt<T> {
+  TVar,
+  TSchema extends EnvVarSchemaDetails<TVar> = EnvVarSchemaDetails<TVar>,
+> extends ThemedPrompt<TVar> {
   protected readonly schema: TSchema;
   protected readonly required: boolean;
   protected readonly key: string;
-  protected current?: T;
-  protected default?: T;
+  protected current?: TVar;
+  protected default?: TVar;
   protected truncate: number;
   protected secret: boolean;
   protected revealSecret: boolean;
@@ -30,21 +30,19 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected index: number;
   protected total: number;
-  protected isToolbarOpen: boolean = false;
   protected outcome: PromptOutcome;
-  protected readonly internals: ClackPromptInternals<EnvPrompt<T, TSchema>>;
+  protected readonly internals: ClackPromptInternals<EnvPrompt<TVar, TSchema>>;
   protected readonly toolbar: Toolbar;
-  private userValidate?: (value: T | undefined) => string | Error | undefined;
   private skipValidationFlag: boolean;
 
   constructor(
     schema: TSchema,
-    opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSchema>>,
+    opts: EnvPromptOptions<TVar> & PromptOptions<TVar, EnvPrompt<TVar, TSchema>>,
   ) {
     const promptOptions = {
       ...opts, // Include the subclass's validate function
       default: schema.default,
-    } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSchema>>;
+    } as EnvPromptOptions<TVar> & PromptOptions<TVar, EnvPrompt<TVar, TSchema>>;
 
     super(promptOptions);
     this.schema = schema;
@@ -67,7 +65,7 @@ export abstract class EnvPrompt<
 
     // Initialize toolbar with callback methods
     this.toolbar = new Toolbar({
-      index: this.index,
+      previous: this.index > 0,
       secret: this.secret ? (this.revealSecret ? "shown" : "hidden") : false,
       theme: this.theme,
       actions: {
@@ -101,7 +99,7 @@ export abstract class EnvPrompt<
 
   protected runSchemaValidation(
     value: string | undefined,
-  ): { success: true; value: T | undefined } | { success: false; error: string } {
+  ): { success: true; value: TVar | undefined } | { success: false; error: string } {
     if (!value || value.trim() === "") {
       return { success: true, value: undefined };
     }
@@ -115,9 +113,9 @@ export abstract class EnvPrompt<
     }
   }
 
-  protected setCommittedValue(value: T | undefined): void {
+  protected setCommittedValue(value: TVar | undefined): void {
     this.outcome = "commit";
-    this.value = value as T;
+    this.value = value as TVar;
   }
 
   public getOutcome(): PromptOutcome {
@@ -159,19 +157,16 @@ export abstract class EnvPrompt<
 
   protected getFooterState(): FooterState {
     if (this.error) return "warn";
-    if (this.isToolbarOpen) return "tools"; 
+    if (this.toolbar.isOpen) return "tools"; 
     return "hint";
   }
 
   protected handleToolbarKey(char: string | undefined, info: Key): boolean {
     const handled = this.toolbar.handleKey(char, info);
     
-    // Sync toolbar state
-    this.isToolbarOpen = this.toolbar.isOpen;
-    
     // Handle special cases for key handling flow
     if (handled && info?.name === "tab") {
-      if (!this.isToolbarOpen) {
+      if (!this.toolbar.isOpen) {
         this.consumeNextSubmit = false;
         this.allowSubmitFromOption = false;
       }
@@ -205,11 +200,11 @@ export abstract class EnvPrompt<
   }
 
   protected shouldDimInputs(): boolean {
-    return this.isToolbarOpen;
+    return this.getFooterState() === "tools";
   }
 
   protected isOptionPickerOpen(): boolean {
-    return this.isToolbarOpen;
+    return this.getFooterState() === "tools";
   }
 
   protected truncateValue(value: string): string {
@@ -284,7 +279,7 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = true;
     this.consumeNextSubmit = false;
     this.outcome = "skip";
-    this.value = undefined as T;
+    this.value = undefined as TVar;
     this.state = "submit";
   }
 
@@ -292,7 +287,7 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = true;
     this.consumeNextSubmit = false;
     this.outcome = "previous";
-    this.value = undefined as T;
+    this.value = undefined as TVar;
     this.state = "submit";
   }
 
