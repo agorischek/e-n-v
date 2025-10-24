@@ -4,7 +4,6 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import type { BooleanEnvVarSchema } from "@envcredible/core";
-import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
@@ -12,7 +11,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   constructor(schema: BooleanEnvVarSchema, opts: EnvPromptOptions<boolean>) {
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvBooleanPrompt) {
+  render: function (this: EnvBooleanPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -21,9 +20,9 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
 
           const valueStr = this.value ? "true" : "false";
           return `${this.getSymbol()}  ${this.colors.bold(
-            this.colors.white(this.key),
+            this.colors.white(this.key)
           )}${this.colors.subtle("=")}${this.colors.white(
-            this.truncateValue(valueStr),
+            this.truncateValue(valueStr)
           )}`;
         }
 
@@ -35,7 +34,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
 
         // Add header line with symbol based on state and key in bold white and description in gray if provided
         output += `${this.getSymbol()}  ${this.colors.bold(
-          this.colors.white(this.key),
+          this.colors.white(this.key)
         )}`;
         if (this.schema.description) {
           output += ` ${this.colors.subtle(this.schema.description)}`;
@@ -48,7 +47,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           { value: false, label: "false" },
         ];
 
-  const dimInputs = !this.error && this.mode.isToolbarOpen();
+        const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         options.forEach((option, index) => {
           const isSelected = index === this.cursor;
@@ -88,7 +87,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         output += `${this.getBarEnd()}  ${this.renderFooter()}`;
 
         return output;
-      }),
+      },
       validate: (value: boolean | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;

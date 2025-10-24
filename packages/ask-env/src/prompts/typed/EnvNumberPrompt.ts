@@ -8,7 +8,6 @@ import {
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import type { NumberEnvVarSchema } from "@envcredible/core";
-import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   private otherInputCache = "";
@@ -18,7 +17,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   constructor(schema: NumberEnvVarSchema, opts: EnvPromptOptions<number>) {
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvNumberPrompt) {
+  render: function (this: EnvNumberPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -45,9 +44,9 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         if (this.schema.description) {
           output += ` ${this.colors.subtle(this.schema.description)}`;
         }
-        output += "\n";
+    output += "\n";
 
-  const dimInputs = !this.error && this.mode.isToolbarOpen();
+    const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         // If both current and default are undefined, show only text input
         if (this.current === undefined && this.default === undefined) {
@@ -146,7 +145,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         output += `${this.getBarEnd()}  ${this.renderFooter("Enter a number")}`;
 
         return output;
-      }),
+      },
       validate: (value: number | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;

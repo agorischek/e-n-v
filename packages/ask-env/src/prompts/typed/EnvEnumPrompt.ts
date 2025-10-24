@@ -4,7 +4,6 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import type { EnumEnvVarSchema } from "@envcredible/core";
-import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   cursor = 0;
@@ -14,7 +13,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   constructor(schema: EnumEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvEnumPrompt) {
+  render: function (this: EnvEnumPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -43,8 +42,8 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         }
         output += "\n";
 
-        // Display enum options
-  const dimInputs = !this.error && this.mode.isToolbarOpen();
+    // Display enum options
+    const dimInputs = !this.error && this.mode.isToolbarOpen();
         this.values.forEach((option, index) => {
           const isSelected = index === this.cursor;
           const circle = dimInputs
@@ -83,7 +82,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         output += `${this.getBarEnd()}  ${this.renderFooter()}`;
 
         return output;
-      }),
+      },
       validate: (value: string | undefined) => {
         if (this.getOutcome() !== "commit") {
           return undefined;

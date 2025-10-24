@@ -10,6 +10,7 @@ import type { EnvVarSchemaDetails } from "@envcredible/core";
 import type { EnvPromptOptions } from "./options/EnvPromptOptions";
 import type { PromptOutcome } from "../types/PromptOutcome";
 import { ClackPromptInternals } from "./utils/ClackPromptInternals";
+import { padActiveRender } from "./utils/padActiveRender";
 import { Toolbar } from "./toolbar";
 import { EnvPromptMode } from "./state/EnvPromptMode";
 import { createInitialModeDetails } from "./state/EnvPromptModeDetails";
@@ -50,9 +51,13 @@ export abstract class EnvPrompt<
     schema: TSchema,
     opts: EnvPromptOptions<TVar> & PromptOptions<TVar, EnvPrompt<TVar, TSchema>>
   ) {
+    const { pad = true, ...promptOpts } = opts as EnvPromptOptions<TVar> &
+      PromptOptions<TVar, EnvPrompt<TVar, TSchema>> & { padRender?: boolean };
+
     const promptOptions = {
-      ...opts, // Include the subclass's validate function
+      ...promptOpts, // Include the subclass's validate function
       default: schema.default,
+      render: pad ? padActiveRender(promptOpts.render) : promptOpts.render,
     } as EnvPromptOptions<TVar> & PromptOptions<TVar, EnvPrompt<TVar, TSchema>>;
 
     super(promptOptions);

@@ -10,7 +10,6 @@ import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import { maskSecretValue } from "../../utils/secrets";
 import type { StringEnvVarSchema } from "@envcredible/core";
-import { padActiveRender } from "../utils/padActiveRender";
 
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   private otherInputCache = "";
@@ -20,7 +19,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   constructor(schema: StringEnvVarSchema, opts: EnvPromptOptions<string>) {
     super(schema, {
       ...opts,
-      render: padActiveRender(function (this: EnvStringPrompt) {
+  render: function (this: EnvStringPrompt) {
         if (this.state === "submit") {
           const outcomeResult = this.renderOutcomeResult();
           if (outcomeResult) {
@@ -46,9 +45,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         if (this.schema.description) {
           output += ` ${this.colors.subtle(this.schema.description)}`;
         }
-        output += "\n";
+    output += "\n";
 
-  const dimInputs = !this.error && this.mode.isToolbarOpen();
+    const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         if (this.current === undefined && this.default === undefined) {
           const displayText = dimInputs
@@ -127,7 +126,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
         return output;
-      }),
+      },
       validate: (value: string | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;

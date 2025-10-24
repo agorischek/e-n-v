@@ -9,6 +9,9 @@ export interface EnvPromptOptions<T> {
   /** The current value of the environment variable, if it exists */
   current?: T;
 
+  /** Whether to pad active renders with a trailing newline (default: true) */
+  pad?: boolean;
+
   /** Theme configuration for styling the prompt interface (colors, etc.) */
   theme?: Theme;
 
