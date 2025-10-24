@@ -13,6 +13,7 @@ import type { EnvVarSchemaDetails } from "@envcredible/core";
 import type { EnvPromptOptions } from "./options/EnvPromptOptions";
 import type { FooterOption } from "../types/FooterOption";
 import type { PromptOutcome } from "../types/PromptOutcome";
+import { ClackPromptInternals } from "./utils/ClackPromptInternals";
 
 function resolveDefaultFromSpec<T>(
   spec: EnvVarSchemaDetails<T>,
@@ -52,16 +53,9 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
+  protected readonly internals: ClackPromptInternals<EnvPrompt<T, TSpec>>;
   private customValidate?: (value: T | undefined) => string | Error | undefined;
   private skipValidationFlag: boolean;
-
-  protected set track(value: boolean) {
-    (this as any)._track = value;
-  }
-
-  protected get track(): boolean {
-    return (this as any)._track;
-  }
 
   private get hasAnyPreviousValue(): boolean {
     return this.previousEnabled;
@@ -87,10 +81,11 @@ export abstract class EnvPrompt<
     } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>;
 
     super(promptOptions);
-    this.spec = spec;
-    this.required = spec.required;
-    // Disable base Prompt input tracking by default; subclasses toggle as needed
-    this.track = false;
+    this.internals = new ClackPromptInternals(this);
+  this.spec = spec;
+  this.required = spec.required;
+  // Disable base Prompt input tracking by default; subclasses toggle as needed
+  this.internals.track = false;
     this.outcome = "commit";
     this.key = promptOptions.key;
     this.current = promptOptions.current;
