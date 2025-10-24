@@ -44,6 +44,7 @@ export interface EnvPromptSubstate {
   readonly cursor: number;
   readonly inputValue: string;
   readonly toolbarOpen: boolean;
+  readonly consumeSubmit: boolean;
 }
 
 /**
@@ -78,6 +79,7 @@ export function createInitialSubstate(options: {
     cursor: 0,
     inputValue: options.initialInputValue || "",
     toolbarOpen: false,
+    consumeSubmit: false,
   };
 }
 
@@ -89,7 +91,7 @@ export function computeState(substate: EnvPromptSubstate): EnvPromptComputedStat
     canSubmit: substate.intention === "commit" && substate.validation !== "invalid",
     shouldTrackInput: substate.mode === "typing",
     shouldDimUI: substate.toolbarOpen,
-    shouldConsumeSubmit: substate.validation === "suppressed",
+    shouldConsumeSubmit: substate.consumeSubmit,
     shouldSkipValidation: substate.validation === "suppressed",
   };
 }

@@ -41,11 +41,11 @@ describe("EnvPrompt Toolbar Behavior", () => {
     // Open toolbar with Tab
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
-    
-    // Should be in toolbar mode - verify state is still active
-    expect(prompt.state).toBe("active");
+    // Navigate to the Show/Hide option (skip is first, previous maybe second)
+    await pressKey(prompt, { name: "right" });
+    await waitForIO(1);
 
-    // Press Enter on a toolbar option (should not submit)
+    // Press Enter on the Show/Hide option (should not submit)
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);
     

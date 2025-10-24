@@ -29,6 +29,7 @@ export abstract class EnvPrompt<
   protected truncate: number;
   protected index: number;
   protected total: number;
+  protected readonly secret: boolean;
   protected readonly internals: ClackPromptInternals<EnvPrompt<TVar, TSchema>>;
   protected readonly toolbar: Toolbar;
   protected readonly stateMachine: EnvPromptStateMachine;
@@ -59,6 +60,7 @@ export abstract class EnvPrompt<
     // Initialize state machine
     const hasSecret = Boolean(promptOptions.secret);
     const hasOptions = this.current !== undefined || this.default !== undefined;
+  this.secret = hasSecret;
     this.stateMachine = new EnvPromptStateMachine(
       createInitialSubstate({
         hasSecret,
@@ -104,6 +106,8 @@ export abstract class EnvPrompt<
         this.state = "active";
         this.error = "";
         this.stateMachine.restoreValidation();
+        this.stateMachine.clearConsumeSubmit();
+        this.stateMachine.setIntention("commit");
       }
     });
   }
@@ -196,6 +200,9 @@ export abstract class EnvPrompt<
         // Action like toggle secret - suppress validation to prevent submission
         this.stateMachine.suppressValidation();
       }
+      if (!this.toolbar.isOpen && this.stateMachine.isToolbarOpen()) {
+        this.stateMachine.closeToolbar();
+      }
       // Always return true to prevent further processing
       return true;
     }
@@ -213,6 +220,10 @@ export abstract class EnvPrompt<
     if (handled && char && char.length === 1 && !info?.ctrl && !info?.meta) {
       this.stateMachine.closeToolbar();
       return false;
+    }
+
+    if (handled && !this.toolbar.isOpen && this.stateMachine.isToolbarOpen()) {
+      this.stateMachine.closeToolbar();
     }
 
     return handled;

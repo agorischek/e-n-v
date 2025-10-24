@@ -94,20 +94,14 @@ export class EnvPromptStateMachine {
    * Open toolbar (from any mode)
    */
   openToolbar(): void {
-    this.updateSubstate({ 
-      toolbarOpen: true,
-      validation: "suppressed" 
-    });
+    this.updateSubstate({ toolbarOpen: true });
   }
 
   /**
    * Close toolbar (return to previous mode)
    */
   closeToolbar(): void {
-    this.updateSubstate({ 
-      toolbarOpen: false,
-      validation: "pending" 
-    });
+    this.updateSubstate({ toolbarOpen: false });
   }
 
   // Cursor movement
@@ -167,7 +161,8 @@ export class EnvPromptStateMachine {
       
       this.updateSubstate({ 
         secretVisibility: newVisibility,
-        validation: "suppressed" 
+        validation: "suppressed",
+        consumeSubmit: true,
       });
     }
   }
@@ -194,7 +189,7 @@ export class EnvPromptStateMachine {
    * Suppress validation temporarily (for toolbar actions)
    */
   suppressValidation(): void {
-    this.updateSubstate({ validation: "suppressed" });
+    this.updateSubstate({ validation: "suppressed", consumeSubmit: true });
   }
 
   /**
@@ -203,6 +198,12 @@ export class EnvPromptStateMachine {
   restoreValidation(): void {
     if (this._substate.validation === "suppressed") {
       this.updateSubstate({ validation: "pending" });
+    }
+  }
+
+  clearConsumeSubmit(): void {
+    if (this._substate.consumeSubmit) {
+      this.updateSubstate({ consumeSubmit: false });
     }
   }
 
