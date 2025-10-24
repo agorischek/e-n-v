@@ -57,12 +57,9 @@ export abstract class EnvPrompt<
         originalValidate?: (value: T | undefined) => string | Error | undefined;
       };
 
-    const resolvedDefault =
-      restOptions.default !== undefined ? restOptions.default : schema.default;
-
     const promptOptions = {
       ...restOptions,
-      default: resolvedDefault,
+      default: schema.default,
     } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSchema>>;
 
   super(promptOptions);
@@ -74,7 +71,7 @@ export abstract class EnvPrompt<
   this.outcome = "commit";
   this.key = promptOptions.key;
     this.current = promptOptions.current;
-    this.default = promptOptions.default;
+    this.default = schema.default;
     this.maxDisplayLength = promptOptions.maxDisplayLength ?? 40;
     this.secret = Boolean(promptOptions.secret);
     this.mask = promptOptions.mask ?? SECRET_MASK;

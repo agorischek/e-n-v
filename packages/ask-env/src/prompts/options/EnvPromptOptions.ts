@@ -5,7 +5,6 @@ import { Readable, Writable } from "node:stream";
 export interface EnvPromptOptions<T> {
   key: string;
   current?: T;
-  default?: T;
   theme?: Theme;
   maxDisplayLength?: number;
   secret?: boolean;

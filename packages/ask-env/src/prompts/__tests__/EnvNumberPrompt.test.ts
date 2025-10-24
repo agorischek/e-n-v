@@ -18,6 +18,7 @@ function createPrompt(
     key?: string;
     description?: string;
     required?: boolean;
+    default?: number;
     validate?: (value: number | undefined) => string | Error | undefined;
   } = {},
 ) {

@@ -9,6 +9,7 @@ type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
   options?: string[];
   required?: boolean;
   description?: string;
+  default?: string;
   validate?: (value: string | undefined) => string | Error | undefined;
 };
 
