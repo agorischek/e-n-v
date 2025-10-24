@@ -249,15 +249,6 @@ export abstract class EnvPrompt<
 
     return handled;
   }
-
-  protected shouldDimInputs(): boolean {
-    return this.getFooterState() === "tools";
-  }
-
-  protected isOptionPickerOpen(): boolean {
-    return this.getFooterState() === "tools";
-  }
-
   protected truncateValue(value: string): string {
     if (value.length <= this.truncate) {
       return value;

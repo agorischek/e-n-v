@@ -48,7 +48,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
           { value: false, label: "false" },
         ];
 
-        const dimInputs = this.shouldDimInputs();
+  const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         options.forEach((option, index) => {
           const isSelected = index === this.cursor;
@@ -127,7 +127,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
@@ -155,7 +155,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
     });

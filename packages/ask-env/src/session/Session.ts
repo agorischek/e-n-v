@@ -169,7 +169,9 @@ export class Session {
     }
 
     this.output.write(
-      `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  Setup complete\n\n`,
+      `${color.gray(S_BAR)}\n${color.gray(S_BAR_END)}  ${this.theme.primary(
+        "Setup complete!",
+      )}\n\n`,
     );
 
     return "success";

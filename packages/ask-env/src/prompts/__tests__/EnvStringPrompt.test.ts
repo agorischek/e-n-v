@@ -240,12 +240,12 @@ describe("EnvStringPrompt", () => {
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
     const openRender = stripAnsi(toOutputString(output));
-    expect((prompt as any).isOptionPickerOpen()).toBe(true);
+  expect((prompt as any).mode.isToolbarOpen()).toBe(true);
     expect(openRender).toContain("(current, default)");
 
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
-    expect((prompt as any).isOptionPickerOpen()).toBe(false);
+  expect((prompt as any).mode.isToolbarOpen()).toBe(false);
 
     submitPrompt(prompt as any);
     await waitForIO(2);
@@ -282,7 +282,7 @@ describe("EnvStringPrompt", () => {
 
     await pressKey(prompt, { name: "tab" });
     await waitForIO(2);
-    expect((prompt as any).isOptionPickerOpen()).toBe(true);
+  expect((prompt as any).mode.isToolbarOpen()).toBe(true);
 
     await pressKey(prompt, { name: "right" });
     await waitForIO(2);
@@ -290,7 +290,7 @@ describe("EnvStringPrompt", () => {
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);
 
-    expect((prompt as any).isOptionPickerOpen()).toBe(false);
+  expect((prompt as any).mode.isToolbarOpen()).toBe(false);
     expect(prompt.cursor).toBe(1);
     expect(prompt.state).toBe("active");
     expect(prompt.error).toBe("");

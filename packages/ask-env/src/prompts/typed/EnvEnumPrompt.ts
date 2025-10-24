@@ -44,7 +44,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         output += "\n";
 
         // Display enum options
-        const dimInputs = this.shouldDimInputs();
+  const dimInputs = !this.error && this.mode.isToolbarOpen();
         this.values.forEach((option, index) => {
           const isSelected = index === this.cursor;
           const circle = dimInputs
@@ -118,7 +118,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
@@ -148,7 +148,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
     });

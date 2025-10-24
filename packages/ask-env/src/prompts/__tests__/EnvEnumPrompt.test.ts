@@ -87,17 +87,17 @@ describe("EnvEnumPrompt", () => {
   it("ignores cursor events while the toolbar option picker is open", () => {
     const { prompt } = createPrompt();
 
-    expect((prompt as any).isOptionPickerOpen()).toBe(false);
+  expect((prompt as any).mode.isToolbarOpen()).toBe(false);
     const initialCursor = prompt.cursor;
 
     prompt.emit("key", undefined, baseKey({ name: "tab" }));
-    expect((prompt as any).isOptionPickerOpen()).toBe(true);
+  expect((prompt as any).mode.isToolbarOpen()).toBe(true);
 
     prompt.emit("cursor", "down");
     expect(prompt.cursor).toBe(initialCursor);
 
     prompt.emit("key", undefined, baseKey({ name: "tab" }));
-    expect((prompt as any).isOptionPickerOpen()).toBe(false);
+  expect((prompt as any).mode.isToolbarOpen()).toBe(false);
   });
 
   it("renders submitted values in ENV_KEY=value format", () => {

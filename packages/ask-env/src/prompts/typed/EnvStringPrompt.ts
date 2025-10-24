@@ -48,7 +48,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         }
         output += "\n";
 
-        const dimInputs = this.shouldDimInputs();
+  const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         if (this.current === undefined && this.default === undefined) {
           const displayText = dimInputs
@@ -224,7 +224,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
@@ -333,7 +333,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 

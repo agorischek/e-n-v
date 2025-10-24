@@ -47,7 +47,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         }
         output += "\n";
 
-        const dimInputs = this.shouldDimInputs();
+  const dimInputs = !this.error && this.mode.isToolbarOpen();
 
         // If both current and default are undefined, show only text input
         if (this.current === undefined && this.default === undefined) {
@@ -241,7 +241,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
@@ -351,7 +351,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         return;
       }
 
-      if (this.isOptionPickerOpen()) {
+      if (!this.error && this.mode.isToolbarOpen()) {
         return;
       }
 
