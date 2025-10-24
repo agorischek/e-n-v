@@ -1,16 +1,15 @@
-import { EnvStringPrompt } from "../src/prompts/EnvStringPrompt";
+import { EnvStringPrompt } from "../src/prompts/typed/EnvStringPrompt";
+import { StringEnvVarSchema } from "@envcredible/core";
 
-const prompt = new EnvStringPrompt(
-  {
-    type: "string",
-    required: true,
-    description: "Root URL of the target service",
-    default: "cool",
-  },
-  {
-    key: "SERVICE_URL",
-    current: "awesome",
-  },
-);
+const schema = new StringEnvVarSchema({
+  required: true,
+  description: "Root URL of the target service",
+  default: "cool",
+});
+
+const prompt = new EnvStringPrompt(schema, {
+  key: "SERVICE_URL",
+  current: "awesome",
+});
 
 await prompt.prompt();

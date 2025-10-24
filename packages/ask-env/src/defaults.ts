@@ -1,10 +1,8 @@
-import type { SecretPattern } from "./types";
-
 export const ENV_PATH = ".env";
 
 export const TRUNCATE_LENGTH = 40;
 
-export const SECRET_PATTERNS: ReadonlyArray<SecretPattern> = Object.freeze([
+export const SECRET_PATTERNS: ReadonlyArray<RegExp | string> = Object.freeze([
   /password/i,
   /passphrase/i,
   /secret/i,

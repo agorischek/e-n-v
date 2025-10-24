@@ -1,21 +1,34 @@
 import { describe, expect, it } from "bun:test";
 import { resolveShouldMask } from "../Session";
-import type { EnvVarSchema } from "../../specification/EnvVarSchema";
+import { StringEnvVarSchema, NumberEnvVarSchema } from "@envcredible/core";
 
-const BASE_STRING_SCHEMA: EnvVarSchema = {
-  type: "string",
-  required: true,
+// Create simple processors for testing
+const stringProcessor = (value: string) => value;
+const numberProcessor = (value: string) => {
+  const parsed = Number(value);
+  if (isNaN(parsed)) throw new Error("Not a number");
+  return parsed;
 };
+
+const BASE_STRING_SCHEMA = new StringEnvVarSchema({
+  process: stringProcessor,
+  required: true,
+});
 
 describe("resolveShouldMask", () => {
   it("returns schema secret flag when provided", () => {
-    const schema: EnvVarSchema = { ...BASE_STRING_SCHEMA, secret: true };
+    const schema = new StringEnvVarSchema({
+      process: stringProcessor,
+      required: true,
+      secret: true,
+    });
     expect(resolveShouldMask("API_KEY", schema, [])).toBe(true);
 
-    const nonSecretSchema: EnvVarSchema = {
-      ...BASE_STRING_SCHEMA,
+    const nonSecretSchema = new StringEnvVarSchema({
+      process: stringProcessor,
+      required: true,
       secret: false,
-    };
+    });
     expect(resolveShouldMask("API_SECRET", nonSecretSchema, [/secret/i])).toBe(
       false,
     );
@@ -28,10 +41,10 @@ describe("resolveShouldMask", () => {
   });
 
   it("returns false for non-string schemas", () => {
-    const numberSchema: EnvVarSchema = {
-      type: "number",
+    const numberSchema = new NumberEnvVarSchema({
+      process: numberProcessor,
       required: true,
-    };
+    });
     expect(resolveShouldMask("NUM_SECRET", numberSchema, [/secret/i])).toBe(
       false,
     );

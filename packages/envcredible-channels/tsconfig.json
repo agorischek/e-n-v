@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*", "../ask-env/src/utils/processors.ts"],
+  "exclude": ["node_modules", "dist"]
+}

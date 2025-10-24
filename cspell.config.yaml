@@ -4,6 +4,8 @@ dictionaryDefinitions: []
 dictionaries: []
 words:
   - desm
+  - envcredible
   - envrw
+  - RABBITMQ
 ignoreWords: []
 import: []

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { EnvBooleanPrompt } from "../EnvBooleanPrompt";
-import type { EnvPromptOptions } from "../EnvPrompt";
-import type { BooleanEnvVarSchema } from "../../specification/EnvVarSchema";
+import { EnvBooleanPrompt } from "../typed/EnvBooleanPrompt";
+import { BooleanEnvVarSchema } from "@envcredible/core";
+import type { EnvPromptOptions } from "../options/EnvPromptOptions";
 import {
   createTestStreams,
   waitForIO,
@@ -15,18 +15,17 @@ type TestPromptOptions = Partial<EnvPromptOptions<boolean>> & {
   key?: string;
   description?: string;
   required?: boolean;
-  validate?: BooleanEnvVarSchema["validate"];
+  validate?: (value: boolean | undefined) => string | Error | undefined;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
   const streams = createTestStreams();
-  const schema: BooleanEnvVarSchema = {
-    type: "boolean",
+
+  const schema = new BooleanEnvVarSchema({
     required: options.required ?? false,
-    description: options.description,
     default: options.default,
-    validate: options.validate,
-  };
+    description: options.description,
+  });
 
   const prompt = new EnvBooleanPrompt(schema, {
     key: options.key ?? "BOOL_ENV",
@@ -39,6 +38,7 @@ function createPrompt(options: TestPromptOptions = {}) {
     secret: options.secret,
     mask: options.mask,
     secretToggleShortcut: options.secretToggleShortcut,
+    validate: options.validate,
   });
 
   return { prompt, ...streams };

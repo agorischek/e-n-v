@@ -1,9 +1,8 @@
-import type { SecretPattern } from "../types";
 import { SECRET_MASK } from "../visuals/symbols";
 
 function isSecretMatch(
   value: string | undefined,
-  pattern: SecretPattern,
+  pattern: RegExp | string,
 ): boolean {
   if (!value) {
     return false;
@@ -26,7 +25,7 @@ function isSecretMatch(
 export function isSecretKey(
   key: string,
   description: string | undefined,
-  patterns: ReadonlyArray<SecretPattern>,
+  patterns: ReadonlyArray<RegExp | string>,
 ): boolean {
   if (patterns.length === 0) {
     return false;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { EnvEnumPrompt } from "../EnvEnumPrompt";
-import type { EnvPromptOptions } from "../EnvPrompt";
-import type { EnumEnvVarSchema } from "../../specification/EnvVarSchema";
+import { EnvEnumPrompt } from "../typed/EnvEnumPrompt";
+import { EnumEnvVarSchema } from "@envcredible/core";
+import type { EnvPromptOptions } from "../options/EnvPromptOptions";
 import { createTestStreams, baseKey } from "./helpers/promptTestUtils";
 
 type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
@@ -9,21 +9,19 @@ type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
   options?: string[];
   required?: boolean;
   description?: string;
-  validate?: EnumEnvVarSchema["validate"];
+  validate?: (value: string | undefined) => string | Error | undefined;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
   const streams = createTestStreams();
   const values = options.options ?? ["alpha", "beta", "gamma"];
 
-  const schema: EnumEnvVarSchema = {
-    type: "enum",
+  const schema = new EnumEnvVarSchema({
     required: options.required ?? false,
-    description: options.description,
     default: options.default,
-    validate: options.validate,
-    values,
-  };
+    description: options.description,
+    values: values,
+  });
 
   const prompt = new EnvEnumPrompt(schema, {
     key: options.key ?? "TEST_ENV",
@@ -36,6 +34,7 @@ function createPrompt(options: TestPromptOptions = {}) {
     mask: options.mask,
     secretToggleShortcut: options.secretToggleShortcut,
     previousEnabled: options.previousEnabled,
+    validate: options.validate,
   });
 
   return { prompt, ...streams };
@@ -138,7 +137,7 @@ describe("EnvEnumPrompt", () => {
     prompt.emit("cursor", "down");
     expect(prompt.value).toBe("beta");
 
-    const opts = Reflect.get(prompt as any, "opts") as
+    const opts = Reflect.get(prompt as any, "options") as
       | {
           validate?: (
             value: string | symbol | undefined,

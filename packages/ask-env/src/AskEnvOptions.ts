@@ -1,6 +1,6 @@
 import type { Formatter } from "picocolors/types";
-import type { EnvChannelOptions } from "./channels/EnvChannelOptions";
-import type { SecretPattern } from "./types";
+import type { EnvChannelOptions } from "@envcredible/channels/EnvChannelOptions";
+import type { PreprocessorOptions } from "@envcredible/core";
 
 /**
  * Configuration options for the ask function
@@ -44,7 +44,7 @@ export type AskEnvOptions = {
    * @default DEFAULT_SECRET_PATTERNS (includes password, token, api_key, database_url, etc.)
    * @example ["PASSWORD", /secret/i, "API_KEY"], [] (empty array disables masking)
    */
-  secrets?: Array<SecretPattern>;
+  secrets?: Array<RegExp | string>;
 
   /**
    * Color theme function for styling the CLI interface
@@ -53,4 +53,13 @@ export type AskEnvOptions = {
    * @example color.blue, color.green, color.cyan
    */
   theme?: Formatter;
+
+  /**
+   * Custom preprocessing functions to preprocess values before submitting to schema processors.
+   * If null or undefined, the preprocessing step is skipped for that type.
+   * These functions do not guarantee type casting and can be nullified to skip preprocessing.
+   * @default undefined (uses built-in processors)
+   * @example { number: (s) => s.replace(/,/g, ''), bool: (s) => s === 'on' ? 'true' : s }
+   */
+  preprocess?: PreprocessorOptions;
 };

@@ -1,16 +1,17 @@
-import { EnvEnumPrompt } from "../src/prompts/EnvEnumPrompt";
+import { EnvEnumPrompt } from "../src/prompts/typed/EnvEnumPrompt";
+import { EnumEnvVarSchema } from "@envcredible/core";
 
-const prompt = new EnvEnumPrompt(
-  {
-    type: "enum",
-    description: "Select the environment",
-    required: true,
-    default: "production",
-    values: ["development", "production", "test"],
-  },
-  {
-    key: "NODE_ENV",
-  },
-);
+const values = ["development", "production", "test"];
+
+const schema = new EnumEnvVarSchema({
+  values,
+  description: "Select the environment",
+  required: true,
+  default: "production",
+});
+
+const prompt = new EnvEnumPrompt(schema, {
+  key: "NODE_ENV",
+});
 
 await prompt.prompt();

@@ -1,11 +1,11 @@
 import { Readable, Writable } from "node:stream";
-import { EnvBooleanPrompt } from "./prompts/EnvBooleanPrompt";
-import { EnvEnumPrompt } from "./prompts/EnvEnumPrompt";
-import { EnvNumberPrompt } from "./prompts/EnvNumberPrompt";
-import { EnvStringPrompt } from "./prompts/EnvStringPrompt";
-import type { EnvVarSchema } from "./specification/EnvVarSchema";
-import { parseBoolean } from "./utils/parseBoolean";
+import { EnvBooleanPrompt } from "./prompts/typed/EnvBooleanPrompt";
+import { EnvEnumPrompt } from "./prompts/typed/EnvEnumPrompt";
+import { EnvNumberPrompt } from "./prompts/typed/EnvNumberPrompt";
+import { EnvStringPrompt } from "./prompts/typed/EnvStringPrompt";
+import type { EnvVarSchema, PreprocessorOptions } from "@envcredible/core";
 import type { Theme } from "./visuals/Theme";
+import { parseBoolean } from "./utils/parseBoolean";
 
 interface CreatePromptOptions {
   key: string;
@@ -17,6 +17,7 @@ interface CreatePromptOptions {
   hasPrevious: boolean;
   input?: Readable;
   output?: Writable;
+  preprocessorOptions?: PreprocessorOptions;
 }
 
 export function createPrompt({
@@ -29,6 +30,7 @@ export function createPrompt({
   hasPrevious,
   input,
   output,
+  preprocessorOptions,
 }: CreatePromptOptions):
   | EnvBooleanPrompt
   | EnvNumberPrompt
@@ -41,6 +43,7 @@ export function createPrompt({
     previousEnabled: hasPrevious,
     input,
     output,
+    preprocessorOptions,
   } as const;
 
   switch (schema.type) {

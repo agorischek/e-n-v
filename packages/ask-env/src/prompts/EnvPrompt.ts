@@ -1,5 +1,4 @@
 import { ThemedPrompt } from "./ThemedPrompt";
-import type { Theme } from "../visuals/Theme";
 import { SECRET_MASK } from "../visuals/symbols";
 import {
   S_STEP_CANCEL,
@@ -9,30 +8,11 @@ import {
   S_TOOL_INACTIVE,
 } from "../visuals/symbols";
 import type { Key } from "node:readline";
-import type { PromptOptions, Validate } from "../vendor/PromptOptions";
-import type { EnvVarSchemaDetails } from "../specification/EnvVarSchema";
-import { Readable, Writable } from "node:stream";
-
-export type PromptOutcome = "commit" | "skip" | "previous";
-
-export interface EnvPromptResult<T> {
-  outcome: PromptOutcome;
-  value?: T;
-}
-
-export interface EnvPromptOptions<T> {
-  key: string;
-  current?: T;
-  default?: T;
-  theme?: Theme;
-  maxDisplayLength?: number;
-  secret?: boolean;
-  mask?: string;
-  secretToggleShortcut?: string;
-  previousEnabled?: boolean;
-  input?: Readable;
-  output?: Writable;
-}
+import type { PromptOptions } from "../vendor/PromptOptions";
+import type { EnvVarSchemaDetails } from "@envcredible/core";
+import type { EnvPromptOptions } from "./options/EnvPromptOptions";
+import type { FooterOption } from "../types/FooterOption";
+import type { PromptOutcome } from "../types/PromptOutcome";
 
 function resolveDefaultFromSpec<T>(
   spec: EnvVarSchemaDetails<T>,
@@ -72,7 +52,7 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
-  private readonly customValidate?: Validate<T>;
+  private customValidate?: (value: T | undefined) => string | Error | undefined;
   private skipValidationFlag: boolean;
 
   protected set track(value: boolean) {
@@ -91,11 +71,18 @@ export abstract class EnvPrompt<
     spec: TSpec,
     opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>,
   ) {
+    const { originalValidate, ...restOptions } = opts as EnvPromptOptions<T> &
+      PromptOptions<T, EnvPrompt<T, TSpec>> & {
+        originalValidate?: (value: T | undefined) => string | Error | undefined;
+      };
+
     const resolvedDefault =
-      opts.default !== undefined ? opts.default : resolveDefaultFromSpec(spec);
+      restOptions.default !== undefined
+        ? restOptions.default
+        : resolveDefaultFromSpec(spec);
 
     const promptOptions = {
-      ...opts,
+      ...restOptions,
       default: resolvedDefault,
     } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>;
 
@@ -118,7 +105,7 @@ export abstract class EnvPrompt<
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
     this.previousEnabled = promptOptions.previousEnabled ?? true;
-    this.customValidate = spec.validate;
+    this.customValidate = originalValidate;
     this.skipValidationFlag = false;
 
     this.on("finalize", () => {
@@ -492,12 +479,4 @@ export abstract class EnvPrompt<
     this.skipValidationFlag = false;
     return true;
   }
-}
-
-interface FooterOption {
-  key: "skip" | "previous" | "toggleSecret" | "close";
-  label: string;
-  icon?: string;
-  activeIcon?: string;
-  disabled?: boolean;
 }
