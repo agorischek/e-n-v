@@ -7,8 +7,8 @@ import {
 } from "../../shared/apiService";
 
 export const rateLimitRpm = () =>
-  z
-    .coerce.number()
+  z.coerce
+    .number()
     .describe(descriptions.rateLimitRpm)
     .int({ error: messages.rateLimitRpmInt })
     .min(constraints.rateLimitRpmMin, { error: messages.rateLimitRpmMin })
@@ -16,8 +16,8 @@ export const rateLimitRpm = () =>
     .default(defaults.rateLimitRpm);
 
 export const rateLimitWindow = () =>
-  z
-    .coerce.number()
+  z.coerce
+    .number()
     .describe(descriptions.rateLimitWindow)
     .int({ error: messages.rateLimitWindowInt })
     .min(constraints.rateLimitWindowMin, { error: messages.rateLimitWindowMin })

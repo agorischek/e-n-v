@@ -1,4 +1,7 @@
-import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  type StringEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import {
@@ -12,15 +15,22 @@ export const awsAccessKeyId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsAccessKeyId,
     process: createZodProcessor(
-      z.string()
-        .min(constraints.awsAccessKeyIdMin, { message: messages.awsAccessKeyIdMin })
-        .max(constraints.awsAccessKeyIdMax, { message: messages.awsAccessKeyIdMax }),
+      z
+        .string()
+        .min(constraints.awsAccessKeyIdMin, {
+          message: messages.awsAccessKeyIdMin,
+        })
+        .max(constraints.awsAccessKeyIdMax, {
+          message: messages.awsAccessKeyIdMax,
+        }),
     ),
     secret: true,
     ...input,
   });
 
-export const awsSecretAccessKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const awsSecretAccessKey = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.awsSecretAccessKey,
     process: createZodProcessor(
@@ -34,7 +44,9 @@ export const awsRegion = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsRegion,
     process: createZodProcessor(
-      z.string().regex(patterns.awsRegion, { message: messages.awsRegionFormat }),
+      z
+        .string()
+        .regex(patterns.awsRegion, { message: messages.awsRegionFormat }),
     ),
     ...input,
   });
@@ -43,7 +55,11 @@ export const awsS3BucketName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsS3BucketName,
     process: createZodProcessor(
-      z.string().regex(patterns.awsS3BucketName, { message: messages.awsS3BucketNameFormat }),
+      z
+        .string()
+        .regex(patterns.awsS3BucketName, {
+          message: messages.awsS3BucketNameFormat,
+        }),
     ),
     ...input,
   });
@@ -52,7 +68,11 @@ export const awsSqsQueueUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsSqsQueueUrl,
     process: createZodProcessor(
-      z.string().regex(patterns.awsSqsQueueUrl, { message: messages.awsSqsQueueUrlFormat }),
+      z
+        .string()
+        .regex(patterns.awsSqsQueueUrl, {
+          message: messages.awsSqsQueueUrlFormat,
+        }),
     ),
     ...input,
   });

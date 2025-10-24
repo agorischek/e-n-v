@@ -1,4 +1,7 @@
-import { NumberEnvVarSchema, type NumberEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  NumberEnvVarSchema,
+  type NumberEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import {
@@ -13,7 +16,8 @@ export const port = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.port,
     default: defaults.port,
     process: createZodProcessor(
-      z.coerce.number()
+      z.coerce
+        .number()
         .int({ message: messages.portInt })
         .min(constraints.portMin, { message: messages.portMin })
         .max(constraints.portMax, { message: messages.portMax }),

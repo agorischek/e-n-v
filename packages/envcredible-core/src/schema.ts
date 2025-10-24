@@ -8,15 +8,15 @@ import { BooleanEnvVarSchema } from "./schemas/typed/BooleanEnvVarSchema";
 import { EnumEnvVarSchema } from "./schemas/typed/EnumEnvVarSchema";
 
 export const schema = {
-  string: (input: StringEnvVarSchemaInput = {}) => 
+  string: (input: StringEnvVarSchemaInput = {}) =>
     new StringEnvVarSchema(input),
-  
-  number: (input: NumberEnvVarSchemaInput = {}) => 
+
+  number: (input: NumberEnvVarSchemaInput = {}) =>
     new NumberEnvVarSchema(input),
-  
-  boolean: (input: BooleanEnvVarSchemaInput = {}) => 
+
+  boolean: (input: BooleanEnvVarSchemaInput = {}) =>
     new BooleanEnvVarSchema(input),
-  
-  enum: <T extends string = string>(input: EnumEnvVarSchemaInput<T>) => 
+
+  enum: <T extends string = string>(input: EnumEnvVarSchemaInput<T>) =>
     new EnumEnvVarSchema<T>(input),
 };

@@ -23,7 +23,7 @@ export interface PreprocessorOptions {
   number?: null | undefined | ((value: string) => number | string);
 
   /**
-   * Custom boolean preprocessing function  
+   * Custom boolean preprocessing function
    * Receives the string value and should return a string or the target boolean type
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string or boolean value
@@ -51,7 +51,7 @@ export type TypedPreprocessor<T> = (value: string) => T | string;
 const defaultNumberPreprocessor = (value: string): string => {
   try {
     // Remove commas and whitespace
-    const cleaned = value.replace(/,/g, '').trim();
+    const cleaned = value.replace(/,/g, "").trim();
     // Only return the cleaned version if it looks like a number
     if (/^-?\d*\.?\d+$/.test(cleaned)) {
       return cleaned;
@@ -69,14 +69,24 @@ const defaultNumberPreprocessor = (value: string): string => {
 const defaultBooleanPreprocessor = (value: string): string => {
   try {
     const cleaned = value.toLowerCase().trim();
-    
+
     // Handle common truthy values
-    if (cleaned === "on" || cleaned === "enabled" || cleaned === "active" || cleaned === "yes") {
+    if (
+      cleaned === "on" ||
+      cleaned === "enabled" ||
+      cleaned === "active" ||
+      cleaned === "yes"
+    ) {
       return "true";
     }
-    
+
     // Handle common falsy values
-    if (cleaned === "off" || cleaned === "disabled" || cleaned === "inactive" || cleaned === "no") {
+    if (
+      cleaned === "off" ||
+      cleaned === "disabled" ||
+      cleaned === "inactive" ||
+      cleaned === "no"
+    ) {
       return "false";
     }
   } catch {
@@ -95,14 +105,17 @@ const defaultBooleanPreprocessor = (value: string): string => {
 export function applyPreprocessing<T>(
   value: string,
   envVarType: EnvVarType,
-  preprocessorOptions?: PreprocessorOptions
+  preprocessorOptions?: PreprocessorOptions,
 ): T | string {
   let processedValue: string | number | boolean = value;
 
   // Apply preprocessing based on environment variable type
   switch (envVarType) {
     case "string":
-      if (preprocessorOptions?.string !== undefined && preprocessorOptions.string !== null) {
+      if (
+        preprocessorOptions?.string !== undefined &&
+        preprocessorOptions.string !== null
+      ) {
         processedValue = preprocessorOptions.string(value);
       }
       // No default preprocessor for strings
@@ -130,7 +143,10 @@ export function applyPreprocessing<T>(
       }
       break;
     case "enum":
-      if (preprocessorOptions?.enum !== undefined && preprocessorOptions.enum !== null) {
+      if (
+        preprocessorOptions?.enum !== undefined &&
+        preprocessorOptions.enum !== null
+      ) {
         processedValue = preprocessorOptions.enum(value);
       }
       // No default preprocessor for enums

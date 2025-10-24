@@ -8,7 +8,11 @@
   "files": [
     "dist"
   ],
-  "keywords": ["env", "types", "envcredible"],
+  "keywords": [
+    "env",
+    "types",
+    "envcredible"
+  ],
   "devDependencies": {
     "typescript": "^5.0.0"
   },

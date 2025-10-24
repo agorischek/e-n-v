@@ -1,9 +1,14 @@
-import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  type StringEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import { descriptions, messages } from "../shared/infrastructure";
 
-export const dockerRegistryUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const dockerRegistryUrl = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.dockerRegistryUrl,
     process: createZodProcessor(
@@ -12,22 +17,22 @@ export const dockerRegistryUrl = (input: Partial<StringEnvVarSchemaInput> = {}) 
     ...input,
   });
 
-export const dockerRegistryUsername = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const dockerRegistryUsername = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.dockerRegistryUsername,
-    process: createZodProcessor(
-      z.string(),
-    ),
+    process: createZodProcessor(z.string()),
     required: false,
     ...input,
   });
 
-export const dockerRegistryPassword = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const dockerRegistryPassword = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.dockerRegistryPassword,
-    process: createZodProcessor(
-      z.string(),
-    ),
+    process: createZodProcessor(z.string()),
     secret: true,
     required: false,
     ...input,

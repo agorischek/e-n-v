@@ -1,13 +1,14 @@
-import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  type StringEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
-import {
-  descriptions,
-  messages,
-  patterns,
-} from "../shared/infrastructure";
+import { descriptions, messages, patterns } from "../shared/infrastructure";
 
-export const azureStorageConnectionString = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const azureStorageConnectionString = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageConnectionString,
     process: createZodProcessor(
@@ -19,7 +20,9 @@ export const azureStorageConnectionString = (input: Partial<StringEnvVarSchemaIn
     ...input,
   });
 
-export const azureStorageAccountName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const azureStorageAccountName = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageAccountName,
     process: createZodProcessor(
@@ -30,7 +33,9 @@ export const azureStorageAccountName = (input: Partial<StringEnvVarSchemaInput> 
     ...input,
   });
 
-export const azureStorageAccountKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const azureStorageAccountKey = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageAccountKey,
     process: createZodProcessor(
@@ -40,7 +45,9 @@ export const azureStorageAccountKey = (input: Partial<StringEnvVarSchemaInput> =
     ...input,
   });
 
-export const azureServiceBusConnectionString = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const azureServiceBusConnectionString = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.azureServiceBusConnectionString,
     process: createZodProcessor(
@@ -52,7 +59,9 @@ export const azureServiceBusConnectionString = (input: Partial<StringEnvVarSchem
     ...input,
   });
 
-export const azureEventHubConnectionString = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const azureEventHubConnectionString = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.azureEventHubConnectionString,
     process: createZodProcessor(
@@ -67,8 +76,10 @@ export const azureEventHubConnectionString = (input: Partial<StringEnvVarSchemaI
 export const AZURE_STORAGE_CONNECTION_STRING = azureStorageConnectionString();
 export const AZURE_STORAGE_ACCOUNT_NAME = azureStorageAccountName();
 export const AZURE_STORAGE_ACCOUNT_KEY = azureStorageAccountKey();
-export const AZURE_SERVICE_BUS_CONNECTION_STRING = azureServiceBusConnectionString();
-export const AZURE_EVENT_HUB_CONNECTION_STRING = azureEventHubConnectionString();
+export const AZURE_SERVICE_BUS_CONNECTION_STRING =
+  azureServiceBusConnectionString();
+export const AZURE_EVENT_HUB_CONNECTION_STRING =
+  azureEventHubConnectionString();
 
 export const azure = {
   AZURE_STORAGE_CONNECTION_STRING,

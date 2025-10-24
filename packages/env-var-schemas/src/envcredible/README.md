@@ -27,14 +27,14 @@ const schemas = {
 
 // Or customize with input overrides
 const customSchemas = {
-  API_KEY: apiKey({ 
-    secret: true, 
+  API_KEY: apiKey({
+    secret: true,
     required: true,
-    description: "Your API key"
+    description: "Your API key",
   }),
-  API_TIMEOUT: apiTimeout({ 
+  API_TIMEOUT: apiTimeout({
     default: 60,
-    description: "Request timeout in seconds"
+    description: "Request timeout in seconds",
   }),
 };
 
@@ -67,9 +67,9 @@ const zodSchemas = {
 // Convert for use with ask-env
 const convertedSchemas = Object.fromEntries(
   Object.entries(zodSchemas).map(([key, schema]) => [
-    key, 
-    fromZodSchema(schema)
-  ])
+    key,
+    fromZodSchema(schema),
+  ]),
 );
 
 await ask(convertedSchemas);
@@ -115,7 +115,7 @@ const schema = someSchema({
   description: "Custom description",
   required: false,
   default: "custom-default",
-  secret: true,  // For StringEnvVarSchema only
+  secret: true, // For StringEnvVarSchema only
   // Any other EnvVarSchemaInput properties
 });
 ```

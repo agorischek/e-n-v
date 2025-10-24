@@ -9,80 +9,102 @@ import type { Processor } from "./Processor";
 /**
  * Create a string processor - pass through as-is
  */
-export const stringProcessor = (): Processor<string> => (value: string): string | undefined => {
-  if (typeof value !== 'string') {
-    throw new Error('Value must be a string');
-  }
-  
-  // Return undefined for empty strings, otherwise return the string
-  return value === '' ? undefined : value;
-};
+export const stringProcessor =
+  (): Processor<string> =>
+  (value: string): string | undefined => {
+    if (typeof value !== "string") {
+      throw new Error("Value must be a string");
+    }
+
+    // Return undefined for empty strings, otherwise return the string
+    return value === "" ? undefined : value;
+  };
 
 /**
  * Create a number processor using parseFloat
  */
-export const numberProcessor = (): Processor<number> => (value: string): number | undefined => {
-  if (typeof value !== 'string') {
-    throw new Error('Value must be a string');
-  }
-  
-  const trimmed = value.trim();
-  if (trimmed === '') {
-    return undefined;
-  }
-  
-  const parsed = parseFloat(trimmed);
-  if (isNaN(parsed)) {
-    throw new Error(`"${value}" is not a valid number`);
-  }
-  
-  return parsed;
-};
+export const numberProcessor =
+  (): Processor<number> =>
+  (value: string): number | undefined => {
+    if (typeof value !== "string") {
+      throw new Error("Value must be a string");
+    }
+
+    const trimmed = value.trim();
+    if (trimmed === "") {
+      return undefined;
+    }
+
+    const parsed = parseFloat(trimmed);
+    if (isNaN(parsed)) {
+      throw new Error(`"${value}" is not a valid number`);
+    }
+
+    return parsed;
+  };
 
 /**
  * Create a boolean processor from string representation
  */
-export const booleanProcessor = (): Processor<boolean> => (value: string): boolean | undefined => {
-  if (typeof value !== 'string') {
-    throw new Error('Value must be a string');
-  }
-  
-  const trimmed = value.trim().toLowerCase();
-  
-  if (trimmed === '') {
-    return undefined;
-  }
-  
-  if (trimmed === 'true' || trimmed === '1' || trimmed === 'yes' || trimmed === 'on') {
-    return true;
-  }
-  
-  if (trimmed === 'false' || trimmed === '0' || trimmed === 'no' || trimmed === 'off') {
-    return false;
-  }
-  
-  throw new Error(`"${value}" is not a valid boolean. Use: true/false, 1/0, yes/no, or on/off`);
-};
+export const booleanProcessor =
+  (): Processor<boolean> =>
+  (value: string): boolean | undefined => {
+    if (typeof value !== "string") {
+      throw new Error("Value must be a string");
+    }
+
+    const trimmed = value.trim().toLowerCase();
+
+    if (trimmed === "") {
+      return undefined;
+    }
+
+    if (
+      trimmed === "true" ||
+      trimmed === "1" ||
+      trimmed === "yes" ||
+      trimmed === "on"
+    ) {
+      return true;
+    }
+
+    if (
+      trimmed === "false" ||
+      trimmed === "0" ||
+      trimmed === "no" ||
+      trimmed === "off"
+    ) {
+      return false;
+    }
+
+    throw new Error(
+      `"${value}" is not a valid boolean. Use: true/false, 1/0, yes/no, or on/off`,
+    );
+  };
 
 /**
  * Create an enum processor that validates values against allowed options
  */
-export const enumProcessor = (allowedValues: readonly string[]): Processor<string> => (value: string): string | undefined => {
-  if (typeof value !== 'string') {
-    throw new Error('Value must be a string');
-  }
-  
-  const trimmed = value.trim();
-  if (trimmed === '') { 
-    return undefined;
-  }
-  
-  if (!allowedValues.includes(trimmed)) {
-    throw new Error(`"${value}" is not a valid option. Must be one of: ${allowedValues.join(', ')}`);
-  }
-  
-  return trimmed;
-};
+export const enumProcessor =
+  (allowedValues: readonly string[]): Processor<string> =>
+  (value: string): string | undefined => {
+    if (typeof value !== "string") {
+      throw new Error("Value must be a string");
+    }
+
+    const trimmed = value.trim();
+    if (trimmed === "") {
+      return undefined;
+    }
+
+    if (!allowedValues.includes(trimmed)) {
+      throw new Error(
+        `"${value}" is not a valid option. Must be one of: ${allowedValues.join(", ")}`,
+      );
+    }
+
+    return trimmed;
+  };
 
 /**
  * Default processors map for each environment variable type

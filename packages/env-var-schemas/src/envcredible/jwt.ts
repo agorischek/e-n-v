@@ -1,4 +1,7 @@
-import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  type StringEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import { patterns } from "../shared/apiService";
@@ -13,28 +16,44 @@ export const jwtSecret = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.jwtSecret,
     process: createZodProcessor(
-      z.string().min(constraints.jwtSecretMinLength, { message: messages.jwtSecretMin }),
+      z
+        .string()
+        .min(constraints.jwtSecretMinLength, {
+          message: messages.jwtSecretMin,
+        }),
     ),
     secret: true,
     ...input,
   });
 
-export const jwtAccessTokenExpiresIn = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const jwtAccessTokenExpiresIn = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.jwtAccessTokenExpiresIn,
     default: defaults.jwtAccessTokenExpiresIn,
     process: createZodProcessor(
-      z.string().regex(patterns.jwtTokenDuration, { message: messages.jwtDurationFormat }),
+      z
+        .string()
+        .regex(patterns.jwtTokenDuration, {
+          message: messages.jwtDurationFormat,
+        }),
     ),
     ...input,
   });
 
-export const jwtRefreshTokenExpiresIn = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const jwtRefreshTokenExpiresIn = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.jwtRefreshTokenExpiresIn,
     default: defaults.jwtRefreshTokenExpiresIn,
     process: createZodProcessor(
-      z.string().regex(patterns.jwtTokenDuration, { message: messages.jwtDurationFormat }),
+      z
+        .string()
+        .regex(patterns.jwtTokenDuration, {
+          message: messages.jwtDurationFormat,
+        }),
     ),
     ...input,
   });

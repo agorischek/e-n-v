@@ -1,4 +1,9 @@
-import { StringEnvVarSchema, NumberEnvVarSchema, type StringEnvVarSchemaInput, type NumberEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  NumberEnvVarSchema,
+  type StringEnvVarSchemaInput,
+  type NumberEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import {
@@ -13,7 +18,8 @@ export const openaiApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiKey,
     process: createZodProcessor(
-      z.string()
+      z
+        .string()
         .min(constraints.apiKeyMinLength, { message: messages.apiKeyMinLength })
         .regex(patterns.apiKey, { message: messages.apiKeyFormat }),
     ),
@@ -21,11 +27,17 @@ export const openaiApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
     ...input,
   });
 
-export const openaiOrganizationId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const openaiOrganizationId = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.organizationId,
     process: createZodProcessor(
-      z.string().regex(patterns.organizationId, { message: messages.organizationFormat }),
+      z
+        .string()
+        .regex(patterns.organizationId, {
+          message: messages.organizationFormat,
+        }),
     ),
     required: false,
     ...input,
@@ -45,7 +57,8 @@ export const openaiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.baseUrl,
     process: createZodProcessor(
-      z.string()
+      z
+        .string()
         .url({ message: messages.baseUrlInvalid })
         .refine((value) => value.startsWith("https://"), {
           message: messages.baseUrlProtocol,
@@ -70,7 +83,8 @@ export const openaiTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.timeout,
     default: defaults.timeout,
     process: createZodProcessor(
-      z.coerce.number()
+      z.coerce
+        .number()
         .int({ message: messages.timeoutInteger })
         .min(constraints.timeoutMin, { message: messages.timeoutMin })
         .max(constraints.timeoutMax, { message: messages.timeoutMax }),

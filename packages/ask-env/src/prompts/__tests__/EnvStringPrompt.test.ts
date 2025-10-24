@@ -22,7 +22,7 @@ function createPrompt(
   } = {},
 ) {
   const streams = createTestStreams();
-  
+
   const schema = new StringEnvVarSchemaClass({
     required: options.required ?? false,
     default: options.default,

@@ -9,7 +9,7 @@ export interface SchemaConverter<T = unknown> {
    * Type guard to check if this converter can handle the given schema
    */
   applies(schema: unknown): schema is T;
-  
+
   /**
    * Convert the schema to a EnvVarSchema
    */

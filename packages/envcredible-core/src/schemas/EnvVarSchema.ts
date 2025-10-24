@@ -19,8 +19,10 @@ export type EnvVarSchema =
  * Type guard to check if a value is a EnvVarSchema instance
  */
 export function isEnvVarSchema(value: unknown): value is EnvVarSchema {
-  return value instanceof StringEnvVarSchemaClass ||
-         value instanceof NumberEnvVarSchemaClass ||
-         value instanceof BooleanEnvVarSchemaClass ||
-         value instanceof EnumEnvVarSchemaClass;
+  return (
+    value instanceof StringEnvVarSchemaClass ||
+    value instanceof NumberEnvVarSchemaClass ||
+    value instanceof BooleanEnvVarSchemaClass ||
+    value instanceof EnumEnvVarSchemaClass
+  );
 }

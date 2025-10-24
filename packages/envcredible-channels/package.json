@@ -12,7 +12,12 @@
     "@envcredible/core": "workspace:*",
     "envrw": "workspace:*"
   },
-  "keywords": ["env", "channels", "processors", "envcredible"],
+  "keywords": [
+    "env",
+    "channels",
+    "processors",
+    "envcredible"
+  ],
   "peerDependencies": {
     "zod": "^3 || ^4"
   },

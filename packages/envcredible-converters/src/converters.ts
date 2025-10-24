@@ -9,5 +9,5 @@ import type { SchemaConverter } from "./converters/SchemaConverter";
 export const converters: SchemaConverter[] = [
   new ZodV4Converter(),
   new ZodV3Converter(),
-  new JoiConverter()
+  new JoiConverter(),
 ];

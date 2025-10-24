@@ -1,4 +1,7 @@
-import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  type StringEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import { descriptions, messages } from "../shared/apiService";

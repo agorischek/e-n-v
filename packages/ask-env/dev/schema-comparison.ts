@@ -2,10 +2,16 @@ import { ask } from "../src";
 import { resolveSchema } from "@envcredible/converters";
 
 // Import Zod schemas from the zod export
-import { apiKey as zodApiKey, apiBaseUrl as zodApiBaseUrl } from "env-var-schemas/zod";
+import {
+  apiKey as zodApiKey,
+  apiBaseUrl as zodApiBaseUrl,
+} from "env-var-schemas/zod";
 
 // Import envcredible schemas from the default export
-import { apiKey as envcredibleApiKey, apiBaseUrl as envcredibleApiBaseUrl } from "env-var-schemas";
+import {
+  apiKey as envcredibleApiKey,
+  apiBaseUrl as envcredibleApiBaseUrl,
+} from "env-var-schemas";
 
 console.log("=== Comparing Zod vs Envcredible Schemas ===\n");
 

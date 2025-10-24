@@ -13,7 +13,7 @@ export class StringEnvVarSchema extends EnvVarSchemaBase<string> {
   constructor(input: StringEnvVarSchemaInput = {}) {
     super({
       ...input,
-      process: input.process ?? processors.string()
+      process: input.process ?? processors.string(),
     });
     this.secret = input.secret;
   }

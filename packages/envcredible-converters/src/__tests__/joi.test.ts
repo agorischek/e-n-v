@@ -70,7 +70,7 @@ describe("JoiConverter", () => {
   it("should process string values correctly", () => {
     const joiSchema = Joi.string().min(3);
     const envSchema = resolveSchema(joiSchema);
-    
+
     const result = envSchema.process("hello");
     expect(result).toBe("hello");
   });
@@ -78,7 +78,7 @@ describe("JoiConverter", () => {
   it("should process number values correctly", () => {
     const joiSchema = Joi.number().min(0);
     const envSchema = resolveSchema(joiSchema);
-    
+
     const result = envSchema.process("42");
     expect(result).toBe(42);
   });
@@ -86,7 +86,7 @@ describe("JoiConverter", () => {
   it("should process boolean values correctly", () => {
     const joiSchema = Joi.boolean();
     const envSchema = resolveSchema(joiSchema);
-    
+
     expect(envSchema.process("true")).toBe(true);
     expect(envSchema.process("false")).toBe(false);
     expect(envSchema.process("1")).toBe(true);
@@ -98,7 +98,7 @@ describe("JoiConverter", () => {
   it("should process enum values correctly", () => {
     const joiSchema = Joi.string().valid("dev", "prod", "test");
     const envSchema = resolveSchema(joiSchema);
-    
+
     const result = envSchema.process("dev");
     expect(result).toBe("dev");
   });
@@ -106,21 +106,21 @@ describe("JoiConverter", () => {
   it("should throw error for invalid values", () => {
     const joiSchema = Joi.number().min(10);
     const envSchema = resolveSchema(joiSchema);
-    
+
     expect(() => envSchema.process("5")).toThrow();
   });
 
   it("should throw error for invalid enum values", () => {
     const joiSchema = Joi.string().valid("dev", "prod", "test");
     const envSchema = resolveSchema(joiSchema);
-    
+
     expect(() => envSchema.process("invalid")).toThrow();
   });
 
   it("should throw error for invalid boolean values", () => {
     const joiSchema = Joi.boolean();
     const envSchema = resolveSchema(joiSchema);
-    
+
     expect(() => envSchema.process("maybe")).toThrow();
   });
 });

@@ -13,7 +13,7 @@ import Joi from "joi";
 const zodSchema = resolveSchema(z.string().optional());
 const joiSchema = resolveSchema(Joi.string().optional());
 
-console.log(zodSchema.type);     // "string"
+console.log(zodSchema.type); // "string"
 console.log(zodSchema.required); // false
 ```
 

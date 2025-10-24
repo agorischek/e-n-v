@@ -1,4 +1,9 @@
-import { StringEnvVarSchema, NumberEnvVarSchema, type StringEnvVarSchemaInput, type NumberEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  NumberEnvVarSchema,
+  type StringEnvVarSchemaInput,
+  type NumberEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import {
@@ -9,7 +14,9 @@ import {
   patterns,
 } from "../shared/infrastructure";
 
-export const newRelicLicenseKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const newRelicLicenseKey = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.newRelicLicenseKey,
     process: createZodProcessor(
@@ -50,10 +57,15 @@ export const prometheusPort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.prometheusPort,
     default: defaults.prometheusPort,
     process: createZodProcessor(
-      z.coerce.number()
+      z.coerce
+        .number()
         .int({ message: messages.prometheusPortInt })
-        .min(constraints.prometheusPortMin, { message: messages.prometheusPortMin })
-        .max(constraints.prometheusPortMax, { message: messages.prometheusPortMax }),
+        .min(constraints.prometheusPortMin, {
+          message: messages.prometheusPortMin,
+        })
+        .max(constraints.prometheusPortMax, {
+          message: messages.prometheusPortMax,
+        }),
     ),
     ...input,
   });

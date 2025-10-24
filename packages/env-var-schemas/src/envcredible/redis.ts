@@ -1,4 +1,11 @@
-import { StringEnvVarSchema, NumberEnvVarSchema, BooleanEnvVarSchema, type StringEnvVarSchemaInput, type NumberEnvVarSchemaInput, type BooleanEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  NumberEnvVarSchema,
+  BooleanEnvVarSchema,
+  type StringEnvVarSchemaInput,
+  type NumberEnvVarSchemaInput,
+  type BooleanEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import {
@@ -13,8 +20,7 @@ export const redisUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.url,
     process: createZodProcessor(
-      z.string()
-        .regex(patterns.url, { message: messages.urlFormat }),
+      z.string().regex(patterns.url, { message: messages.urlFormat }),
     ),
     ...input,
   });
@@ -23,7 +29,8 @@ export const redisHost = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.host,
     process: createZodProcessor(
-      z.string()
+      z
+        .string()
         .min(1, { message: messages.hostRequired })
         .regex(patterns.host, { message: messages.hostFormat }),
     ),
@@ -36,7 +43,8 @@ export const redisPort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.port,
     default: defaults.port,
     process: createZodProcessor(
-      z.coerce.number()
+      z.coerce
+        .number()
         .int({ message: messages.portInteger })
         .min(constraints.portMin, { message: messages.portMin })
         .max(constraints.portMax, { message: messages.portMax }),
@@ -70,7 +78,8 @@ export const redisDb = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.db,
     default: defaults.db,
     process: createZodProcessor(
-      z.coerce.number()
+      z.coerce
+        .number()
         .int({ message: messages.dbInteger })
         .min(constraints.dbMin, { message: messages.dbRange })
         .max(constraints.dbMax, { message: messages.dbRange }),
@@ -85,7 +94,9 @@ export const redisTls = (input: Partial<BooleanEnvVarSchemaInput> = {}) =>
     ...input,
   });
 
-export const redisTlsCaCertPath = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const redisTlsCaCertPath = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.tlsCaCertPath,
     process: createZodProcessor(

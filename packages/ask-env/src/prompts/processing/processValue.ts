@@ -1,4 +1,7 @@
-import type { EnvVarSchemaDetails, PreprocessorOptions } from "@envcredible/core";
+import type {
+  EnvVarSchemaDetails,
+  PreprocessorOptions,
+} from "@envcredible/core";
 import { applyPreprocessing } from "@envcredible/core";
 
 export interface ProcessingResult<T> {
@@ -14,11 +17,15 @@ export interface ProcessingResult<T> {
 export function processValue<T>(
   value: string,
   schema: EnvVarSchemaDetails<T>,
-  preprocessorOptions?: PreprocessorOptions
+  preprocessorOptions?: PreprocessorOptions,
 ): ProcessingResult<T> {
   try {
     // Apply preprocessing
-    const processedValue = applyPreprocessing(value, schema.type, preprocessorOptions);
+    const processedValue = applyPreprocessing(
+      value,
+      schema.type,
+      preprocessorOptions,
+    );
 
     // If the preprocessing function returned the target type, use it directly
     if (schema.type === "boolean" && typeof processedValue === "boolean") {
@@ -40,6 +47,11 @@ export function processValue<T>(
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     // Return the raw value and mark as invalid
-    return { value: undefined, rawValue: value, isValid: false, error: message };
+    return {
+      value: undefined,
+      rawValue: value,
+      isValid: false,
+      error: message,
+    };
   }
 }

@@ -10,7 +10,7 @@ export class BooleanEnvVarSchema extends EnvVarSchemaBase<boolean> {
   constructor(input: BooleanEnvVarSchemaInput = {}) {
     super({
       ...input,
-      process: input.process ?? processors.boolean()
+      process: input.process ?? processors.boolean(),
     });
   }
 }

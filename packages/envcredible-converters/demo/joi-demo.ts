@@ -4,7 +4,9 @@ import { resolveSchema } from "../src/index";
 console.log("🔧 Joi Converter Demo\n");
 
 // String schema
-const stringSchema = Joi.string().min(3).description("A string with minimum 3 characters");
+const stringSchema = Joi.string()
+  .min(3)
+  .description("A string with minimum 3 characters");
 const stringEnvSchema = resolveSchema(stringSchema);
 console.log("String Schema:");
 console.log(`- Type: ${stringEnvSchema.type}`);
@@ -36,7 +38,9 @@ console.log(`- Process "0": ${booleanEnvSchema.process("0")}`);
 console.log();
 
 // Enum schema
-const enumSchema = Joi.string().valid("development", "production", "test").description("Environment mode");
+const enumSchema = Joi.string()
+  .valid("development", "production", "test")
+  .description("Environment mode");
 const enumEnvSchema = resolveSchema(enumSchema);
 console.log("Enum Schema:");
 console.log(`- Type: ${enumEnvSchema.type}`);

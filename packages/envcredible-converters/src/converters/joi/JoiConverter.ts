@@ -1,7 +1,4 @@
-import type {
-  EnvVarSchema,
-  EnvVarType,
-} from "@envcredible/core";
+import type { EnvVarSchema, EnvVarType } from "@envcredible/core";
 import {
   BooleanEnvVarSchema,
   NumberEnvVarSchema,
@@ -68,10 +65,10 @@ function isJoiRequired(schema: AnySchema): boolean {
   try {
     const description = schema.describe() as JoiDescription;
     const presence = description?.flags?.presence;
-    
+
     if (presence === "required") return true;
     if (presence === "optional") return false;
-    
+
     // If no explicit presence flag, default to required (Joi's default behavior)
     return presence === undefined;
   } catch {
@@ -105,7 +102,9 @@ function getJoiDefaultValue(schema: AnySchema): unknown {
 /**
  * Get valid values for enum-like schemas using public API first, internal as fallback
  */
-function getJoiValidValues(schema: AnySchema & JoiSchemaInternals): string[] | undefined {
+function getJoiValidValues(
+  schema: AnySchema & JoiSchemaInternals,
+): string[] | undefined {
   const values: unknown[] = [];
   let isOnlySchema = false;
 
@@ -125,7 +124,7 @@ function getJoiValidValues(schema: AnySchema & JoiSchemaInternals): string[] | u
   }
 
   if (isOnlySchema && values.length > 0) {
-    return values.map(v => String(v));
+    return values.map((v) => String(v));
   }
 
   return undefined;
@@ -136,7 +135,7 @@ function getJoiValidValues(schema: AnySchema & JoiSchemaInternals): string[] | u
  */
 function resolveJoiEnvVarType(schema: AnySchema): EnvVarType {
   let type: string | undefined;
-  const exposedSchema = schema as AnySchema & JoiSchemaInternals
+  const exposedSchema = schema as AnySchema & JoiSchemaInternals;
 
   try {
     // Try public API first
@@ -170,7 +169,7 @@ function resolveJoiEnvVarType(schema: AnySchema): EnvVarType {
  */
 function createJoiProcessFunction<T>(
   schema: AnySchema,
-  type: EnvVarType
+  type: EnvVarType,
 ): (value: string) => T | undefined {
   return (value: string): T | undefined => {
     try {
@@ -197,7 +196,7 @@ function createJoiProcessFunction<T>(
 
       // Validate with Joi
       const result = schema.validate(processValue, { convert: true });
-      
+
       if (result.error) {
         const message = result.error.details
           ? result.error.details.map((d: any) => d.message).join("; ")
@@ -232,7 +231,7 @@ export function convertFromJoiSchema(schema: AnySchema): EnvVarSchema {
         description,
       });
     }
-    
+
     case "number": {
       const process = createJoiProcessFunction<number>(schema, "number");
       return new NumberEnvVarSchema({
@@ -242,7 +241,7 @@ export function convertFromJoiSchema(schema: AnySchema): EnvVarSchema {
         description,
       });
     }
-    
+
     case "enum": {
       const values = getJoiValidValues(schema) || [];
       const process = createJoiProcessFunction<string>(schema, "enum");
@@ -254,15 +253,15 @@ export function convertFromJoiSchema(schema: AnySchema): EnvVarSchema {
         description,
       });
     }
-    
+
     case "string":
     default: {
       const process = createJoiProcessFunction<string>(schema, "string");
-      const stringDefault = 
+      const stringDefault =
         typeof defaultValue === "string" || defaultValue === null
           ? (defaultValue as string | null | undefined)
           : undefined;
-          
+
       return new StringEnvVarSchema({
         process,
         required,

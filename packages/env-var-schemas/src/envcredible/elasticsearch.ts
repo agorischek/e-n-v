@@ -1,14 +1,20 @@
-import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "../../../envcredible-core/src";
+import {
+  StringEnvVarSchema,
+  type StringEnvVarSchemaInput,
+} from "../../../envcredible-core/src";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import { descriptions, messages } from "../shared/infrastructure";
 import { patterns } from "../shared/apiService";
 
-export const elasticsearchUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const elasticsearchUrl = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchUrl,
     process: createZodProcessor(
-      z.string()
+      z
+        .string()
         .url({ message: messages.elasticsearchUrlFormat })
         .regex(patterns.httpProtocol, {
           message: messages.elasticsearchUrlProtocol,
@@ -17,22 +23,22 @@ export const elasticsearchUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =
     ...input,
   });
 
-export const elasticsearchUsername = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const elasticsearchUsername = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchUsername,
-    process: createZodProcessor(
-      z.string(),
-    ),
+    process: createZodProcessor(z.string()),
     required: false,
     ...input,
   });
 
-export const elasticsearchPassword = (input: Partial<StringEnvVarSchemaInput> = {}) =>
+export const elasticsearchPassword = (
+  input: Partial<StringEnvVarSchemaInput> = {},
+) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchPassword,
-    process: createZodProcessor(
-      z.string(),
-    ),
+    process: createZodProcessor(z.string()),
     secret: true,
     required: false,
     ...input,

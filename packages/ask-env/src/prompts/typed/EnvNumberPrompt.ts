@@ -1,6 +1,10 @@
 import { EnvPrompt } from "../EnvPrompt";
 import type { EnvPromptOptions } from "../options/EnvPromptOptions";
-import { S_RADIO_ACTIVE, S_RADIO_INACTIVE, S_CURSOR } from "../../visuals/symbols";
+import {
+  S_RADIO_ACTIVE,
+  S_RADIO_INACTIVE,
+  S_CURSOR,
+} from "../../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import type { NumberEnvVarSchema } from "@envcredible/core";

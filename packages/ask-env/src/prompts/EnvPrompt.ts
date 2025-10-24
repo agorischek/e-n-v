@@ -23,14 +23,10 @@ function resolveDefaultFromSpec<T>(
         ? (spec.default as T)
         : undefined;
     case "number":
-      return typeof spec.default === "number"
-        ? (spec.default as T)
-        : undefined;
+      return typeof spec.default === "number" ? (spec.default as T) : undefined;
     case "enum":
     case "string":
-      return typeof spec.default === "string"
-        ? (spec.default as T)
-        : undefined;
+      return typeof spec.default === "string" ? (spec.default as T) : undefined;
     default:
       return undefined;
   }
@@ -75,9 +71,10 @@ export abstract class EnvPrompt<
     spec: TSpec,
     opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>,
   ) {
-    const { originalValidate, ...restOptions } = opts as (EnvPromptOptions<T> &
-      PromptOptions<T, EnvPrompt<T, TSpec>> &
-      { originalValidate?: (value: T | undefined) => string | Error | undefined });
+    const { originalValidate, ...restOptions } = opts as EnvPromptOptions<T> &
+      PromptOptions<T, EnvPrompt<T, TSpec>> & {
+        originalValidate?: (value: T | undefined) => string | Error | undefined;
+      };
 
     const resolvedDefault =
       restOptions.default !== undefined

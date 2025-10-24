@@ -13,4 +13,4 @@ export interface JoiSchemaInternals {
     [key: string]: any;
   };
   type?: string; // This is actually a public property
-};
+}

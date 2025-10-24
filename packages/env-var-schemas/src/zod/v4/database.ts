@@ -22,8 +22,8 @@ export const databaseHost = () =>
     .min(1, { message: messages.databaseHostRequired });
 
 export const databasePort = () =>
-  z
-    .coerce.number()
+  z.coerce
+    .number()
     .describe(descriptions.databasePort)
     .int({ message: messages.databasePortInt })
     .min(constraints.databasePortMin, { message: messages.databasePortMin })
@@ -51,8 +51,8 @@ export const databaseSchema = () =>
   z.string().describe(descriptions.databaseSchema).optional();
 
 export const databasePoolSize = () =>
-  z
-    .coerce.number()
+  z.coerce
+    .number()
     .describe(descriptions.databasePoolSize)
     .int({ message: messages.databasePoolSizeInt })
     .min(constraints.databasePoolSizeMin, {
@@ -64,8 +64,8 @@ export const databasePoolSize = () =>
     .default(defaults.databasePoolSize);
 
 export const databaseTimeout = () =>
-  z
-    .coerce.number()
+  z.coerce
+    .number()
     .describe(descriptions.databaseTimeout)
     .int({ message: messages.databaseTimeoutInt })
     .min(constraints.databaseTimeoutMin, {
