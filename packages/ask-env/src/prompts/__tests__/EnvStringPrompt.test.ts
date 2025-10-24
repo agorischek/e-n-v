@@ -32,7 +32,7 @@ function createPrompt(
   const prompt = new EnvStringPrompt(schema, {
     key: options.key ?? "TEST_ENV",
     current: options.current,
-    maxDisplayLength: options.maxDisplayLength,
+    truncate: options.truncate,
     secret: options.secret,
     mask: options.mask,
     theme: options.theme,
@@ -198,7 +198,7 @@ describe("EnvStringPrompt", () => {
     const { prompt, output } = createPrompt({
       secret: true,
       mask: "#",
-      maxDisplayLength: 4,
+      truncate: 4,
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);

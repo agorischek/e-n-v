@@ -29,7 +29,7 @@ export abstract class EnvPrompt<
   protected readonly key: string;
   protected current?: T;
   protected default?: T;
-  protected maxDisplayLength: number;
+  protected truncate: number;
   protected secret: boolean;
   protected mask: string;
   protected revealSecret: boolean;
@@ -66,7 +66,7 @@ export abstract class EnvPrompt<
   this.key = promptOptions.key;
     this.current = promptOptions.current;
     this.default = schema.default;
-    this.maxDisplayLength = promptOptions.maxDisplayLength ?? 40;
+    this.truncate = promptOptions.truncate ?? 40;
     this.secret = Boolean(promptOptions.secret);
     this.mask = promptOptions.mask ?? SECRET_MASK;
     this.revealSecret = false;
@@ -235,10 +235,10 @@ export abstract class EnvPrompt<
   }
 
   protected truncateValue(value: string): string {
-    if (value.length <= this.maxDisplayLength) {
+    if (value.length <= this.truncate) {
       return value;
     }
-    return value.substring(0, this.maxDisplayLength) + "...";
+    return value.substring(0, this.truncate) + "...";
   }
 
   protected renderSkipped(): string {

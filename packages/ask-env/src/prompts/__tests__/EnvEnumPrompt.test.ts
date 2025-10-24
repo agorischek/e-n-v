@@ -29,7 +29,7 @@ function createPrompt(options: TestPromptOptions = {}) {
     theme: options.theme,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
-    maxDisplayLength: options.maxDisplayLength,
+    truncate: options.truncate,
     secret: options.secret,
     mask: options.mask,
     previousEnabled: options.previousEnabled,

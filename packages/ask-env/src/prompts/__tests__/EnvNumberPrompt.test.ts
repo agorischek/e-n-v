@@ -32,7 +32,7 @@ function createPrompt(
   const prompt = new EnvNumberPrompt(schema, {
     key: options.key ?? "NUM_ENV",
     current: options.current,
-    maxDisplayLength: options.maxDisplayLength,
+    truncate: options.truncate,
     theme: options.theme,
     previousEnabled: options.previousEnabled,
     input: options.input ?? streams.input,

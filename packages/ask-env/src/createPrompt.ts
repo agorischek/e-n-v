@@ -39,7 +39,7 @@ export function createPrompt({
   const baseOptions = {
     key,
     theme,
-    maxDisplayLength: truncate,
+    truncate: truncate,
     previousEnabled: hasPrevious,
     input,
     output,

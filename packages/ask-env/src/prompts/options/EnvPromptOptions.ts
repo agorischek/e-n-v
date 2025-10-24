@@ -6,7 +6,7 @@ export interface EnvPromptOptions<T> {
   key: string;
   current?: T;
   theme?: Theme;
-  maxDisplayLength?: number;
+  truncate?: number;
   secret?: boolean;
   mask?: string;
   previousEnabled?: boolean;
