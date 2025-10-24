@@ -53,14 +53,8 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
               : this.colors.dim(S_RADIO_INACTIVE);
 
           // Determine if this option matches current or default
-          let annotation = "";
-          if (this.current === option && this.default === option) {
-            annotation = " (current, default)";
-          } else if (this.current === option) {
-            annotation = " (current)";
-          } else if (this.default === option) {
-            annotation = " (default)";
-          }
+          const annotationLabel = this.getAnnotationLabel(option);
+          const annotation = annotationLabel ? ` (${annotationLabel})` : "";
 
           const text = dimInputs
             ? this.colors.dim(option)

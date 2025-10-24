@@ -58,14 +58,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
               : this.colors.dim(S_RADIO_INACTIVE);
 
           // Determine if this option matches current or default
-          let annotation = "";
-          if (this.current === option.value && this.default === option.value) {
-            annotation = " (current, default)";
-          } else if (this.current === option.value) {
-            annotation = " (current)";
-          } else if (this.default === option.value) {
-            annotation = " (default)";
-          }
+          const annotationLabel = this.getAnnotationLabel(option.value);
+          const annotation = annotationLabel ? ` (${annotationLabel})` : "";
 
           const text = dimInputs
             ? this.colors.dim(option.label)

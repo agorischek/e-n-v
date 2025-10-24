@@ -133,6 +133,26 @@ describe("EnvStringPrompt", () => {
     await promptPromise;
   });
 
+  it("labels distinct current and default options", async () => {
+    const { prompt, output } = createPrompt({
+      current: "override",
+      default: "schema",
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    const rendered = stripAnsi(toOutputString(output));
+    expect(rendered).toContain("(current)");
+    expect(rendered).toContain("(default)");
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
   it("navigates to the custom option when only the schema default exists", async () => {
     const { prompt } = createPrompt({ default: "from-schema" });
     const promptPromise = prompt.prompt();

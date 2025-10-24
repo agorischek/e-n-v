@@ -64,18 +64,17 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         > = [];
 
         if (this.current !== undefined) {
-          if (this.default !== undefined && this.current === this.default) {
-            options.push({
-              value: this.current,
-              label: "(current, default)",
-            });
-          } else {
-            options.push({ value: this.current, label: "(current)" });
+          const annotation = this.getAnnotationLabel(this.current);
+          if (annotation) {
+            options.push({ value: this.current, label: `(${annotation})` });
           }
         }
 
         if (this.default !== undefined && this.current !== this.default) {
-          options.push({ value: this.default, label: "(default)" });
+          const annotation = this.getAnnotationLabel(this.default);
+          if (annotation) {
+            options.push({ value: this.default, label: `(${annotation})` });
+          }
         }
 
         options.push("Other");

@@ -76,19 +76,18 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
         // Add current value if it exists
         if (this.current !== undefined) {
-          if (this.default !== undefined && this.current === this.default) {
-            options.push({
-              value: this.current,
-              label: "(current, default)",
-            });
-          } else {
-            options.push({ value: this.current, label: "(current)" });
+          const annotation = this.getAnnotationLabel(this.current);
+          if (annotation) {
+            options.push({ value: this.current, label: `(${annotation})` });
           }
         }
 
         // Add default value if it exists and is different from current
         if (this.default !== undefined && this.current !== this.default) {
-          options.push({ value: this.default, label: "(default)" });
+          const annotation = this.getAnnotationLabel(this.default);
+          if (annotation) {
+            options.push({ value: this.default, label: `(${annotation})` });
+          }
         }
 
         // Always add the custom entry option

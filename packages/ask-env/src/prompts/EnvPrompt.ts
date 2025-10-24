@@ -342,4 +342,20 @@ export abstract class EnvPrompt<
     }
     return false;
   }
+
+  protected getAnnotationLabel(value: TVar | undefined): string | undefined {
+    const matchesCurrent = this.current === value;
+    const matchesDefault = this.default === value;
+
+    if (matchesCurrent && matchesDefault) {
+      return "current, default";
+    }
+    if (matchesCurrent) {
+      return "current";
+    }
+    if (matchesDefault) {
+      return "default";
+    }
+    return undefined;
+  }
 }

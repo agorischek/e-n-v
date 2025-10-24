@@ -106,6 +106,23 @@ describe("EnvBooleanPrompt", () => {
     await promptPromise;
   });
 
+  it("renders distinct annotations when current and default differ", async () => {
+    const { prompt, output } = createPrompt({ current: true, default: false });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    const rendered = stripAnsi(toOutputString(output));
+    expect(rendered).toContain("(current)");
+    expect(rendered).toContain("(default)");
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
   it("applies custom validation, handles navigation, and eventually succeeds", async () => {
     const calls: Array<boolean | undefined> = [];
     let allowTrue = false;

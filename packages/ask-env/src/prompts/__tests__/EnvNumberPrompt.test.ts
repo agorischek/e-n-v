@@ -126,6 +126,23 @@ describe("EnvNumberPrompt", () => {
     await promptPromise;
   });
 
+  it("labels distinct current and default numeric options", async () => {
+    const { prompt, output } = createPrompt({ current: 5, default: 10 });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    const rendered = stripAnsi(toOutputString(output));
+    expect(rendered).toContain("(current)");
+    expect(rendered).toContain("(default)");
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
   it("navigates to custom option when only schema default exists", async () => {
     const { prompt } = createPrompt({ default: 7 });
     const promptPromise = prompt.prompt();
