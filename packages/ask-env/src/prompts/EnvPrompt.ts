@@ -17,16 +17,16 @@ import { ClackPromptInternals } from "./utils/ClackPromptInternals";
 
 // NOTE: Schema defaults are typed as `default?: T` in `EnvVarSchemaDetails`.
 // We no longer coerce `null` or attempt ad-hoc runtime normalization here —
-// the prompt will rely on the spec's `default` directly when an explicit
+// the prompt will rely on the schema's `default` directly when an explicit
 // prompt default isn't provided.
 
 export abstract class EnvPrompt<
   T,
-  TSpec extends EnvVarSchemaDetails<T> = EnvVarSchemaDetails<T>,
+  TSchema extends EnvVarSchemaDetails<T> = EnvVarSchemaDetails<T>,
 > extends ThemedPrompt<T> {
-  protected readonly spec: TSpec;
+  protected readonly schema: TSchema;
   protected readonly required: boolean;
-  protected key: string;
+  protected readonly key: string;
   protected current?: T;
   protected default?: T;
   protected maxDisplayLength: number;
@@ -40,7 +40,7 @@ export abstract class EnvPrompt<
   protected consumeNextSubmit: boolean;
   protected previousEnabled: boolean;
   protected outcome: PromptOutcome;
-  protected readonly internals: ClackPromptInternals<EnvPrompt<T, TSpec>>;
+  protected readonly internals: ClackPromptInternals<EnvPrompt<T, TSchema>>;
   private customValidate?: (value: T | undefined) => string | Error | undefined;
   private skipValidationFlag: boolean;
 
@@ -49,30 +49,30 @@ export abstract class EnvPrompt<
   }
 
   constructor(
-    spec: TSpec,
-    opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>,
+    schema: TSchema,
+    opts: EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSchema>>,
   ) {
     const { originalValidate, ...restOptions } = opts as EnvPromptOptions<T> &
-      PromptOptions<T, EnvPrompt<T, TSpec>> & {
+      PromptOptions<T, EnvPrompt<T, TSchema>> & {
         originalValidate?: (value: T | undefined) => string | Error | undefined;
       };
 
     const resolvedDefault =
-      restOptions.default !== undefined ? restOptions.default : spec.default;
+      restOptions.default !== undefined ? restOptions.default : schema.default;
 
     const promptOptions = {
       ...restOptions,
       default: resolvedDefault,
-    } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSpec>>;
+    } as EnvPromptOptions<T> & PromptOptions<T, EnvPrompt<T, TSchema>>;
 
-    super(promptOptions);
+  super(promptOptions);
+  this.schema = schema;
     this.internals = new ClackPromptInternals(this);
-    this.spec = spec;
-    this.required = spec.required;
+  this.required = schema.required;
     // Disable base Prompt input tracking by default; subclasses toggle as needed
     this.internals.track = false;
-    this.outcome = "commit";
-    this.key = promptOptions.key;
+  this.outcome = "commit";
+  this.key = promptOptions.key;
     this.current = promptOptions.current;
     this.default = promptOptions.default;
     this.maxDisplayLength = promptOptions.maxDisplayLength ?? 40;

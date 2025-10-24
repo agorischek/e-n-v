@@ -43,8 +43,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         output += `${this.getSymbol()}  ${this.colors.bold(
           this.colors.white(this.key),
         )}`;
-        if (this.spec.description) {
-          output += ` ${this.colors.subtle(this.spec.description)}`;
+        if (this.schema.description) {
+          output += ` ${this.colors.subtle(this.schema.description)}`;
         }
         output += "\n";
 

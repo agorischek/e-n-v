@@ -38,8 +38,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         output += `${this.getSymbol()}  ${this.colors.bold(
           this.colors.white(this.key),
         )}`;
-        if (this.spec.description) {
-          output += ` ${this.colors.subtle(this.spec.description)}`;
+        if (this.schema.description) {
+          output += ` ${this.colors.subtle(this.schema.description)}`;
         }
         output += "\n";
 
