@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ask } from "../src/ask";
 
-import { DATABASE_PASSWORD, RABBITMQ_URL } from "../../env-var-schemas/src";
+import { DATABASE_PASSWORD } from "../../env-var-schemas/src";
 
 const vars = {
   DATABASE_PASSWORD,
