@@ -16,11 +16,9 @@ export const jwtSecret = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.jwtSecret,
     process: createZodProcessor(
-      z
-        .string()
-        .min(constraints.jwtSecretMinLength, {
-          message: messages.jwtSecretMin,
-        }),
+      z.string().min(constraints.jwtSecretMinLength, {
+        message: messages.jwtSecretMin,
+      }),
     ),
     secret: true,
     ...input,
@@ -33,11 +31,9 @@ export const jwtAccessTokenExpiresIn = (
     description: descriptions.jwtAccessTokenExpiresIn,
     default: defaults.jwtAccessTokenExpiresIn,
     process: createZodProcessor(
-      z
-        .string()
-        .regex(patterns.jwtTokenDuration, {
-          message: messages.jwtDurationFormat,
-        }),
+      z.string().regex(patterns.jwtTokenDuration, {
+        message: messages.jwtDurationFormat,
+      }),
     ),
     ...input,
   });
@@ -49,11 +45,9 @@ export const jwtRefreshTokenExpiresIn = (
     description: descriptions.jwtRefreshTokenExpiresIn,
     default: defaults.jwtRefreshTokenExpiresIn,
     process: createZodProcessor(
-      z
-        .string()
-        .regex(patterns.jwtTokenDuration, {
-          message: messages.jwtDurationFormat,
-        }),
+      z.string().regex(patterns.jwtTokenDuration, {
+        message: messages.jwtDurationFormat,
+      }),
     ),
     ...input,
   });

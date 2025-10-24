@@ -33,11 +33,9 @@ export const openaiOrganizationId = (
   new StringEnvVarSchema({
     description: descriptions.organizationId,
     process: createZodProcessor(
-      z
-        .string()
-        .regex(patterns.organizationId, {
-          message: messages.organizationFormat,
-        }),
+      z.string().regex(patterns.organizationId, {
+        message: messages.organizationFormat,
+      }),
     ),
     required: false,
     ...input,

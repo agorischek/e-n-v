@@ -55,11 +55,9 @@ export const awsS3BucketName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsS3BucketName,
     process: createZodProcessor(
-      z
-        .string()
-        .regex(patterns.awsS3BucketName, {
-          message: messages.awsS3BucketNameFormat,
-        }),
+      z.string().regex(patterns.awsS3BucketName, {
+        message: messages.awsS3BucketNameFormat,
+      }),
     ),
     ...input,
   });
@@ -68,11 +66,9 @@ export const awsSqsQueueUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsSqsQueueUrl,
     process: createZodProcessor(
-      z
-        .string()
-        .regex(patterns.awsSqsQueueUrl, {
-          message: messages.awsSqsQueueUrlFormat,
-        }),
+      z.string().regex(patterns.awsSqsQueueUrl, {
+        message: messages.awsSqsQueueUrlFormat,
+      }),
     ),
     ...input,
   });

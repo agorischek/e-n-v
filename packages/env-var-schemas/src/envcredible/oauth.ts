@@ -10,11 +10,9 @@ export const oauthClientId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.clientId,
     process: createZodProcessor(
-      z
-        .string()
-        .min(constraints.clientIdMinLength, {
-          message: messages.clientIdRequired,
-        }),
+      z.string().min(constraints.clientIdMinLength, {
+        message: messages.clientIdRequired,
+      }),
     ),
     secret: true,
     ...input,
