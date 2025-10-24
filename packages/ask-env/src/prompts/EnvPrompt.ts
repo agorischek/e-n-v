@@ -37,14 +37,15 @@ export abstract class EnvPrompt<
   protected optionCursor: number;
   protected allowSubmitFromOption: boolean;
   protected consumeNextSubmit: boolean;
-  protected previousEnabled: boolean;
+  protected index: number;
+  protected total: number;
   protected outcome: PromptOutcome;
   protected readonly internals: ClackPromptInternals<EnvPrompt<T, TSchema>>;
   private userValidate?: (value: T | undefined) => string | Error | undefined;
   private skipValidationFlag: boolean;
 
   private get hasAnyPreviousValue(): boolean {
-    return this.previousEnabled;
+    return this.index > 0;
   }
 
   constructor(
@@ -74,7 +75,8 @@ export abstract class EnvPrompt<
     this.optionCursor = 0;
     this.allowSubmitFromOption = false;
     this.consumeNextSubmit = false;
-    this.previousEnabled = promptOptions.previousEnabled ?? true;
+    this.index = promptOptions.index ?? 0;
+    this.total = promptOptions.total ?? 1;
     this.skipValidationFlag = false;
 
     this.on("finalize", () => {
@@ -414,7 +416,7 @@ export abstract class EnvPrompt<
       },
     ];
 
-    if (this.previousEnabled) {
+    if (this.index > 0) {
       options.push({
         key: "previous",
         label: "Previous",

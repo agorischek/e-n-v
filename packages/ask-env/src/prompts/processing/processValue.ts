@@ -21,6 +21,11 @@ export function processValue<T>(
   preprocess?: PreprocessorOptions,
 ): ProcessingResult<T> {
   try {
+    // Handle undefined/empty values early
+    if (!value || value.trim() === "") {
+      return { value: undefined, rawValue: value, isValid: true };
+    }
+
     // Apply preprocessing
     const processedValue = applyPreprocessing(
       value,

@@ -14,7 +14,8 @@ interface CreatePromptOptions {
   theme: Theme;
   truncate: number;
   shouldMask: boolean;
-  hasPrevious: boolean;
+  index: number;
+  total: number;
   input?: Readable;
   output?: Writable;
   preprocess?: PreprocessorOptions;
@@ -27,7 +28,8 @@ export function createPrompt({
   theme,
   truncate,
   shouldMask,
-  hasPrevious,
+  index,
+  total,
   input,
   output,
   preprocess,
@@ -40,7 +42,8 @@ export function createPrompt({
     key,
     theme,
     truncate,
-    previousEnabled: hasPrevious,
+    index,
+    total,
     input,
     output,
     preprocess,

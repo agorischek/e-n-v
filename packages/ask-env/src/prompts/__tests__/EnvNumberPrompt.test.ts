@@ -34,7 +34,8 @@ function createPrompt(
     current: options.current,
     truncate: options.truncate,
     theme: options.theme,
-    previousEnabled: options.previousEnabled,
+    index: options.index,
+    total: options.total,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
   });

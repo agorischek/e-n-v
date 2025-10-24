@@ -32,7 +32,8 @@ function createPrompt(options: TestPromptOptions = {}) {
     truncate: options.truncate,
     secret: options.secret,
     mask: options.mask,
-    previousEnabled: options.previousEnabled,
+    index: options.index,
+    total: options.total,
   });
 
   return { prompt, ...streams };

@@ -9,7 +9,8 @@ export interface EnvPromptOptions<T> {
   truncate?: number;
   secret?: boolean;
   mask?: string;
-  previousEnabled?: boolean;
+  index?: number;
+  total?: number;
   input?: Readable;
   output?: Writable;
   preprocess?: PreprocessorOptions;

@@ -36,7 +36,8 @@ function createPrompt(
     secret: options.secret,
     mask: options.mask,
     theme: options.theme,
-    previousEnabled: options.previousEnabled,
+    index: options.index,
+    total: options.total,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
   });
@@ -50,7 +51,8 @@ function createPromptWithSchema(
     key?: string;
     current?: string;
     secret?: boolean;
-    previousEnabled?: boolean;
+    index?: number;
+    total?: number;
   } = {},
 ) {
   const streams = createTestStreams();
@@ -59,7 +61,8 @@ function createPromptWithSchema(
     key: options.key ?? "TEST_ENV",
     current: options.current,
     secret: options.secret,
-    previousEnabled: options.previousEnabled,
+    index: options.index,
+    total: options.total,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
   });
@@ -270,7 +273,8 @@ describe("EnvStringPrompt", () => {
     const { prompt } = createPromptWithSchema(schema, {
       current: "curr",
       secret: true,
-      previousEnabled: false,
+      index: 0,
+      total: 1,
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
