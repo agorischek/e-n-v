@@ -31,7 +31,6 @@ function createPrompt(options: TestPromptOptions = {}) {
     output: options.output ?? streams.output,
     truncate: options.truncate,
     secret: options.secret,
-    mask: options.mask,
     index: options.index,
     total: options.total,
   });

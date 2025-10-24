@@ -4,6 +4,7 @@ import {
   S_RADIO_ACTIVE,
   S_RADIO_INACTIVE,
   S_CURSOR,
+  SECRET_MASK,
 } from "../../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
@@ -458,7 +459,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   private maskValue(value: string): string {
-    return maskSecretValue(value, this.mask);
+    return maskSecretValue(value, SECRET_MASK);
   }
 
   private getTextInputIndex(): number {
@@ -484,7 +485,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             inputValue.length,
         )
       : 0;
-    const maskLength = isMasked ? Math.max(1, this.mask.length) : 1;
+    const maskLength = isMasked ? Math.max(1, SECRET_MASK.length) : 1;
     const cursorIndex = Math.min(rawCursor * maskLength, base.length);
 
     if (cursorIndex >= base.length) {

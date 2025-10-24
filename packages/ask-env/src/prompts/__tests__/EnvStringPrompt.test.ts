@@ -34,7 +34,6 @@ function createPrompt(
     current: options.current,
     truncate: options.truncate,
     secret: options.secret,
-    mask: options.mask,
     theme: options.theme,
     index: options.index,
     total: options.total,
@@ -200,7 +199,6 @@ describe("EnvStringPrompt", () => {
   it("renders submitted masked values using the prompt format", async () => {
     const { prompt, output } = createPrompt({
       secret: true,
-      mask: "#",
       truncate: 4,
     });
     const promptPromise = prompt.prompt();
@@ -214,7 +212,7 @@ describe("EnvStringPrompt", () => {
     const rendered = stripAnsi(toOutputString(output));
     expect(rendered).toContain("TEST_ENV");
     expect(rendered).toContain("=");
-    expect(rendered).toContain("####...");
+    expect(rendered).toContain("••••...");
   });
 
   it("renders cancelled prompts using the cancel renderer", async () => {
@@ -534,7 +532,6 @@ describe("EnvStringPrompt", () => {
       current: "curr",
       default: "def",
       secret: true,
-      mask: "*",
     });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
@@ -545,8 +542,8 @@ describe("EnvStringPrompt", () => {
 
     expect((prompt as any).getTextInputIndex()).toBe(2);
     expect((prompt as any).getEntryHint()).toBe("Enter a secret value");
-    expect((prompt as any).getInputDisplay(false)).toBe("******");
-    expect((prompt as any).formatValue("secret")).toBe("******");
+    expect((prompt as any).getInputDisplay(false)).toBe("••••••");
+    expect((prompt as any).formatValue("secret")).toBe("••••••");
 
     submitPrompt(prompt as any);
     await waitForIO(2);

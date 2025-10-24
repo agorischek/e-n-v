@@ -31,7 +31,6 @@ export abstract class EnvPrompt<
   protected default?: T;
   protected truncate: number;
   protected secret: boolean;
-  protected mask: string;
   protected revealSecret: boolean;
   protected optionMode: boolean;
   protected optionCursor: number;
@@ -69,7 +68,6 @@ export abstract class EnvPrompt<
     this.default = schema.default;
     this.truncate = promptOptions.truncate ?? 40;
     this.secret = Boolean(promptOptions.secret);
-    this.mask = promptOptions.mask ?? SECRET_MASK;
     this.revealSecret = false;
     this.optionMode = false;
     this.optionCursor = 0;
