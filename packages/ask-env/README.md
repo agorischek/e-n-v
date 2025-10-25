@@ -1,3 +1,6 @@
+<!-- markdownlint-disable-next-line -->
+<img src="./logo.png" alt="Ask Env Logo" width="120"/>
+
 # ask-env
 
 Interactive CLI for creating and editing `.env` files.
