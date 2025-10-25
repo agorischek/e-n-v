@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-next-line -->
-<img src="./assets/direct-env-logo.png" alt="Ask Env Logo" height="50"/>
+<img src="./assets/direct-env-logo2.png" alt="Ask Env Logo" height="50"/>
 
 # direct-env
 

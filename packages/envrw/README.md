@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-next-line -->
-<img src="./assets/envrw-logo.png" alt="Ask Env Logo" height="50"/>
+<img src="./assets/envrw-logo2.png" alt="Ask Env Logo" height="50"/>
 
 # envrw
 
