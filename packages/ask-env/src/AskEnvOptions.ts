@@ -1,6 +1,6 @@
 import type { Formatter } from "picocolors/types";
 import type { EnvChannelOptions } from "@envcredible/channels/EnvChannelOptions";
-import type { PreprocessorOptions } from "@envcredible/core";
+import type { Preprocessors } from "@envcredible/core";
 
 /**
  * Configuration options for the ask function
@@ -61,5 +61,5 @@ export type AskEnvOptions = {
    * @default undefined (uses built-in processors)
    * @example { number: (s) => s.replace(/,/g, ''), bool: (s) => s === 'on' ? 'true' : s }
    */
-  preprocess?: PreprocessorOptions;
+  preprocess?: Preprocessors;
 };

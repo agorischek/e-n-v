@@ -8,7 +8,7 @@ import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";
 import { renderSetupHeader } from "../visuals/renderSetupHeader";
 import { S_BAR, S_BAR_END } from "../visuals/symbols";
 import type { Theme } from "../visuals/Theme";
-import type { EnvChannel, PreprocessorOptions } from "@envcredible/core";
+import type { EnvChannel, Preprocessors } from "@envcredible/core";
 import type { EnvVarSchema } from "@envcredible/core";
 
 export type PromptFlowResult = "success" | "cancelled" | "error";
@@ -38,7 +38,7 @@ export interface SessionOptions {
   input?: Readable;
   output: NodeJS.WriteStream;
   path: string;
-  preprocess?: PreprocessorOptions;
+  preprocess?: Preprocessors;
 }
 
 export class Session {
@@ -52,7 +52,7 @@ export class Session {
   private readonly output: NodeJS.WriteStream;
   private readonly input: Readable | undefined;
   private readonly displayEnvPath: string;
-  private readonly preprocessors?: PreprocessorOptions;
+  private readonly preprocessors?: Preprocessors;
 
   constructor({
     channel,

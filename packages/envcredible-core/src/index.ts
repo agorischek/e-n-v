@@ -10,6 +10,7 @@ export { isEnvVarSchema } from "./schemas/EnvVarSchema";
 export * from "./types/EnvVarType";
 export * from "./processing/Processor";
 export * from "./processing/processors";
+export * from "./processing/preprocessors";
 export * from "./processing/Preprocessor";
 export * from "./types/EnvChannel";
 

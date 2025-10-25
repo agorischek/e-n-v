@@ -3,7 +3,7 @@ import { EnvBooleanPrompt } from "./prompts/typed/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "./prompts/typed/EnvEnumPrompt";
 import { EnvNumberPrompt } from "./prompts/typed/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/typed/EnvStringPrompt";
-import type { EnvVarSchema, PreprocessorOptions } from "@envcredible/core";
+import type { EnvVarSchema, Preprocessors } from "@envcredible/core";
 import type { Theme } from "./visuals/Theme";
 
 interface CreatePromptOptions {
@@ -17,7 +17,7 @@ interface CreatePromptOptions {
   total: number;
   input?: Readable;
   output?: Writable;
-  preprocessors?: PreprocessorOptions;
+  preprocessors?: Preprocessors;
 }
 
 export function createPrompt({

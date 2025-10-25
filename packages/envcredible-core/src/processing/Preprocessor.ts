@@ -1,18 +1,21 @@
 import type { EnvVarType } from "../types/EnvVarType";
+import { booleanPreprocessor, numberPreprocessor } from "./preprocessors";
 
 /**
  * Custom preprocessing functions to preprocess values before submitting to schema processors.
  * If null or undefined, the preprocessing step is skipped for that type.
  * These functions do not guarantee type casting and can be nullified to skip preprocessing.
  */
-export interface PreprocessorOptions {
+export type Preprocessor<T> = (value: string) => T | string;
+
+export interface Preprocessors {
   /**
    * Custom string preprocessing function
    * Receives the string value and should return a string value
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string value
    */
-  string?: null | undefined | ((value: string) => string);
+  string?: null | undefined | Preprocessor<string>;
 
   /**
    * Custom number preprocessing function
@@ -20,7 +23,7 @@ export interface PreprocessorOptions {
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string or number value
    */
-  number?: null | undefined | ((value: string) => number | string);
+  number?: null | undefined | Preprocessor<number>;
 
   /**
    * Custom boolean preprocessing function
@@ -28,7 +31,7 @@ export interface PreprocessorOptions {
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string or boolean value
    */
-  bool?: null | undefined | ((value: string) => boolean | string);
+  bool?: null | undefined | Preprocessor<boolean>;
 
   /**
    * Custom enum preprocessing function
@@ -36,64 +39,11 @@ export interface PreprocessorOptions {
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string value
    */
-  enum?: null | undefined | ((value: string) => string);
+  enum?: null | undefined | Preprocessor<string>;
 }
 
-/**
- * Individual preprocessor function for a specific type
- */
-export type TypedPreprocessor<T> = (value: string) => T | string;
-
-/**
- * Default number preprocessor - removes common formatting like commas
- * Passes through unchanged if it can't be processed
- */
-const defaultNumberPreprocessor = (value: string): string => {
-  try {
-    // Remove commas and whitespace
-    const cleaned = value.replace(/,/g, "").trim();
-    // Only return the cleaned version if it looks like a number
-    if (/^-?\d*\.?\d+$/.test(cleaned)) {
-      return cleaned;
-    }
-  } catch {
-    // Pass through on any error
-  }
-  return value;
-};
-
-/**
- * Default boolean preprocessor - handles common boolean representations
- * Passes through unchanged if it can't be processed
- */
-const defaultBooleanPreprocessor = (value: string): string => {
-  try {
-    const cleaned = value.toLowerCase().trim();
-
-    // Handle common truthy values
-    if (
-      cleaned === "on" ||
-      cleaned === "enabled" ||
-      cleaned === "active" ||
-      cleaned === "yes"
-    ) {
-      return "true";
-    }
-
-    // Handle common falsy values
-    if (
-      cleaned === "off" ||
-      cleaned === "disabled" ||
-      cleaned === "inactive" ||
-      cleaned === "no"
-    ) {
-      return "false";
-    }
-  } catch {
-    // Pass through on any error
-  }
-  return value;
-};
+const defaultNumberPreprocessor = numberPreprocessor();
+const defaultBooleanPreprocessor = booleanPreprocessor();
 
 /**
  * Apply custom preprocessing functions before schema processing
@@ -105,7 +55,7 @@ const defaultBooleanPreprocessor = (value: string): string => {
 export function applyPreprocessing<T>(
   value: string,
   envVarType: EnvVarType,
-  preprocessorOptions?: PreprocessorOptions,
+  preprocessorOptions?: Preprocessors,
 ): T | string {
   let processedValue: string | number | boolean = value;
 
