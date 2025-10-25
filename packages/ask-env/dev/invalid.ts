@@ -37,3 +37,5 @@ await ask(schemas, {
   path: ".invalid.env",
   root: import.meta.url,
 });
+
+await writeFile(invalidEnvPath, invalidEnvContent, "utf8");

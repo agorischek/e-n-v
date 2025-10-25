@@ -1,7 +1,7 @@
 import { isCancel } from "@clack/core";
 import type { Readable } from "node:stream";
 import * as color from "picocolors";
-import { createPrompt } from "../createPrompt";
+import { createPrompt } from "../prompts/create/createPrompt";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
 import { isSecretKey } from "../utils/secrets";
 import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";

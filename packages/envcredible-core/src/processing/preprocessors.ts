@@ -15,8 +15,8 @@ export const stringPreprocessor = (): Preprocessor<string> => (value) => value;
  */
 export const numberPreprocessor = (): Preprocessor<number> => (value) => {
   try {
-    const cleaned = parseFloat(value);
-    if (!isNaN(cleaned)) {
+    const cleaned = value.replace(/,/g, "").trim();
+    if (/^-?\d*\.?\d+$/.test(cleaned)) {
       return cleaned;
     }
   } catch {
@@ -32,12 +32,22 @@ export const booleanPreprocessor = (): Preprocessor<boolean> => (value) => {
   try {
     const cleaned = value.toLowerCase().trim();
 
-    if (cleaned === "true" || cleaned === "yes" || cleaned === "1") {
-      return true;
+    if (
+      cleaned === "on" ||
+      cleaned === "enabled" ||
+      cleaned === "active" ||
+      cleaned === "yes"
+    ) {
+      return "true";
     }
 
-    if (cleaned === "false" || cleaned === "no" || cleaned === "0") {
-      return false;
+    if (
+      cleaned === "off" ||
+      cleaned === "disabled" ||
+      cleaned === "inactive" ||
+      cleaned === "no"
+    ) {
+      return "false";
     }
   } catch {
     // Pass through on any error

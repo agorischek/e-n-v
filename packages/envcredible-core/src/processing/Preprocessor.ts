@@ -42,66 +42,50 @@ export interface Preprocessors {
   enum?: null | undefined | Preprocessor<string>;
 }
 
-const defaultNumberPreprocessor = numberPreprocessor();
-const defaultBooleanPreprocessor = booleanPreprocessor();
+const optionKeyMap = {
+  string: "string",
+  number: "number",
+  boolean: "bool",
+  enum: "enum",
+} as const;
+
+type DefaultPreprocessor<T extends EnvVarType> = T extends "number"
+  ? Preprocessor<number>
+  : T extends "boolean"
+    ? Preprocessor<boolean>
+    : Preprocessor<string>;
+
+function createDefaultPreprocessor<T extends EnvVarType>(
+  envVarType: T,
+): DefaultPreprocessor<T> | undefined {
+  switch (envVarType) {
+    case "number":
+      return numberPreprocessor() as DefaultPreprocessor<T>;
+    case "boolean":
+      return booleanPreprocessor() as DefaultPreprocessor<T>;
+    default:
+      return undefined;
+  }
+}
 
 /**
- * Apply custom preprocessing functions before schema processing
- * @param value - The raw string value from environment variable
- * @param envVarType - The type of environment variable
- * @param preprocessorOptions - Custom preprocessing options
- * @returns The preprocessed value (could be the target type or still a string)
+ * Resolve the effective preprocessor for a given environment variable type.
+ * Respects custom overrides and falls back to built-in defaults (number, boolean).
  */
-export function applyPreprocessing<T>(
-  value: string,
-  envVarType: EnvVarType,
+export function resolvePreprocessor<T extends EnvVarType>(
+  envVarType: T,
   preprocessorOptions?: Preprocessors,
-): T | string {
-  let processedValue: string | number | boolean = value;
+): DefaultPreprocessor<T> | undefined {
+  const key = optionKeyMap[envVarType];
+  const custom = preprocessorOptions?.[key];
 
-  // Apply preprocessing based on environment variable type
-  switch (envVarType) {
-    case "string":
-      if (
-        preprocessorOptions?.string !== undefined &&
-        preprocessorOptions.string !== null
-      ) {
-        processedValue = preprocessorOptions.string(value);
-      }
-      // No default preprocessor for strings
-      break;
-    case "number":
-      if (preprocessorOptions?.number !== undefined) {
-        // If explicitly null, skip all preprocessing
-        if (preprocessorOptions.number !== null) {
-          processedValue = preprocessorOptions.number(value);
-        }
-      } else {
-        // Use default number preprocessor when no custom preprocessor provided
-        processedValue = defaultNumberPreprocessor(value);
-      }
-      break;
-    case "boolean":
-      if (preprocessorOptions?.bool !== undefined) {
-        // If explicitly null, skip all preprocessing
-        if (preprocessorOptions.bool !== null) {
-          processedValue = preprocessorOptions.bool(value);
-        }
-      } else {
-        // Use default boolean preprocessor when no custom preprocessor provided
-        processedValue = defaultBooleanPreprocessor(value);
-      }
-      break;
-    case "enum":
-      if (
-        preprocessorOptions?.enum !== undefined &&
-        preprocessorOptions.enum !== null
-      ) {
-        processedValue = preprocessorOptions.enum(value);
-      }
-      // No default preprocessor for enums
-      break;
+  if (custom === null) {
+    return undefined;
   }
 
-  return processedValue as T | string;
+  if (custom !== undefined) {
+    return custom as DefaultPreprocessor<T>;
+  }
+
+  return createDefaultPreprocessor(envVarType);
 }

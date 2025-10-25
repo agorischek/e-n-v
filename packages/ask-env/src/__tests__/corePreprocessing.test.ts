@@ -1,128 +1,107 @@
 import { describe, test, expect } from "bun:test";
-import { applyPreprocessing } from "@envcredible/core";
+import {
+  resolvePreprocessor,
+  type Preprocessors,
+  type EnvVarSchemaDetails,
+} from "@envcredible/core";
+import { processValue } from "../prompts/processing/processValue";
 
 describe("Core preprocessing integration", () => {
-  test("applyPreprocessing works with all schema types", () => {
-    const preprocessorOptions = {
-      string: (value: string) => value.trim().toLowerCase(),
-      number: (value: string) => value.replace(/,/g, ""),
-      bool: (value: string) =>
-        value.toLowerCase() === "on" ? "true" : "false",
-      enum: (value: string) => value.toLowerCase(),
+  test("resolvePreprocessor respects overrides", () => {
+    const overrides: Preprocessors = {
+      string: (value) => value.trim().toLowerCase(),
+      number: (value) => value.replace(/,/g, ""),
+      bool: (value) => (value.toLowerCase() === "on" ? "true" : "false"),
+      enum: (value) => value.toLowerCase(),
     };
 
-    // Test string preprocessing
-    expect(applyPreprocessing("  HELLO  ", "string", preprocessorOptions)).toBe(
-      "hello",
-    );
+    const stringPre = resolvePreprocessor("string", overrides);
+    expect(stringPre?.("  HELLO  ")).toBe("hello");
 
-    // Test number preprocessing
-    expect(applyPreprocessing("1,000", "number", preprocessorOptions)).toBe(
-      "1000",
-    );
+    const numberPre = resolvePreprocessor("number", overrides);
+    expect(numberPre?.("1,000")).toBe("1000");
 
-    // Test boolean preprocessing
-    expect(applyPreprocessing("on", "boolean", preprocessorOptions)).toBe(
-      "true",
-    );
-    expect(applyPreprocessing("OFF", "boolean", preprocessorOptions)).toBe(
-      "false",
-    );
+    const boolPre = resolvePreprocessor("boolean", overrides);
+    expect(boolPre?.("on")).toBe("true");
+    expect(boolPre?.("OFF")).toBe("false");
 
-    // Test enum preprocessing
-    expect(applyPreprocessing("DEV", "enum", preprocessorOptions)).toBe("dev");
+    const enumPre = resolvePreprocessor("enum", overrides);
+    expect(enumPre?.("DEV")).toBe("dev");
   });
 
-  test("default preprocessors work for number and boolean", () => {
-    // Test default number preprocessing (removes commas)
-    expect(applyPreprocessing("1,000", "number", undefined)).toBe("1000");
-    expect(applyPreprocessing("10,000.50", "number", undefined)).toBe(
-      "10000.50",
-    );
-    expect(applyPreprocessing(" 123 ", "number", undefined)).toBe("123");
+  test("defaults apply for number and boolean", () => {
+    const numberPre = resolvePreprocessor("number");
+    expect(numberPre?.("1,000")).toBe("1000");
+    expect(numberPre?.(" 123 ")).toBe("123");
+    expect(numberPre?.("not-a-number")).toBe("not-a-number");
 
-    // Test default boolean preprocessing (handles common representations)
-    expect(applyPreprocessing("on", "boolean", undefined)).toBe("true");
-    expect(applyPreprocessing("OFF", "boolean", undefined)).toBe("false");
-    expect(applyPreprocessing("enabled", "boolean", undefined)).toBe("true");
-    expect(applyPreprocessing("ACTIVE", "boolean", undefined)).toBe("true");
-    expect(applyPreprocessing("yes", "boolean", undefined)).toBe("true");
+    const boolPre = resolvePreprocessor("boolean");
+    expect(boolPre?.("enabled")).toBe("true");
+    expect(boolPre?.("inactive")).toBe("false");
+    expect(boolPre?.("maybe")).toBe("maybe");
 
-    expect(applyPreprocessing("off", "boolean", undefined)).toBe("false");
-    expect(applyPreprocessing("DISABLED", "boolean", undefined)).toBe("false");
-    expect(applyPreprocessing("inactive", "boolean", undefined)).toBe("false");
-    expect(applyPreprocessing("NO", "boolean", undefined)).toBe("false");
+    expect(resolvePreprocessor("string")).toBeUndefined();
+    expect(resolvePreprocessor("enum")).toBeUndefined();
   });
 
-  test("default preprocessors pass through unparseable values", () => {
-    // Numbers that can't be cleaned should pass through
-    expect(applyPreprocessing("not-a-number", "number", undefined)).toBe(
-      "not-a-number",
-    );
-    expect(applyPreprocessing("1,2,3,abc", "number", undefined)).toBe(
-      "1,2,3,abc",
-    );
+  test("null overrides disable defaults", () => {
+    const overrides: Preprocessors = { number: null, bool: null };
 
-    // Booleans that aren't recognized should pass through
-    expect(applyPreprocessing("maybe", "boolean", undefined)).toBe("maybe");
-    expect(applyPreprocessing("sometimes", "boolean", undefined)).toBe(
-      "sometimes",
-    );
-    expect(applyPreprocessing("true", "boolean", undefined)).toBe("true"); // Standard values pass through
-    expect(applyPreprocessing("false", "boolean", undefined)).toBe("false");
+    expect(resolvePreprocessor("number", overrides)).toBeUndefined();
+    expect(resolvePreprocessor("boolean", overrides)).toBeUndefined();
   });
 
-  test("string and enum have no default preprocessing", () => {
-    // String and enum should pass through unchanged when no custom preprocessor
-    expect(applyPreprocessing("  test  ", "string", undefined)).toBe(
-      "  test  ",
-    );
-    expect(applyPreprocessing("DEV", "enum", undefined)).toBe("DEV");
-  });
-
-  test("applyPreprocessing returns original value when no preprocessor provided", () => {
-    expect(applyPreprocessing("test", "string", undefined)).toBe("test");
-    expect(applyPreprocessing("test", "string", {})).toBe("test");
-  });
-
-  test("applyPreprocessing handles null/undefined preprocessors", () => {
-    const preprocessorOptions = {
-      string: null,
-      number: undefined,
-      bool: (value: string) => value.toLowerCase(),
+  test("processValue integrates preprocessing results", () => {
+    const numberSchema: EnvVarSchemaDetails<number> = {
+      type: "number",
+      required: false,
+      process: (input: string) => Number(input),
     };
 
-    expect(applyPreprocessing("TEST", "string", preprocessorOptions)).toBe(
-      "TEST",
-    );
-    expect(applyPreprocessing("1,000", "number", preprocessorOptions)).toBe(
-      "1000",
-    ); // Default applied
-    expect(applyPreprocessing("TRUE", "boolean", preprocessorOptions)).toBe(
-      "true",
-    );
-  });
-
-  test("preprocessing can return target types directly", () => {
-    const preprocessorOptions = {
-      number: (value: string) => parseInt(value.replace(/,/g, ""), 10),
-      bool: (value: string) => value.toLowerCase() === "on",
+    const booleanSchema: EnvVarSchemaDetails<boolean> = {
+      type: "boolean",
+      required: false,
+      process: (input: string) => input.toLowerCase() === "true",
     };
 
-    const numberResult = applyPreprocessing<number>(
+    const numberResult = processValue("COUNT", "1,000", numberSchema);
+    expect(numberResult.value).toBe(1000);
+    expect(numberResult.isValid).toBe(true);
+
+    const boolResult = processValue("FLAG", "enabled", booleanSchema);
+    expect(boolResult.value).toBe(true);
+    expect(boolResult.isValid).toBe(true);
+  });
+
+  test("custom preprocessors can return native types", () => {
+    const numberSchema: EnvVarSchemaDetails<number> = {
+      type: "number",
+      required: false,
+      process: (input: string) => Number(input),
+    };
+
+    const booleanSchema: EnvVarSchemaDetails<boolean> = {
+      type: "boolean",
+      required: false,
+      process: (input: string) => input.toLowerCase() === "true",
+    };
+
+    const numberResult = processValue(
+      "COUNT",
       "1,000",
-      "number",
-      preprocessorOptions,
+      numberSchema,
+      (raw) => parseInt(raw.replace(/,/g, ""), 10),
     );
-    expect(numberResult).toBe(1000);
-    expect(typeof numberResult).toBe("number");
+    expect(numberResult.value).toBe(1000);
+    expect(typeof numberResult.value).toBe("number");
 
-    const boolResult = applyPreprocessing<boolean>(
+    const booleanResult = processValue(
+      "FLAG",
       "on",
-      "boolean",
-      preprocessorOptions,
+      booleanSchema,
+      (raw) => raw.toLowerCase() === "on",
     );
-    expect(boolResult).toBe(true);
-    expect(typeof boolResult).toBe("boolean");
+    expect(booleanResult.value).toBe(true);
+    expect(typeof booleanResult.value).toBe("boolean");
   });
 });

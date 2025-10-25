@@ -1,24 +1,8 @@
-import { Readable, Writable } from "node:stream";
-import { EnvBooleanPrompt } from "./prompts/typed/EnvBooleanPrompt";
-import { EnvEnumPrompt } from "./prompts/typed/EnvEnumPrompt";
-import { EnvNumberPrompt } from "./prompts/typed/EnvNumberPrompt";
-import { EnvStringPrompt } from "./prompts/typed/EnvStringPrompt";
-import type { EnvVarSchema, Preprocessors } from "@envcredible/core";
-import type { Theme } from "./visuals/Theme";
-
-interface CreatePromptOptions {
-  key: string;
-  schema: EnvVarSchema;
-  currentValue?: string;
-  theme: Theme;
-  truncate: number;
-  shouldMask: boolean;
-  index: number;
-  total: number;
-  input?: Readable;
-  output?: Writable;
-  preprocessors?: Preprocessors;
-}
+import { EnvBooleanPrompt } from "../typed/EnvBooleanPrompt";
+import { EnvEnumPrompt } from "../typed/EnvEnumPrompt";
+import { EnvNumberPrompt } from "../typed/EnvNumberPrompt";
+import { EnvStringPrompt } from "../typed/EnvStringPrompt";
+import type { CreatePromptOptions } from "./CreatePromptOptions";
 
 export function createPrompt({
   key,
