@@ -1,0 +1,14 @@
+{
+  "name": "direct-env",
+  "module": "src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "@envcredible/meta": "workspace:*",
+    "@envcredible/core": "workspace:*",
+    "@envcredible/schemata": "workspace:*",
+    "@envcredible/channels": "workspace:*"
+  },
+  "scripts": {
+    "test": "bun test"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@envcredible/meta",
+  "module": "src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "@envcredible/core": "workspace:*",
+    "@envcredible/schemata": "workspace:*",
+    "@envcredible/channels": "workspace:*"
+  }
+}

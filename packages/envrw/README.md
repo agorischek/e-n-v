@@ -1,3 +1,6 @@
+<!-- markdownlint-disable-next-line -->
+<img src="./assets/envrw-logo.png" alt="Ask Env Logo" height="50"/>
+
 # envrw
 
 A read/write API for `.env` files.
