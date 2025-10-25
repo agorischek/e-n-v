@@ -2,7 +2,14 @@ import { describe, expect, it } from "bun:test";
 import { EnvEnumPrompt } from "../typed/EnvEnumPrompt";
 import { EnumEnvVarSchema } from "@envcredible/core";
 import type { EnvPromptOptions } from "../options/EnvPromptOptions";
-import { createTestStreams, baseKey } from "./helpers/promptTestUtils";
+import {
+  createTestStreams,
+  baseKey,
+  pressKey,
+  waitForIO,
+  toOutputString,
+  cancelPrompt,
+} from "./helpers/promptTestUtils";
 
 type TestPromptOptions = Partial<EnvPromptOptions<string>> & {
   key?: string;
@@ -37,6 +44,9 @@ function createPrompt(options: TestPromptOptions = {}) {
 
   return { prompt, ...streams };
 }
+
+const STRIP_ANSI = /\u001b\[[0-?]*[ -\/]*[@-~]/g;
+const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
 
 describe("EnvEnumPrompt", () => {
   it("initializes value from current before default and options", () => {
@@ -114,5 +124,38 @@ describe("EnvEnumPrompt", () => {
     expect(output).toContain("TEST_ENV");
     expect(output).toContain("beta");
     expect(output).toContain("=");
+  });
+
+  it("renders an invalid current value as a selectable option without initial focus", async () => {
+    const { prompt, output } = createPrompt({
+      current: "staging",
+      default: "production",
+      options: ["development", "production"],
+    });
+
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    expect(prompt.cursor).toBe(2);
+    expect(prompt.value).toBe("production");
+
+    const initialRender = toOutputString(output);
+    const strippedInitial = stripAnsi(initialRender);
+    expect(strippedInitial).toContain("○ staging");
+
+    await pressKey(prompt, { name: "up" });
+    await pressKey(prompt, { name: "up" });
+    await waitForIO(1);
+
+    expect(prompt.cursor).toBe(0);
+
+    const selectedRender = toOutputString(output);
+    const stripped = stripAnsi(selectedRender);
+    expect(stripped).toContain("● staging");
+    expect(stripped).toContain("(current, invalid)");
+
+    cancelPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
   });
 });

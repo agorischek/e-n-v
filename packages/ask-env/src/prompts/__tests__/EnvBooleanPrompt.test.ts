@@ -10,6 +10,7 @@ import {
   cancelPrompt,
   toOutputString,
 } from "./helpers/promptTestUtils";
+import { S_RADIO_ACTIVE } from "../../visuals/symbols";
 
 type TestPromptOptions = Partial<Omit<EnvPromptOptions<boolean>, "current">> & {
   current?: boolean | string;
@@ -154,32 +155,46 @@ describe("EnvBooleanPrompt", () => {
       },
     });
 
-    const { prompt } = createPromptWithSchema(schema, { current: false });
+    const { prompt, output } = createPromptWithSchema(schema, { current: false });
     const promptPromise = prompt.prompt();
     await waitForIO(2);
+
+  const initialRender = toOutputString(output);
+  expect(initialRender).toContain("\u001b[9m");
+  const initialStrippedRender = stripAnsi(initialRender);
+  expect(initialStrippedRender).toContain("false");
+  expect(initialStrippedRender).not.toContain("(current, invalid)");
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.value).toBe(true);
+    expect(calls).toEqual([false]);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBe("true not allowed once");
+    expect(calls).toEqual([false, true]);
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    expect(prompt.state).toBe("active");
+    expect(prompt.cursor).toBe(2);
 
     submitPrompt(prompt);
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("false not allowed");
-  expect(calls).toEqual([false, false]);
-  await pressKey(prompt, { name: "down" });
-  await waitForIO(2);
-  await pressKey(prompt, { name: "up" });
-  await waitForIO(2);
-  expect(prompt.state).toBe("active");
-  expect(prompt.cursor).toBe(0);
+    expect(calls).toEqual([false, true, false]);
 
-  submitPrompt(prompt);
+    await pressKey(prompt, { name: "up" });
     await waitForIO(2);
-    expect(prompt.state).toBe("error");
-    expect(prompt.error).toBe("true not allowed once");
-  expect(calls).toEqual([false, false, true]);
+    expect(prompt.state).toBe("active");
+    expect(prompt.cursor).toBe(1);
 
     submitPrompt(prompt);
     await waitForIO(2);
     expect(prompt.state).toBe("submit");
-  expect(calls).toEqual([false, false, true, true]);
+    expect(calls).toEqual([false, true, false, true]);
     await promptPromise;
   });
 
@@ -230,5 +245,46 @@ describe("EnvBooleanPrompt", () => {
     const rendered = stripAnsi(toOutputString(output));
     expect(rendered).toContain("BOOL_ENV");
     expect(rendered).toContain("=true");
+  });
+
+  it("allows selecting an invalid current value but blocks submission", async () => {
+  const { prompt, output } = createPrompt({ current: "maybe", default: true });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+  const initialRender = toOutputString(output);
+  expect(initialRender).toContain("\u001b[9m");
+  const initialStripped = stripAnsi(initialRender);
+  expect(initialStripped).toContain("maybe");
+  expect(initialStripped).not.toContain("(current, invalid)");
+
+  expect(prompt.cursor).toBe(1);
+  expect(prompt.value).toBe(true);
+
+  await pressKey(prompt, { name: "up" });
+  await waitForIO(2);
+
+  expect(prompt.cursor).toBe(0);
+  expect(prompt.value).toBe(true);
+
+  const focusedStripped = stripAnsi(toOutputString(output));
+  expect(focusedStripped).toContain("(current, invalid)");
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBeTruthy();
+
+  await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    expect(prompt.state).toBe("active");
+  expect(prompt.cursor).toBe(1);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    expect(prompt.state).toBe("submit");
+    await promptPromise;
   });
 });
