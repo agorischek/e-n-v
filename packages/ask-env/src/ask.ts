@@ -1,6 +1,7 @@
 import type { EnvVarSchemaMap, SupportedSchema } from "@envcredible/schemata";
 import { stdin, stdout } from "node:process";
 import type { AskEnvOptions } from "./options/AskEnvOptions";
+import type { EnvChannel } from "@envcredible/core";
 import * as defaults from "./options/defaults";
 import { resolveChannel } from "@envcredible/channels/resolveChannel";
 import { Session } from "./session/Session";
@@ -10,6 +11,20 @@ import {
   resolveEnvFilePath,
   resolveTheme,
 } from "./options/resolve";
+
+/**
+ * Type guard to check if a value is an EnvChannel instance
+ */
+function isEnvChannel(value: unknown): value is EnvChannel {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "get" in value &&
+    "set" in value &&
+    typeof value.get === "function" &&
+    typeof value.set === "function"
+  );
+}
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
@@ -31,7 +46,12 @@ export async function ask(
   const input = stdin;
   const output = stdout;
 
-  const channel = resolveChannel(options.channel, path);
+  // If channel is already an EnvChannel instance, use it directly
+  // Otherwise, resolve it from the options
+  const channel: EnvChannel = isEnvChannel(options.channel)
+    ? options.channel
+    : resolveChannel(options.channel, path);
+  
   const theme = resolveTheme(options.theme);
   const schemas = resolveSchemas(vars);
 

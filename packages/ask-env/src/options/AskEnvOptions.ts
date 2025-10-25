@@ -1,6 +1,6 @@
 import type { Formatter } from "picocolors/types";
 import type { EnvChannelOptions } from "@envcredible/channels/EnvChannelOptions";
-import type { Preprocessors } from "@envcredible/core";
+import type { EnvChannel, Preprocessors } from "@envcredible/core";
 
 /**
  * Configuration options for the ask function
@@ -24,11 +24,11 @@ export type AskEnvOptions = {
 
   /**
    * Channel configuration for reading and writing environment variables.
-   * Can be undefined (default), "default", a dotenvx instance, or channel config objects.
+   * Can be undefined (default), "default", a dotenvx instance, channel config objects, or an EnvChannel instance.
    * @default undefined (uses default file-based channel)
-   * @example dotenvx, { name: "default" }, { dotenvx: instance, get: {}, set: {} }
+   * @example dotenvx, { name: "default" }, { dotenvx: instance, get: {}, set: {} }, new DefaultEnvChannel(".env")
    */
-  channel?: EnvChannelOptions;
+  channel?: EnvChannelOptions | EnvChannel;
 
   /**
    * Maximum number of characters to display for values in prompts before truncating

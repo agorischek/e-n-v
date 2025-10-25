@@ -59,6 +59,9 @@
         "direct-env": "workspace:*",
         "picocolors": "^1.1.1",
       },
+      "devDependencies": {
+        "zod": "^4.1.12",
+      },
     },
     "packages/env-var-schemas": {
       "name": "env-var-schemas",

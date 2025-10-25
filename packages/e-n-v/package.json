@@ -27,5 +27,8 @@
   ],
   "scripts": {
     "test": "bun test"
+  },
+  "devDependencies": {
+    "zod": "^4.1.12"
   }
 }

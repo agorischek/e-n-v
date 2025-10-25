@@ -14,3 +14,4 @@ export * as schemas from "../../env-var-schemas/src";
 export * as defaults from "./options/defaults";
 
 export { ask } from "./ask";
+export type { AskEnvOptions } from "./options/AskEnvOptions";
