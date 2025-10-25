@@ -10,6 +10,10 @@ import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import { maskSecretValue } from "../../utils/secrets";
 import type { StringEnvVarSchema } from "@envcredible/core";
+import {
+  buildSelectableOptions,
+  type SelectableOption,
+} from "../utils/selectableOptions";
 
 type StringPromptOption =
   | {
@@ -525,31 +529,23 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     }
   }
 
-  private buildSelectionOptions(): StringPromptOption[] {
-    const options: StringPromptOption[] = [];
-    const currentRaw = this.currentResult?.rawValue;
+  private buildValueOptions(): SelectableOption<string>[] {
     const hasValidCurrent =
       this.currentResult?.isValid !== false && this.current !== undefined;
 
-    if (currentRaw !== undefined) {
-      const isValid = this.currentResult?.isValid !== false;
-      const isSameAsDefault =
-        isValid && hasValidCurrent && this.current === this.default;
-      const display = isValid && hasValidCurrent
-        ? this.formatValue(this.current)
-        : this.formatRawValue(currentRaw);
+    const baseOptions: SelectableOption<string>[] = [];
 
-      options.push({
-        type: "value",
+    if (hasValidCurrent && this.current !== undefined) {
+      const isSameAsDefault = this.current === this.default;
+      baseOptions.push({
         key: "current",
-        value: isValid ? this.current : undefined,
-        display,
-        annotation: this.buildAnnotation({
-          isCurrent: true,
-          isDefault: isSameAsDefault,
-          invalid: !isValid,
-        }),
-        invalid: !isValid,
+        value: this.current,
+        display: this.formatValue(this.current),
+        annotation:
+          this.buildAnnotation({
+            isCurrent: true,
+            isDefault: isSameAsDefault,
+          }) ?? undefined,
       });
     }
 
@@ -557,21 +553,40 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       this.default !== undefined &&
       (!hasValidCurrent || this.current !== this.default);
 
-    if (shouldIncludeDefault) {
-      const isSameAsCurrent =
-        hasValidCurrent && this.current === this.default;
-
-      options.push({
-        type: "value",
+    if (shouldIncludeDefault && this.default !== undefined) {
+      const isSameAsCurrent = hasValidCurrent && this.current === this.default;
+      baseOptions.push({
         key: "default",
         value: this.default,
         display: this.formatValue(this.default),
-        annotation: this.buildAnnotation({
-          isDefault: true,
-          isCurrent: isSameAsCurrent,
-        }),
+        annotation:
+          this.buildAnnotation({
+            isDefault: true,
+            isCurrent: isSameAsCurrent,
+          }) ?? undefined,
       });
     }
+
+    return buildSelectableOptions<string>({
+      currentResult: this.currentResult,
+      formatInvalidDisplay: (raw) => this.formatRawValue(raw ?? ""),
+      buildAnnotation: (flags) => this.buildAnnotation(flags) ?? undefined,
+      baseOptions,
+      invalidOptionKey: "current",
+    });
+  }
+
+  private buildSelectionOptions(): StringPromptOption[] {
+    const valueOptions = this.buildValueOptions();
+
+    const options: StringPromptOption[] = valueOptions.map((option) => ({
+      type: "value",
+      key: option.key as "current" | "default",
+      value: option.value,
+      display: option.display,
+      annotation: option.annotation,
+      invalid: option.invalid,
+    }));
 
     options.push({ type: "other", label: "Other" });
 

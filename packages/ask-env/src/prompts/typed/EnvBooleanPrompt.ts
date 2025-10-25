@@ -4,14 +4,14 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import type { BooleanEnvVarSchema } from "@envcredible/core";
+import {
+  buildSelectableOptions,
+  getOptionAtCursor,
+  resolveInitialCursor,
+  type SelectableOption,
+} from "../utils/selectableOptions";
 
-type BooleanPromptOption = {
-  key: "invalid" | "true" | "false";
-  value: boolean | undefined;
-  display: string;
-  annotation?: string;
-  invalid?: boolean;
-};
+type BooleanPromptOption = SelectableOption<boolean>;
 
 export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   cursor: number;
@@ -121,8 +121,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
       },
     } as any);
 
-    const options = this.buildOptions();
-    this.cursor = this.getInitialCursor(options);
+  const options = this.buildOptions();
+  this.cursor = this.getInitialCursor(options);
     this.updateValue();
 
     this.on("cursor", (action?: PromptAction) => {
@@ -187,79 +187,44 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
   }
 
   private buildOptions(): BooleanPromptOption[] {
-    const options: BooleanPromptOption[] = [];
-
-    const currentRaw = this.currentResult?.rawValue;
-    const isInvalidCurrent =
-      currentRaw !== undefined && this.currentResult?.isValid === false;
-
-    if (isInvalidCurrent) {
-      options.push({
-        key: "invalid",
-        value: undefined,
-        display: this.truncateValue(currentRaw ?? ""),
-        annotation: this.buildAnnotation({
-          isCurrent: true,
-          invalid: true,
-        }) ?? undefined,
-        invalid: true,
-      });
-    }
-
-    options.push({
-      key: "true",
-      value: true,
-      display: "true",
-      annotation: this.getAnnotationLabel(true) ?? undefined,
+    return buildSelectableOptions<boolean>({
+      currentResult: this.currentResult,
+      formatInvalidDisplay: (raw) => this.truncateValue(raw ?? ""),
+      buildAnnotation: (flags) => this.buildAnnotation(flags) ?? undefined,
+      baseOptions: [
+        {
+          key: "true",
+          value: true,
+          display: "true",
+          annotation: this.getAnnotationLabel(true) ?? undefined,
+        },
+        {
+          key: "false",
+          value: false,
+          display: "false",
+          annotation: this.getAnnotationLabel(false) ?? undefined,
+        },
+      ],
     });
-
-    options.push({
-      key: "false",
-      value: false,
-      display: "false",
-      annotation: this.getAnnotationLabel(false) ?? undefined,
-    });
-
-    return options;
   }
 
   private getInitialCursor(options: BooleanPromptOption[]): number {
-    const findIndexForValue = (target?: boolean): number => {
-      if (target === undefined) {
-        return -1;
-      }
-      return options.findIndex(
-        (option) => !option.invalid && option.value === target,
-      );
-    };
-
     const currentValue =
       this.currentResult?.isValid !== false ? this.current : undefined;
-    const currentIndex = findIndexForValue(currentValue);
-    if (currentIndex >= 0) {
-      return currentIndex;
-    }
 
-    const defaultIndex = findIndexForValue(this.default);
-    if (defaultIndex >= 0) {
-      return defaultIndex;
-    }
-
-    const firstValid = options.findIndex((option) => !option.invalid);
-    return firstValid >= 0 ? firstValid : 0;
+    return resolveInitialCursor(options, {
+      currentValue,
+      defaultValue: this.default,
+    });
   }
 
   private getSelectedOption(): BooleanPromptOption | undefined {
     const options = this.buildOptions();
-    if (!options.length) {
-      return undefined;
-    }
-
-    const index = Math.max(0, Math.min(this.cursor, options.length - 1));
+    const { option, index } = getOptionAtCursor(options, this.cursor);
     if (index !== this.cursor) {
       this.cursor = index;
     }
 
-    return options[index];
+    return option;
   }
 }

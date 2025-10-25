@@ -4,14 +4,14 @@ import { S_RADIO_ACTIVE, S_RADIO_INACTIVE } from "../../visuals/symbols";
 import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import type { EnumEnvVarSchema } from "@envcredible/core";
+import {
+  buildSelectableOptions,
+  getOptionAtCursor,
+  resolveInitialCursor,
+  type SelectableOption,
+} from "../utils/selectableOptions";
 
-type EnumPromptOption = {
-  key: string;
-  value: string | undefined;
-  display: string;
-  annotation?: string;
-  invalid?: boolean;
-};
+type EnumPromptOption = SelectableOption<string>;
 
 export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   cursor = 0;
@@ -197,74 +197,36 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
   }
 
   private buildOptions(): EnumPromptOption[] {
-    const options: EnumPromptOption[] = [];
-
-    const currentRaw = this.currentResult?.rawValue;
-    const isInvalidCurrent =
-      currentRaw !== undefined && this.currentResult?.isValid === false;
-
-    if (isInvalidCurrent) {
-      options.push({
-        key: "invalid",
-        value: undefined,
-        display: this.truncateValue(currentRaw ?? ""),
-        annotation: this.buildAnnotation({
-          isCurrent: true,
-          invalid: true,
-        }) ?? undefined,
-        invalid: true,
-      });
-    }
-
-    for (const value of this.values) {
-      options.push({
+    return buildSelectableOptions<string>({
+      currentResult: this.currentResult,
+      formatInvalidDisplay: (raw) => this.truncateValue(raw ?? ""),
+      buildAnnotation: (flags) => this.buildAnnotation(flags) ?? undefined,
+      baseOptions: this.values.map((value) => ({
         key: value,
         value,
         display: this.truncateValue(value),
         annotation: this.getAnnotationLabel(value) ?? undefined,
-      });
-    }
-
-    return options;
+      })),
+    });
   }
 
   private getInitialCursor(options: EnumPromptOption[]): number {
-    const findIndexForValue = (target?: string): number => {
-      if (target === undefined) {
-        return -1;
-      }
-      return options.findIndex(
-        (option) => !option.invalid && option.value === target,
-      );
-    };
-
     const currentValue =
       this.currentResult?.isValid !== false ? this.current : undefined;
-    const currentIndex = findIndexForValue(currentValue);
-    if (currentIndex >= 0) {
-      return currentIndex;
-    }
 
-    const defaultIndex = findIndexForValue(this.default);
-    if (defaultIndex >= 0) {
-      return defaultIndex;
-    }
-
-    const firstValid = options.findIndex((option) => !option.invalid);
-    return firstValid >= 0 ? firstValid : 0;
+    return resolveInitialCursor(options, {
+      currentValue,
+      defaultValue: this.default,
+    });
   }
 
   private getSelectedOption(): EnumPromptOption | undefined {
     const options = this.buildOptions();
-    if (!options.length) {
-      return undefined;
-    }
-
-    const index = Math.max(0, Math.min(this.cursor, options.length - 1));
+    const { option, index } = getOptionAtCursor(options, this.cursor);
     if (index !== this.cursor) {
       this.cursor = index;
     }
 
-    return options[index];
+    return option;
   }
 }
