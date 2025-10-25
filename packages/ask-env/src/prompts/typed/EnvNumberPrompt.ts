@@ -110,24 +110,27 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
             return;
           }
 
-          let text = dimInputs
-            ? this.colors.dim(option.display)
-            : isSelected
-              ? this.colors.white(option.display)
-              : this.colors.subtle(option.display);
+          const formatText = (value: string): string => {
+            if (dimInputs) {
+              return this.colors.dim(value);
+            }
+            if (isSelected) {
+              return this.colors.white(value);
+            }
+            return this.colors.subtle(value);
+          };
 
+          let text = formatText(option.display);
           if (option.invalid) {
-            text = this.colors.strikethrough(text);
+            text = `\u001b[9m${text}\u001b[29m`;
           }
 
           const annotation = option.annotation ? ` (${option.annotation})` : "";
           let suffix = "";
-          if (annotation) {
+          if (annotation && isSelected) {
             suffix = dimInputs
               ? this.colors.dim(annotation)
-              : isSelected
-                ? this.colors.subtle(annotation)
-                : "";
+              : this.colors.subtle(annotation);
           }
 
           output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
@@ -213,7 +216,13 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
         // For non-typing cases (selecting current/default), validate the selected value
         if (!this.mode.isInInteraction("typing")) {
-          const validation = this.runSchemaValidation(value?.toString());
+          const candidate =
+            selectedOption && selectedOption.type === "value"
+              ? selectedOption.value
+              : this.value;
+          const validation = this.runSchemaValidation(
+            candidate !== undefined ? candidate.toString() : undefined,
+          );
           if (!validation.success) {
             return validation.error;
           }
@@ -232,16 +241,17 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       this.otherInputCache = "";
       this.setCommittedValue(this.getDefaultValue());
     } else {
-      // Set initial value based on cursor position
+      this.setInitialSelectionCursor();
       this.updateValue();
+      queueMicrotask(() => {
+        this.setInitialSelectionCursor();
+        this.updateValue();
+      });
     }
 
     this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
-      if (this.state === "error") {
-        this.state = "active";
-        this.error = "";
-      }
+      this.clearErrorState();
 
       // If both current and default are undefined, we're in text-only mode - no cursor navigation
       if (!this.hasPresetOptions()) {
@@ -294,10 +304,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     // Listen for user input changes (when typing)
     this.on("userInput", (rawInput: string) => {
       // Clear error state when user is typing (like base Prompt class does)
-      if (this.state === "error") {
-        this.state = "active";
-        this.error = "";
-      }
+      this.clearErrorState();
 
       let input = rawInput.includes("\t")
         ? rawInput.replace(/\t/g, "")
@@ -346,10 +353,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       if (!info) return; // Guard against undefined info
 
       // Clear error state when user types (like base Prompt class does)
-      if (this.state === "error") {
-        this.state = "active";
-        this.error = "";
-      }
+      this.clearErrorState();
 
       // Delegate Tab and toolbar navigation to the shared handler
       if (this.handleToolbarKey(char, info)) {
@@ -574,6 +578,45 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       this.currentResult?.rawValue !== undefined ||
       this.default !== undefined
     );
+  }
+
+  private setInitialSelectionCursor(): void {
+    if (!this.hasPresetOptions()) {
+      return;
+    }
+
+    const options = this.buildSelectionOptions();
+    const currentIndex = options.findIndex(
+      (option) => option.type === "value" && option.key === "current",
+    );
+
+    if (currentIndex === -1) {
+      return;
+    }
+
+    const currentOption = options[currentIndex];
+    if (!currentOption || currentOption.type !== "value") {
+      return;
+    }
+
+    if (!currentOption.invalid) {
+      this.mode.setCursor(currentIndex);
+      return;
+    }
+
+    const fallbackIndex = options.findIndex((option, index) => {
+      if (index === currentIndex) {
+        return false;
+      }
+      if (option.type === "value" && option.invalid) {
+        return false;
+      }
+      return true;
+    });
+
+    if (fallbackIndex >= 0) {
+      this.mode.setCursor(fallbackIndex);
+    }
   }
 
   private buildSelectionOptions(): NumberPromptOption[] {

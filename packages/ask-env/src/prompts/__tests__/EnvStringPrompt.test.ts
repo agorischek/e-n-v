@@ -158,8 +158,8 @@ describe("EnvStringPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-    expect(prompt.cursor).toBe(0);
-    expect(prompt.value).toBe("");
+  expect(prompt.cursor).toBe(0);
+  expect(prompt.value).toBe("from-schema");
 
     await pressKey(prompt, { name: "down" });
     expect(prompt.cursor).toBe(1);
@@ -482,12 +482,21 @@ describe("EnvStringPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-    const rendered = toOutputString(output);
-    expect(rendered).toContain("\u001b[9m");
-    const stripped = stripAnsi(rendered);
-    expect(stripped).toContain("(current, invalid)");
+  const initialRender = toOutputString(output);
+  expect(initialRender).toContain("\u001b[9m");
+  const initialStripped = stripAnsi(initialRender);
+  expect(initialStripped).not.toContain("(current, invalid)");
 
-    submitPrompt(prompt as any);
+  expect(prompt.cursor).toBe((prompt as any).getTextInputIndex());
+
+  await pressKey(prompt, { name: "up" });
+  expect(prompt.cursor).toBe(0);
+
+  await waitForIO(2);
+  const focusedStripped = stripAnsi(toOutputString(output));
+  expect(focusedStripped).toContain("(current, invalid)");
+
+  submitPrompt(prompt as any);
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("invalid current");
@@ -500,6 +509,44 @@ describe("EnvStringPrompt", () => {
 
     expect(prompt.state).toBe("submit");
     await promptPromise;
+  });
+
+  it("clears validation errors after moving focus away from an invalid current", async () => {
+    const schema = new StringEnvVarSchemaClass({
+      required: false,
+      default: "ok",
+      process: (value: string) => {
+        if (value === "bad") {
+          throw new Error("invalid current");
+        }
+        return value;
+      },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, {
+      current: "bad",
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "up" });
+    expect(prompt.cursor).toBe(0);
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBe("invalid current");
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.state).toBe("active");
+    expect(prompt.error).toBe("");
+
+    cancelPrompt(prompt as any);
+    await waitForIO(2);
+    await promptPromise.catch(() => undefined);
   });
 
   it("respects custom validateInput responses", async () => {

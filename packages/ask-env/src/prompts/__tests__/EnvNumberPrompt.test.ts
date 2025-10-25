@@ -251,6 +251,9 @@ describe("EnvNumberPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
+    await pressKey(prompt, { name: "up" });
+    expect((prompt as any).mode.getCursor()).toBe(0);
+
     submitPrompt(prompt);
     await waitForIO(2);
     expect(prompt.state).toBe("error");
@@ -299,10 +302,21 @@ describe("EnvNumberPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-    const rendered = toOutputString(output);
-    expect(rendered).toContain("\u001b[9m");
-    const stripped = stripAnsi(rendered);
-    expect(stripped).toContain("(current, invalid)");
+  const initialRender = toOutputString(output);
+  expect(initialRender).toContain("\u001b[9m");
+  const initialStripped = stripAnsi(initialRender);
+  expect(initialStripped).not.toContain("(current, invalid)");
+
+    expect((prompt as any).mode.getCursor()).toBe(
+      (prompt as any).getTextInputIndex(),
+    );
+
+  await pressKey(prompt, { name: "up" });
+  await waitForIO(2);
+  expect((prompt as any).mode.getCursor()).toBe(0);
+
+  const focusedStripped = stripAnsi(toOutputString(output));
+  expect(focusedStripped).toContain("(current, invalid)");
 
     submitPrompt(prompt);
     await waitForIO(2);
@@ -318,6 +332,44 @@ describe("EnvNumberPrompt", () => {
     expect(prompt.state).toBe("submit");
     expect(prompt.value).toBe(42);
     await promptPromise;
+  });
+
+  it("clears validation errors after moving focus away from an invalid current", async () => {
+    const schema = new NumberEnvVarSchema({
+      required: false,
+      default: 5,
+      process: (value: string) => {
+        if (value === "bad") {
+          throw new Error("invalid current");
+        }
+        return Number(value);
+      },
+    });
+
+    const { prompt } = createPromptWithSchema(schema, {
+      current: "bad",
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "up" });
+    expect((prompt as any).mode.getCursor()).toBe(0);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBe("invalid current");
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    expect((prompt as any).mode.getCursor()).toBe(1);
+    expect(prompt.state).toBe("active");
+    expect(prompt.error).toBe("");
+
+    cancelPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise.catch(() => undefined);
   });
 
   it("exits typing mode with escape and resets the input", async () => {

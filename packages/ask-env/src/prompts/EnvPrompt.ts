@@ -382,6 +382,18 @@ export abstract class EnvPrompt<
     });
   }
 
+  /**
+   * Clears any active validation error so the prompt can return to the default hint state.
+   */
+  protected clearErrorState(): void {
+    if (this.state === "error" || this.error) {
+      this.state = "active";
+      this.error = "";
+      this.mode.restoreValidation();
+      this.mode.clearConsumeSubmit();
+    }
+  }
+
   protected buildAnnotation(flags: {
     isCurrent?: boolean;
     isDefault?: boolean;

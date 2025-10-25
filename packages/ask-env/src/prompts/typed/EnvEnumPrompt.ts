@@ -127,10 +127,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
 
     this.on("cursor", (action?: PromptAction) => {
       // Clear error state when user navigates (like base Prompt class does)
-      if (this.state === "error") {
-        this.state = "active";
-        this.error = "";
-      }
+      this.clearErrorState();
 
       if (!this.error && this.mode.isToolbarOpen()) {
         return;
@@ -153,10 +150,7 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
       if (!info) return; // Guard against undefined info
 
       // Clear error state when user types (like base Prompt class does)
-      if (this.state === "error") {
-        this.state = "active";
-        this.error = "";
-      }
+      this.clearErrorState();
 
       if (this.handleToolbarKey(char, info)) {
         return;
