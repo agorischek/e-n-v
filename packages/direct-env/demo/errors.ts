@@ -10,6 +10,23 @@ import { writeFile, unlink } from "node:fs/promises";
 async function demo() {
   const testPath = ".env.errors-demo";
 
+    await writeFile(
+      testPath,
+      `PORT=not-a-number
+DEBUG=maybe
+`
+    );
+
+          await load({
+        path: testPath,
+        vars: {
+          PORT: schema.number(),
+          DEBUG: schema.boolean(),
+          REQUIRED_KEY1: schema.string(),
+          REQUIRED_KEY2: schema.number(),
+        },
+      });
+
   try {
     // Create a demo .env file with some issues
     await writeFile(
@@ -18,6 +35,16 @@ async function demo() {
 DEBUG=maybe
 `
     );
+
+          await load({
+        path: testPath,
+        vars: {
+          PORT: schema.number(),
+          DEBUG: schema.boolean(),
+          REQUIRED_KEY1: schema.string(),
+          REQUIRED_KEY2: schema.number(),
+        },
+      });
 
     console.log("🔍 Demo: Error Handling\n");
 

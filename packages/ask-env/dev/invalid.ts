@@ -1,17 +1,11 @@
-import { writeFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { ask } from "../src/ask";
 
-const invalidEnvPath = fileURLToPath(
-  new URL("./.invalid.env", import.meta.url),
-);
-const invalidEnvContent = `# Sample invalid values for the invalid.ts demo script
-PORT=three
-ENABLE_CACHE=maybe
-API_BASE_URL=not-a-valid-url
-NODE_ENV=somewhere
-`;
+// Set up invalid values in process.env
+process.env.PORT = "three";
+process.env.ENABLE_CACHE = "maybe";
+process.env.API_BASE_URL = "not-a-valid-url";
+process.env.NODE_ENV = "somewhere";
 
 const schemas = {
   PORT: z
@@ -28,14 +22,9 @@ const schemas = {
 };
 
 console.log(
-  "Running invalid.ts with .invalid.env to highlight invalid current values.\n",
+  "Running invalid.ts with process.env to highlight invalid current values.\n",
 );
 
-await writeFile(invalidEnvPath, invalidEnvContent, "utf8");
-
 await ask(schemas, {
-  path: ".invalid.env",
-  root: import.meta.url,
+  channel: { process },
 });
-
-await writeFile(invalidEnvPath, invalidEnvContent, "utf8");
