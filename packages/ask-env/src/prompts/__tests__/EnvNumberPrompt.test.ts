@@ -13,14 +13,25 @@ import {
   toOutputString,
 } from "./helpers/promptTestUtils";
 
-function createPrompt(
-  options: Partial<EnvPromptOptions<number>> & {
+type NumberPromptTestOptions =
+  Partial<Omit<EnvPromptOptions<number>, "current">> & {
+    current?: number | string;
     key?: string;
     description?: string;
     required?: boolean;
     default?: number;
-  } = {},
-) {
+  };
+
+const normalizeCurrent = (
+  value?: number | string,
+): string | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  return typeof value === "number" ? value.toString() : value;
+};
+
+function createPrompt(options: NumberPromptTestOptions = {}) {
   const streams = createTestStreams();
 
   const schema = new NumberEnvVarSchema({
@@ -31,7 +42,7 @@ function createPrompt(
 
   const prompt = new EnvNumberPrompt(schema, {
     key: options.key ?? "NUM_ENV",
-    current: options.current,
+    current: normalizeCurrent(options.current),
     truncate: options.truncate,
     secret: options.secret,
     theme: options.theme,
@@ -46,16 +57,13 @@ function createPrompt(
 
 function createPromptWithSchema(
   schema: NumberEnvVarSchema,
-  options: Partial<EnvPromptOptions<number>> & {
-    key?: string;
-    current?: number;
-  } = {},
+  options: NumberPromptTestOptions = {},
 ) {
   const streams = createTestStreams();
 
   const prompt = new EnvNumberPrompt(schema, {
     key: options.key ?? "NUM_ENV",
-    current: options.current,
+    current: normalizeCurrent(options.current),
     secret: options.secret,
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
@@ -271,6 +279,44 @@ describe("EnvNumberPrompt", () => {
     expect(prompt.state).toBe("submit");
     expect(prompt.value).toBe(3);
     expect(calls).toEqual([1, 2, 7, 3]);
+    await promptPromise;
+  });
+
+  it("marks invalid current numbers and prevents submission", async () => {
+    const schema = new NumberEnvVarSchema({
+      required: false,
+      process: (value: string) => {
+        if (value === "not-a-number") {
+          throw new Error("invalid number");
+        }
+        return Number(value);
+      },
+    });
+
+    const { prompt, output } = createPromptWithSchema(schema, {
+      current: "not-a-number",
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    const rendered = toOutputString(output);
+    expect(rendered).toContain("\u001b[9m");
+    const stripped = stripAnsi(rendered);
+    expect(stripped).toContain("(current, invalid)");
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBe("invalid number");
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+    await typeText(prompt as any, "42");
+    await pressKey(prompt, { name: "return" });
+    await waitForIO(2);
+
+    expect(prompt.state).toBe("submit");
+    expect(prompt.value).toBe(42);
     await promptPromise;
   });
 

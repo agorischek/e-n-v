@@ -6,8 +6,11 @@ export interface EnvPromptOptions<T> {
   /** The environment variable key/name to prompt for */
   key: string;
 
-  /** The current value of the environment variable, if it exists */
-  current?: T;
+  /**
+   * Raw value from the environment source (e.g., .env) before any preprocessing or validation.
+   * Represented as the literal string that was read, if one exists.
+   */
+  current?: string;
 
   /** Whether to pad active renders with a trailing newline (default: true) */
   pad?: boolean;

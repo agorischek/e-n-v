@@ -15,6 +15,7 @@ import { Toolbar } from "./toolbar";
 import { EnvPromptMode } from "./state/EnvPromptMode";
 import { createInitialModeDetails } from "./state/EnvPromptModeDetails";
 import type { EnvPromptState } from "./state/EnvPromptModeDetails";
+import { processValue, type ProcessingResult } from "./processing/processValue";
 
 export type FooterState = "hint" | "warn" | "tools";
 
@@ -28,6 +29,12 @@ export abstract class EnvPrompt<
   protected readonly required: boolean;
   /** Environment variable key, e.g. `NODE_ENV`. */
   protected readonly key: string;
+  /** Optional preprocessing applied before schema validation. */
+  protected readonly preprocess?: EnvPromptOptions<TVar>["preprocess"];
+  /** Raw string value read from the environment. */
+  protected readonly rawCurrent?: string;
+  /** Result of preprocessing/validation for the raw current value. */
+  protected readonly currentResult?: ProcessingResult<TVar>;
   /** Latest committed value for this prompt, if any. */
   protected current?: TVar;
   /** Fallback value supplied by the schema. */
@@ -68,14 +75,28 @@ export abstract class EnvPrompt<
     // Disable base Prompt input tracking by default; subclasses toggle as needed
     this.internals.track = false;
     this.key = promptOptions.key;
-    this.current = promptOptions.current;
+    this.preprocess = promptOptions.preprocess;
+    this.rawCurrent = promptOptions.current;
+    if (this.rawCurrent !== undefined) {
+      const result = processValue(
+        this.key,
+        this.rawCurrent,
+        this.schema,
+        this.preprocess ?? undefined,
+      );
+      this.currentResult = result;
+      this.current = result.isValid ? result.value : undefined;
+    } else {
+      this.currentResult = undefined;
+      this.current = undefined;
+    }
     this.default = schema.default;
     this.truncate = promptOptions.truncate ?? 40;
     this.index = promptOptions.index ?? 0;
     this.total = promptOptions.total ?? 1;
 
     const hasSecret = Boolean(promptOptions.secret);
-    const hasOptions = this.current !== undefined || this.default !== undefined;
+    const hasOptions = this.rawCurrent !== undefined || this.default !== undefined;
     this.secret = hasSecret;
     this.mode = new EnvPromptMode(
       createInitialModeDetails({
@@ -138,14 +159,21 @@ export abstract class EnvPrompt<
       return { success: true, value: undefined };
     }
 
-    try {
-      const processedValue = this.schema.process?.(value);
-      return { success: true, value: processedValue };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      return { success: false, error: errorMessage };
+    const result = processValue(
+      this.key,
+      value,
+      this.schema,
+      this.preprocess ?? undefined,
+    );
+
+    if (result.isValid) {
+      return { success: true, value: result.value };
     }
+
+    return {
+      success: false,
+      error: result.error ?? "Invalid value",
+    };
   }
 
   protected setCommittedValue(value: TVar | undefined): void {
@@ -344,18 +372,32 @@ export abstract class EnvPrompt<
   }
 
   protected getAnnotationLabel(value: TVar | undefined): string | undefined {
-    const matchesCurrent = this.current === value;
+    const matchesCurrent =
+      Boolean(this.currentResult?.isValid) && this.current === value;
     const matchesDefault = this.default === value;
 
-    if (matchesCurrent && matchesDefault) {
-      return "current, default";
+    return this.buildAnnotation({
+      isCurrent: matchesCurrent,
+      isDefault: matchesDefault,
+    });
+  }
+
+  protected buildAnnotation(flags: {
+    isCurrent?: boolean;
+    isDefault?: boolean;
+    invalid?: boolean;
+  }): string | undefined {
+    const labels: string[] = [];
+    if (flags.isCurrent) {
+      labels.push("current");
     }
-    if (matchesCurrent) {
-      return "current";
+    if (flags.isDefault) {
+      labels.push("default");
     }
-    if (matchesDefault) {
-      return "default";
+    if (flags.invalid) {
+      labels.push("invalid");
     }
-    return undefined;
+
+    return labels.length > 0 ? labels.join(", ") : undefined;
   }
 }

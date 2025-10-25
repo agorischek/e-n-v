@@ -41,6 +41,28 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         }
         output += "\n";
 
+        if (
+          this.currentResult &&
+          this.currentResult.rawValue !== undefined &&
+          !this.currentResult.isValid
+        ) {
+          const annotation = this.buildAnnotation({
+            isCurrent: true,
+            invalid: true,
+          });
+          const rawDisplay = this.truncateValue(
+            this.currentResult.rawValue ?? "",
+          );
+          const valueText = this.colors.strikethrough(
+            this.colors.subtle(rawDisplay),
+          );
+          output += `${this.getBar()}  ${valueText}`;
+          if (annotation) {
+            output += ` ${this.colors.subtle(`(${annotation})`)}`;
+          }
+          output += "\n";
+        }
+
         // Create options array for true/false
         const options = [
           { value: true, label: "true" },

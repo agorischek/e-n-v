@@ -315,13 +315,13 @@ describe("EnvStringPrompt", () => {
     expect(prompt.state).toBe("active");
     expect(prompt.error).toBe("");
     expect((prompt as any).isSecretRevealed()).toBe(true);
-    expect(calls).toEqual([]);
+  expect(calls).toEqual(["curr"]);
 
     submitPrompt(prompt as any);
     await waitForIO(2);
     await promptPromise;
 
-    expect(calls).toEqual(["def"]);
+  expect(calls).toEqual(["curr", "def"]);
   });
 
   it("prevents submitting empty custom entries when required", async () => {
@@ -405,7 +405,7 @@ describe("EnvStringPrompt", () => {
 
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("blocked");
-    expect(calls).toEqual(["def"]);
+  expect(calls).toEqual(["curr", "def"]);
 
     await pressKey(prompt, { name: "up" });
     submitPrompt(prompt as any);
@@ -446,7 +446,7 @@ describe("EnvStringPrompt", () => {
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("warn");
-    expect(calls).toEqual(["warn"]);
+    expect(calls).toEqual(["curr", "warn"]);
 
     await backspace(prompt, prompt.userInput.length);
     await typeText(prompt as any, "bad");
@@ -454,14 +454,51 @@ describe("EnvStringPrompt", () => {
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("bad input");
-    expect(calls).toEqual(["warn", "bad"]);
+  expect(calls).toEqual(["curr", "warn", "bad"]);
 
     await backspace(prompt, prompt.userInput.length);
     await typeText(prompt as any, "good");
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);
     expect(prompt.state).toBe("submit");
-    expect(calls).toEqual(["warn", "bad", "good"]);
+  expect(calls).toEqual(["curr", "warn", "bad", "good"]);
+    await promptPromise;
+  });
+
+  it("indicates invalid current values before editing", async () => {
+    const schema = new StringEnvVarSchemaClass({
+      required: false,
+      process: (value: string) => {
+        if (value === "bad") {
+          throw new Error("invalid current");
+        }
+        return value;
+      },
+    });
+
+    const { prompt, output } = createPromptWithSchema(schema, {
+      current: "bad",
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    const rendered = toOutputString(output);
+    expect(rendered).toContain("\u001b[9m");
+    const stripped = stripAnsi(rendered);
+    expect(stripped).toContain("(current, invalid)");
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBe("invalid current");
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+    await typeText(prompt as any, "ok");
+    await pressKey(prompt, { name: "return" });
+    await waitForIO(2);
+
+    expect(prompt.state).toBe("submit");
     await promptPromise;
   });
 

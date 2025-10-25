@@ -9,6 +9,17 @@ import type { Key } from "node:readline";
 import type { PromptAction } from "../../types/PromptAction";
 import type { NumberEnvVarSchema } from "@envcredible/core";
 
+type NumberPromptOption =
+  | {
+      type: "value";
+      key: "current" | "default";
+      value: number | undefined;
+      display: string;
+      annotation?: string;
+      invalid?: boolean;
+    }
+  | { type: "other"; label: string };
+
 export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   private otherInputCache = "";
   private shouldStitchInput = false;
@@ -47,9 +58,9 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
         output += "\n";
 
         const dimInputs = !this.error && this.mode.isToolbarOpen();
+        const hasPresetOptions = this.hasPresetOptions();
 
-        // If both current and default are undefined, show only text input
-        if (this.current === undefined && this.default === undefined) {
+        if (!hasPresetOptions) {
           if (this.mode.isInInteraction("typing")) {
             const displayText = dimInputs
               ? this.colors.dim(this.getInputDisplay(false))
@@ -62,38 +73,15 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
             output += `${this.getBar()}  ${idleDisplay}`;
           }
 
-          // Add validation output or placeholder text with L-shaped pipe
           output += "\n";
           output += `${this.getBarEnd()}  ${this.renderFooter("Enter a number")}`;
 
           return output;
         }
 
-        // Create options array dynamically based on what values exist
-        const options: Array<
-          { value: number | undefined; label: string } | string
-        > = [];
+        const options = this.buildSelectionOptions();
 
-        // Add current value if it exists
-        if (this.current !== undefined) {
-          const annotation = this.getAnnotationLabel(this.current);
-          if (annotation) {
-            options.push({ value: this.current, label: `(${annotation})` });
-          }
-        }
-
-        // Add default value if it exists and is different from current
-        if (this.default !== undefined && this.current !== this.default) {
-          const annotation = this.getAnnotationLabel(this.default);
-          if (annotation) {
-            options.push({ value: this.default, label: `(${annotation})` });
-          }
-        }
-
-        // Always add the custom entry option
-        options.push("Other");
-
-        options.forEach((option, index) => {
+        options.forEach((option: NumberPromptOption, index: number) => {
           const isSelected = index === this.mode.getCursor();
           const circle = dimInputs
             ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
@@ -101,8 +89,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
               ? this.theme.primary(S_RADIO_ACTIVE)
               : this.colors.dim(S_RADIO_INACTIVE);
 
-          if (typeof option === "string") {
-            // "Other" option
+          if (option.type === "other") {
             if (this.mode.isInInteraction("typing")) {
               const displayText = dimInputs
                 ? this.colors.dim(this.getInputDisplay(false))
@@ -110,37 +97,42 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
               output += `${this.getBar()}  ${circle} ${displayText}\n`;
             } else if (isSelected) {
               if (dimInputs) {
-                output += `${this.getBar()}  ${circle} ${this.colors.dim(option)}\n`;
+                output += `${this.getBar()}  ${circle} ${this.colors.dim(option.label)}\n`;
               } else {
                 output += `${this.getBar()}  ${circle} ${this.colors.white(this.getInputDisplay(true))}\n`;
               }
             } else {
-              // "Other" is gray when not selected
               const text = dimInputs
-                ? this.colors.dim(option)
-                : this.colors.subtle(option);
+                ? this.colors.dim(option.label)
+                : this.colors.subtle(option.label);
               output += `${this.getBar()}  ${circle} ${text}\n`;
             }
-          } else {
-            // Current/Default options
-            const displayValue = this.formatValue(option.value);
-            const text = dimInputs
-              ? this.colors.dim(displayValue)
-              : isSelected
-                ? this.colors.white(displayValue)
-                : this.colors.subtle(displayValue);
-            const annotation = ` ${option.label}`;
-            let suffix = "";
-            if (isSelected) {
-              suffix = dimInputs
-                ? this.colors.dim(annotation)
-                : this.colors.subtle(annotation);
-            }
-            output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
+            return;
           }
+
+          let text = dimInputs
+            ? this.colors.dim(option.display)
+            : isSelected
+              ? this.colors.white(option.display)
+              : this.colors.subtle(option.display);
+
+          if (option.invalid) {
+            text = this.colors.strikethrough(text);
+          }
+
+          const annotation = option.annotation ? ` (${option.annotation})` : "";
+          let suffix = "";
+          if (annotation) {
+            suffix = dimInputs
+              ? this.colors.dim(annotation)
+              : isSelected
+                ? this.colors.subtle(annotation)
+                : "";
+          }
+
+          output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
         });
 
-        // Add validation output or placeholder text with L-shaped pipe
         output += `${this.getBarEnd()}  ${this.renderFooter("Enter a number")}`;
 
         return output;
@@ -153,7 +145,9 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           return undefined;
         }
         // If both current and default are undefined, we're in text-only mode
-        if (this.current === undefined && this.default === undefined) {
+        const hasPresetOptions = this.hasPresetOptions();
+
+        if (!hasPresetOptions) {
           if (!this.userInput || !this.userInput.trim()) {
             return "Please enter a number";
           }
@@ -163,6 +157,18 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
             return validation.error;
           }
           return undefined;
+        }
+
+        const selectedOption = this.getSelectedOption();
+
+        if (
+          !this.mode.isInInteraction("typing") &&
+          selectedOption &&
+          selectedOption.type === "value" &&
+          selectedOption.key === "current" &&
+          selectedOption.invalid
+        ) {
+          return this.currentResult?.error ?? "Current value is invalid";
         }
 
         // Calculate the text input index dynamically
@@ -219,7 +225,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     } as any);
 
     // If both current and default are undefined, start in typing mode
-    if (this.current === undefined && this.default === undefined) {
+    if (!this.hasPresetOptions()) {
       this.mode.enterTyping();
       this.mode.clearInput();
       this._setUserInput("");
@@ -238,7 +244,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       }
 
       // If both current and default are undefined, we're in text-only mode - no cursor navigation
-      if (this.current === undefined && this.default === undefined) {
+      if (!this.hasPresetOptions()) {
         return;
       }
 
@@ -249,12 +255,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       switch (action) {
         case "up":
           // Calculate max index based on actual options
-          let optionsCount = 0;
-          if (this.current !== undefined) optionsCount++;
-          if (this.default !== undefined && this.current !== this.default)
-            optionsCount++;
-          optionsCount++; // For "Other" option
-          const maxIndex = optionsCount - 1;
+          const upOptions = this.buildSelectionOptions();
+          const maxIndex = upOptions.length - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
           if (
@@ -270,12 +272,8 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
           break;
         case "down":
           // Calculate max index based on actual options
-          let optionsCountDown = 0;
-          if (this.current !== undefined) optionsCountDown++;
-          if (this.default !== undefined && this.current !== this.default)
-            optionsCountDown++;
-          optionsCountDown++; // For "Other" option
-          const maxIndexDown = optionsCountDown - 1;
+          const downOptions = this.buildSelectionOptions();
+          const maxIndexDown = downOptions.length - 1;
 
           // If we're typing or on the text option, clear input and exit typing mode
           if (
@@ -363,7 +361,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       }
 
       // If both current and default are undefined, we're in text-only mode
-      if (this.current === undefined && this.default === undefined) {
+      if (!this.hasPresetOptions()) {
         // Already in typing mode, just update the value as the user types
         if (this.mode.isInInteraction("typing")) {
           try {
@@ -497,8 +495,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
   }
 
   private updateValue() {
-    // If both current and default are undefined, we're in text-only mode
-    if (this.current === undefined && this.default === undefined) {
+    if (!this.hasPresetOptions()) {
       try {
         const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -509,29 +506,23 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     }
 
     if (!this.mode.isInInteraction("typing")) {
-      // Dynamically determine what option the cursor is on
-      let optionIndex = 0;
+      const options = this.buildSelectionOptions();
+      const selected = options[this.mode.getCursor()];
 
-      // Check if cursor is on current value
-      if (this.current !== undefined && this.mode.getCursor() === optionIndex) {
-        this.setCommittedValue(this.current);
+      if (!selected) {
+        this.setCommittedValue(this.getDefaultValue());
         return;
       }
-      if (this.current !== undefined) optionIndex++;
 
-      // Check if cursor is on default value (and it's different from current)
-      if (
-        this.default !== undefined &&
-        this.current !== this.default &&
-        this.mode.getCursor() === optionIndex
-      ) {
-        this.setCommittedValue(this.default);
+      if (selected.type === "value") {
+        if (selected.invalid) {
+          this.setCommittedValue(this.getDefaultValue());
+          return;
+        }
+        this.setCommittedValue(selected.value ?? this.getDefaultValue());
         return;
       }
-      if (this.default !== undefined && this.current !== this.default)
-        optionIndex++;
 
-      // If we get here, cursor is on "Other" option
       this.setCommittedValue(this.getDefaultValue());
     } else {
       try {
@@ -578,10 +569,91 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
     return 0;
   }
 
+  private hasPresetOptions(): boolean {
+    return (
+      this.currentResult?.rawValue !== undefined ||
+      this.default !== undefined
+    );
+  }
+
+  private buildSelectionOptions(): NumberPromptOption[] {
+    const options: NumberPromptOption[] = [];
+    const currentRaw = this.currentResult?.rawValue;
+    const hasValidCurrent =
+      this.currentResult?.isValid !== false && this.current !== undefined;
+
+    if (currentRaw !== undefined) {
+      const isValid = this.currentResult?.isValid !== false;
+      const isSameAsDefault =
+        isValid && hasValidCurrent && this.current === this.default;
+      const display = isValid && hasValidCurrent
+        ? this.formatValue(this.current)
+        : this.formatRawValue(currentRaw);
+
+      options.push({
+        type: "value",
+        key: "current",
+        value: isValid ? this.current : undefined,
+        display,
+        annotation: this.buildAnnotation({
+          isCurrent: true,
+          isDefault: isSameAsDefault,
+          invalid: !isValid,
+        }),
+        invalid: !isValid,
+      });
+    }
+
+    const shouldIncludeDefault =
+      this.default !== undefined &&
+      (!hasValidCurrent || this.current !== this.default);
+
+    if (shouldIncludeDefault) {
+      const isSameAsCurrent =
+        hasValidCurrent && this.current === this.default;
+
+      options.push({
+        type: "value",
+        key: "default",
+        value: this.default,
+        display: this.formatValue(this.default),
+        annotation: this.buildAnnotation({
+          isDefault: true,
+          isCurrent: isSameAsCurrent,
+        }),
+      });
+    }
+
+    options.push({ type: "other", label: "Other" });
+
+    return options;
+  }
+
+  private getSelectedOption(): NumberPromptOption | undefined {
+    if (!this.hasPresetOptions()) {
+      return undefined;
+    }
+
+    const options = this.buildSelectionOptions();
+    return options[this.mode.getCursor()];
+  }
+
+  private formatRawValue(raw: string): string {
+    if (!raw) {
+      return "";
+    }
+    return this.truncateValue(raw);
+  }
+
   private getTextInputIndex(): number {
-    let index = 0;
-    if (this.current !== undefined) index++;
-    if (this.default !== undefined && this.current !== this.default) index++;
-    return index;
+    if (!this.hasPresetOptions()) {
+      return 0;
+    }
+
+    const options = this.buildSelectionOptions();
+    const index = options.findIndex(
+      (option: NumberPromptOption) => option.type === "other",
+    );
+    return index === -1 ? options.length - 1 : index;
   }
 }

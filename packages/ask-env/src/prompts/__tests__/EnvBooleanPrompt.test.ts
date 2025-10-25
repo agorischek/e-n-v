@@ -11,11 +11,21 @@ import {
   toOutputString,
 } from "./helpers/promptTestUtils";
 
-type TestPromptOptions = Partial<EnvPromptOptions<boolean>> & {
+type TestPromptOptions = Partial<Omit<EnvPromptOptions<boolean>, "current">> & {
+  current?: boolean | string;
   key?: string;
   description?: string;
   required?: boolean;
   default?: boolean;
+};
+
+const normalizeBooleanCurrent = (
+  value?: boolean | string,
+): string | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  return typeof value === "boolean" ? String(value) : value;
 };
 
 function createPrompt(options: TestPromptOptions = {}) {
@@ -29,7 +39,7 @@ function createPrompt(options: TestPromptOptions = {}) {
 
   const prompt = new EnvBooleanPrompt(schema, {
     key: options.key ?? "BOOL_ENV",
-    current: options.current,
+    current: normalizeBooleanCurrent(options.current),
     theme: options.theme,
     index: options.index,
     total: options.total,
@@ -50,7 +60,7 @@ function createPromptWithSchema(
 
   const prompt = new EnvBooleanPrompt(schema, {
     key: options.key ?? "BOOL_ENV",
-    current: options.current,
+    current: normalizeBooleanCurrent(options.current),
     input: options.input ?? streams.input,
     output: options.output ?? streams.output,
   });
@@ -152,23 +162,24 @@ describe("EnvBooleanPrompt", () => {
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("false not allowed");
-    expect(calls).toEqual([false]);
+  expect(calls).toEqual([false, false]);
+  await pressKey(prompt, { name: "down" });
+  await waitForIO(2);
+  await pressKey(prompt, { name: "up" });
+  await waitForIO(2);
+  expect(prompt.state).toBe("active");
+  expect(prompt.cursor).toBe(0);
 
-    await pressKey(prompt, { name: "up" });
-    await waitForIO(2);
-    expect(prompt.state).toBe("active");
-    expect(prompt.cursor).toBe(0);
-
-    submitPrompt(prompt);
+  submitPrompt(prompt);
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("true not allowed once");
-    expect(calls).toEqual([false, true]);
+  expect(calls).toEqual([false, false, true]);
 
     submitPrompt(prompt);
     await waitForIO(2);
     expect(prompt.state).toBe("submit");
-    expect(calls).toEqual([false, true, true]);
+  expect(calls).toEqual([false, false, true, true]);
     await promptPromise;
   });
 

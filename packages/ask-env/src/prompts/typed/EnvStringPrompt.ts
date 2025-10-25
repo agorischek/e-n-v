@@ -11,6 +11,17 @@ import type { PromptAction } from "../../types/PromptAction";
 import { maskSecretValue } from "../../utils/secrets";
 import type { StringEnvVarSchema } from "@envcredible/core";
 
+type StringPromptOption =
+  | {
+      type: "value";
+      key: "current" | "default";
+      value: string | undefined;
+      display: string;
+      annotation?: string;
+      invalid?: boolean;
+    }
+  | { type: "other"; label: string };
+
 export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   private otherInputCache = "";
   private shouldStitchInput = false;
@@ -48,8 +59,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         output += "\n";
 
         const dimInputs = !this.error && this.mode.isToolbarOpen();
+        const hasPresetOptions = this.hasPresetOptions();
 
-        if (this.current === undefined && this.default === undefined) {
+        if (!hasPresetOptions) {
           const displayText = dimInputs
             ? this.colors.dim(this.getInputDisplay(false))
             : this.colors.white(this.getInputDisplay(true));
@@ -59,27 +71,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           return output;
         }
 
-        const options: Array<
-          { value: string | undefined; label: string } | string
-        > = [];
+        const options = this.buildSelectionOptions();
 
-        if (this.current !== undefined) {
-          const annotation = this.getAnnotationLabel(this.current);
-          if (annotation) {
-            options.push({ value: this.current, label: `(${annotation})` });
-          }
-        }
-
-        if (this.default !== undefined && this.current !== this.default) {
-          const annotation = this.getAnnotationLabel(this.default);
-          if (annotation) {
-            options.push({ value: this.default, label: `(${annotation})` });
-          }
-        }
-
-        options.push("Other");
-
-        options.forEach((option, index) => {
+  options.forEach((option: StringPromptOption, index: number) => {
           const isSelected = index === this.mode.getCursor();
           const circle = dimInputs
             ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
@@ -87,7 +81,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
               ? this.theme.primary(S_RADIO_ACTIVE)
               : this.colors.dim(S_RADIO_INACTIVE);
 
-          if (typeof option === "string") {
+          if (option.type === "other") {
             if (this.mode.isInInteraction("typing")) {
               const displayText = dimInputs
                 ? this.colors.dim(this.getInputDisplay(false))
@@ -95,32 +89,40 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
               output += `${this.getBar()}  ${circle} ${displayText}\n`;
             } else if (isSelected) {
               if (dimInputs) {
-                output += `${this.getBar()}  ${circle} ${this.colors.dim(option)}\n`;
+                output += `${this.getBar()}  ${circle} ${this.colors.dim(option.label)}\n`;
               } else {
                 output += `${this.getBar()}  ${circle} ${this.colors.white(this.getInputDisplay(true))}\n`;
               }
             } else {
               const text = dimInputs
-                ? this.colors.dim(option)
-                : this.colors.subtle(option);
+                ? this.colors.dim(option.label)
+                : this.colors.subtle(option.label);
               output += `${this.getBar()}  ${circle} ${text}\n`;
             }
-          } else {
-            const displayValue = this.formatValue(option.value);
-            const text = dimInputs
-              ? this.colors.dim(displayValue)
-              : isSelected
-                ? this.colors.white(displayValue)
-                : this.colors.subtle(displayValue);
-            const annotation = ` ${option.label}`;
-            let suffix = "";
-            if (isSelected) {
-              suffix = dimInputs
-                ? this.colors.dim(annotation)
-                : this.colors.subtle(annotation);
-            }
-            output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
+            return;
           }
+
+          let text = dimInputs
+            ? this.colors.dim(option.display)
+            : isSelected
+              ? this.colors.white(option.display)
+              : this.colors.subtle(option.display);
+
+          if (option.invalid) {
+            text = this.colors.strikethrough(text);
+          }
+
+          const annotation = option.annotation ? ` (${option.annotation})` : "";
+          let suffix = "";
+          if (annotation) {
+            suffix = dimInputs
+              ? this.colors.dim(annotation)
+              : isSelected
+                ? this.colors.subtle(annotation)
+                : "";
+          }
+
+          output += `${this.getBar()}  ${circle} ${text}${suffix}\n`;
         });
 
         output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
@@ -134,7 +136,9 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           return undefined;
         }
 
-        if (this.current === undefined && this.default === undefined) {
+        const hasPresetOptions = this.hasPresetOptions();
+
+        if (!hasPresetOptions) {
           const input = this.userInput ?? "";
           if (!input.trim()) {
             if (this.required) {
@@ -153,6 +157,18 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             return validation.error;
           }
           return undefined;
+        }
+
+        const selectedOption = this.getSelectedOption();
+
+        if (
+          !this.mode.isInInteraction("typing") &&
+          selectedOption &&
+          selectedOption.type === "value" &&
+          selectedOption.key === "current" &&
+          selectedOption.invalid
+        ) {
+          return this.currentResult?.error ?? "Current value is invalid";
         }
 
         const textInputIndex = this.getTextInputIndex();
@@ -202,14 +218,16 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
       },
     } as any);
 
-    if (this.current === undefined && this.default === undefined) {
+    if (!this.hasPresetOptions()) {
       this.mode.enterTyping();
       this.mode.clearInput();
       this._setUserInput("");
       this.otherInputCache = "";
       this.setCommittedValue(this.getDefaultValue());
     } else {
-      this.setCommittedValue(this.current ?? this.getDefaultValue());
+      const initialValue =
+        this.currentResult && this.currentResult.isValid ? this.current : undefined;
+      this.setCommittedValue(initialValue ?? this.getDefaultValue());
     }
 
     this.on("cursor", (action?: PromptAction) => {
@@ -218,7 +236,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         this.error = "";
       }
 
-      if (this.current === undefined && this.default === undefined) {
+      if (!this.hasPresetOptions()) {
         return;
       }
 
@@ -228,12 +246,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
       switch (action) {
         case "up": {
-          let optionsCount = 0;
-          if (this.current !== undefined) optionsCount++;
-          if (this.default !== undefined && this.current !== this.default)
-            optionsCount++;
-          optionsCount++;
-          const maxIndex = optionsCount - 1;
+          const options = this.buildSelectionOptions();
+          const maxIndex = options.length - 1;
 
           if (
             this.mode.isInInteraction("typing") ||
@@ -248,12 +262,8 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
           break;
         }
         case "down": {
-          let optionsCount = 0;
-          if (this.current !== undefined) optionsCount++;
-          if (this.default !== undefined && this.current !== this.default)
-            optionsCount++;
-          optionsCount++;
-          const maxIndex = optionsCount - 1;
+          const options = this.buildSelectionOptions();
+          const maxIndex = options.length - 1;
 
           if (
             this.mode.isInInteraction("typing") ||
@@ -335,7 +345,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         return;
       }
 
-      if (this.current === undefined && this.default === undefined) {
+      if (!this.hasPresetOptions()) {
         if (this.mode.isInInteraction("typing")) {
           try {
             const parsed = this.parseInput(this.userInput);
@@ -405,7 +415,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   private updateValue() {
-    if (this.current === undefined && this.default === undefined) {
+    if (!this.hasPresetOptions()) {
       try {
         const parsed = this.parseInput(this.mode.getInputValue());
         this.setCommittedValue(parsed ?? this.getDefaultValue());
@@ -416,33 +426,32 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     }
 
     if (!this.mode.isInInteraction("typing")) {
-      let optionIndex = 0;
+      const options = this.buildSelectionOptions();
+      const selected = options[this.mode.getCursor()];
 
-      if (this.current !== undefined && this.mode.getCursor() === optionIndex) {
-        this.setCommittedValue(this.current);
+      if (!selected) {
+        this.setCommittedValue(this.getDefaultValue());
         return;
       }
-      if (this.current !== undefined) optionIndex++;
 
-      if (
-        this.default !== undefined &&
-        this.current !== this.default &&
-        this.mode.getCursor() === optionIndex
-      ) {
-        this.setCommittedValue(this.default);
+      if (selected.type === "value") {
+        if (selected.invalid) {
+          this.setCommittedValue(this.getDefaultValue());
+          return;
+        }
+        this.setCommittedValue(selected.value ?? this.getDefaultValue());
         return;
       }
-      if (this.default !== undefined && this.current !== this.default)
-        optionIndex++;
 
       this.setCommittedValue(this.getDefaultValue());
-    } else {
-      try {
-        const parsed = this.parseInput(this.mode.getInputValue());
-        this.setCommittedValue(parsed ?? this.getDefaultValue());
-      } catch {
-        this.setCommittedValue(this.getDefaultValue());
-      }
+      return;
+    }
+
+    try {
+      const parsed = this.parseInput(this.mode.getInputValue());
+      this.setCommittedValue(parsed ?? this.getDefaultValue());
+    } catch {
+      this.setCommittedValue(this.getDefaultValue());
     }
   }
 
@@ -467,15 +476,101 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     return "";
   }
 
+  private hasPresetOptions(): boolean {
+    return (
+      this.currentResult?.rawValue !== undefined ||
+      this.default !== undefined
+    );
+  }
+
+  private buildSelectionOptions(): StringPromptOption[] {
+    const options: StringPromptOption[] = [];
+    const currentRaw = this.currentResult?.rawValue;
+    const hasValidCurrent =
+      this.currentResult?.isValid !== false && this.current !== undefined;
+
+    if (currentRaw !== undefined) {
+      const isValid = this.currentResult?.isValid !== false;
+      const isSameAsDefault =
+        isValid && hasValidCurrent && this.current === this.default;
+      const display = isValid && hasValidCurrent
+        ? this.formatValue(this.current)
+        : this.formatRawValue(currentRaw);
+
+      options.push({
+        type: "value",
+        key: "current",
+        value: isValid ? this.current : undefined,
+        display,
+        annotation: this.buildAnnotation({
+          isCurrent: true,
+          isDefault: isSameAsDefault,
+          invalid: !isValid,
+        }),
+        invalid: !isValid,
+      });
+    }
+
+    const shouldIncludeDefault =
+      this.default !== undefined &&
+      (!hasValidCurrent || this.current !== this.default);
+
+    if (shouldIncludeDefault) {
+      const isSameAsCurrent =
+        hasValidCurrent && this.current === this.default;
+
+      options.push({
+        type: "value",
+        key: "default",
+        value: this.default,
+        display: this.formatValue(this.default),
+        annotation: this.buildAnnotation({
+          isDefault: true,
+          isCurrent: isSameAsCurrent,
+        }),
+      });
+    }
+
+    options.push({ type: "other", label: "Other" });
+
+    return options;
+  }
+
+  private getSelectedOption(): StringPromptOption | undefined {
+    if (!this.hasPresetOptions()) {
+      return undefined;
+    }
+
+    const options = this.buildSelectionOptions();
+    return options[this.mode.getCursor()];
+  }
+
+  private formatRawValue(raw: string): string {
+    if (!raw) {
+      return "";
+    }
+
+    const display =
+      this.secret && !this.isSecretRevealed()
+        ? this.maskValue(raw)
+        : raw;
+    return this.truncateValue(display);
+  }
+
   private maskValue(value: string): string {
     return maskSecretValue(value, SECRET_MASK);
   }
 
   private getTextInputIndex(): number {
-    let index = 0;
-    if (this.current !== undefined) index++;
-    if (this.default !== undefined && this.current !== this.default) index++;
-    return index;
+    if (!this.hasPresetOptions()) {
+      return 0;
+    }
+
+    const options = this.buildSelectionOptions();
+    const index = options.findIndex(
+      (option: StringPromptOption) => option.type === "other",
+    );
+    return index === -1 ? options.length - 1 : index;
   }
 
   private getInputDisplay(includeCursor: boolean): string {

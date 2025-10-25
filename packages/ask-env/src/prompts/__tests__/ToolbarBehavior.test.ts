@@ -3,6 +3,10 @@ import { NumberEnvVarSchema } from "@envcredible/core";
 import { EnvNumberPrompt } from "../typed/EnvNumberPrompt";
 import { waitForIO, pressKey } from "./helpers/promptTestUtils";
 
+function normalizeCurrent(value?: number): string | undefined {
+  return value === undefined ? undefined : value.toString();
+}
+
 function createPrompt(
   options: {
     current?: number;
@@ -23,7 +27,7 @@ function createPrompt(
 
   const prompt = new EnvNumberPrompt(schema, {
     key: "TEST_NUM",
-    current: options.current,
+    current: normalizeCurrent(options.current),
     secret: options.secret,
     output: mockOutput,
   });

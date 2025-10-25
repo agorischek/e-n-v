@@ -42,6 +42,27 @@ export class EnvEnumPrompt extends EnvPrompt<string, EnumEnvVarSchema> {
         }
         output += "\n";
 
+        if (
+          this.currentResult &&
+          this.currentResult.rawValue !== undefined &&
+          !this.currentResult.isValid
+        ) {
+          const annotation = this.buildAnnotation({
+            isCurrent: true,
+            invalid: true,
+          });
+          const display = this.colors.strikethrough(
+            this.colors.subtle(
+              this.truncateValue(this.currentResult.rawValue ?? ""),
+            ),
+          );
+          output += `${this.getBar()}  ${display}`;
+          if (annotation) {
+            output += ` ${this.colors.subtle(`(${annotation})`)}`;
+          }
+          output += "\n";
+        }
+
         // Display enum options
         const dimInputs = !this.error && this.mode.isToolbarOpen();
         this.values.forEach((option, index) => {

@@ -5,7 +5,6 @@ import { EnvNumberPrompt } from "./prompts/typed/EnvNumberPrompt";
 import { EnvStringPrompt } from "./prompts/typed/EnvStringPrompt";
 import type { EnvVarSchema, PreprocessorOptions } from "@envcredible/core";
 import type { Theme } from "./visuals/Theme";
-import { parseBoolean } from "./utils/parseBoolean";
 
 interface CreatePromptOptions {
   key: string;
@@ -52,15 +51,13 @@ export function createPrompt({
     case "boolean":
       return new EnvBooleanPrompt(schema, {
         ...baseOptions,
-        current:
-          currentValue !== undefined ? parseBoolean(currentValue) : undefined,
+        current: currentValue,
         preprocess: preprocessors?.bool,
       });
     case "number":
       return new EnvNumberPrompt(schema, {
         ...baseOptions,
-        current:
-          currentValue !== undefined ? parseFloat(currentValue) : undefined,
+        current: currentValue,
         preprocess: preprocessors?.number,
       });
     case "enum":
