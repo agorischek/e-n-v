@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { resolveShouldMask } from "../Session";
 import { StringEnvVarSchema, NumberEnvVarSchema } from "@envcredible/core";
+import { resolveShouldMask } from "../../utils/secrets";
 
 // Create simple processors for testing
 const stringProcessor = (value: string) => value;
