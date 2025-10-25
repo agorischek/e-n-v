@@ -1,6 +1,6 @@
 # @envcredible/schemata
 
-This package provides converters that transform external schema libraries (like Zod and Joi) into envcredible's internal `TypedEnvVarSchema` format.
+This package provides converters that transform external schema libraries (like Zod and Joi) into envcredible's internal `EnvVarSchema` format.
 
 ## Quick Start
 
