@@ -39,7 +39,7 @@ await env.write("MULTILINE", "Line one\nLine two\nLine three");
 - Files are always written with a trailing newline for POSIX friendliness.
 - Relative paths resolve from the current working directory at runtime.
 
-### Synchronous helpers
+### Text
 
 The package also exposes pure helpers for working with `.env` text without filesystem interaction.
 
