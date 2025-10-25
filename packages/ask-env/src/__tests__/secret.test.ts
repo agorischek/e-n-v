@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { maskSecretValue, isSecretKey } from "../utils/secrets";
 import { SECRET_MASK } from "../visuals/symbols";
-import { SECRET_PATTERNS } from "../defaults";
+import { SECRET_PATTERNS } from "../options/defaults";
 
 describe("secret utilities", () => {
   it("masks values using the default mask", () => {

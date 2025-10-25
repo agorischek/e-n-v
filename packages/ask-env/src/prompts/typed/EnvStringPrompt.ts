@@ -42,9 +42,17 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
             return outcomeResult;
           }
 
-          return `${this.getSymbol()}  ${this.colors.bold(
+          const base = `${this.getSymbol()}  ${this.colors.bold(
             this.colors.white(this.key),
-          )}${this.colors.subtle("=")}${this.colors.white(
+          )}`;
+          const isOptionalEmpty =
+            !this.required && (this.value === undefined || this.value === "");
+
+          if (isOptionalEmpty) {
+            return base;
+          }
+
+          return `${base}${this.colors.subtle("=")}${this.colors.white(
             this.formatValue(this.value),
           )}`;
         }
@@ -486,11 +494,17 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
   }
 
   protected formatValue(value: string | undefined): string {
-    const str = value || "";
-    const display =
+    const hasExplicitEmpty = value === "";
+    const str = value ?? "";
+    let display =
       this.secret && str && !this.isSecretRevealed()
         ? this.maskValue(str)
         : str;
+
+    if (!display && hasExplicitEmpty) {
+      display = '""';
+    }
+
     return this.truncateValue(display);
   }
 

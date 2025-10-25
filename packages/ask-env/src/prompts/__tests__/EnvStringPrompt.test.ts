@@ -629,6 +629,20 @@ describe("EnvStringPrompt", () => {
     await promptPromise;
   });
 
+  it("renders optional empty string submissions without an equals sign", async () => {
+    const { prompt, output } = createPrompt();
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    submitPrompt(prompt as any);
+    await waitForIO(2);
+    await promptPromise;
+
+    const rendered = stripAnsi(toOutputString(output));
+    expect(rendered).toContain("✔  TEST_ENV");
+    expect(rendered).not.toContain("TEST_ENV=");
+  });
+
   it("exposes helper utilities for masking and display", async () => {
     const { prompt } = createPrompt({
       current: "curr",

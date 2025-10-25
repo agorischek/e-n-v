@@ -1,12 +1,6 @@
 import type { EnvVarSchemaDetails, Preprocessor } from "@envcredible/core";
 import { resolvePreprocessor } from "@envcredible/core";
-
-export interface ProcessingResult<T> {
-  value: T | undefined;
-  rawValue?: string;
-  isValid: boolean;
-  error?: string;
-}
+import type { ProcessingResult } from "./ProcessingResult";
 
 /**
  * Process a value through schema validation and return detailed results
@@ -15,7 +9,7 @@ export function processValue<T>(
   envKey: string,
   value: string | undefined,
   schema: EnvVarSchemaDetails<T>,
-  preprocess?: Preprocessor<T> | null,
+  preprocess?: Preprocessor<T> | null
 ): ProcessingResult<T> {
   try {
     // Handle undefined/empty values early

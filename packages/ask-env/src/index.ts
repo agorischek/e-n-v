@@ -11,6 +11,6 @@ export { schema };
 export { schema as s };
 export * as schemas from "../../env-var-schemas/src";
 
-export * as defaults from "./defaults";
+export * as defaults from "./options/defaults";
 
 export { ask } from "./ask";
