@@ -86,11 +86,8 @@ describe("Core preprocessing integration", () => {
       process: (input: string) => input.toLowerCase() === "true",
     };
 
-    const numberResult = processValue(
-      "COUNT",
-      "1,000",
-      numberSchema,
-      (raw) => parseInt(raw.replace(/,/g, ""), 10),
+    const numberResult = processValue("COUNT", "1,000", numberSchema, (raw) =>
+      parseInt(raw.replace(/,/g, ""), 10),
     );
     expect(numberResult.value).toBe(1000);
     expect(typeof numberResult.value).toBe("number");

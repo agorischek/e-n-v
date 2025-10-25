@@ -1,5 +1,5 @@
 {
-  "name": "@envcredible/converters",
+  "name": "@envcredible/schemata",
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {

@@ -13,18 +13,17 @@ import {
   toOutputString,
 } from "./helpers/promptTestUtils";
 
-type NumberPromptTestOptions =
-  Partial<Omit<EnvPromptOptions<number>, "current">> & {
-    current?: number | string;
-    key?: string;
-    description?: string;
-    required?: boolean;
-    default?: number;
-  };
+type NumberPromptTestOptions = Partial<
+  Omit<EnvPromptOptions<number>, "current">
+> & {
+  current?: number | string;
+  key?: string;
+  description?: string;
+  required?: boolean;
+  default?: number;
+};
 
-const normalizeCurrent = (
-  value?: number | string,
-): string | undefined => {
+const normalizeCurrent = (value?: number | string): string | undefined => {
   if (value === undefined) {
     return undefined;
   }
@@ -302,21 +301,21 @@ describe("EnvNumberPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-  const initialRender = toOutputString(output);
-  expect(initialRender).toContain("\u001b[9m");
-  const initialStripped = stripAnsi(initialRender);
-  expect(initialStripped).not.toContain("(current, invalid)");
+    const initialRender = toOutputString(output);
+    expect(initialRender).toContain("\u001b[9m");
+    const initialStripped = stripAnsi(initialRender);
+    expect(initialStripped).not.toContain("(current, invalid)");
 
     expect((prompt as any).mode.getCursor()).toBe(
       (prompt as any).getTextInputIndex(),
     );
 
-  await pressKey(prompt, { name: "up" });
-  await waitForIO(2);
-  expect((prompt as any).mode.getCursor()).toBe(0);
+    await pressKey(prompt, { name: "up" });
+    await waitForIO(2);
+    expect((prompt as any).mode.getCursor()).toBe(0);
 
-  const focusedStripped = stripAnsi(toOutputString(output));
-  expect(focusedStripped).toContain("(current, invalid)");
+    const focusedStripped = stripAnsi(toOutputString(output));
+    expect(focusedStripped).toContain("(current, invalid)");
 
     submitPrompt(prompt);
     await waitForIO(2);

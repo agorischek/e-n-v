@@ -56,7 +56,7 @@ import { apiKey, apiTimeout, port } from "env-var-schemas/zod";
 **Example:**
 
 ```typescript
-import { fromZodSchema } from "@envcredible/converters";
+import { fromZodSchema } from "@envcredible/schemata";
 
 // Get raw Zod schemas
 const zodSchemas = {

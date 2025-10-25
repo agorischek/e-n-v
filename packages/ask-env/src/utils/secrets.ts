@@ -1,3 +1,4 @@
+import type { EnvVarSchema } from "@envcredible/core";
 import { SECRET_MASK } from "../visuals/symbols";
 
 function isSecretMatch(
@@ -49,4 +50,20 @@ export function maskSecretValue(
   }
 
   return value.replace(/./g, maskChar);
+}
+
+export function resolveShouldMask(
+  key: string,
+  schema: EnvVarSchema,
+  patterns: ReadonlyArray<string | RegExp>,
+): boolean {
+  if (schema.type !== "string") {
+    return false;
+  }
+
+  if ("secret" in schema && schema.secret !== undefined) {
+    return schema.secret;
+  }
+
+  return isSecretKey(key, schema.description, patterns);
 }

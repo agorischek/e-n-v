@@ -12,7 +12,9 @@ const schema = new EnumEnvVarSchema({
   default: "production",
 });
 
-const invalidEnvPath = fileURLToPath(new URL("./.invalid.env", import.meta.url));
+const invalidEnvPath = fileURLToPath(
+  new URL("./.invalid.env", import.meta.url),
+);
 const invalidCurrentValue = "staging";
 const invalidEnvContent = `# Sample invalid value for the enum prompt demo
 NODE_ENV=${invalidCurrentValue}

@@ -3,31 +3,14 @@ import type { Readable } from "node:stream";
 import * as color from "picocolors";
 import { createPrompt } from "../prompts/create/createPrompt";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
-import { isSecretKey } from "../utils/secrets";
+import { isSecretKey, resolveShouldMask } from "../utils/secrets";
 import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";
 import { renderSetupHeader } from "../visuals/renderSetupHeader";
 import { S_BAR, S_BAR_END } from "../visuals/symbols";
 import type { Theme } from "../visuals/Theme";
 import type { EnvChannel, Preprocessors } from "@envcredible/core";
 import type { EnvVarSchema } from "@envcredible/core";
-
-export type PromptFlowResult = "success" | "cancelled" | "error";
-
-export function resolveShouldMask(
-  key: string,
-  schema: EnvVarSchema,
-  patterns: ReadonlyArray<string | RegExp>,
-): boolean {
-  if (schema.type !== "string") {
-    return false;
-  }
-
-  if ("secret" in schema && schema.secret !== undefined) {
-    return schema.secret;
-  }
-
-  return isSecretKey(key, schema.description, patterns);
-}
+import type { SessionResult } from "./SessionResult";
 
 export interface SessionOptions {
   schemas: Record<string, EnvVarSchema>;
@@ -79,7 +62,7 @@ export class Session {
   static fromOptions(options: SessionOptions): Session {
     return new Session(options);
   }
-  async run(): Promise<PromptFlowResult> {
+  async run(): Promise<SessionResult> {
     renderSetupHeader(this.output, this.theme, this.displayEnvPath);
 
     let currentValues = await this.channel.get();
@@ -176,11 +159,4 @@ export class Session {
 
     return "success";
   }
-}
-
-export async function runPromptFlow(
-  options: SessionOptions,
-): Promise<PromptFlowResult> {
-  const session = Session.fromOptions(options);
-  return session.run();
 }

@@ -602,8 +602,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
   private hasPresetOptions(): boolean {
     return (
-      this.currentResult?.rawValue !== undefined ||
-      this.default !== undefined
+      this.currentResult?.rawValue !== undefined || this.default !== undefined
     );
   }
 

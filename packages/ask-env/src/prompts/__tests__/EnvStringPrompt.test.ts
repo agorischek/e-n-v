@@ -158,8 +158,8 @@ describe("EnvStringPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-  expect(prompt.cursor).toBe(0);
-  expect(prompt.value).toBe("from-schema");
+    expect(prompt.cursor).toBe(0);
+    expect(prompt.value).toBe("from-schema");
 
     await pressKey(prompt, { name: "down" });
     expect(prompt.cursor).toBe(1);
@@ -315,13 +315,13 @@ describe("EnvStringPrompt", () => {
     expect(prompt.state).toBe("active");
     expect(prompt.error).toBe("");
     expect((prompt as any).isSecretRevealed()).toBe(true);
-  expect(calls).toEqual(["curr"]);
+    expect(calls).toEqual(["curr"]);
 
     submitPrompt(prompt as any);
     await waitForIO(2);
     await promptPromise;
 
-  expect(calls).toEqual(["curr", "def"]);
+    expect(calls).toEqual(["curr", "def"]);
   });
 
   it("prevents submitting empty custom entries when required", async () => {
@@ -405,7 +405,7 @@ describe("EnvStringPrompt", () => {
 
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("blocked");
-  expect(calls).toEqual(["curr", "def"]);
+    expect(calls).toEqual(["curr", "def"]);
 
     await pressKey(prompt, { name: "up" });
     submitPrompt(prompt as any);
@@ -454,14 +454,14 @@ describe("EnvStringPrompt", () => {
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("bad input");
-  expect(calls).toEqual(["curr", "warn", "bad"]);
+    expect(calls).toEqual(["curr", "warn", "bad"]);
 
     await backspace(prompt, prompt.userInput.length);
     await typeText(prompt as any, "good");
     await pressKey(prompt, { name: "return" });
     await waitForIO(2);
     expect(prompt.state).toBe("submit");
-  expect(calls).toEqual(["curr", "warn", "bad", "good"]);
+    expect(calls).toEqual(["curr", "warn", "bad", "good"]);
     await promptPromise;
   });
 
@@ -482,21 +482,21 @@ describe("EnvStringPrompt", () => {
     const promptPromise = prompt.prompt();
     await waitForIO(2);
 
-  const initialRender = toOutputString(output);
-  expect(initialRender).toContain("\u001b[9m");
-  const initialStripped = stripAnsi(initialRender);
-  expect(initialStripped).not.toContain("(current, invalid)");
+    const initialRender = toOutputString(output);
+    expect(initialRender).toContain("\u001b[9m");
+    const initialStripped = stripAnsi(initialRender);
+    expect(initialStripped).not.toContain("(current, invalid)");
 
-  expect(prompt.cursor).toBe((prompt as any).getTextInputIndex());
+    expect(prompt.cursor).toBe((prompt as any).getTextInputIndex());
 
-  await pressKey(prompt, { name: "up" });
-  expect(prompt.cursor).toBe(0);
+    await pressKey(prompt, { name: "up" });
+    expect(prompt.cursor).toBe(0);
 
-  await waitForIO(2);
-  const focusedStripped = stripAnsi(toOutputString(output));
-  expect(focusedStripped).toContain("(current, invalid)");
+    await waitForIO(2);
+    const focusedStripped = stripAnsi(toOutputString(output));
+    expect(focusedStripped).toContain("(current, invalid)");
 
-  submitPrompt(prompt as any);
+    submitPrompt(prompt as any);
     await waitForIO(2);
     expect(prompt.state).toBe("error");
     expect(prompt.error).toBe("invalid current");

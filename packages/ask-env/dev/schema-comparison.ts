@@ -1,5 +1,5 @@
 import { ask } from "../src";
-import { resolveSchema } from "@envcredible/converters";
+import { resolveSchema } from "@envcredible/schemata";
 
 // Import Zod schemas from the zod export
 import {

@@ -29,7 +29,7 @@
       "dependencies": {
         "@clack/core": "1.0.0-alpha.6",
         "@envcredible/channels": "workspace:*",
-        "@envcredible/converters": "workspace:*",
+  "@envcredible/schemata": "workspace:*",
         "@envcredible/core": "workspace:*",
         "env-var-schemas": "workspace:*",
         "picocolors": "^1.1.1",
@@ -63,8 +63,8 @@
         "zod": "^3 || ^4",
       },
     },
-    "packages/envcredible-converters": {
-      "name": "@envcredible/converters",
+    "packages/envcredible-schemata": {
+      "name": "@envcredible/schemata",
       "dependencies": {
         "@envcredible/core": "workspace:*",
       },
@@ -166,11 +166,11 @@
 
     "@ecies/ciphers": ["@ecies/ciphers@0.2.4", "", { "peerDependencies": { "@noble/ciphers": "^1.0.0" } }, "sha512-t+iX+Wf5nRKyNzk8dviW3Ikb/280+aEJAnw9YXvCp2tYGPSkMki+NRY+8aNLmVFv3eNtMdvViPNOPxS8SZNP+w=="],
 
-    "@envcredible/channels": ["@envcredible/channels@workspace:packages/envcredible-channels"],
+  "@envcredible/channels": ["@envcredible/channels@workspace:packages/envcredible-channels"],
 
-    "@envcredible/converters": ["@envcredible/converters@workspace:packages/envcredible-converters"],
+  "@envcredible/core": ["@envcredible/core@workspace:packages/envcredible-core"],
 
-    "@envcredible/core": ["@envcredible/core@workspace:packages/envcredible-core"],
+  "@envcredible/schemata": ["@envcredible/schemata@workspace:packages/envcredible-schemata"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.25.10", "", { "os": "aix", "cpu": "ppc64" }, "sha512-0NFWnA+7l41irNuaSVlLfgNT12caWJVLzp5eAVhZ0z1qpxbockccEt3s+149rE64VUI3Ml2zt8Nv5JVc4QXTsw=="],
 

@@ -78,7 +78,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
         const options = this.buildSelectionOptions();
 
-  options.forEach((option: StringPromptOption, index: number) => {
+        options.forEach((option: StringPromptOption, index: number) => {
           const isSelected = index === this.mode.getCursor();
           const circle = dimInputs
             ? this.colors.dim(isSelected ? S_RADIO_ACTIVE : S_RADIO_INACTIVE)
@@ -508,8 +508,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
 
   private hasPresetOptions(): boolean {
     return (
-      this.currentResult?.rawValue !== undefined ||
-      this.default !== undefined
+      this.currentResult?.rawValue !== undefined || this.default !== undefined
     );
   }
 
@@ -592,9 +591,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
     }
 
     const display =
-      this.secret && !this.isSecretRevealed()
-        ? this.maskValue(raw)
-        : raw;
+      this.secret && !this.isSecretRevealed() ? this.maskValue(raw) : raw;
     return this.truncateValue(display);
   }
 

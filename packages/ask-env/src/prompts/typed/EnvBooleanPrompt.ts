@@ -109,11 +109,9 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
         const candidateValue =
           selectedOption && selectedOption.value !== undefined
             ? selectedOption.value
-            : this.default ?? false;
+            : (this.default ?? false);
 
-        const validation = this.runSchemaValidation(
-          candidateValue.toString(),
-        );
+        const validation = this.runSchemaValidation(candidateValue.toString());
         if (!validation.success) {
           return validation.error;
         }
@@ -121,8 +119,8 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
       },
     } as any);
 
-  const options = this.buildOptions();
-  this.cursor = this.getInitialCursor(options);
+    const options = this.buildOptions();
+    this.cursor = this.getInitialCursor(options);
     this.updateValue();
 
     this.on("cursor", (action?: PromptAction) => {

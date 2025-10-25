@@ -1,11 +1,11 @@
-# @envcredible/converters
+# @envcredible/schemata
 
 This package provides converters that transform external schema libraries (like Zod and Joi) into envcredible's internal `TypedEnvVarSchema` format.
 
 ## Quick Start
 
 ```typescript
-import { resolveSchema } from "@envcredible/converters";
+import { resolveSchema } from "@envcredible/schemata";
 import { z } from "zod";
 import Joi from "joi";
 
@@ -24,7 +24,7 @@ console.log(zodSchema.required); // false
 The primary entry point for converting schemas. Automatically detects the schema type and uses the appropriate converter.
 
 ```typescript
-import { resolveSchema } from "@envcredible/converters";
+import { resolveSchema } from "@envcredible/schemata";
 import { z } from "zod";
 import Joi from "joi";
 

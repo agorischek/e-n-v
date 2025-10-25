@@ -27,7 +27,7 @@ export function processValue<T>(
     const activePreprocessor =
       preprocess === null
         ? undefined
-        : preprocess ?? resolvePreprocessor(schema.type);
+        : (preprocess ?? resolvePreprocessor(schema.type));
     const processedValue = activePreprocessor
       ? activePreprocessor(value)
       : value;

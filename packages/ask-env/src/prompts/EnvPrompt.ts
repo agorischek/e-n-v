@@ -96,7 +96,8 @@ export abstract class EnvPrompt<
     this.total = promptOptions.total ?? 1;
 
     const hasSecret = Boolean(promptOptions.secret);
-    const hasOptions = this.rawCurrent !== undefined || this.default !== undefined;
+    const hasOptions =
+      this.rawCurrent !== undefined || this.default !== undefined;
     this.secret = hasSecret;
     this.mode = new EnvPromptMode(
       createInitialModeDetails({

@@ -1,4 +1,4 @@
-import type { EnvVarSchemaMap, SupportedSchema } from "@envcredible/converters";
+import type { EnvVarSchemaMap, SupportedSchema } from "@envcredible/schemata";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { stdin, stdout } from "node:process";
@@ -8,14 +8,14 @@ import type { AskEnvOptions } from "./AskEnvOptions";
 import * as defaults from "./defaults";
 import { resolveChannel } from "@envcredible/channels/resolveChannel";
 import { Session } from "./session/Session";
-import { resolveSchemas } from "@envcredible/converters";
+import { resolveSchemas } from "@envcredible/schemata";
 
 function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);
 }
 
 function resolveRootDirectory(
-  rootOption: AskEnvOptions["root"]
+  rootOption: AskEnvOptions["root"],
 ): string | undefined {
   if (!rootOption) {
     return undefined;
@@ -30,7 +30,7 @@ function resolveRootDirectory(
 
 function resolveEnvFilePath(
   pathOption: string,
-  rootDir: string | undefined
+  rootDir: string | undefined,
 ): string {
   if (!rootDir) {
     return pathOption;
@@ -46,12 +46,12 @@ function resolveEnvFilePath(
  */
 export async function ask(
   vars: Record<string, SupportedSchema>,
-  options: AskEnvOptions = {}
+  options: AskEnvOptions = {},
 ): Promise<void> {
   const rootDirectory = resolveRootDirectory(options.root);
   const path = resolveEnvFilePath(
     options.path ?? defaults.ENV_PATH,
-    rootDirectory
+    rootDirectory,
   );
   const truncate = options.truncate ?? defaults.TRUNCATE_LENGTH;
   const secrets = options.secrets ?? defaults.SECRET_PATTERNS;
@@ -79,4 +79,3 @@ export async function ask(
 
   await session.run();
 }
-  

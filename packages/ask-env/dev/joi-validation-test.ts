@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { resolveSchema } from "@envcredible/converters";
+import { resolveSchema } from "@envcredible/schemata";
 
 console.log("🧪 Testing Joi Validation\n");
 
