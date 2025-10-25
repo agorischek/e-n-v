@@ -1,3 +1,6 @@
+<!-- markdownlint-disable-next-line -->
+<img src="./assets/envcredible-logo.png" alt="Ask Env Logo" height="50"/>
+
 # envcredible
 
 Nifty stuff for working with `.env` files. Goes great with [`dotenv`](https://www.npmjs.com/package/dotenv), [`dotenvx`](https://www.npmjs.com/package/@dotenvx/dotenvx), and [`znv`](https://www.npmjs.com/package/znv).
