@@ -6,6 +6,7 @@ import { resolvePreprocessor } from "@envcredible/core";
 import type { DirectEnvOptions } from "./options/DirectEnvOptions";
 import { MissingEnvVarError } from "./errors/MissingEnvVarError";
 import { ValidationError } from "./errors/ValidationError";
+import { EnvValidationAggregateError } from "./errors/EnvValidationAggregateError";
 
 /**
  * Load and validate environment variables from a channel
@@ -14,6 +15,7 @@ import { ValidationError } from "./errors/ValidationError";
  * @param meta - EnvMeta instance or EnvMetaOptions
  * @param options - Loading options
  * @returns Promise resolving to validated environment variables
+ * @throws EnvValidationAggregateError if any validation errors occur in strict mode
  */
 export async function load<T extends Record<string, any> = Record<string, any>>(
   meta: EnvMeta | EnvMetaOptions,
@@ -28,8 +30,9 @@ export async function load<T extends Record<string, any> = Record<string, any>>(
   // Read all values from the channel
   const rawValues = await envMeta.channel.get();
 
-  // Result object
+  // Result object and error collection
   const result: Record<string, any> = {};
+  const errors: Array<MissingEnvVarError | ValidationError> = [];
 
   // Process each schema
   for (const [key, schema] of Object.entries(envMeta.schemas)) {
@@ -44,7 +47,7 @@ export async function load<T extends Record<string, any> = Record<string, any>>(
 
       if (schema.required) {
         if (strict) {
-          throw new MissingEnvVarError(key);
+          errors.push(new MissingEnvVarError(key));
         }
         result[key] = undefined;
         continue;
@@ -72,7 +75,8 @@ export async function load<T extends Record<string, any> = Record<string, any>>(
         if (schema.default !== undefined) {
           result[key] = schema.default;
         } else if (schema.required && strict) {
-          throw new MissingEnvVarError(key);
+          errors.push(new MissingEnvVarError(key));
+          result[key] = undefined;
         } else {
           result[key] = undefined;
         }
@@ -81,8 +85,16 @@ export async function load<T extends Record<string, any> = Record<string, any>>(
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      throw new ValidationError(key, rawValue, message);
+      if (strict) {
+        errors.push(new ValidationError(key, rawValue, message));
+      }
+      result[key] = undefined;
     }
+  }
+
+  // Throw aggregate error if there were any errors in strict mode
+  if (strict && errors.length > 0) {
+    throw new EnvValidationAggregateError(errors);
   }
 
   return result as T;

@@ -15,3 +15,4 @@ export * from "./processing/Preprocessor";
 export * from "./types/EnvChannel";
 
 export { schema } from "./schema";
+export { s } from "./schema";

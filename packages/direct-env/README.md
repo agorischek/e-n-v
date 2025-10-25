@@ -159,21 +159,65 @@ Configuration for creating EnvMeta.
 
 ## Error Handling
 
+### Aggregate Errors
+
+By default, `direct-env` validates **all** environment variables and collects errors before throwing. This gives you a complete picture of what's wrong instead of failing on the first error.
+
 ```typescript
-import { load, MissingEnvVarError, ValidationError } from "direct-env";
+import { load, EnvValidationAggregateError } from "direct-env";
 
 try {
   const env = await load({
     path: ".env",
-    vars: { PORT: schema.number() }
+    vars: {
+      PORT: schema.number(),
+      DATABASE_URL: schema.string(),
+      DEBUG: schema.boolean(),
+      MAX_RETRIES: schema.number(),
+    }
   });
 } catch (error) {
-  if (error instanceof MissingEnvVarError) {
-    console.error(`Missing: ${error.key}`);
-  } else if (error instanceof ValidationError) {
-    console.error(`Invalid ${error.key}: ${error.value}`);
+  if (error instanceof EnvValidationAggregateError) {
+    console.error(`Found ${error.errors.length} validation errors:`);
+    console.error(`Missing: ${error.missingVars.join(", ")}`);
+    console.error(`Invalid: ${error.invalidVars.join(", ")}`);
+    
+    // Get detailed error messages
+    console.error("\nDetails:");
+    console.error(error.getDetailedMessage());
   }
 }
+```
+
+### Individual Error Types
+
+The aggregate error contains individual error instances:
+
+```typescript
+import { MissingEnvVarError, ValidationError } from "direct-env";
+
+if (error instanceof EnvValidationAggregateError) {
+  error.errors.forEach(err => {
+    if (err instanceof MissingEnvVarError) {
+      console.error(`Missing required: ${err.key}`);
+    } else if (err instanceof ValidationError) {
+      console.error(`Invalid ${err.key}: ${err.value} - ${err.originalError}`);
+    }
+  });
+}
+```
+
+### Non-Strict Mode
+
+Set `strict: false` to allow missing/invalid values without throwing:
+
+```typescript
+const env = await load(
+  { path: ".env", vars: { PORT: schema.number() } },
+  { strict: false }
+);
+
+// env.PORT will be undefined if missing or invalid
 ```
 
 ## License

@@ -1,4 +1,4 @@
-import { load, schema } from "../src/index";
+import { load, s } from "../src/index";
 import { writeFile, unlink } from "node:fs/promises";
 
 async function demo() {
@@ -8,12 +8,12 @@ async function demo() {
     // Create a demo .env file
     await writeFile(
       testPath,
-      `PORT=8080
+      `PORT=default
 DATABASE_URL=postgres://localhost:5432/mydb
 DEBUG=true
 MAX_CONNECTIONS=50
 API_KEY=secret-key-123
-NODE_ENV=development
+NODE_ENV=developmen
 `
     );
 
@@ -23,13 +23,13 @@ NODE_ENV=development
     const env = await load({
       path: testPath,
       vars: {
-        PORT: schema.number({ default: 3000 }),
-        DATABASE_URL: schema.string(),
-        DEBUG: schema.boolean({ default: false }),
-        MAX_CONNECTIONS: schema.number(),
-        API_KEY: schema.string(),
-        NODE_ENV: schema.enum({ values: ["development", "production", "test"] }),
-        OPTIONAL_VAR: schema.string({ required: false, default: "fallback" }),
+        PORT: s.number({ default: 3000 }),
+        DATABASE_URL: s.string(),
+        DEBUG: s.boolean({ default: false }),
+        MAX_CONNECTIONS: s.number(),
+        API_KEY: s.string(),
+        NODE_ENV: s.enum({ values: ["development", "production", "test"] }),
+        OPTIONAL_VAR: s.string({ required: false, default: "fallback" }),
       },
     });
 

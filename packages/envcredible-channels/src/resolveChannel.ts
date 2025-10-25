@@ -1,8 +1,10 @@
 import type { EnvChannel } from "@envcredible/core";
 import type { EnvChannelOptions } from "./EnvChannelOptions";
 import type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
+import type { ProcessChannelConfig } from "./channels/process/ProcessChannelConfig";
 import { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
 import { DotEnvXChannel } from "./channels/dotenvx/DotEnvXChannel";
+import { ProcessEnvChannel } from "./channels/process/ProcessEnvChannel";
 
 /**
  * Resolve channel options into an EnvChannel instance
@@ -33,6 +35,9 @@ export function resolveChannel(
     } else if ("name" in options) {
       if (options.name === "default") {
         return new DefaultEnvChannel(defaultPath);
+      } else if (options.name === "process") {
+        const config = options as ProcessChannelConfig;
+        return new ProcessEnvChannel(config.process);
       } else {
         throw new Error(
           `Unknown channel name: ${(options as { name: unknown }).name}`,

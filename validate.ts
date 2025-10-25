@@ -5,7 +5,12 @@
  * Run from workspace root: bun run validate.ts
  */
 
-import { load, EnvMeta, schema } from "./packages/direct-env/src/index";
+import {
+  load,
+  EnvMeta,
+  schema,
+  EnvValidationAggregateError,
+} from "./packages/direct-env/src/index";
 import { writeFile, unlink } from "node:fs/promises";
 
 console.log("🔍 Validating envcredible packages...\n");
@@ -77,6 +82,27 @@ OPTIONAL_VAR=
     });
     console.log(`   PORT: ${env3.PORT}`);
     console.log(`   DEBUG: ${env3.DEBUG}\n`);
+
+    console.log("✅ Step 6: Test aggregate error collection");
+    await writeFile(testPath, `PORT=invalid\nDEBUG=maybe\n`);
+    try {
+      await load({
+        path: testPath,
+        vars: {
+          PORT: schema.number(),
+          DEBUG: schema.boolean(),
+          MISSING1: schema.string(),
+          MISSING2: schema.number(),
+        },
+      });
+      console.log("   ❌ Should have thrown error\n");
+    } catch (error) {
+      if (error instanceof EnvValidationAggregateError) {
+        console.log(`   ✅ Caught aggregate error with ${error.errors.length} errors`);
+        console.log(`      Missing: ${error.missingVars.join(", ")}`);
+        console.log(`      Invalid: ${error.invalidVars.join(", ")}\n`);
+      }
+    }
 
     console.log("🎉 All validation steps passed!");
     console.log("\n📦 Packages validated:");

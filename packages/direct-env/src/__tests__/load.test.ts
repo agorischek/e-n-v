@@ -1,5 +1,12 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { load, EnvMeta, MissingEnvVarError, ValidationError, schema } from "../index";
+import {
+  load,
+  EnvMeta,
+  MissingEnvVarError,
+  ValidationError,
+  EnvValidationAggregateError,
+  schema,
+} from "../index";
 import { writeFile, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -53,7 +60,7 @@ MISSING_VALUE=
     expect(env.RETRY).toBe(false);
   });
 
-  test("throws MissingEnvVarError in strict mode", async () => {
+  test("throws EnvValidationAggregateError in strict mode for missing var", async () => {
     expect(async () => {
       await load({
         path: testEnvPath,
@@ -61,7 +68,7 @@ MISSING_VALUE=
           REQUIRED_VAR: schema.string(),
         },
       });
-    }).toThrow(MissingEnvVarError);
+    }).toThrow(EnvValidationAggregateError);
   });
 
   test("returns undefined for missing vars in non-strict mode", async () => {
@@ -78,7 +85,7 @@ MISSING_VALUE=
     expect(env.REQUIRED_VAR).toBeUndefined();
   });
 
-  test("throws ValidationError for invalid values", async () => {
+  test("throws EnvValidationAggregateError for invalid values", async () => {
     expect(async () => {
       await load({
         path: testEnvPath,
@@ -86,7 +93,7 @@ MISSING_VALUE=
           DATABASE_URL: schema.number(), // This is a string in the file
         },
       });
-    }).toThrow(ValidationError);
+    }).toThrow(EnvValidationAggregateError);
   });
 
   test("works with EnvMeta instance", async () => {
@@ -168,5 +175,99 @@ MISSING_VALUE=
     });
 
     expect(process.env).toEqual(originalEnv);
+  });
+
+  test("collects multiple errors in aggregate error", async () => {
+    await writeFile(
+      testEnvPath,
+      `PORT=not-a-number
+DEBUG=invalid-bool
+`
+    );
+
+    try {
+      await load({
+        path: testEnvPath,
+        vars: {
+          PORT: schema.number(),
+          DEBUG: schema.boolean(),
+          MISSING_VAR1: schema.string(),
+          MISSING_VAR2: schema.number(),
+        },
+      });
+      expect(true).toBe(false); // Should not reach here
+    } catch (error) {
+      expect(error).toBeInstanceOf(EnvValidationAggregateError);
+      const aggError = error as EnvValidationAggregateError;
+      
+      // Should have 4 errors total
+      expect(aggError.errors.length).toBe(4);
+      
+      // Check missing vars
+      expect(aggError.missingVars).toContain("MISSING_VAR1");
+      expect(aggError.missingVars).toContain("MISSING_VAR2");
+      
+      // Check invalid vars
+      expect(aggError.invalidVars).toContain("PORT");
+      expect(aggError.invalidVars).toContain("DEBUG");
+      
+      // Check message format
+      expect(aggError.message).toContain("Environment validation failed with 4 error");
+      expect(aggError.message).toContain("Value is missing");
+      expect(aggError.message).toContain("is not a valid");
+    }
+  });
+
+  test("aggregate error includes all validation errors", async () => {
+    await writeFile(
+      testEnvPath,
+      `PORT=abc
+MAX_CONNECTIONS=xyz
+`
+    );
+
+    try {
+      await load({
+        path: testEnvPath,
+        vars: {
+          PORT: schema.number(),
+          MAX_CONNECTIONS: schema.number(),
+          DATABASE_URL: schema.string(),
+        },
+      });
+      expect(true).toBe(false); // Should not reach here
+    } catch (error) {
+      expect(error).toBeInstanceOf(EnvValidationAggregateError);
+      const aggError = error as EnvValidationAggregateError;
+      
+      expect(aggError.errors.length).toBe(3);
+      expect(aggError.missingVars).toContain("DATABASE_URL");
+      expect(aggError.invalidVars).toContain("PORT");
+      expect(aggError.invalidVars).toContain("MAX_CONNECTIONS");
+    }
+  });
+
+  test("aggregate error provides detailed messages", async () => {
+    await writeFile(
+      testEnvPath,
+      `PORT=not-a-number
+`
+    );
+
+    try {
+      await load({
+        path: testEnvPath,
+        vars: {
+          PORT: schema.number(),
+          MISSING: schema.string(),
+        },
+      });
+    } catch (error) {
+      const aggError = error as EnvValidationAggregateError;
+      const detailed = aggError.getDetailedMessage();
+      
+      expect(detailed).toContain("Required environment variable");
+      expect(detailed).toContain("validation failed");
+    }
   });
 });
