@@ -10,6 +10,7 @@ import type { PromptAction } from "../../types/PromptAction";
 import type { NumberEnvVarSchema } from "@envcredible/core";
 import {
   buildSelectableOptions,
+  resolveInitialCursor,
   type SelectableOption,
 } from "../utils/selectableOptions";
 
@@ -245,10 +246,32 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       this.otherInputCache = "";
       this.setCommittedValue(this.getDefaultValue());
     } else {
-      this.setInitialSelectionCursor();
+      const options = this.buildValueOptions();
+      const currentValue =
+        this.currentResult?.isValid !== false ? this.current : undefined;
+      const defaultValue = this.default;
+
+      const baseCursor = resolveInitialCursor(options, {
+        currentValue,
+        defaultValue,
+      });
+
+      const initialCursor = options[baseCursor]?.invalid
+        ? options.length
+        : baseCursor;
+
+      this.mode.setCursor(initialCursor);
       this.updateValue();
       queueMicrotask(() => {
-        this.setInitialSelectionCursor();
+        const refreshedOptions = this.buildValueOptions();
+        const refreshedBase = resolveInitialCursor(refreshedOptions, {
+          currentValue,
+          defaultValue,
+        });
+        const refreshedCursor = refreshedOptions[refreshedBase]?.invalid
+          ? refreshedOptions.length
+          : refreshedBase;
+        this.mode.setCursor(refreshedCursor);
         this.updateValue();
       });
     }
@@ -582,45 +605,6 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
       this.currentResult?.rawValue !== undefined ||
       this.default !== undefined
     );
-  }
-
-  private setInitialSelectionCursor(): void {
-    if (!this.hasPresetOptions()) {
-      return;
-    }
-
-    const options = this.buildSelectionOptions();
-    const currentIndex = options.findIndex(
-      (option) => option.type === "value" && option.key === "current",
-    );
-
-    if (currentIndex === -1) {
-      return;
-    }
-
-    const currentOption = options[currentIndex];
-    if (!currentOption || currentOption.type !== "value") {
-      return;
-    }
-
-    if (!currentOption.invalid) {
-      this.mode.setCursor(currentIndex);
-      return;
-    }
-
-    const fallbackIndex = options.findIndex((option, index) => {
-      if (index === currentIndex) {
-        return false;
-      }
-      if (option.type === "value" && option.invalid) {
-        return false;
-      }
-      return true;
-    });
-
-    if (fallbackIndex >= 0) {
-      this.mode.setCursor(fallbackIndex);
-    }
   }
 
   private buildValueOptions(): SelectableOption<number>[] {

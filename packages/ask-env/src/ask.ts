@@ -1,4 +1,4 @@
-import type { EnvVarSchemaMap } from "@envcredible/converters";
+import type { EnvVarSchemaMap, SupportedSchema } from "@envcredible/converters";
 import { Theme } from "./visuals/Theme";
 import * as color from "picocolors";
 import { stdin, stdout } from "node:process";
@@ -15,7 +15,7 @@ function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
 }
 
 function resolveRootDirectory(
-  rootOption: AskEnvOptions["root"],
+  rootOption: AskEnvOptions["root"]
 ): string | undefined {
   if (!rootOption) {
     return undefined;
@@ -30,7 +30,7 @@ function resolveRootDirectory(
 
 function resolveEnvFilePath(
   pathOption: string,
-  rootDir: string | undefined,
+  rootDir: string | undefined
 ): string {
   if (!rootDir) {
     return pathOption;
@@ -45,13 +45,13 @@ function resolveEnvFilePath(
  * @param options - Configuration options
  */
 export async function ask(
-  schemas: EnvVarSchemaMap,
-  options: AskEnvOptions = {},
+  vars: Record<string, SupportedSchema>,
+  options: AskEnvOptions = {}
 ): Promise<void> {
   const rootDirectory = resolveRootDirectory(options.root);
-  const envPath = resolveEnvFilePath(
+  const path = resolveEnvFilePath(
     options.path ?? defaults.ENV_PATH,
-    rootDirectory,
+    rootDirectory
   );
   const truncate = options.truncate ?? defaults.TRUNCATE_LENGTH;
   const secrets = options.secrets ?? defaults.SECRET_PATTERNS;
@@ -59,21 +59,24 @@ export async function ask(
   const input = stdin;
   const output = stdout;
 
-  const channel = resolveChannel(options.channel, envPath);
+  const channel = resolveChannel(options.channel, path);
   const theme = resolveTheme(options.theme);
-  const resolvedSchemas = resolveSchemas(schemas);
+  const schemas = resolveSchemas(vars);
+
+  const { preprocess } = options;
 
   const session = new Session({
-    schemas: resolvedSchemas,
+    schemas,
     channel,
     secrets,
     truncate,
     theme,
     input,
     output,
-    path: envPath,
-    preprocess: options.preprocess,
+    path,
+    preprocess,
   });
 
   await session.run();
 }
+  
