@@ -4,15 +4,15 @@ import type { EnvMetaOptions } from "./meta/EnvMetaOptions";
 /**
  * Define environment variable metadata
  * Creates a reusable configuration for loading and setting up environment variables
- * 
+ *
  * @param options - Environment metadata options
  * @returns EnvMeta instance that can be used with load() or setup()
- * 
+ *
  * @example
  * ```typescript
  * import define from "e-n-v/define";
  * import { z } from "zod";
- * 
+ *
  * export const env = define({
  *   path: ".env",
  *   root: import.meta.url,

@@ -102,7 +102,7 @@ export const env = define({
   vars: { SECRET: z.string() },
   channel: {
     dotenvx,
-    get: { privateKey: process.env.DOTENV_PRIVATE_KEY }
+    get: { privateKey: process.env.DOTENV_PRIVATE_KEY },
   },
 });
 ```
@@ -116,7 +116,7 @@ import { env } from "./env.meta";
 const config = await load(env, {
   preprocess: {
     number: (value) => value.replace(/,/g, ""), // strip commas
-    bool: (value) => value === "on" ? "true" : value,
+    bool: (value) => (value === "on" ? "true" : value),
   },
 });
 ```
@@ -142,7 +142,7 @@ export const env = define({
     DEBUG: schema.boolean({ default: false }),
     API_URL: schema.string(),
     LOG_LEVEL: schema.enum({
-      values: ["debug", "info", "warn", "error"] as const
+      values: ["debug", "info", "warn", "error"] as const,
     }),
   },
 });
@@ -155,8 +155,9 @@ export const env = define({
 Define environment variable metadata.
 
 **Parameters:**
+
 - `options.path` - Path to env file
-- `options.root` - Root directory (import.meta.url, __dirname, etc.)
+- `options.root` - Root directory (import.meta.url, \_\_dirname, etc.)
 - `options.vars` - Variable schemas (Zod, Joi, or native)
 - `options.channel` - Channel configuration (default, process, dotenvx)
 
@@ -167,6 +168,7 @@ Define environment variable metadata.
 Load and validate environment variables.
 
 **Parameters:**
+
 - `meta` - EnvMeta instance from define()
 - `options.preprocess` - Custom preprocessing functions
 - `options.strict` - Throw on errors (default: true)
@@ -178,6 +180,7 @@ Load and validate environment variables.
 Interactive setup for environment variables.
 
 **Parameters:**
+
 - `meta` - EnvMeta instance from define()
 - `options.theme` - Color theme function
 - `options.secrets` - Secret patterns for masking
@@ -188,6 +191,7 @@ Interactive setup for environment variables.
 ### `defaults`
 
 Default configuration values:
+
 - `defaults.theme` - Default color (magenta)
 - `defaults.secrets` - Default secret patterns
 - `defaults.truncate` - Default truncation (40)
@@ -215,6 +219,7 @@ try {
 **"Environments, niftily? Very!"**
 
 A playful take on environment variable management that emphasizes:
+
 - **Elegance** - Clean, intuitive API
 - **Nifty** - Smart features like aggregate errors and preprocessing
 - **Versatile** - Works with any schema library and multiple channels

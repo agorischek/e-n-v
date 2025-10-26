@@ -3,11 +3,13 @@
 ## Packages Created
 
 ### 1. `e-n-v`
+
 Location: `/workspaces/envcredible/packages/e-n-v`
 
 **Purpose**: Unified API for environment variable management
 
 **Exports**:
+
 - `define()` - Define environment metadata
 - `load()` - Load and validate environment variables
 - `setup()` - Interactive configuration
@@ -15,6 +17,7 @@ Location: `/workspaces/envcredible/packages/e-n-v`
 - `EnvMetaOptions` - Configuration interface
 
 **Key Features**:
+
 - Encapsulates all configuration needed to load env vars
 - Resolves channels, paths, and schemas
 - Supports both string paths and file:// URLs for root resolution
@@ -22,6 +25,7 @@ Location: `/workspaces/envcredible/packages/e-n-v`
 - Three-stage workflow: define → load → setup
 
 **Files**:
+
 - `src/define.ts` - Define function
 - `src/load.ts` - Load function (wraps shape-env)
 - `src/setup.ts` - Setup function (wraps ask-env)
@@ -34,11 +38,13 @@ Location: `/workspaces/envcredible/packages/e-n-v`
 ---
 
 ### 2. `shape-env`
+
 Location: `/workspaces/envcredible/packages/shape-env`
 
 **Purpose**: Load and validate environment variables without mutating `process.env`
 
 **Exports**:
+
 - `load()` - Main function to load and validate env vars
 - `EnvMeta` / `EnvMetaOptions` - Re-exported from `e-n-v`
 - `MissingEnvVarError` - Thrown when required vars are missing
@@ -47,6 +53,7 @@ Location: `/workspaces/envcredible/packages/shape-env`
 - `schema` - Schema builders (re-exported from core)
 
 **Key Features**:
+
 - Non-mutating: reads env vars without touching `process.env`
 - Validation: parse and validate using Zod, Joi, or native schemas
 - Channel-based: load from files, dotenvx, or custom sources
@@ -56,6 +63,7 @@ Location: `/workspaces/envcredible/packages/shape-env`
 - Strict/non-strict modes
 
 **Files**:
+
 - `src/load.ts` - Main load function
 - `src/index.ts` - Public exports
 - `src/options/DirectEnvOptions.ts` - Options interface
@@ -151,3 +159,4 @@ All tests passing ✅
 - Reuses preprocessing logic from `@envcredible/core`
 - Compatible with all schema types via `@envcredible/schemata`
 - Follows same patterns as `ask-env` for consistency
+````

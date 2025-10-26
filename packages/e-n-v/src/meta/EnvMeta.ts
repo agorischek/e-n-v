@@ -63,7 +63,10 @@ export class EnvMeta {
     }
 
     // Handle URL objects or file:// strings
-    if (root instanceof URL || (typeof root === "string" && root.startsWith("file://"))) {
+    if (
+      root instanceof URL ||
+      (typeof root === "string" && root.startsWith("file://"))
+    ) {
       const url = typeof root === "string" ? root : root.href;
       return dirname(fileURLToPath(url));
     }

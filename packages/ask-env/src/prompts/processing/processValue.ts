@@ -11,7 +11,7 @@ export function processValue<T>(
   envKey: string,
   value: string | undefined,
   schema: EnvVarSchemaDetails<T>,
-  preprocess?: Preprocessor<T> | null
+  preprocess?: Preprocessor<T> | null,
 ): ProcessingResult<T> {
   try {
     // Handle undefined/empty values early

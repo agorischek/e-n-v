@@ -23,7 +23,7 @@ import { prompt, type AskEnvOptions } from "ask-env";
  */
 export async function setup(
   meta: EnvMeta,
-  options?: Omit<AskEnvOptions, "path" | "root" | "channel" | "vars">
+  options?: Omit<AskEnvOptions, "path" | "root" | "channel" | "vars">,
 ): Promise<void> {
   await prompt({
     vars: meta.schemas,

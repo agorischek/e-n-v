@@ -33,7 +33,7 @@ const env = await parse({
     PORT: schema.number({ default: 3000 }),
     DATABASE_URL: schema.string(),
     DEBUG: schema.boolean({ default: false }),
-  }
+  },
 });
 
 console.log(env.PORT); // number
@@ -53,7 +53,7 @@ const meta = new EnvMeta({
   vars: {
     API_KEY: schema.string(),
     MAX_CONNECTIONS: schema.number(),
-  }
+  },
 });
 
 // Load multiple times without recreating metadata
@@ -73,7 +73,7 @@ const env = await parse({
     PORT: z.number().min(1024).max(65535),
     NODE_ENV: z.enum(["development", "production", "test"]),
     API_URL: z.string().url(),
-  }
+  },
 });
 ```
 
@@ -88,14 +88,14 @@ const env = await parse(
     vars: {
       PERCENTAGE: schema.number(),
       ENABLED: schema.boolean(),
-    }
+    },
   },
   {
     preprocess: {
       number: (value) => value.replace(/%$/, ""), // Strip % suffix
-      bool: (value) => value === "on" ? "true" : value,
-    }
-  }
+      bool: (value) => (value === "on" ? "true" : value),
+    },
+  },
 );
 ```
 
@@ -110,11 +110,11 @@ const env = await parse({
   path: ".env.vault",
   channel: {
     dotenvx,
-    get: { privateKey: process.env.DOTENV_PRIVATE_KEY }
+    get: { privateKey: process.env.DOTENV_PRIVATE_KEY },
   },
   vars: {
     SECRET: schema.string(),
-  }
+  },
 });
 ```
 
@@ -125,6 +125,7 @@ const env = await parse({
 Load and validate environment variables.
 
 **Parameters:**
+
 - `options`: `DirectEnvOptions` - Configuration object
   - `source`: Source object containing environment variables
   - `vars`: Variable schemas
@@ -138,11 +139,13 @@ Load and validate environment variables.
 Container for environment variable metadata.
 
 **Constructor:**
+
 ```typescript
 new EnvMeta(options: EnvMetaOptions)
 ```
 
 **Properties:**
+
 - `channel`: `EnvChannel` - Channel for reading/writing
 - `path`: `string` - Fully qualified file path
 - `schemas`: `Record<string, EnvVarSchema>` - Resolved schemas
@@ -153,6 +156,7 @@ new EnvMeta(options: EnvMetaOptions)
 Configuration for creating EnvMeta.
 
 **Properties:**
+
 - `path`: `string` - Path to env file
 - `root`: `string | URL` - Root directory for resolving paths
 - `vars`: `Record<string, SupportedSchema>` - Variable schemas
@@ -175,14 +179,14 @@ try {
       DATABASE_URL: schema.string(),
       DEBUG: schema.boolean(),
       MAX_RETRIES: schema.number(),
-    }
+    },
   });
 } catch (error) {
   if (error instanceof EnvValidationAggregateError) {
     console.error(`Found ${error.errors.length} validation errors:`);
     console.error(`Missing: ${error.missingVars.join(", ")}`);
     console.error(`Invalid: ${error.invalidVars.join(", ")}`);
-    
+
     // Get detailed error messages
     console.error("\nDetails:");
     console.error(error.getDetailedMessage());
@@ -198,7 +202,7 @@ The aggregate error contains individual error instances:
 import { MissingEnvVarError, ValidationError } from "shape-env";
 
 if (error instanceof EnvValidationAggregateError) {
-  error.errors.forEach(err => {
+  error.errors.forEach((err) => {
     if (err instanceof MissingEnvVarError) {
       console.error(`Missing required: ${err.key}`);
     } else if (err instanceof ValidationError) {
@@ -214,9 +218,11 @@ Set `strict: false` to allow missing/invalid values without throwing:
 
 ```typescript
 const env = await parse({
-  source: { /* ... */ },
+  source: {
+    /* ... */
+  },
   vars: { PORT: schema.number() },
-  strict: false
+  strict: false,
 });
 
 // env.PORT will be undefined if missing or invalid

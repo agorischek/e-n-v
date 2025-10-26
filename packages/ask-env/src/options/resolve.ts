@@ -1,9 +1,9 @@
-import {  fileURLToPath } from "bun";
+import { fileURLToPath } from "bun";
 import { dirname } from "desm";
-import  { Theme } from "../visuals/Theme";
+import { Theme } from "../visuals/Theme";
 import type { AskEnvOptions } from "./AskEnvOptions";
-import color from "picocolors"
-import {resolve as resolvePath} from "node:path"
+import color from "picocolors";
+import { resolve as resolvePath } from "node:path";
 
 export function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);
@@ -35,7 +35,7 @@ export function resolveEnvFilePath(
 }
 
 export default {
-    theme: resolveTheme,
-    rootDirectory: resolveRootDirectory,
-    envFilePath: resolveEnvFilePath,
-}
+  theme: resolveTheme,
+  rootDirectory: resolveRootDirectory,
+  envFilePath: resolveEnvFilePath,
+};

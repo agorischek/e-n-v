@@ -11,18 +11,21 @@ Updated `direct-env` to collect **all** validation errors before throwing, provi
 **File:** `/workspaces/envcredible/packages/direct-env/src/errors/EnvValidationAggregateError.ts`
 
 A new aggregate error class that:
+
 - Contains an array of all `MissingEnvVarError` and `ValidationError` instances
 - Separates missing vars and invalid vars for easy access
 - Provides formatted error messages showing all issues
 - Includes `getDetailedMessage()` method for comprehensive error output
 
 **Properties:**
+
 - `errors: Array<MissingEnvVarError | ValidationError>` - All collected errors
 - `missingVars: string[]` - List of missing variable names
 - `invalidVars: string[]` - List of invalid variable names
 - `message: string` - Formatted summary of all errors
 
 **Methods:**
+
 - `getDetailedMessage(): string` - Returns all error messages with numbering
 
 ### 2. Updated Load Function
@@ -30,12 +33,14 @@ A new aggregate error class that:
 **File:** `/workspaces/envcredible/packages/direct-env/src/load.ts`
 
 Modified to:
+
 - Collect errors in an array instead of throwing immediately
 - Continue validating all variables even when errors occur
 - Throw `EnvValidationAggregateError` at the end if any errors were found
 - Maintain backward compatibility with non-strict mode
 
 **Before:**
+
 ```typescript
 if (schema.required && strict) {
   throw new MissingEnvVarError(key);
@@ -43,6 +48,7 @@ if (schema.required && strict) {
 ```
 
 **After:**
+
 ```typescript
 if (schema.required && strict) {
   errors.push(new MissingEnvVarError(key));
@@ -78,6 +84,7 @@ Added export for `EnvValidationAggregateError`
 **File:** `/workspaces/envcredible/packages/direct-env/demo/errors.ts`
 
 Replaced individual error examples with aggregate error demonstrations showing:
+
 - Multiple errors collected at once
 - Accessing `missingVars` and `invalidVars` arrays
 - Formatted error messages
@@ -88,6 +95,7 @@ Replaced individual error examples with aggregate error demonstrations showing:
 **File:** `/workspaces/envcredible/packages/direct-env/README.md`
 
 Added comprehensive "Error Handling" section showing:
+
 - Aggregate error usage with examples
 - How to access individual errors within aggregate
 - Non-strict mode behavior
@@ -112,7 +120,7 @@ try {
       DATABASE_URL: schema.string(),
       DEBUG: schema.boolean(),
       API_KEY: schema.string(),
-    }
+    },
   });
 } catch (error) {
   if (error instanceof EnvValidationAggregateError) {

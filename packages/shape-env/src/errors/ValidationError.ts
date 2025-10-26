@@ -10,7 +10,7 @@ export class ValidationError extends Error {
     const message = originalError
       ? `Environment variable "${key}" validation failed: ${originalError}`
       : `Environment variable "${key}" validation failed for value "${value}"`;
-    
+
     super(message);
     this.name = "ValidationError";
     this.key = key;

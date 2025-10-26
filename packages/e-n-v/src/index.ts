@@ -1,6 +1,6 @@
 /**
  * e-n-v - "Environments, niftily? Very!"
- * 
+ *
  * A unified, elegant API for environment variable management
  * Combines define, load, and setup into a cohesive workflow
  */

@@ -9,13 +9,13 @@ import { EnvValidationAggregateError } from "./errors/EnvValidationAggregateErro
 /**
  * Load and validate environment variables from a source object
  * Does NOT mutate process.env
- * 
+ *
  * @param options - Loading options including source and vars
  * @returns Validated environment variables
  * @throws EnvValidationAggregateError if any validation errors occur in strict mode
  */
 export function parse<T extends Record<string, any> = Record<string, any>>(
-  options: DirectEnvOptions
+  options: DirectEnvOptions,
 ): T {
   // Extract options
   const { source, vars, preprocess, strict = true } = options;
@@ -55,14 +55,15 @@ export function parse<T extends Record<string, any> = Record<string, any>>(
     const preprocessedValue = preprocessor ? preprocessor(rawValue) : rawValue;
 
     // Convert to string if preprocessor returned native type
-    const stringValue = typeof preprocessedValue === "string" 
-      ? preprocessedValue 
-      : String(preprocessedValue);
+    const stringValue =
+      typeof preprocessedValue === "string"
+        ? preprocessedValue
+        : String(preprocessedValue);
 
     // Process through schema
     try {
       const processedValue = schema.process(stringValue);
-      
+
       // Handle undefined result from processor
       if (processedValue === undefined) {
         if (schema.default !== undefined) {

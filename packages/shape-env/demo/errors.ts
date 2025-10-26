@@ -26,7 +26,9 @@ try {
   });
 } catch (error) {
   if (error instanceof EnvValidationAggregateError) {
-    console.log(`  ❌ EnvValidationAggregateError: ${error.errors.length} errors`);
+    console.log(
+      `  ❌ EnvValidationAggregateError: ${error.errors.length} errors`,
+    );
     console.log(`     Missing vars: ${error.missingVars.join(", ")}`);
     console.log(`     Invalid vars: ${error.invalidVars.join(", ")}`);
     console.log(`\n     Full message:\n${error.message}\n`);

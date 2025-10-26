@@ -7,7 +7,7 @@ process.env.ENABLE_CACHE = "maybe";
 process.env.API_BASE_URL = "not-a-valid-url";
 process.env.NODE_ENV = "somewhere";
 
-const schemas = {
+const vars = {
   PORT: z
     .number()
     .int()
@@ -26,6 +26,5 @@ console.log(
 );
 
 await prompt({
-  vars: schemas,
-  channel: "default",
+  vars,
 });

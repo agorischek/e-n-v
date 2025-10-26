@@ -11,4 +11,6 @@ await setup(env, {
 });
 
 console.log("\n✅ Environment setup complete!");
-console.log("You can now run your application with the configured environment.\n");
+console.log(
+  "You can now run your application with the configured environment.\n",
+);

@@ -30,14 +30,12 @@ function isEnvChannel(value: unknown): value is EnvChannel {
  * Interactive CLI tool to generate .env files with Zod schema validation
  * @param options - Configuration options including vars and other settings
  */
-export async function prompt(
-  options: AskEnvOptions
-): Promise<void> {
+export async function prompt(options: AskEnvOptions): Promise<void> {
   const { vars } = options;
   const rootDirectory = resolveRootDirectory(options.root);
   const path = resolveEnvFilePath(
     options.path ?? defaults.ENV_PATH,
-    rootDirectory
+    rootDirectory,
   );
   const truncate = options.truncate ?? defaults.TRUNCATE_LENGTH;
   const secrets = options.secrets ?? defaults.SECRET_PATTERNS;
@@ -50,7 +48,7 @@ export async function prompt(
   const channel: EnvChannel = isEnvChannel(options.channel)
     ? options.channel
     : resolveChannel(options.channel, path);
-  
+
   const theme = resolveTheme(options.theme);
   const schemas = resolveSchemas(vars);
 

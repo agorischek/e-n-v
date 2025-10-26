@@ -21,7 +21,7 @@ export class EnvValidationAggregateError extends Error {
     const message = EnvValidationAggregateError.formatMessage(
       missingVars,
       invalidVars,
-      errors
+      errors,
     );
 
     super(message);
@@ -34,7 +34,7 @@ export class EnvValidationAggregateError extends Error {
   private static formatMessage(
     missingVars: string[],
     invalidVars: string[],
-    errors: Array<MissingEnvVarError | ValidationError>
+    errors: Array<MissingEnvVarError | ValidationError>,
   ): string {
     const lines: string[] = [
       `Environment validation failed with ${errors.length} error${errors.length === 1 ? "" : "s"}:`,
@@ -57,8 +57,6 @@ export class EnvValidationAggregateError extends Error {
    * Get all error messages as a formatted string
    */
   public getDetailedMessage(): string {
-    return this.errors
-      .map((e, i) => `${i + 1}. ${e.message}`)
-      .join("\n");
+    return this.errors.map((e, i) => `${i + 1}. ${e.message}`).join("\n");
   }
 }
