@@ -1,6 +1,7 @@
-import type { EnvMeta } from "@envcredible/meta";
-import type { EnvMetaOptions } from "@envcredible/meta";
-import type { DirectEnvOptions } from "direct-env";
+import type { EnvMeta } from "./meta/EnvMeta";
+import type { EnvMetaOptions } from "./meta/EnvMetaOptions";
+import { EnvMeta as EnvMetaClass } from "./meta/EnvMeta";
+import type { Preprocessors } from "@envcredible/core";
 
 /**
  * Load and validate environment variables from metadata
@@ -21,8 +22,22 @@ import type { DirectEnvOptions } from "direct-env";
  */
 export async function load<T extends Record<string, any> = Record<string, any>>(
   meta: EnvMeta | EnvMetaOptions,
-  options?: DirectEnvOptions
+  options?: { preprocess?: Preprocessors; strict?: boolean }
 ): Promise<T> {
-  const { load: directLoad } = await import("direct-env");
-  return directLoad<T>(meta, options);
+  // Normalize to EnvMeta instance
+  const envMeta = meta instanceof EnvMetaClass ? meta : new EnvMetaClass(meta);
+  
+  // Get values from channel
+  const source = await envMeta.channel.get();
+  
+  // Import and call shape-env parse
+  const { parse } = await import("shape-env");
+  return parse<T>({
+    source,
+    vars: Object.fromEntries(
+      Object.entries(envMeta.schemas).map(([key, schema]) => [key, schema])
+    ),
+    preprocess: options?.preprocess ?? envMeta.preprocess,
+    strict: options?.strict
+  });
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * Validation script to verify direct-env and envcredible-meta packages
+ * Validation script to verify shape-env and e-n-v packages
  * Run from workspace root: bun run validate.ts
  */
 
@@ -10,7 +10,7 @@ import {
   EnvMeta,
   schema,
   EnvValidationAggregateError,
-} from "./packages/direct-env/src/index";
+} from "./packages/e-n-v/src/index";
 import { writeFile, unlink } from "node:fs/promises";
 
 console.log("🔍 Validating envcredible packages...\n");
@@ -106,8 +106,8 @@ OPTIONAL_VAR=
 
     console.log("🎉 All validation steps passed!");
     console.log("\n📦 Packages validated:");
-    console.log("   ✅ @envcredible/meta");
-    console.log("   ✅ direct-env");
+    console.log("   ✅ e-n-v");
+    console.log("   ✅ shape-env");
     console.log("   ✅ @envcredible/core");
     console.log("   ✅ @envcredible/schemata");
     console.log("   ✅ @envcredible/channels");

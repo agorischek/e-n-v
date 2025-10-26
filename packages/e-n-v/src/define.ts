@@ -1,4 +1,5 @@
-import type { EnvMeta, EnvMetaOptions } from "@envcredible/meta";
+import { EnvMeta } from "./meta/EnvMeta";
+import type { EnvMetaOptions } from "./meta/EnvMetaOptions";
 
 /**
  * Define environment variable metadata
@@ -23,7 +24,6 @@ import type { EnvMeta, EnvMetaOptions } from "@envcredible/meta";
  * ```
  */
 export function define(options: EnvMetaOptions): EnvMeta {
-  const { EnvMeta } = require("@envcredible/meta");
   return new EnvMeta(options);
 }
 

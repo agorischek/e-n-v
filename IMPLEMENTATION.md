@@ -2,13 +2,16 @@
 
 ## Packages Created
 
-### 1. `@envcredible/meta`
-Location: `/workspaces/envcredible/packages/envcredible-meta`
+### 1. `e-n-v`
+Location: `/workspaces/envcredible/packages/e-n-v`
 
-**Purpose**: Metadata container for environment variable configuration
+**Purpose**: Unified API for environment variable management
 
 **Exports**:
-- `EnvMeta` - Main class containing channel, path, preprocessors, and schemas
+- `define()` - Define environment metadata
+- `load()` - Load and validate environment variables
+- `setup()` - Interactive configuration
+- `EnvMeta` - Metadata container class
 - `EnvMetaOptions` - Configuration interface
 
 **Key Features**:
@@ -16,24 +19,28 @@ Location: `/workspaces/envcredible/packages/envcredible-meta`
 - Resolves channels, paths, and schemas
 - Supports both string paths and file:// URLs for root resolution
 - Fully qualified path resolution
+- Three-stage workflow: define → load → setup
 
 **Files**:
-- `src/EnvMeta.ts` - Main class implementation
-- `src/EnvMetaOptions.ts` - Options interface
+- `src/define.ts` - Define function
+- `src/load.ts` - Load function (wraps shape-env)
+- `src/setup.ts` - Setup function (wraps ask-env)
+- `src/meta/EnvMeta.ts` - Metadata class
+- `src/meta/EnvMetaOptions.ts` - Options interface
 - `src/index.ts` - Public exports
 - `package.json` - Package manifest
-- `tsconfig.json` - TypeScript configuration
+- `README.md` - Complete documentation
 
 ---
 
-### 2. `direct-env`
-Location: `/workspaces/envcredible/packages/direct-env`
+### 2. `shape-env`
+Location: `/workspaces/envcredible/packages/shape-env`
 
 **Purpose**: Load and validate environment variables without mutating `process.env`
 
 **Exports**:
 - `load()` - Main function to load and validate env vars
-- `EnvMeta` / `EnvMetaOptions` - Re-exported from `@envcredible/meta`
+- `EnvMeta` / `EnvMetaOptions` - Re-exported from `e-n-v`
 - `MissingEnvVarError` - Thrown when required vars are missing
 - `ValidationError` - Thrown when validation fails
 - `DirectEnvOptions` - Loading options interface
@@ -68,9 +75,14 @@ Location: `/workspaces/envcredible/packages/direct-env`
 ## Architecture
 
 ```
-direct-env (load function)
+e-n-v (unified API)
+    ├─ define() → EnvMeta
+    ├─ load() → shape-env.parse()
+    └─ setup() → ask-env.prompt()
+         ↓
+shape-env (load function)
     ↓
-@envcredible/meta (EnvMeta class)
+EnvMeta (from e-n-v)
     ↓
 @envcredible/channels (EnvChannel interface)
     ↓
@@ -78,6 +90,8 @@ direct-env (load function)
     ↓
 @envcredible/schemata (schema resolution for Zod/Joi)
 ```
+
+````
 
 ## Key Design Decisions
 

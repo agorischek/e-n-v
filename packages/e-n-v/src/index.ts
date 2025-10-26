@@ -13,8 +13,9 @@ export { setup } from "./setup";
 export { defaults } from "./defaults";
 
 // Re-export types
-export type { EnvMeta, EnvMetaOptions } from "@envcredible/meta";
-export type { DirectEnvOptions } from "direct-env";
+export { EnvMeta } from "./meta/EnvMeta";
+export type { EnvMetaOptions } from "./meta/EnvMetaOptions";
+export type { DirectEnvOptions } from "shape-env";
 export type { SupportedSchema } from "@envcredible/schemata";
 
 // Re-export errors for convenience
@@ -22,7 +23,7 @@ export {
   MissingEnvVarError,
   ValidationError,
   EnvValidationAggregateError,
-} from "direct-env";
+} from "shape-env";
 
 // Re-export schema builders
 export { schema, s } from "@envcredible/core";

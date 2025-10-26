@@ -91,18 +91,6 @@ bun run env.setup.ts
 
 ## Advanced Usage
 
-### Custom Channel - process.env
-
-```typescript
-import define from "e-n-v/define";
-
-export const env = define({
-  path: ".env", // ignored when using process channel
-  vars: { PORT: z.number() },
-  channel: { name: "process" }, // reads from process.env
-});
-```
-
 ### Custom Channel - dotenvx
 
 ```typescript
@@ -116,62 +104,6 @@ export const env = define({
     dotenvx,
     get: { privateKey: process.env.DOTENV_PRIVATE_KEY }
   },
-});
-```
-
-### Aggregate Channel - Combine Multiple Sources
-
-Load from multiple environment sources with fallback behavior:
-
-```typescript
-import define from "e-n-v/define";
-
-// Array syntax (later sources override earlier ones)
-export const env = define({
-  path: ".env",
-  vars: { PORT: z.number(), API_URL: z.string() },
-  channel: [
-    { path: ".env.defaults" },  // base defaults
-    { path: ".env.local" },     // local overrides
-    { name: "process" },        // process.env highest priority
-  ],
-});
-```
-
-Control overwrite behavior explicitly:
-
-```typescript
-// Earlier sources win (don't overwrite)
-export const env = define({
-  path: ".env",
-  vars: { PORT: z.number() },
-  channel: {
-    aggregate: [
-      { name: "process" },      // check process.env first
-      { path: ".env.local" },   // then local
-      { path: ".env" },         // then defaults
-    ],
-    overwrite: false,           // earlier sources take precedence
-  },
-});
-```
-
-Mix different channel types:
-
-```typescript
-import { dotenvx } from "@dotenvx/dotenvx";
-
-export const env = define({
-  path: ".env",
-  vars: { SECRET: z.string() },
-  channel: [
-    { 
-      dotenvx, 
-      path: ".env.vault",
-      get: { privateKey: process.env.DOTENV_PRIVATE_KEY }
-    },
-    { path: ".env.fallback" },  // fallback if vault fails
-  ],
 });
 ```
 

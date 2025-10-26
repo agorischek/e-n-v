@@ -28,13 +28,12 @@ function isEnvChannel(value: unknown): value is EnvChannel {
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
- * @param schemas - Object mapping environment variable names to Zod schemas, or a ZodObject
- * @param options - Configuration options
+ * @param options - Configuration options including vars and other settings
  */
-export async function ask(
-  vars: Record<string, SupportedSchema>,
-  options: AskEnvOptions = {}
+export async function prompt(
+  options: AskEnvOptions
 ): Promise<void> {
+  const { vars } = options;
   const rootDirectory = resolveRootDirectory(options.root);
   const path = resolveEnvFilePath(
     options.path ?? defaults.ENV_PATH,

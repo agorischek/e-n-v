@@ -13,5 +13,5 @@ export const env = define({
     API_KEY: z.string().min(32),
     DEBUG: z.boolean().optional(),
   },
-  channel: { name: "default" }, // or { name: "process" }, { dotenvx }, etc.
+  channel: { name: "default" }, // or { dotenvx }, etc.
 });

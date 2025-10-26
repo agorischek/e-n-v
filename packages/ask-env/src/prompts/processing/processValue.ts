@@ -2,6 +2,8 @@ import type { EnvVarSchemaDetails, Preprocessor } from "@envcredible/core";
 import { resolvePreprocessor } from "@envcredible/core";
 import type { ProcessingResult } from "./ProcessingResult";
 
+export type { ProcessingResult } from "./ProcessingResult";
+
 /**
  * Process a value through schema validation and return detailed results
  */

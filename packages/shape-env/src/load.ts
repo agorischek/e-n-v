@@ -1,42 +1,35 @@
-import type { EnvMeta } from "@envcredible/meta";
-import type { EnvMetaOptions } from "@envcredible/meta";
-import { EnvMeta as EnvMetaClass } from "@envcredible/meta";
-import type { EnvVarSchema } from "@envcredible/core";
+import type { EnvVarSchema, Preprocessors } from "@envcredible/core";
 import { resolvePreprocessor } from "@envcredible/core";
+import { resolveSchemas } from "@envcredible/schemata";
 import type { DirectEnvOptions } from "./options/DirectEnvOptions";
 import { MissingEnvVarError } from "./errors/MissingEnvVarError";
 import { ValidationError } from "./errors/ValidationError";
 import { EnvValidationAggregateError } from "./errors/EnvValidationAggregateError";
 
 /**
- * Load and validate environment variables from a channel
+ * Load and validate environment variables from a source object
  * Does NOT mutate process.env
  * 
- * @param meta - EnvMeta instance or EnvMetaOptions
- * @param options - Loading options
- * @returns Promise resolving to validated environment variables
+ * @param options - Loading options including source and vars
+ * @returns Validated environment variables
  * @throws EnvValidationAggregateError if any validation errors occur in strict mode
  */
-export async function load<T extends Record<string, any> = Record<string, any>>(
-  meta: EnvMeta | EnvMetaOptions,
-  options: DirectEnvOptions = {}
-): Promise<T> {
-  // Normalize to EnvMeta instance
-  const envMeta = meta instanceof EnvMetaClass ? meta : new EnvMetaClass(meta);
-
+export function parse<T extends Record<string, any> = Record<string, any>>(
+  options: DirectEnvOptions
+): T {
   // Extract options
-  const { preprocess, strict = true } = options;
+  const { source, vars, preprocess, strict = true } = options;
 
-  // Read all values from the channel
-  const rawValues = await envMeta.channel.get();
+  // Resolve schemas
+  const resolvedSchemas = resolveSchemas(vars);
 
   // Result object and error collection
   const result: Record<string, any> = {};
   const errors: Array<MissingEnvVarError | ValidationError> = [];
 
   // Process each schema
-  for (const [key, schema] of Object.entries(envMeta.schemas)) {
-    const rawValue = rawValues[key];
+  for (const [key, schema] of Object.entries(resolvedSchemas)) {
+    const rawValue = source[key];
 
     // Handle missing values
     if (rawValue === undefined || rawValue.trim() === "") {
@@ -58,7 +51,7 @@ export async function load<T extends Record<string, any> = Record<string, any>>(
     }
 
     // Preprocess the value
-    const preprocessor = resolvePreprocessor(schema.type, preprocess ?? envMeta.preprocess);
+    const preprocessor = resolvePreprocessor(schema.type, preprocess);
     const preprocessedValue = preprocessor ? preprocessor(rawValue) : rawValue;
 
     // Convert to string if preprocessor returned native type

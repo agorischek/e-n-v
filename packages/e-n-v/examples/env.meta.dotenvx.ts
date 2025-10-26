@@ -2,7 +2,7 @@
 
 import define from "e-n-v/define";
 import { z } from "zod";
-import { dotenvx } from "@dotenvx/dotenvx";
+import * as dotenvx from "@dotenvx/dotenvx";
 
 export const env = define({
   path: ".env.vault",

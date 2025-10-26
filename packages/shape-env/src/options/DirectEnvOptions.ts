@@ -1,9 +1,21 @@
 import type { Preprocessors } from "@envcredible/core";
+import type { SupportedSchema } from "@envcredible/schemata";
 
 /**
  * Options for the load function
  */
 export interface DirectEnvOptions {
+  /**
+   * Source object containing raw environment variable values
+   */
+  source: Record<string, string>;
+
+  /**
+   * Environment variable schemas
+   * Map of variable names to their schema definitions
+   */
+  vars: Record<string, SupportedSchema>;
+
   /**
    * Custom preprocessing functions to preprocess values before submitting to schema processors.
    * If null or undefined, the preprocessing step is skipped for that type.

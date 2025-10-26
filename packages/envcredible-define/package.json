@@ -1,0 +1,21 @@
+{
+  "name": "@envcredible/define",
+  "version": "0.1.0",
+  "description": "Environment variable definition container for envcredible",
+  "module": "src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "@envcredible/core": "workspace:*",
+    "@envcredible/schemata": "workspace:*"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "keywords": [
+    "env",
+    "environment",
+    "config",
+    "validation",
+    "envcredible"
+  ]
+}

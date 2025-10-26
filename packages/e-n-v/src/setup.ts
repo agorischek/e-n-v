@@ -1,5 +1,5 @@
-import type { EnvMeta } from "@envcredible/meta";
-import { ask, type AskEnvOptions } from "ask-env";
+import type { EnvMeta } from "./meta/EnvMeta";
+import { prompt, type AskEnvOptions } from "ask-env";
 
 /**
  * Interactive setup for environment variables
@@ -23,9 +23,10 @@ import { ask, type AskEnvOptions } from "ask-env";
  */
 export async function setup(
   meta: EnvMeta,
-  options?: Omit<AskEnvOptions, "path" | "root" | "channel">
+  options?: Omit<AskEnvOptions, "path" | "root" | "channel" | "vars">
 ): Promise<void> {
-  await ask(meta.schemas, {
+  await prompt({
+    vars: meta.schemas,
     ...options,
     path: meta.path,
     channel: meta.channel,

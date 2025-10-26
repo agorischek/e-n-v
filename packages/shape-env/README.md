@@ -1,9 +1,9 @@
 <!-- markdownlint-disable-next-line -->
-<img src="./assets/direct-env-logo2.png" alt="Ask Env Logo" height="50"/>
+<img src="./assets/direct-env-logo2.png" alt="Ask Env Logo" height="75"/>
 
-# direct-env
+# shape-env
 
-Load and validate environment variables directly from a channel without mutating `process.env`.
+Direct environment variable loading and validation with runtime type safety.
 
 ## Features
 
@@ -16,7 +16,7 @@ Load and validate environment variables directly from a channel without mutating
 ## Installation
 
 ```bash
-bun add direct-env
+bun add shape-env
 ```
 
 ## Usage
@@ -24,9 +24,9 @@ bun add direct-env
 ### Basic Example
 
 ```typescript
-import { load, schema } from "direct-env";
+import { parse, schema } from "shape-env";
 
-const env = await load({
+const env = await parse({
   path: ".env",
   root: import.meta.url,
   vars: {
@@ -44,7 +44,7 @@ console.log(env.DEBUG); // boolean
 ### Using EnvMeta
 
 ```typescript
-import { EnvMeta, load } from "direct-env";
+import { EnvMeta, parse } from "shape-env";
 
 // Create reusable metadata
 const meta = new EnvMeta({
@@ -57,17 +57,17 @@ const meta = new EnvMeta({
 });
 
 // Load multiple times without recreating metadata
-const env1 = await load(meta);
-const env2 = await load(meta, { strict: false });
+const env1 = await parse(meta);
+const env2 = await parse(meta, { strict: false });
 ```
 
 ### With Zod Schemas
 
 ```typescript
-import { load } from "direct-env";
+import { parse } from "shape-env";
 import { z } from "zod";
 
-const env = await load({
+const env = await parse({
   path: ".env",
   vars: {
     PORT: z.number().min(1024).max(65535),
@@ -80,9 +80,9 @@ const env = await load({
 ### With Custom Preprocessing
 
 ```typescript
-import { load, schema } from "direct-env";
+import { parse, schema } from "shape-env";
 
-const env = await load(
+const env = await parse(
   {
     path: ".env",
     vars: {
@@ -102,11 +102,11 @@ const env = await load(
 ### Using Different Channels
 
 ```typescript
-import { load } from "direct-env";
+import { parse } from "shape-env";
 import { dotenvx } from "@dotenvx/dotenvx";
 
 // Using dotenvx
-const env = await load({
+const env = await parse({
   path: ".env.vault",
   channel: {
     dotenvx,
@@ -120,17 +120,18 @@ const env = await load({
 
 ## API
 
-### `load(meta, options?)`
+### `parse(options)`
 
 Load and validate environment variables.
 
 **Parameters:**
-- `meta`: `EnvMeta | EnvMetaOptions` - Metadata or options
-- `options`: `DirectEnvOptions` - Optional loading configuration
-  - `preprocess`: Custom preprocessing functions
+- `options`: `DirectEnvOptions` - Configuration object
+  - `source`: Source object containing environment variables
+  - `vars`: Variable schemas
+  - `preprocess`: Custom preprocessing functions (optional)
   - `strict`: Throw on missing required vars (default: `true`)
 
-**Returns:** `Promise<T>` - Validated environment variables
+**Returns:** `T` - Validated environment variables
 
 ### `EnvMeta`
 
@@ -161,13 +162,13 @@ Configuration for creating EnvMeta.
 
 ### Aggregate Errors
 
-By default, `direct-env` validates **all** environment variables and collects errors before throwing. This gives you a complete picture of what's wrong instead of failing on the first error.
+By default, `shape-env` validates **all** environment variables and collects errors before throwing. This gives you a complete picture of what's wrong instead of failing on the first error.
 
 ```typescript
-import { load, EnvValidationAggregateError } from "direct-env";
+import { parse, EnvValidationAggregateError } from "shape-env";
 
 try {
-  const env = await load({
+  const env = await parse({
     path: ".env",
     vars: {
       PORT: schema.number(),
@@ -194,7 +195,7 @@ try {
 The aggregate error contains individual error instances:
 
 ```typescript
-import { MissingEnvVarError, ValidationError } from "direct-env";
+import { MissingEnvVarError, ValidationError } from "shape-env";
 
 if (error instanceof EnvValidationAggregateError) {
   error.errors.forEach(err => {
@@ -212,10 +213,11 @@ if (error instanceof EnvValidationAggregateError) {
 Set `strict: false` to allow missing/invalid values without throwing:
 
 ```typescript
-const env = await load(
-  { path: ".env", vars: { PORT: schema.number() } },
-  { strict: false }
-);
+const env = await parse({
+  source: { /* ... */ },
+  vars: { PORT: schema.number() },
+  strict: false
+});
 
 // env.PORT will be undefined if missing or invalid
 ```

@@ -12,7 +12,6 @@
     "./defaults": "./src/defaults.ts"
   },
   "dependencies": {
-    "@envcredible/meta": "workspace:*",
     "ask-env": "workspace:*",
     "direct-env": "workspace:*",
     "picocolors": "^1.1.1"

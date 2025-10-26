@@ -6,11 +6,11 @@
 Interactive CLI for creating and editing `.env` files.
 
 ```ts
-import { ask, schemas } from "ask-env";
+import { prompt, schemas } from "ask-env";
 
 const { NODE_ENV, PORT, OPENAI_API_KEY } = schemas;
 
-await ask({ NODE_ENV, PORT, OPENAI_API_KEY });
+await prompt({ vars: { NODE_ENV, PORT, OPENAI_API_KEY } });
 ```
 
 ## Schemas
@@ -26,13 +26,17 @@ Environment variable schemas can be supplied in three ways:
 By default, values are written directly to the specified file path via [`envrw`](../envrw/README.md). Alternatively, values can be managed via [`dotenvx`](https://www.npmjs.com/package/@dotenvx/dotenvx):
 
 ```ts
-await ask({ OPENAI_API_KEY }, { channel: { dotenvx } });
+await prompt({ 
+  vars: { OPENAI_API_KEY },
+  channel: { dotenvx }
+});
 ```
 
 ## Options
 
 ```typescript
-await ask(vars, {
+await prompt({
+  vars,
   path: "./config/.env.local",
   root: import.meta.url,
   truncate: 60,

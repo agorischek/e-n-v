@@ -1,10 +1,14 @@
 {
-  "name": "@envcredible/meta",
+  "name": "shape-env",
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {
     "@envcredible/core": "workspace:*",
+    "@envcredible/define": "workspace:*",
     "@envcredible/schemata": "workspace:*",
-    "@envcredible/channels": "workspace:*"
+    "zod": "^4.1.12"
+  },
+  "scripts": {
+    "test": "bun test"
   }
 }

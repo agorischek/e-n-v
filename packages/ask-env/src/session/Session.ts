@@ -11,7 +11,6 @@ import type { Theme } from "../visuals/Theme";
 import type { EnvChannel, Preprocessors } from "@envcredible/core";
 import type { EnvVarSchema } from "@envcredible/core";
 import type { SessionResult } from "./SessionResult";
-import { ProcessEnvChannel } from "@envcredible/channels/channels/process/ProcessEnvChannel";
 
 export interface SessionOptions {
   schemas: Record<string, EnvVarSchema>;
@@ -64,9 +63,7 @@ export class Session {
     return new Session(options);
   }
   async run(): Promise<SessionResult> {
-    const isProcessChannel = this.channel instanceof ProcessEnvChannel;
-    const displayPath = isProcessChannel ? "process.env" : this.displayEnvPath;
-    renderSetupHeader(this.output, this.theme, displayPath);
+    renderSetupHeader(this.output, this.theme, this.displayEnvPath);
 
     let currentValues = await this.channel.get();
     const schemaKeys = Object.keys(this.schemas);
