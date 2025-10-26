@@ -12,7 +12,7 @@ export const defaults = {
   /**
    * Default secret patterns for masking sensitive values
    */
-  secrets: [
+  SECRET_PATTERNS: [
     /password/i,
     /secret/i,
     /token/i,
@@ -33,3 +33,4 @@ export const defaults = {
    */
   path: ".env",
 } as const;
+

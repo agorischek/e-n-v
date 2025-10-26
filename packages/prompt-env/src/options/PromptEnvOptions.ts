@@ -2,16 +2,23 @@ import type { Formatter } from "picocolors/types";
 import type { EnvChannelOptions } from "@envcredible/channels/EnvChannelOptions";
 import type { EnvChannel, Preprocessors } from "@envcredible/core";
 import type { SupportedSchema } from "@envcredible/schemata";
+import type { EnvSpec } from "@envcredible/specification";
 
 /**
- * Configuration options for the ask function
+ * Configuration options for the prompt function
  */
-export type AskEnvOptions = {
+export type PromptEnvOptions = {
   /**
    * Environment variable schemas
-   * Map of variable names to their schema definitions
+   * Can be a Record of schemas or an EnvSpec instance
    */
-  vars: Record<string, SupportedSchema>;
+  vars?: Record<string, SupportedSchema>;
+
+  /**
+   * Environment variable specification
+   * Alternative to vars - provides schemas and preprocessing configuration
+   */
+  spec?: EnvSpec;
 
   /**
    * Path to the .env file to read from and write to

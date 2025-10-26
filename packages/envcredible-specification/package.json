@@ -1,7 +1,7 @@
 {
-  "name": "@envcredible/define",
+  "name": "@envcredible/specification",
   "version": "0.1.0",
-  "description": "Environment variable definition container for envcredible",
+  "description": "Environment variable specification definition for envcredible",
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {
@@ -16,6 +16,11 @@
     "environment",
     "config",
     "validation",
+    "specification",
     "envcredible"
-  ]
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts",
+    "test": "bun test"
+  }
 }

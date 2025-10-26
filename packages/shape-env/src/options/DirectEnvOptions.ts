@@ -1,5 +1,6 @@
 import type { Preprocessors } from "@envcredible/core";
 import type { SupportedSchema } from "@envcredible/schemata";
+import type { EnvSpec } from "@envcredible/specification";
 
 /**
  * Options for the load function
@@ -12,9 +13,15 @@ export interface DirectEnvOptions {
 
   /**
    * Environment variable schemas
-   * Map of variable names to their schema definitions
+   * Can be a Record of schemas or an EnvSpec instance
    */
-  vars: Record<string, SupportedSchema>;
+  vars?: Record<string, SupportedSchema>;
+
+  /**
+   * Environment variable specification
+   * Alternative to vars - provides schemas and preprocessing configuration
+   */
+  spec?: EnvSpec;
 
   /**
    * Custom preprocessing functions to preprocess values before submitting to schema processors.

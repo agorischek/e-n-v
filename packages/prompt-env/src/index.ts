@@ -16,4 +16,8 @@ export * as defaults from "./options/defaults";
 import { prompt } from "./ask";
 export { prompt };
 
-export type { AskEnvOptions } from "./options/AskEnvOptions";
+export type { PromptEnvOptions } from "./options/PromptEnvOptions";
+
+// Re-export EnvSpec
+export { EnvSpec, spec } from "@envcredible/specification";
+export type { EnvSpecOptions } from "@envcredible/specification";

@@ -10,7 +10,7 @@ import { EnvValidationAggregateError } from "./errors/EnvValidationAggregateErro
  * Load and validate environment variables from a source object
  * Does NOT mutate process.env
  *
- * @param options - Loading options including source and vars
+ * @param options - Loading options including source and vars/spec
  * @returns Validated environment variables
  * @throws EnvValidationAggregateError if any validation errors occur in strict mode
  */
@@ -18,10 +18,21 @@ export function parse<T extends Record<string, any> = Record<string, any>>(
   options: DirectEnvOptions,
 ): T {
   // Extract options
-  const { source, vars, preprocess, strict = true } = options;
+  const { source, strict = true } = options;
 
-  // Resolve schemas
-  const resolvedSchemas = resolveSchemas(vars);
+  // Support both legacy vars and new spec
+  let resolvedSchemas: Record<string, EnvVarSchema>;
+  let preprocessConfig: Preprocessors | undefined;
+
+  if (options.spec) {
+    resolvedSchemas = options.spec.schemas;
+    preprocessConfig = options.preprocess ?? options.spec.preprocess;
+  } else if (options.vars) {
+    resolvedSchemas = resolveSchemas(options.vars);
+    preprocessConfig = options.preprocess;
+  } else {
+    throw new Error("Either 'vars' or 'spec' must be provided");
+  }
 
   // Result object and error collection
   const result: Record<string, any> = {};
@@ -51,7 +62,7 @@ export function parse<T extends Record<string, any> = Record<string, any>>(
     }
 
     // Preprocess the value
-    const preprocessor = resolvePreprocessor(schema.type, preprocess);
+    const preprocessor = resolvePreprocessor(schema.type, preprocessConfig);
     const preprocessedValue = preprocessor ? preprocessor(rawValue) : rawValue;
 
     // Convert to string if preprocessor returned native type

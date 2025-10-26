@@ -5,9 +5,9 @@ export { MissingEnvVarError } from "./errors/MissingEnvVarError";
 export { ValidationError } from "./errors/ValidationError";
 export { EnvValidationAggregateError } from "./errors/EnvValidationAggregateError";
 
-// Re-export EnvDefinition
-export { EnvDefinition, vars } from "@envcredible/define";
-export type { EnvDefinitionOptions } from "@envcredible/define";
+// Re-export EnvSpec
+export { EnvSpec, spec } from "@envcredible/specification";
+export type { EnvSpecOptions } from "@envcredible/specification";
 
 // Re-export useful types and utilities
 export type { EnvVarSchema } from "@envcredible/core";

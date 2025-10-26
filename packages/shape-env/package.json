@@ -4,7 +4,7 @@
   "type": "module",
   "dependencies": {
     "@envcredible/core": "workspace:*",
-    "@envcredible/define": "workspace:*",
+    "@envcredible/specification": "workspace:*",
     "@envcredible/schemata": "workspace:*",
     "zod": "^4.1.12"
   },

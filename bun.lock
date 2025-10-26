@@ -24,40 +24,14 @@
         "typescript": "^5",
       },
     },
-    "packages/ask-env": {
-      "name": "ask-env",
-      "dependencies": {
-        "@clack/core": "1.0.0-alpha.6",
-        "@envcredible/channels": "workspace:*",
-        "@envcredible/core": "workspace:*",
-        "@envcredible/schemata": "workspace:*",
-        "env-var-schemas": "workspace:*",
-        "picocolors": "^1.1.1",
-      },
-      "devDependencies": {
-        "@standard-schema/spec": "^1.0.0",
-        "joi": "^18.0.1",
-        "zod": "^3.25.0 || ^4.0.0",
-      },
-    },
-    "packages/direct-env": {
-      "name": "direct-env",
-      "dependencies": {
-        "@envcredible/channels": "workspace:*",
-        "@envcredible/core": "workspace:*",
-        "@envcredible/meta": "workspace:*",
-        "@envcredible/schemata": "workspace:*",
-        "zod": "^4.1.12",
-      },
-    },
     "packages/e-n-v": {
       "name": "e-n-v",
       "version": "0.1.0",
       "dependencies": {
-        "@envcredible/meta": "workspace:*",
-        "ask-env": "workspace:*",
-        "direct-env": "workspace:*",
+        "@envcredible/specification": "workspace:*",
         "picocolors": "^1.1.1",
+        "prompt-env": "workspace:*",
+        "shape-env": "workspace:*",
       },
       "devDependencies": {
         "zod": "^4.1.12",
@@ -93,14 +67,6 @@
         "typescript": "^5.0.0",
       },
     },
-    "packages/envcredible-meta": {
-      "name": "@envcredible/meta",
-      "dependencies": {
-        "@envcredible/channels": "workspace:*",
-        "@envcredible/core": "workspace:*",
-        "@envcredible/schemata": "workspace:*",
-      },
-    },
     "packages/envcredible-schemata": {
       "name": "@envcredible/schemata",
       "dependencies": {
@@ -112,6 +78,14 @@
         "zod": "^3.25.0 || ^4.0.0",
       },
     },
+    "packages/envcredible-specification": {
+      "name": "@envcredible/specification",
+      "version": "0.1.0",
+      "dependencies": {
+        "@envcredible/core": "workspace:*",
+        "@envcredible/schemata": "workspace:*",
+      },
+    },
     "packages/envrw": {
       "name": "envrw",
       "devDependencies": {
@@ -119,6 +93,32 @@
       },
       "peerDependencies": {
         "typescript": "^5",
+      },
+    },
+    "packages/prompt-env": {
+      "name": "prompt-env",
+      "dependencies": {
+        "@clack/core": "1.0.0-alpha.6",
+        "@envcredible/channels": "workspace:*",
+        "@envcredible/core": "workspace:*",
+        "@envcredible/schemata": "workspace:*",
+        "@envcredible/specification": "workspace:*",
+        "env-var-schemas": "workspace:*",
+        "picocolors": "^1.1.1",
+      },
+      "devDependencies": {
+        "@standard-schema/spec": "^1.0.0",
+        "joi": "^18.0.1",
+        "zod": "^3.25.0 || ^4.0.0",
+      },
+    },
+    "packages/shape-env": {
+      "name": "shape-env",
+      "dependencies": {
+        "@envcredible/core": "workspace:*",
+        "@envcredible/schemata": "workspace:*",
+        "@envcredible/specification": "workspace:*",
+        "zod": "^4.1.12",
       },
     },
   },
@@ -201,9 +201,9 @@
 
     "@envcredible/core": ["@envcredible/core@workspace:packages/envcredible-core"],
 
-    "@envcredible/meta": ["@envcredible/meta@workspace:packages/envcredible-meta"],
-
     "@envcredible/schemata": ["@envcredible/schemata@workspace:packages/envcredible-schemata"],
+
+    "@envcredible/specification": ["@envcredible/specification@workspace:packages/envcredible-specification"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.25.10", "", { "os": "aix", "cpu": "ppc64" }, "sha512-0NFWnA+7l41irNuaSVlLfgNT12caWJVLzp5eAVhZ0z1qpxbockccEt3s+149rE64VUI3Ml2zt8Nv5JVc4QXTsw=="],
 
@@ -447,8 +447,6 @@
 
     "arg": ["arg@4.1.3", "", {}, "sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA=="],
 
-    "ask-env": ["ask-env@workspace:packages/ask-env"],
-
     "balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
 
     "baseline-browser-mapping": ["baseline-browser-mapping@2.8.16", "", { "bin": { "baseline-browser-mapping": "dist/cli.js" } }, "sha512-OMu3BGQ4E7P1ErFsIPpbJh0qvDudM/UuJeHgkAvfWe+0HFJCXh+t/l8L6fVLR55RI/UbKrVLnAXZSVwd9ysWYw=="],
@@ -504,8 +502,6 @@
     "diff": ["diff@4.0.2", "", {}, "sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A=="],
 
     "diff-match-patch": ["diff-match-patch@1.0.5", "", {}, "sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw=="],
-
-    "direct-env": ["direct-env@workspace:packages/direct-env"],
 
     "dotenv": ["dotenv@17.2.3", "", {}, "sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w=="],
 
@@ -691,6 +687,8 @@
 
     "progress": ["progress@2.0.3", "", {}, "sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA=="],
 
+    "prompt-env": ["prompt-env@workspace:packages/prompt-env"],
+
     "punycode": ["punycode@2.3.1", "", {}, "sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg=="],
 
     "qs": ["qs@6.14.0", "", { "dependencies": { "side-channel": "^1.1.0" } }, "sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w=="],
@@ -708,6 +706,8 @@
     "safer-buffer": ["safer-buffer@2.1.2", "", {}, "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg=="],
 
     "semver": ["semver@7.7.3", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q=="],
+
+    "shape-env": ["shape-env@workspace:packages/shape-env"],
 
     "shebang-command": ["shebang-command@2.0.0", "", { "dependencies": { "shebang-regex": "^3.0.0" } }, "sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA=="],
 

@@ -1,16 +1,16 @@
 import { fileURLToPath } from "bun";
 import { dirname } from "desm";
 import { Theme } from "../visuals/Theme";
-import type { AskEnvOptions } from "./AskEnvOptions";
+import type { PromptEnvOptions } from "./PromptEnvOptions";
 import color from "picocolors";
 import { resolve as resolvePath } from "node:path";
 
-export function resolveTheme(themeOption: AskEnvOptions["theme"]): Theme {
+export function resolveTheme(themeOption: PromptEnvOptions["theme"]): Theme {
   return new Theme(themeOption ?? color.magenta);
 }
 
 export function resolveRootDirectory(
-  rootOption: AskEnvOptions["root"],
+  rootOption: PromptEnvOptions["root"],
 ): string | undefined {
   if (!rootOption) {
     return undefined;

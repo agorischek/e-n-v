@@ -5,13 +5,21 @@
 
 Interactive CLI for creating and editing `.env` files.
 
-```ts
-import { prompt, schemas } from "ask-env";
-
-const { NODE_ENV, PORT, OPENAI_API_KEY } = schemas;
-
-await prompt({ vars: { NODE_ENV, PORT, OPENAI_API_KEY } });
+```bash
+bun add prompt-env
 ```
+
+Or use with the unified `e-n-v` package:
+
+```bash
+bun add e-n-v
+```
+
+## Quick Start
+
+```typescript
+import { prompt, schemas } from "prompt-env";
+import { z } from "zod";
 
 ## Schemas
 

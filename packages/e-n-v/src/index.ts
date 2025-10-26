@@ -2,20 +2,19 @@
  * e-n-v - "Environments, niftily? Very!"
  *
  * A unified, elegant API for environment variable management
- * Combines define, load, and setup into a cohesive workflow
+ * Combines spec, parse, and prompt into a cohesive workflow
  */
 
 // Main exports
-export { default } from "./define";
-export { define } from "./define";
-export { load } from "./load";
-export { setup } from "./setup";
+export { spec } from "@envcredible/specification";
+export { parse } from "shape-env";
+export { prompt } from "prompt-env";
 export { defaults } from "./defaults";
 
 // Re-export types
-export { EnvMeta } from "./meta/EnvMeta";
-export type { EnvMetaOptions } from "./meta/EnvMetaOptions";
+export type { EnvSpec, EnvSpecOptions } from "@envcredible/specification";
 export type { DirectEnvOptions } from "shape-env";
+export type { PromptEnvOptions } from "prompt-env";
 export type { SupportedSchema } from "@envcredible/schemata";
 
 // Re-export errors for convenience

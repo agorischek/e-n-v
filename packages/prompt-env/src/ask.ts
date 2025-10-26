@@ -1,6 +1,7 @@
-import type { EnvVarSchemaMap, SupportedSchema } from "@envcredible/schemata";
+import type { SupportedSchema } from "@envcredible/schemata";
+import type { EnvVarSchema } from "@envcredible/core";
 import { stdin, stdout } from "node:process";
-import type { AskEnvOptions } from "./options/AskEnvOptions";
+import type { PromptEnvOptions } from "./options/PromptEnvOptions";
 import type { EnvChannel } from "@envcredible/core";
 import * as defaults from "./options/defaults";
 import { resolveChannel } from "@envcredible/channels/resolveChannel";
@@ -28,10 +29,23 @@ function isEnvChannel(value: unknown): value is EnvChannel {
 
 /**
  * Interactive CLI tool to generate .env files with Zod schema validation
- * @param options - Configuration options including vars and other settings
+ * @param options - Configuration options including vars/spec and other settings
  */
-export async function prompt(options: AskEnvOptions): Promise<void> {
-  const { vars } = options;
+export async function prompt(options: PromptEnvOptions): Promise<void> {
+  // Support both legacy vars and new spec
+  let schemas: Record<string, EnvVarSchema>;
+  let preprocessConfig: any;
+
+  if (options.spec) {
+    schemas = options.spec.schemas;
+    preprocessConfig = options.preprocess ?? options.spec.preprocess;
+  } else if (options.vars) {
+    schemas = resolveSchemas(options.vars);
+    preprocessConfig = options.preprocess;
+  } else {
+    throw new Error("Either 'vars' or 'spec' must be provided");
+  }
+
   const rootDirectory = resolveRootDirectory(options.root);
   const path = resolveEnvFilePath(
     options.path ?? defaults.ENV_PATH,
@@ -50,9 +64,8 @@ export async function prompt(options: AskEnvOptions): Promise<void> {
     : resolveChannel(options.channel, path);
 
   const theme = resolveTheme(options.theme);
-  const schemas = resolveSchemas(vars);
 
-  const { preprocess } = options;
+  const preprocess = preprocessConfig;
 
   const session = new Session({
     schemas,

@@ -1,162 +1,141 @@
 # Implementation Summary
 
-## Packages Created
+## Architecture Overview
 
-### 1. `e-n-v`
+The envcredible ecosystem provides a modern, type-safe approach to environment variable management with three core functions:
 
-Location: `/workspaces/envcredible/packages/e-n-v`
+1. **spec()** - Define your environment schema once
+2. **parse()** - Load and validate at runtime  
+3. **prompt()** - Interactive configuration for development
 
-**Purpose**: Unified API for environment variable management
+## Package Structure
 
-**Exports**:
+### User-Facing Packages
 
-- `define()` - Define environment metadata
-- `load()` - Load and validate environment variables
-- `setup()` - Interactive configuration
-- `EnvMeta` - Metadata container class
-- `EnvMetaOptions` - Configuration interface
+#### `e-n-v`
+Unified API that combines specification, parsing, and prompting.
 
-**Key Features**:
+**Key exports:**
+- `spec()` - Create environment specifications
+- `parse()` - Parse and validate environment variables
+- `prompt()` - Interactive setup
+- `defaults` - Default configuration values
 
-- Encapsulates all configuration needed to load env vars
-- Resolves channels, paths, and schemas
-- Supports both string paths and file:// URLs for root resolution
-- Fully qualified path resolution
-- Three-stage workflow: define → load → setup
+#### `prompt-env`
+Interactive CLI for configuring `.env` files.
 
-**Files**:
+**Key features:**
+- Secret masking with toggle reveal
+- Value validation before writing
+- Multiple channel support (file, dotenvx)
+- Accepts both `vars` and `spec` options
 
-- `src/define.ts` - Define function
-- `src/load.ts` - Load function (wraps shape-env)
-- `src/setup.ts` - Setup function (wraps ask-env)
-- `src/meta/EnvMeta.ts` - Metadata class
-- `src/meta/EnvMetaOptions.ts` - Options interface
-- `src/index.ts` - Public exports
-- `package.json` - Package manifest
-- `README.md` - Complete documentation
+#### `shape-env`
+Direct environment variable parsing and validation.
 
----
+**Key features:**
+- Non-mutating (doesn't touch process.env)
+- Aggregate error handling
+- Preprocessing support
+- Type-safe with full TypeScript support
 
-### 2. `shape-env`
+#### `env-var-schemas`
+Pre-built schemas for common environment variables.
 
-Location: `/workspaces/envcredible/packages/shape-env`
+**Provides:**
+- `NODE_ENV`, `PORT`, `DATABASE_URL`, etc.
+- Zod v3 and v4 compatible schemas
 
-**Purpose**: Load and validate environment variables without mutating `process.env`
+### Core Packages
 
-**Exports**:
+#### `@envcredible/specification`
+Environment variable specification definition.
 
-- `load()` - Main function to load and validate env vars
-- `EnvMeta` / `EnvMetaOptions` - Re-exported from `e-n-v`
-- `MissingEnvVarError` - Thrown when required vars are missing
-- `ValidationError` - Thrown when validation fails
-- `DirectEnvOptions` - Loading options interface
-- `schema` - Schema builders (re-exported from core)
+**Key exports:**
+- `EnvSpec` class
+- `spec()` sugar function
+- `EnvSpecOptions` interface
+- Preprocessing types
 
-**Key Features**:
+#### `@envcredible/schemata`
+Schema resolution and conversion.
 
-- Non-mutating: reads env vars without touching `process.env`
-- Validation: parse and validate using Zod, Joi, or native schemas
-- Channel-based: load from files, dotenvx, or custom sources
-- Type-safe: full TypeScript support
-- Preprocessing: normalize values before validation
-- Error handling: specific error types for missing/invalid vars
-- Strict/non-strict modes
+**Key exports:**
+- `resolveSchema()` - Convert any schema to EnvVarSchema
+- `resolveSchemas()` - Convert map of schemas
+- Converters for Zod v3, v4, Joi
 
-**Files**:
+#### `@envcredible/core`
+Core types and utilities.
 
-- `src/load.ts` - Main load function
-- `src/index.ts` - Public exports
-- `src/options/DirectEnvOptions.ts` - Options interface
-- `src/errors/MissingEnvVarError.ts` - Missing var error
-- `src/errors/ValidationError.ts` - Validation error
-- `src/__tests__/load.test.ts` - Comprehensive test suite (9 tests, all passing)
-- `demo/basic.ts` - Basic usage demo
-- `demo/meta.ts` - EnvMeta reuse demo
-- `demo/errors.ts` - Error handling demo
-- `demo/zod.ts` - Zod integration demo
-- `package.json` - Package manifest
-- `tsconfig.json` - TypeScript configuration
-- `README.md` - Complete documentation
+**Key exports:**
+- `EnvVarSchema` - Internal schema type
+- `schema` / `s` - Native schema builders
+- Preprocessor types and resolution
+- Processor implementations
 
----
+#### `@envcredible/channels`
+Channel abstraction for reading/writing env vars.
 
-## Architecture
+**Key exports:**
+- `EnvChannel` interface
+- `resolveChannel()` function
+- `DefaultEnvChannel` (file-based)
+- `DotEnvXChannel` (dotenvx integration)
 
-```
-e-n-v (unified API)
-    ├─ define() → EnvMeta
-    ├─ load() → shape-env.parse()
-    └─ setup() → ask-env.prompt()
-         ↓
-shape-env (load function)
-    ↓
-EnvMeta (from e-n-v)
-    ↓
-@envcredible/channels (EnvChannel interface)
-    ↓
-@envcredible/core (EnvVarSchema, processors, preprocessors)
-    ↓
-@envcredible/schemata (schema resolution for Zod/Joi)
-```
+## Dependencies
 
-````
+\`\`\`text
+e-n-v
+├─ @envcredible/specification
+├─ prompt-env
+│  ├─ @envcredible/specification
+│  ├─ @envcredible/schemata
+│  ├─ @envcredible/channels
+│  └─ @envcredible/core
+└─ shape-env
+   ├─ @envcredible/specification
+   ├─ @envcredible/schemata
+   └─ @envcredible/core
+\`\`\`
 
-## Key Design Decisions
+## Design Principles
 
-1. **EnvMeta as a separate package**: Allows reuse across different loading strategies
-2. **Non-mutating by design**: Never touches `process.env`, returns pure result object
-3. **Channel abstraction**: Supports file-based, dotenvx, and custom sources
-4. **Preprocessing support**: Built-in and custom preprocessing before validation
-5. **Strict/non-strict modes**: Flexible error handling
-6. **Type safety**: Full TypeScript support with proper type inference
-7. **Error specificity**: Custom error types for better error handling
+1. **Functional API** - Simple functions over classes
+2. **Type Safety** - Full TypeScript support throughout
+3. **Flexibility** - Support multiple schema libraries (Zod, Joi, native)
+4. **Non-Mutating** - Never touches process.env directly
+5. **Aggregate Errors** - Show all validation errors at once
+6. **Preprocessing** - Flexible value normalization
 
-## Usage Patterns
+## Usage Example
 
-### Pattern 1: Direct options
-```typescript
-const env = await load({
-  path: ".env",
-  root: import.meta.url,
-  vars: { PORT: schema.number() }
-});
-```
+\`\`\`typescript
+// env.spec.ts
+import { spec } from "e-n-v";
+import { z } from "zod";
 
-### Pattern 2: Reusable metadata
-```typescript
-const meta = new EnvMeta({ path: ".env", vars: {...} });
-const env1 = await load(meta);
-const env2 = await load(meta, { strict: false });
-```
-
-### Pattern 3: With Zod
-```typescript
-const env = await load({
-  path: ".env",
-  vars: {
+export default spec({
+  schemas: {
+    NODE_ENV: z.enum(["development", "production", "test"]),
     PORT: z.number().min(1024),
-    URL: z.string().url()
-  }
+    DATABASE_URL: z.string().url(),
+  },
+  preprocess: true,
 });
-```
 
-## Testing
+// app.ts
+import spec from "./env.spec.js";
+import { parse } from "e-n-v";
 
-All tests passing ✅
-- 9 tests covering:
-  - Basic loading and validation
-  - Default values
-  - Missing var errors (strict/non-strict)
-  - Validation errors
-  - EnvMeta reuse
-  - Custom preprocessing
-  - Empty value handling
-  - process.env non-mutation
+export const env = parse({ 
+  source: process.env as Record<string, string>, 
+  spec 
+});
 
-## Integration Points
+// env.setup.ts
+import spec from "./env.spec.js";
+import { prompt } from "e-n-v";
 
-- Uses existing channel infrastructure from `@envcredible/channels`
-- Reuses preprocessing logic from `@envcredible/core`
-- Compatible with all schema types via `@envcredible/schemata`
-- Follows same patterns as `ask-env` for consistency
-````
+await prompt({ spec, path: ".env" });
+\`\`\`

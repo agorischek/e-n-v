@@ -13,7 +13,7 @@ import { apiKey, apiTimeout, port } from "env-var-schemas";
 - Use Zod validation internally for robust validation
 - Support input overrides for customization
 - Have a consistent interface across all schemas
-- Work directly with `ask-env` and other envcredible tools
+- Work directly with `prompt-env` and other envcredible tools
 
 **Example:**
 
@@ -64,7 +64,7 @@ const zodSchemas = {
   API_TIMEOUT: apiTimeout().default(30),
 };
 
-// Convert for use with ask-env
+// Convert for use with prompt-env
 const convertedSchemas = Object.fromEntries(
   Object.entries(zodSchemas).map(([key, schema]) => [
     key,

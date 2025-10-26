@@ -26,9 +26,8 @@ bun add shape-env
 ```typescript
 import { parse, schema } from "shape-env";
 
-const env = await parse({
-  path: ".env",
-  root: import.meta.url,
+const env = parse({
+  source: process.env as Record<string, string>,
   vars: {
     PORT: schema.number({ default: 3000 }),
     DATABASE_URL: schema.string(),
@@ -41,24 +40,26 @@ console.log(env.DATABASE_URL); // string
 console.log(env.DEBUG); // boolean
 ```
 
-### Using EnvMeta
+### Using EnvSpec
 
 ```typescript
-import { EnvMeta, parse } from "shape-env";
+import { spec, parse } from "shape-env";
+import { z } from "zod";
 
-// Create reusable metadata
-const meta = new EnvMeta({
-  path: ".env.production",
-  root: import.meta.url,
-  vars: {
-    API_KEY: schema.string(),
-    MAX_CONNECTIONS: schema.number(),
+// Create reusable specification
+const envSpec = spec({
+  schemas: {
+    API_KEY: z.string(),
+    MAX_CONNECTIONS: z.number(),
   },
+  preprocess: true,
 });
 
-// Load multiple times without recreating metadata
-const env1 = await parse(meta);
-const env2 = await parse(meta, { strict: false });
+// Use the spec for parsing
+const env = parse({
+  source: process.env as Record<string, string>,
+  spec: envSpec,
+});
 ```
 
 ### With Zod Schemas
@@ -67,8 +68,8 @@ const env2 = await parse(meta, { strict: false });
 import { parse } from "shape-env";
 import { z } from "zod";
 
-const env = await parse({
-  path: ".env",
+const env = parse({
+  source: process.env as Record<string, string>,
   vars: {
     PORT: z.number().min(1024).max(65535),
     NODE_ENV: z.enum(["development", "production", "test"]),
@@ -82,85 +83,61 @@ const env = await parse({
 ```typescript
 import { parse, schema } from "shape-env";
 
-const env = await parse(
-  {
-    path: ".env",
-    vars: {
-      PERCENTAGE: schema.number(),
-      ENABLED: schema.boolean(),
-    },
-  },
-  {
-    preprocess: {
-      number: (value) => value.replace(/%$/, ""), // Strip % suffix
-      bool: (value) => (value === "on" ? "true" : value),
-    },
-  },
-);
-```
-
-### Using Different Channels
-
-```typescript
-import { parse } from "shape-env";
-import { dotenvx } from "@dotenvx/dotenvx";
-
-// Using dotenvx
-const env = await parse({
-  path: ".env.vault",
-  channel: {
-    dotenvx,
-    get: { privateKey: process.env.DOTENV_PRIVATE_KEY },
-  },
+const env = parse({
+  source: process.env as Record<string, string>,
   vars: {
-    SECRET: schema.string(),
+    PERCENTAGE: schema.number(),
+    ENABLED: schema.boolean(),
+  },
+  preprocess: {
+    number: (value) => value.replace(/%$/, ""), // Strip % suffix
+    bool: (value) => (value === "on" ? "true" : value),
   },
 });
 ```
 
+### Using Different Channels
+
+For loading from files or other sources, use the higher-level `e-n-v` package which provides channel support:
+
+```typescript
+import { parse, prompt } from "e-n-v";
+import spec from "./env.spec.js";
+
+// Parse from process.env
+const env = parse({ source: process.env as Record<string, string>, spec });
+
+// Or use prompt for interactive setup with channels
+await prompt({ spec, path: ".env" });
+```
+
 ## API
 
-### `parse(options)`
+### `parse<T>(options: DirectEnvOptions): T`
 
 Load and validate environment variables.
 
 **Parameters:**
 
 - `options`: `DirectEnvOptions` - Configuration object
-  - `source`: Source object containing environment variables
-  - `vars`: Variable schemas
+  - `source`: `Record<string, string>` - Source object containing environment variables
+  - `vars` or `spec`: Variable schemas or EnvSpec instance
   - `preprocess`: Custom preprocessing functions (optional)
   - `strict`: Throw on missing required vars (default: `true`)
 
 **Returns:** `T` - Validated environment variables
 
-### `EnvMeta`
+### `spec(options: EnvSpecOptions): EnvSpec`
 
-Container for environment variable metadata.
+Create an environment variable specification.
 
-**Constructor:**
+**Parameters:**
 
-```typescript
-new EnvMeta(options: EnvMetaOptions)
-```
+- `options`: `EnvSpecOptions`
+  - `schemas`: `Record<string, SupportedSchema>` - Variable schemas
+  - `preprocess`: `true | false | Partial<Preprocessors>` - Preprocessing config
 
-**Properties:**
-
-- `channel`: `EnvChannel` - Channel for reading/writing
-- `path`: `string` - Fully qualified file path
-- `schemas`: `Record<string, EnvVarSchema>` - Resolved schemas
-- `preprocess`: `Preprocessors | undefined` - Preprocessing functions
-
-### `EnvMetaOptions`
-
-Configuration for creating EnvMeta.
-
-**Properties:**
-
-- `path`: `string` - Path to env file
-- `root`: `string | URL` - Root directory for resolving paths
-- `vars`: `Record<string, SupportedSchema>` - Variable schemas
-- `channel`: `EnvChannelOptions` - Channel configuration
+**Returns:** `EnvSpec` instance with resolved schemas and preprocessor configuration
 
 ## Error Handling
 
@@ -172,8 +149,8 @@ By default, `shape-env` validates **all** environment variables and collects err
 import { parse, EnvValidationAggregateError } from "shape-env";
 
 try {
-  const env = await parse({
-    path: ".env",
+  const env = parse({
+    source: process.env as Record<string, string>,
     vars: {
       PORT: schema.number(),
       DATABASE_URL: schema.string(),

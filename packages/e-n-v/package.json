@@ -6,14 +6,12 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./define": "./src/define.ts",
-    "./load": "./src/load.ts",
-    "./setup": "./src/setup.ts",
     "./defaults": "./src/defaults.ts"
   },
   "dependencies": {
-    "ask-env": "workspace:*",
-    "direct-env": "workspace:*",
+    "prompt-env": "workspace:*",
+    "@envcredible/specification": "workspace:*",
+    "shape-env": "workspace:*",
     "picocolors": "^1.1.1"
   },
   "keywords": [
