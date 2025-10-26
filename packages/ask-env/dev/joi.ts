@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ask } from "../src";
+import { prompt } from "../src";
 
 console.log("🔧 Ask-Env with Joi Schemas Demo\n");
 console.log(
@@ -76,6 +76,7 @@ console.log(
 console.log("- ALLOWED_ORIGINS: 'not-a-url' (invalid format)");
 console.log("");
 
-await ask(joiSchemas, {
+await prompt({
+  vars: joiSchemas,
   secrets: ["API_KEY"], // Mark API_KEY as secret for masked input
 });

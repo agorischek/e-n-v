@@ -1,4 +1,4 @@
-import { ask } from "../src";
+import { prompt } from "../src";
 import { apiKey, apiTimeout, port } from "env-var-schemas";
 
 console.log("=== Envcredible Schema Validation Demo ===\n");
@@ -38,6 +38,7 @@ console.log(
 );
 console.log("");
 
-await ask(validationSchemas, {
+await prompt({
+  vars: validationSchemas,
   secrets: ["API_KEY"],
 });

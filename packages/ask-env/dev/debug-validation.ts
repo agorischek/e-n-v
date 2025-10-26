@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ask } from "../src";
+import { prompt } from "../src";
 
 console.log("🔍 Debugging Validation Flow\n");
 
@@ -15,11 +15,9 @@ await Bun.write("dev/.env", "PORT=2\n");
 
 console.log("Starting ask-env...\n");
 
-await ask(
-  {
+await prompt({
+  vars: {
     PORT: portSchema,
   },
-  {
-    path: "dev/.env",
-  },
-);
+  path: "dev/.env",
+});

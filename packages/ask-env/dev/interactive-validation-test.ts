@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ask } from "../src";
+import { prompt } from "../src";
 
 console.log("🧪 Interactive Validation Test\n");
 
@@ -12,6 +12,8 @@ const portSchema = Joi.number()
 
 console.log("Try entering '2' - it should be rejected for being too low\n");
 
-await ask({
-  PORT: portSchema,
+await prompt({
+  vars: {
+    PORT: portSchema,
+  },
 });

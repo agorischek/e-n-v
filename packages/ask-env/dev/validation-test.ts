@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ask } from "../src";
+import { prompt } from "../src";
 
 console.log("🧪 Validation Test\n");
 
@@ -13,6 +13,8 @@ const portSchema = Joi.number()
 
 console.log("Testing port validation with invalid value '2'...\n");
 
-await ask({
-  PORT: portSchema,
+await prompt({
+  vars: {
+    PORT: portSchema,
+  },
 });

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ask } from "../src/ask";
+import { prompt } from "../src";
 
 // Set up invalid values in process.env
 process.env.PORT = "three";
@@ -25,6 +25,7 @@ console.log(
   "Running invalid.ts with process.env to highlight invalid current values.\n",
 );
 
-await ask(schemas, {
-  channel: { process },
+await prompt({
+  vars: schemas,
+  channel: "default",
 });

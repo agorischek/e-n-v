@@ -1,4 +1,4 @@
-import { ask } from "../src";
+import { prompt } from "../src";
 import { resolveSchema } from "@envcredible/schemata";
 
 // Import Zod schemas from the zod export
@@ -30,11 +30,13 @@ const envcredibleSchemas = {
 };
 
 console.log("\n=== Testing Zod-based schemas ===");
-await ask(zodSchemas, {
+await prompt({
+  vars: zodSchemas,
   secrets: ["API_KEY"],
 });
 
 console.log("\n=== Testing Envcredible schemas ===");
-await ask(envcredibleSchemas, {
+await prompt({
+  vars: envcredibleSchemas,
   secrets: ["API_KEY"],
 });

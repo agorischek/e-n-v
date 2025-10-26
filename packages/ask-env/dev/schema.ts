@@ -1,4 +1,4 @@
-import { ask, s } from "../src";
+import { prompt, s } from "../src";
 
 const DEMO = s.string({
   description: "Demo variable",
@@ -6,4 +6,4 @@ const DEMO = s.string({
   default: "hello",
 });
 
-await ask({ DEMO });
+await prompt({ vars: { DEMO } });

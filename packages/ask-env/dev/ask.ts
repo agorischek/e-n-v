@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ask } from "../src/ask";
+import { prompt } from "../src";
 
 import { DATABASE_PASSWORD } from "../../env-var-schemas/src";
 
@@ -14,4 +14,4 @@ const vars = {
   MAX_CONNECTIONS: z.number().optional(),
 };
 
-await ask(vars, { path: ".env", root: import.meta.url });
+await prompt({ vars, path: ".env", root: import.meta.url });

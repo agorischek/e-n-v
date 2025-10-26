@@ -13,6 +13,7 @@ export * as schemas from "../../env-var-schemas/src";
 
 export * as defaults from "./options/defaults";
 
-export { prompt } from "./ask";
-export { prompt as ask } from "./ask"; // Backwards compatibility alias
+import { prompt } from "./ask";
+export { prompt };
+
 export type { AskEnvOptions } from "./options/AskEnvOptions";

@@ -1,4 +1,4 @@
-import { ask } from "../src";
+import { prompt } from "../src";
 import {
   apiKey,
   apiBaseUrl,
@@ -63,12 +63,14 @@ const customizedSchemas = {
 
 console.log("\n=== Basic Schemas ===");
 console.log("Using schemas with their default configurations...");
-await ask(basicSchemas, {
+await prompt({
+  vars: basicSchemas,
   secrets: ["API_KEY", "JWT_SECRET"],
 });
 
 console.log("\n=== Customized Schemas ===");
 console.log("Using schemas with custom overrides...");
-await ask(customizedSchemas, {
+await prompt({
+  vars: customizedSchemas,
   secrets: ["API_KEY", "JWT_SECRET"],
 });

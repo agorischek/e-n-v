@@ -1,5 +1,5 @@
-import { ask } from "../src/ask";
+import { prompt } from "../src";
 import { OPENAI_API_KEY } from "../../env-var-schemas/src";
 import dotenvx from "@dotenvx/dotenvx";
 
-await ask({ OPENAI_API_KEY }, { channel: { dotenvx } });
+await prompt({ vars: { OPENAI_API_KEY }, channel: { dotenvx } });

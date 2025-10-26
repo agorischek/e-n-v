@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { ask } from "../src/ask";
+import { prompt } from "../src";
 import { defaults } from "../src";
 
-await ask(
-  {
+await prompt({
+  vars: {
     API_TOKEN: z.string().min(8, "API token must be at least 8 characters"),
     DATABASE_URL: z
       .string()
@@ -17,7 +17,5 @@ await ask(
       .string()
       .describe("Custom secret value that relies on the extended pattern list"),
   },
-  {
-    secrets: [...defaults.SECRET_PATTERNS, /CUSTOM_SENSITIVE/i],
-  },
-);
+  secrets: [...defaults.SECRET_PATTERNS, /CUSTOM_SENSITIVE/i],
+});

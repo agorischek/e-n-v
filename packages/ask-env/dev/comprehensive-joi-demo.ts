@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ask } from "../src";
+import { prompt } from "../src";
 
 console.log("🎯 Comprehensive Joi Validation Demo\n");
 
@@ -66,7 +66,8 @@ console.log(
   "\n📝 Notice how invalid current values are marked and blocked from submission!\n",
 );
 
-await ask(schemas, {
+await prompt({
+  vars: schemas,
   path: "dev/.env",
   secrets: ["API_KEY"],
 });

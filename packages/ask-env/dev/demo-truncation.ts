@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ask } from "../src/ask";
+import { prompt } from "../src";
 
 const schemas = {
   DEMO_LONG_VALUE: z.string().optional(),
@@ -13,6 +13,7 @@ console.log(
 console.log("The default limit is 40 characters");
 console.log();
 
-await ask(schemas, {
+await prompt({
+  vars: schemas,
   path: ".env.demo-truncation",
 });

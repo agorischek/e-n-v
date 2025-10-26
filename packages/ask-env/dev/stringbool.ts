@@ -1,6 +1,8 @@
 import { z } from "zod";
-import { ask } from "../src/ask";
+import { prompt } from "../src";
 
-await ask({
-  B: z.stringbool(),
+await prompt({
+  vars: {
+    B: z.stringbool(),
+  },
 });
