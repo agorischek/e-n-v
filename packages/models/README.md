@@ -18,10 +18,10 @@ bun add @e-n-v/models
 
 ```typescript
 // env.model.ts
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { z } from "zod";
 
-export default model({
+export default define({
   schemas: {
     NODE_ENV: z.enum(["development", "production", "test"]),
     PORT: z.number().int().positive(),
@@ -35,7 +35,7 @@ export default model({
 
 ## API
 
-### `model(options: EnvModelOptions): EnvModel`
+### `define(options: EnvModelOptions): EnvModel`
 
 Create an environment variable model.
 
@@ -80,10 +80,10 @@ The model container with resolved schemas and preprocessor configuration.
 ### Basic Model
 
 ```typescript
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { z } from "zod";
 
-export default model({
+export default define({
   schemas: {
     PORT: z.number(),
     HOST: z.string(),
@@ -95,11 +95,11 @@ export default model({
 ### With Preprocessing Disabled
 
 ```typescript
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { z } from "zod";
 
 // No value normalization - raw strings only
-export default model({
+export default define({
   schemas: {
     STRICT_VALUE: z.string(),
   },
@@ -110,10 +110,10 @@ export default model({
 ### Custom Preprocessors
 
 ```typescript
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { z } from "zod";
 
-export default model({
+export default define({
   schemas: {
     PORT: z.number(),
     DEBUG: z.boolean(),
@@ -137,10 +137,10 @@ export default model({
 
 ```typescript
 // env.model.ts
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { NODE_ENV, OPENAI_API_KEY } from "@e-n-v/schemas";
 
-export default model({
+export default define({
   schemas: { NODE_ENV, OPENAI_API_KEY },
   preprocess: false,
 });
@@ -170,10 +170,10 @@ await prompt({
 
 ```typescript
 // specs/database.model.ts
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { z } from "zod";
 
-export const modelSpec = model({
+export const modelSpec = define({
   schemas: {
     DATABASE_URL: z.string().url(),
     DATABASE_POOL_SIZE: z.number().int().positive(),
@@ -185,10 +185,10 @@ export const modelSpec = model({
 
 ```typescript
 // specs/api.model.ts
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { z } from "zod";
 
-export const modelSpec = model({
+export const modelSpec = define({
   schemas: {
     API_PORT: z.number().int().positive(),
     API_HOST: z.string(),
@@ -200,12 +200,12 @@ export const modelSpec = model({
 
 ```typescript
 // env.model.ts
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { databaseModel } from "./specs/database.model";
 import { apiModel } from "./specs/api.model";
 
 // Combine multiple models
-export default model({
+export default define({
   schemas: {
     ...databaseModel.schemas,
     ...apiModel.schemas,
@@ -220,10 +220,10 @@ The specification is fully typed, ensuring type safety throughout your applicati
 
 ```typescript
 ```typescript
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { z } from "zod";
 
-const modelSpec = model({
+const modelSpec = define({
   schemas: {
     PORT: z.number(),
     HOST: z.string(),

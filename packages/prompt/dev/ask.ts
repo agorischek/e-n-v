@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { prompt } from "../src";
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 
 import { DATABASE_PASSWORD } from "@e-n-v/schemas";
 
@@ -16,7 +16,7 @@ const schemas = {
 };
 
 // Test overload 1: Using model and interactive options
-const envModel = model({ schemas });
+const envModel = define({ schemas });
 await prompt(envModel, { path: ".env", root: import.meta.url });
 
 // Test overload 2: Using combined options

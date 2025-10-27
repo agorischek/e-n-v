@@ -12,9 +12,9 @@ import type { SupportedSchema } from "./types";
  *
  * @example
  * ```typescript
- * import { model, s } from "@e-n-v/models";
+ * import { define, s } from "@e-n-v/models";
  *
- * export default model({
+ * export default define({
  *   schemas: {
  *     PORT: s.number({ default: 3000 }),
  *     DATABASE_URL: s.string(),
@@ -24,7 +24,7 @@ import type { SupportedSchema } from "./types";
  * });
  * ```
  */
-export function model<T extends Record<string, SupportedSchema>>(
+export function define<T extends Record<string, SupportedSchema>>(
   options: EnvModelOptions<T>
 ): EnvModel<T> {
   return new EnvModel<T>(options);

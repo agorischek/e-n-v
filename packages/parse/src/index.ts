@@ -7,7 +7,7 @@ export { EnvValidationAggregateError } from "./errors/EnvValidationAggregateErro
 export type { ParseEnvOptions } from "../ParseEnvOptions";
 
 // Re-export EnvModel
-export { EnvModel, model } from "@e-n-v/models";
+export { EnvModel, define } from "@e-n-v/models";
 export type { EnvModelOptions } from "@e-n-v/models";
 
 // Re-export useful types and utilities

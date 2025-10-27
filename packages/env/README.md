@@ -11,7 +11,7 @@ A unified, elegant API for environment variable management with type-safe schema
 
 `e-n-v` provides three core functions for working with environment variables:
 
-1. **model()** - Define your environment schema once
+1. **define()** - Define your environment schema once
 2. **parse()** - Load and validate at runtime
 3. **prompt()** - Interactive configuration for development
 
@@ -28,10 +28,10 @@ bun add e-n-v zod
 Create a reusable environment model:
 
 ```typescript
-import { model } from "e-n-v";
+import { define } from "e-n-v";
 import { z } from "zod";
 
-export default model({
+export default define({
   schemas: {
     NODE_ENV: z.enum(["development", "production", "test"]),
     DATABASE_URL: z.string().url(),
@@ -98,10 +98,10 @@ bun run env.setup.ts
 Import commonly used schemas from `e-n-v/schemas`:
 
 ```typescript
-import { model } from "e-n-v";
+import { define } from "e-n-v";
 import { NODE_ENV, PORT, DATABASE_URL } from "env-var-schemas";
 
-export default model({
+export default define({
   schemas: {
     NODE_ENV,
     PORT,
@@ -116,10 +116,10 @@ export default model({
 Control how values are normalized before validation:
 
 ```typescript
-import { model } from "e-n-v";
+import { define } from "e-n-v";
 import { z } from "zod";
 
-export default model({
+export default define({
   schemas: {
     PORT: z.number(),
     DEBUG: z.boolean(),
@@ -142,7 +142,7 @@ export default model({
 ### Disable All Preprocessing
 
 ```typescript
-export default model({
+export default define({
   schemas: {
     /* ... */
   },
@@ -167,7 +167,7 @@ const env = parse({
 ```typescript
 import { model, schema } from "e-n-v";
 
-export default model({
+export default define({
   schemas: {
     PORT: schema.number({ default: 3000 }),
     DEBUG: schema.boolean({ default: false }),
@@ -182,7 +182,7 @@ export default model({
 
 ## API Reference
 
-### `model(options: EnvModelOptions): EnvModel`
+### `define(options: EnvModelOptions): EnvModel`
 
 Create an environment variable model.
 
@@ -287,12 +287,12 @@ Works with multiple schema libraries:
 - **Native e·n·v schemas**
 
 ```typescript
-import { model } from "@e-n-v/env";
+import { define } from "@e-n-v/env";
 import { z } from "zod";
 import Joi from "joi";
 import { schema } from "@e-n-v/core";
 
-export default model({
+export default define({
   schemas: {
     // Mix and match!
     PORT: z.number(),

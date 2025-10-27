@@ -6,12 +6,11 @@ console.log("🔍 Demo: Error Handling\n");
 console.log("Test 1: Multiple validation errors (aggregate)");
 try {
   parse({
-    source: {
-      PORT: "not-a-number",
-      DEBUG: "maybe",
-      // REQUIRED_KEY1 and REQUIRED_KEY2 are missing
-    },
-    vars: {
+    PORT: "not-a-number",
+    DEBUG: "maybe",
+    // REQUIRED_KEY1 and REQUIRED_KEY2 are missing
+  }, {
+    schemas: {
       PORT: schema.number(),
       DEBUG: schema.boolean(),
       REQUIRED_KEY1: schema.string(),
@@ -33,11 +32,10 @@ try {
 console.log("Test 2: Missing required variable (strict mode)");
 try {
   parse({
-    source: {
-      PORT: "not-a-number",
-      DEBUG: "maybe",
-    },
-    vars: {
+    PORT: "not-a-number",
+    DEBUG: "maybe",
+  }, {
+    schemas: {
       REQUIRED_KEY: schema.string(),
     },
   });
@@ -51,14 +49,12 @@ try {
 // Test 3: Missing required variable (non-strict mode)
 console.log("Test 3: Missing required variable (non-strict mode)");
 const env2 = parse({
-  source: {
-    PORT: "not-a-number",
-    DEBUG: "maybe",
-  },
-  vars: {
+  PORT: "not-a-number",
+  DEBUG: "maybe",
+}, {
+  schemas: {
     REQUIRED_KEY: schema.string(),
   },
-  strict: false,
 });
 console.log(`  ✅ Returned undefined: ${env2.REQUIRED_KEY}\n`);
 
@@ -66,11 +62,10 @@ console.log(`  ✅ Returned undefined: ${env2.REQUIRED_KEY}\n`);
 console.log("Test 4: Detailed error messages");
 try {
   parse({
-    source: {
-      PORT: "not-a-number",
-      DEBUG: "maybe",
-    },
-    vars: {
+    PORT: "not-a-number",
+    DEBUG: "maybe",
+  }, {
+    schemas: {
       PORT: schema.number(),
       DEBUG: schema.boolean(),
     },
@@ -86,10 +81,9 @@ try {
 // Test 5: Using defaults to avoid errors
 console.log("Test 5: Using defaults to avoid errors");
 const env5 = parse({
-  source: {
-    // MISSING_VAR is not provided
-  },
-  vars: {
+  // MISSING_VAR is not provided
+}, {
+  schemas: {
     MISSING_VAR: schema.string({ default: "fallback", required: false }),
   },
 });

@@ -21,5 +21,5 @@ export { prompt };
 export type { PromptEnvOptions } from "./options/PromptEnvOptions";
 
 // Re-export EnvModel
-export { EnvModel, model } from "@e-n-v/models";
+export { EnvModel, define } from "@e-n-v/models";
 export type { EnvModelOptions } from "@e-n-v/models";

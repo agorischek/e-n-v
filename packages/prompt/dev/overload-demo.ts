@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { prompt } from "../src";
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 
 const schemas = {
   API_KEY: z.string().describe("Your API key"),
@@ -12,7 +12,7 @@ console.log("🧪 Testing prompt function overloads\n");
 
 // Overload 1: Using model instance and interactive options
 console.log("📦 Testing overload 1: prompt(model, options)");
-const envModel = model({ schemas, preprocess: true });
+const envModel = define({ schemas, preprocess: true });
 await prompt(envModel, { 
   path: ".env.overload1",
   secrets: ["API_KEY"],

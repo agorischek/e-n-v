@@ -1,5 +1,5 @@
 import { parse, s } from "../src/index";
-import { model } from "@e-n-v/env";
+import { define } from "@e-n-v/env";
 
 const env = parse(
   {
@@ -7,7 +7,7 @@ const env = parse(
     DEBUG: "true",
     NODE_ENV: "development",
   },
-  model({
+  define({
     schemas: {
       PORT: s.number({ default: 3000 }),
       DEBUG: s.boolean({ default: false }),

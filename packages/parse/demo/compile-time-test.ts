@@ -1,7 +1,7 @@
 import { parse, s } from "../src/index";
-import { model } from "@e-n-v/env";
+import { define } from "@e-n-v/env";
 
-const envModel = model({
+const envModel = define({
   schemas: {
     PORT: s.number({ default: 3000 }),
     NAME: s.string(),

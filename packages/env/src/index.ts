@@ -2,12 +2,12 @@
  * e-n-v - "Environments, niftily? Very!"
  *
  * A unified, elegant API for environment variable management
- * Combines model, parse, and prompt into a cohesive workflow
+ * Combines define, parse, and prompt into a cohesive workflow
  */
 
 // Main exports
-import { model } from "@e-n-v/models";
-export { model };
+import { define } from "@e-n-v/models";
+export { define };
 export { parse } from "@e-n-v/parse";
 export { prompt } from "@e-n-v/prompt";
 export { defaults } from "./defaults";

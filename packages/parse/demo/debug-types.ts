@@ -1,5 +1,5 @@
 import { parse, s } from "../src/index";
-import { model } from "@e-n-v/env";
+import { define } from "@e-n-v/env";
 
 // Let's test what TypeScript actually infers for individual schemas
 type NumberSchema = ReturnType<typeof s.number>;
@@ -8,7 +8,7 @@ type BooleanSchema = ReturnType<typeof s.boolean>;
 type EnumSchema = ReturnType<typeof s.enum<"a" | "b">>;
 
 // Let's see what we get for the model call
-const testModel = model({
+const testModel = define({
   schemas: {
     PORT: s.number({ default: 3000 }),
     NAME: s.string(),

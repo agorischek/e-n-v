@@ -45,12 +45,12 @@ console.log(env.DEBUG); // boolean
 ### Using EnvModel
 
 ```typescript
-import { model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import { parse } from "@e-n-v/parse";
 import { z } from "zod";
 
 // Create reusable model
-const envModel = model({
+const envModel = define({
   schemas: {
     API_KEY: z.string(),
     MAX_CONNECTIONS: z.number(),
@@ -148,7 +148,7 @@ Load and validate environment variables.
 
 **Returns:** `T` - Validated environment variables
 
-### `model(options: EnvModelOptions): EnvModel`
+### `define(options: EnvModelOptions): EnvModel`
 
 Create an environment variable specification.
 

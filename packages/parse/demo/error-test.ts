@@ -1,11 +1,11 @@
 import { parse, s } from "../src/index";
-import { model } from "@e-n-v/env";
+import { define } from "@e-n-v/env";
 
 const env = parse(
   {
     PORT: "3000",
   },
-  model({
+  define({
     schemas: {
       PORT: s.number({ default: 3000 }),
     },

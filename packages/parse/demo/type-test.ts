@@ -1,5 +1,5 @@
 import { parse, s } from "../src/index";
-import { model } from "@e-n-v/env";
+import { define } from "@e-n-v/env";
 
 // Test the type inference
 const env = parse(
@@ -11,7 +11,7 @@ const env = parse(
     API_KEY: "secret-key-123",
     NODE_ENV: "development",
   },
-  model({
+  define({
     schemas: {
       PORT: s.number({ default: 3000 }),
       DATABASE_URL: s.string(),

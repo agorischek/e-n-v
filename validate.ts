@@ -6,7 +6,7 @@
  */
 
 import {
-  spec,
+  define,
   parse,
   schema,
   EnvValidationAggregateError,
@@ -41,8 +41,8 @@ OPTIONAL_VAR=
       }
     }
 
-    console.log("✅ Step 1: Create EnvSpec instance");
-    const envSpec = spec({
+    console.log("✅ Step 1: Create EnvModel instance");
+    const envModel = define({
       schemas: {
         PORT: schema.number(),
         DATABASE_URL: schema.string(),
@@ -60,11 +60,11 @@ OPTIONAL_VAR=
       preprocess: true,
     });
     console.log(
-      `   Schemas: ${Object.keys(envSpec.schemas).length} variables\n`,
+      `   Schemas: ${Object.keys(envModel.schemas).length} variables\n`,
     );
 
     console.log("✅ Step 2: Parse environment variables");
-    const env = parse({ source, spec: envSpec });
+    const env = parse(source, envModel);
     console.log(`   PORT: ${env.PORT} (${typeof env.PORT})`);
     console.log(`   DATABASE_URL: ${env.DATABASE_URL}`);
     console.log(`   DEBUG: ${env.DEBUG} (${typeof env.DEBUG})`);
@@ -82,11 +82,10 @@ OPTIONAL_VAR=
     );
 
     console.log("✅ Step 4: Parse with custom preprocessing");
-    const env2 = parse({
-      source,
-      spec: envSpec,
+    const env2 = parse(source, {
+      schemas: envModel.schemas,
       preprocess: {
-        number: (value) => {
+        number: (value: string) => {
           console.log(`   Preprocessing number: "${value}"`);
           return value;
         },
@@ -94,10 +93,9 @@ OPTIONAL_VAR=
     });
     console.log(`   PORT: ${env2.PORT}\n`);
 
-    console.log("✅ Step 5: Parse using vars directly");
-    const env3 = parse({
-      source,
-      vars: {
+    console.log("✅ Step 5: Parse using schemas directly");
+    const env3 = parse(source, {
+      schemas: {
         PORT: schema.number(),
         DEBUG: schema.boolean(),
       },
@@ -108,9 +106,8 @@ OPTIONAL_VAR=
     console.log("✅ Step 6: Test aggregate error collection");
     const badSource = { PORT: "invalid", DEBUG: "maybe" };
     try {
-      parse({
-        source: badSource,
-        vars: {
+      parse(badSource, {
+        schemas: {
           PORT: schema.number(),
           DEBUG: schema.boolean(),
           MISSING1: schema.string(),

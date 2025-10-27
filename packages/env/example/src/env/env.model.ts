@@ -1,9 +1,9 @@
-// env.spec.ts - Define your environment schema once
+// env.model.ts - Define your environment schema once
 
-import { model } from "@e-n-v/env";
+import { define } from "@e-n-v/env";
 import { z } from "zod";
 
-export default model({
+export const model = define({
   schemas: {
     NODE_ENV: z.enum(["development", "production", "test"]),
     DATABASE_URL: z.url(),
@@ -13,3 +13,5 @@ export default model({
   },
   preprocess: true,
 });
+
+export default model;

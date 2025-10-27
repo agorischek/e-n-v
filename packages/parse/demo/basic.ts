@@ -1,5 +1,5 @@
 import { parse, s } from "../src/index";
-import { model } from "@e-n-v/env";
+import { define } from "@e-n-v/env";
 
 console.log("🔍 Parsing environment variables...\n");
 
@@ -25,7 +25,7 @@ const schemas = {
 
 // Overload 1: Using model instance
 console.log("📦 Testing overload 1: parse(source, model)");
-const envModel = model({ schemas, preprocess: true });
+const envModel = define({ schemas, preprocess: true });
 const env1 = parse(source, envModel);
 
 console.log("✅ Successfully parsed with model:\n");
