@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { prompt } from "../src";
+import { model } from "@e-n-v/models";
 
 import { DATABASE_PASSWORD } from "@e-n-v/schemas";
 
-const vars = {
+const schemas = {
   DATABASE_PASSWORD,
   // RABBITMQ_URL,
   // DATABASE_URL: z.string().describe("Database connection URL").default("hey"),
@@ -14,4 +15,9 @@ const vars = {
   MAX_CONNECTIONS: z.number().optional(),
 };
 
-await prompt({ schemas, path: ".env", root: import.meta.url });
+// Test overload 1: Using model and interactive options
+const envModel = model({ schemas });
+await prompt(envModel, { path: ".env", root: import.meta.url });
+
+// Test overload 2: Using combined options
+// await prompt({ schemas, path: ".env", root: import.meta.url });

@@ -1,6 +1,6 @@
 # e·n·v Models
 
-Environment variable specification definition for e·n·v.
+Environment variable model definition for e·n·v.
 
 ## Overview
 
@@ -17,11 +17,11 @@ bun add @e-n-v/models
 ## Quick Start
 
 ```typescript
-// env.spec.ts
-import { spec } from "@e-n-v/models";
+// env.model.ts
+import { model } from "@e-n-v/models";
 import { z } from "zod";
 
-export default spec({
+export default model({
   schemas: {
     NODE_ENV: z.enum(["development", "production", "test"]),
     PORT: z.number().int().positive(),
@@ -35,9 +35,9 @@ export default spec({
 
 ## API
 
-### `spec(options: EnvSpecOptions): EnvSpec`
+### `model(options: EnvModelOptions): EnvModel`
 
-Create an environment variable specification.
+Create an environment variable model.
 
 #### Options
 
@@ -63,9 +63,9 @@ Preprocessors normalize values before validation:
   - `"off"`, `"disabled"`, `"inactive"`, `"no"` → `"false"`
 - **`enum`**: Pass-through (no transformation)
 
-### `EnvSpec` Class
+### `EnvModel` Class
 
-The specification container with resolved schemas and preprocessor configuration.
+The model container with resolved schemas and preprocessor configuration.
 
 #### Properties
 
@@ -77,13 +77,13 @@ The specification container with resolved schemas and preprocessor configuration
 
 ## Usage Examples
 
-### Basic Specification
+### Basic Model
 
 ```typescript
-import { spec } from "@e-n-v/models";
+import { model } from "@e-n-v/models";
 import { z } from "zod";
 
-export default spec({
+export default model({
   schemas: {
     PORT: z.number(),
     HOST: z.string(),
@@ -95,11 +95,11 @@ export default spec({
 ### With Preprocessing Disabled
 
 ```typescript
-import { spec } from "@e-n-v/models";
+import { model } from "@e-n-v/models";
 import { z } from "zod";
 
 // No value normalization - raw strings only
-export default spec({
+export default model({
   schemas: {
     STRICT_VALUE: z.string(),
   },
@@ -110,10 +110,10 @@ export default spec({
 ### Custom Preprocessors
 
 ```typescript
-import { spec } from "@e-n-v/models";
+import { model } from "@e-n-v/models";
 import { z } from "zod";
 
-export default spec({
+export default model({
   schemas: {
     PORT: z.number(),
     DEBUG: z.boolean(),
@@ -136,11 +136,11 @@ export default spec({
 ### Using with @e-n-v/env
 
 ```typescript
-// env.spec.ts
-import { spec } from "@e-n-v/models";
+// env.model.ts
+import { model } from "@e-n-v/models";
 import { NODE_ENV, OPENAI_API_KEY } from "@e-n-v/schemas";
 
-export default spec({
+export default model({
   schemas: { NODE_ENV, OPENAI_API_KEY },
   preprocess: false,
 });
@@ -148,7 +148,7 @@ export default spec({
 
 ```typescript
 // env.ts
-import spec from "./env.spec.js";
+import spec from "./env.model.js";
 import { parse } from "@e-n-v/parse";
 
 export const env = parse({ source: process.env, spec });
@@ -156,7 +156,7 @@ export const env = parse({ source: process.env, spec });
 
 ```typescript
 // env.setup.ts
-import spec from "./env.spec.js";
+import spec from "./env.model.js";
 import { prompt, defaults } from "@e-n-v/prompt";
 
 await prompt({
@@ -166,14 +166,14 @@ await prompt({
 });
 ```
 
-### Reusable Specifications
+### Reusable Models
 
 ```typescript
-// specs/database.spec.ts
-import { spec } from "@e-n-v/models";
+// specs/database.model.ts
+import { model } from "@e-n-v/models";
 import { z } from "zod";
 
-export const databaseSpec = spec({
+export const modelSpec = model({
   schemas: {
     DATABASE_URL: z.string().url(),
     DATABASE_POOL_SIZE: z.number().int().positive(),
@@ -184,11 +184,11 @@ export const databaseSpec = spec({
 ```
 
 ```typescript
-// specs/api.spec.ts
-import { spec } from "@e-n-v/models";
+// specs/api.model.ts
+import { model } from "@e-n-v/models";
 import { z } from "zod";
 
-export const apiSpec = spec({
+export const modelSpec = model({
   schemas: {
     API_PORT: z.number().int().positive(),
     API_HOST: z.string(),
@@ -199,16 +199,16 @@ export const apiSpec = spec({
 ```
 
 ```typescript
-// env.spec.ts
-import { spec } from "@e-n-v/models";
-import { databaseSpec } from "./specs/database.spec";
-import { apiSpec } from "./specs/api.spec";
+// env.model.ts
+import { model } from "@e-n-v/models";
+import { databaseModel } from "./specs/database.model";
+import { apiModel } from "./specs/api.model";
 
-// Combine multiple specifications
-export default spec({
+// Combine multiple models
+export default model({
   schemas: {
-    ...databaseSpec.schemas,
-    ...apiSpec.schemas,
+    ...databaseModel.schemas,
+    ...apiModel.schemas,
   },
   preprocess: true,
 });
@@ -220,10 +220,10 @@ The specification is fully typed, ensuring type safety throughout your applicati
 
 ```typescript
 ```typescript
-import { spec } from "@e-n-v/models";
+import { model } from "@e-n-v/models";
 import { z } from "zod";
 
-const mySpec = spec({
+const modelSpec = model({
   schemas: {
     PORT: z.number(),
     HOST: z.string(),
@@ -232,7 +232,7 @@ const mySpec = spec({
 });
 
 // TypeScript knows the shape of schemas
-type SchemaKeys = keyof typeof mySpec.schemas; // "PORT" | "HOST"
+type SchemaKeys = keyof typeof myModel.schemas; // "PORT" | "HOST"
 ```
 
 ## Related Packages

@@ -11,7 +11,7 @@ A unified, elegant API for environment variable management with type-safe schema
 
 `e-n-v` provides three core functions for working with environment variables:
 
-1. **spec()** - Define your environment schema once
+1. **model()** - Define your environment schema once
 2. **parse()** - Load and validate at runtime
 3. **prompt()** - Interactive configuration for development
 
@@ -23,15 +23,15 @@ bun add e-n-v zod
 
 ## Quick Start
 
-### 1. Define Your Specification (env.spec.ts)
+### 1. Define Your Model (env.model.ts)
 
-Create a reusable environment specification:
+Create a reusable environment model:
 
 ```typescript
-import { spec } from "e-n-v";
+import { model } from "e-n-v";
 import { z } from "zod";
 
-export default spec({
+export default model({
   schemas: {
     NODE_ENV: z.enum(["development", "production", "test"]),
     DATABASE_URL: z.string().url(),
@@ -48,13 +48,13 @@ export default spec({
 Load and validate your environment variables:
 
 ```typescript
-import spec from "./env.spec.js";
+import modelSpec from "./env.model.js";
 import { parse } from "e-n-v";
 
 // Parse and validate - fully type-safe!
 export const env = parse({
   source: process.env as Record<string, string>,
-  spec,
+  model: modelSpec,
 });
 
 // Use validated environment
@@ -67,11 +67,19 @@ console.log(`Environment: ${env.NODE_ENV}`);
 Create an interactive setup script for development:
 
 ```typescript
-import spec from "./env.spec.js";
+import modelSpec from "./env.model.js";
 import { prompt, defaults } from "e-n-v";
 
+// Option 1: Using model overload (recommended)
+await prompt(modelSpec, {
+  secrets: [...defaults.SECRET_PATTERNS, "API_KEY"],
+  path: ".env",
+});
+
+// Option 2: Using combined options
 await prompt({
-  spec,
+  schemas: modelSpec.schemas,
+  preprocess: modelSpec.preprocess,
   secrets: [...defaults.SECRET_PATTERNS, "API_KEY"],
   path: ".env",
 });
@@ -90,10 +98,10 @@ bun run env.setup.ts
 Import commonly used schemas from `e-n-v/schemas`:
 
 ```typescript
-import { spec } from "e-n-v";
+import { model } from "e-n-v";
 import { NODE_ENV, PORT, DATABASE_URL } from "env-var-schemas";
 
-export default spec({
+export default model({
   schemas: {
     NODE_ENV,
     PORT,
@@ -108,10 +116,10 @@ export default spec({
 Control how values are normalized before validation:
 
 ```typescript
-import { spec } from "e-n-v";
+import { model } from "e-n-v";
 import { z } from "zod";
 
-export default spec({
+export default model({
   schemas: {
     PORT: z.number(),
     DEBUG: z.boolean(),
@@ -134,7 +142,7 @@ export default spec({
 ### Disable All Preprocessing
 
 ```typescript
-export default spec({
+export default model({
   schemas: {
     /* ... */
   },
@@ -149,7 +157,7 @@ Allow missing/invalid variables without throwing:
 ```typescript
 const env = parse({
   source: process.env as Record<string, string>,
-  spec,
+  model: modelSpec,
   strict: false, // Returns undefined for missing/invalid vars
 });
 ```
@@ -157,9 +165,9 @@ const env = parse({
 ### Using Native Schemas
 
 ```typescript
-import { spec, schema } from "e-n-v";
+import { model, schema } from "e-n-v";
 
-export default spec({
+export default model({
   schemas: {
     PORT: schema.number({ default: 3000 }),
     DEBUG: schema.boolean({ default: false }),
@@ -174,9 +182,9 @@ export default spec({
 
 ## API Reference
 
-### `spec(options: EnvSpecOptions): EnvSpec`
+### `model(options: EnvModelOptions): EnvModel`
 
-Create an environment variable specification.
+Create an environment variable model.
 
 **Options:**
 
@@ -186,7 +194,7 @@ Create an environment variable specification.
   - `false`: Disable all preprocessing
   - Partial object: Customize specific preprocessors
 
-**Returns:** `EnvSpec` instance with:
+**Returns:** `EnvModel` instance with:
 
 - `schemas`: Resolved environment variable schemas
 - `preprocess`: Resolved preprocessor configuration
@@ -198,7 +206,7 @@ Load and validate environment variables.
 **Options:**
 
 - `source` (required): `Record<string, string>` - Source object (e.g., process.env)
-- `spec` or `vars` (required): Specification or schemas
+- `model` or `vars` (required): Model or schemas
 - `preprocess` (optional): Override preprocessing configuration
 - `strict` (optional): Throw on errors (default: true)
 
@@ -206,19 +214,29 @@ Load and validate environment variables.
 
 **Throws:** `EnvValidationAggregateError` in strict mode
 
+### `prompt(model: EnvModel, options?: PromptEnvInteractiveOptions): Promise<void>`
+
 ### `prompt(options: PromptEnvOptions): Promise<void>`
 
 Interactive setup for environment variables.
 
-**Options:**
+#### Overload 1: Using separate model and options
 
-- `spec` or `vars` (required): Specification or schemas
-- `path` (optional): Path to .env file (default: ".env")
-- `root` (optional): Root directory for resolving paths
-- `secrets` (optional): Patterns for masking secret values
-- `truncate` (optional): Max display length (default: 40)
-- `theme` (optional): Color theme function
-- `channel` (optional): Channel for reading/writing vars
+- `model` (required): `EnvModel` instance with schemas and preprocessing config
+- `options` (optional): `PromptEnvInteractiveOptions` for interactive settings
+  - `path`: Path to .env file (default: ".env")
+  - `root`: Root directory for resolving paths
+  - `secrets`: Patterns for masking secret values
+  - `truncate`: Max display length (default: 40)
+  - `theme`: Color theme function
+  - `channel`: Channel for reading/writing vars
+
+#### Overload 2: Using combined options
+
+- `options` (required): `PromptEnvOptions` containing both model and interactive options
+  - `schemas`: Environment variable schemas
+  - `preprocess`: Preprocessing configuration
+  - All interactive options from above
 
 **Returns:** Promise that resolves when setup is complete
 
@@ -246,10 +264,10 @@ Default preprocessors normalize values before validation:
 
 ```typescript
 import { parse, EnvValidationAggregateError } from "e-n-v";
-import spec from "./env.spec.js";
+import modelSpec from "./env.spec.js";
 
 try {
-  const env = parse({ source: process.env as Record<string, string>, spec });
+  const env = parse({ source: process.env as Record<string, string>, model: modelSpec });
 } catch (error) {
   if (error instanceof EnvValidationAggregateError) {
     console.error(`${error.errors.length} validation errors:`);
@@ -269,12 +287,12 @@ Works with multiple schema libraries:
 - **Native e·n·v schemas**
 
 ```typescript
-import { spec } from "@e-n-v/env";
+import { model } from "@e-n-v/env";
 import { z } from "zod";
 import Joi from "joi";
 import { schema } from "@e-n-v/core";
 
-export default spec({
+export default model({
   schemas: {
     // Mix and match!
     PORT: z.number(),
@@ -297,7 +315,7 @@ A playful take on environment variable management that emphasizes:
 
 ## Related Packages
 
-- **[@e-n-v/models](../models)**: Core specification functionality
+- **[@e-n-v/models](../models)**: Core model functionality
 - **[@e-n-v/prompt](../prompt)**: Interactive environment variable setup
 - **[@e-n-v/parse](../parse)**: Environment variable parsing and validation
 

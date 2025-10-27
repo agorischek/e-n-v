@@ -1,7 +1,9 @@
 import type { EnvVarSchema } from "@e-n-v/core";
 import { stdin, stdout } from "node:process";
 import type { PromptEnvOptions } from "./options/PromptEnvOptions";
+import type { PromptEnvInteractiveOptions } from "./options/PromptEnvInteractiveOptions";
 import type { EnvChannel } from "@e-n-v/core";
+import { EnvModel } from "@e-n-v/models";
 import * as defaults from "./options/defaults";
 import { resolveChannel } from "@e-n-v/channels/resolveChannel";
 import { Session } from "./session/Session";
@@ -27,42 +29,70 @@ function isEnvChannel(value: unknown): value is EnvChannel {
 }
 
 /**
- * Interactive CLI tool to generate .env files with Zod schema validation
- * @param options - Configuration options including vars/spec and other settings
+ * Interactive CLI tool to generate .env files with schema validation
+ * @param model - Environment model instance
+ * @param options - Interactive configuration options
  */
-export async function prompt(options: PromptEnvOptions): Promise<void> {
-  // Support both legacy vars and new spec
+export async function prompt(
+  model: EnvModel,
+  options?: PromptEnvInteractiveOptions
+): Promise<void>;
+
+/**
+ * Interactive CLI tool to generate .env files with schema validation
+ * @param options - Configuration options including schemas and interactive settings
+ */
+export async function prompt(options: PromptEnvOptions): Promise<void>;
+
+/**
+ * Interactive CLI tool to generate .env files with schema validation
+ */
+export async function prompt(
+  modelOrOptions: EnvModel | PromptEnvOptions,
+  interactiveOptions?: PromptEnvInteractiveOptions
+): Promise<void> {
   let schemas: Record<string, EnvVarSchema>;
   let preprocessConfig: any;
+  let finalOptions: PromptEnvInteractiveOptions;
 
-  if (options.spec) {
-    schemas = options.spec.schemas;
-    preprocessConfig = options.preprocess ?? options.spec.preprocess;
-  } else if (options.schemas) {
-    schemas = resolveSchemas(options.schemas);
-    preprocessConfig = options.preprocess;
+  // Determine which overload is being used
+  if (modelOrOptions instanceof EnvModel) {
+    // First overload: (model, options?)
+    const model = modelOrOptions;
+    finalOptions = interactiveOptions || {};
+    schemas = model.schemas;
+    preprocessConfig = model.preprocess;
   } else {
-    throw new Error("Either 'vars' or 'spec' must be provided");
+    // Second overload: (options)
+    const options = modelOrOptions;
+    finalOptions = options;
+    
+    if (options.schemas) {
+      schemas = resolveSchemas(options.schemas);
+      preprocessConfig = options.preprocess;
+    } else {
+      throw new Error("Either provide a model or schemas in options");
+    }
   }
 
-  const rootDirectory = resolveRootDirectory(options.root);
+  const rootDirectory = resolveRootDirectory(finalOptions.root);
   const path = resolveEnvFilePath(
-    options.path ?? defaults.ENV_PATH,
+    finalOptions.path ?? defaults.ENV_PATH,
     rootDirectory,
   );
-  const truncate = options.truncate ?? defaults.TRUNCATE_LENGTH;
-  const secrets = options.secrets ?? defaults.SECRET_PATTERNS;
+  const truncate = finalOptions.truncate ?? defaults.TRUNCATE_LENGTH;
+  const secrets = finalOptions.secrets ?? defaults.SECRET_PATTERNS;
 
   const input = stdin;
   const output = stdout;
 
   // If channel is already an EnvChannel instance, use it directly
   // Otherwise, resolve it from the options
-  const channel: EnvChannel = isEnvChannel(options.channel)
-    ? options.channel
-    : resolveChannel(options.channel, path);
+  const channel: EnvChannel = isEnvChannel(finalOptions.channel)
+    ? finalOptions.channel
+    : resolveChannel(finalOptions.channel, path);
 
-  const theme = resolveTheme(options.theme);
+  const theme = resolveTheme(finalOptions.theme);
 
   const preprocess = preprocessConfig;
 

@@ -1,6 +1,6 @@
 // app.ts - Use validated environment variables in your application
 
-import { NODE_ENV, DEBUG, PORT, DATABASE_URL } from "./env";
+import { NODE_ENV, DEBUG, PORT, DATABASE_URL } from "./env/env.vars";
 
 // Use validated, type-safe env vars
 console.log(`Starting server on port ${PORT}`);

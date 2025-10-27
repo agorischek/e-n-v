@@ -20,6 +20,6 @@ export { prompt };
 
 export type { PromptEnvOptions } from "./options/PromptEnvOptions";
 
-// Re-export EnvModel (EnvSpec is legacy alias)
-export { EnvModel, EnvSpec, spec } from "@e-n-v/models";
-export type { EnvModelOptions, EnvSpecOptions } from "@e-n-v/models";
+// Re-export EnvModel
+export { EnvModel, model } from "@e-n-v/models";
+export type { EnvModelOptions } from "@e-n-v/models";

@@ -29,9 +29,8 @@ bun add @e-n-v/parse
 import { parse } from "@e-n-v/parse";
 import { schema } from "@e-n-v/core";
 
-const env = parse({
-  source: process.env as Record<string, string>,
-  vars: {
+const env = parse(process.env as Record<string, string>, {
+  schemas: {
     PORT: schema.number({ default: 3000 }),
     DATABASE_URL: schema.string(),
     DEBUG: schema.boolean({ default: false }),
@@ -43,15 +42,15 @@ console.log(env.DATABASE_URL); // string
 console.log(env.DEBUG); // boolean
 ```
 
-### Using EnvSpec
+### Using EnvModel
 
 ```typescript
-import { spec } from "@e-n-v/models";
+import { model } from "@e-n-v/models";
 import { parse } from "@e-n-v/parse";
 import { z } from "zod";
 
-// Create reusable specification
-const envSpec = spec({
+// Create reusable model
+const envModel = model({
   schemas: {
     API_KEY: z.string(),
     MAX_CONNECTIONS: z.number(),
@@ -59,10 +58,16 @@ const envSpec = spec({
   preprocess: true,
 });
 
-// Use the spec for parsing
-const env = parse({
-  source: process.env as Record<string, string>,
-  spec: envSpec,
+// Overload 1: Use the model for parsing
+const env1 = parse(process.env as Record<string, string>, envModel);
+
+// Overload 2: Use options for parsing  
+const env2 = parse(process.env as Record<string, string>, {
+  schemas: {
+    API_KEY: z.string(),
+    MAX_CONNECTIONS: z.number(),
+  },
+  preprocess: true,
 });
 ```
 
@@ -72,9 +77,8 @@ const env = parse({
 import { parse } from "@e-n-v/parse";
 import { z } from "zod";
 
-const env = parse({
-  source: process.env as Record<string, string>,
-  vars: {
+const env = parse(process.env as Record<string, string>, {
+  schemas: {
     PORT: z.number().min(1024).max(65535),
     NODE_ENV: z.enum(["development", "production", "test"]),
     API_URL: z.string().url(),
@@ -88,9 +92,9 @@ const env = parse({
 import { parse } from "@e-n-v/parse";
 import { schema } from "@e-n-v/core";
 
-const env = parse({
-  source: process.env as Record<string, string>,
-  vars: {
+const env = parse(process.env as Record<string, string>, {
+  
+  schemas: {
     PERCENTAGE: schema.number(),
     ENABLED: schema.boolean(),
   },
@@ -107,42 +111,54 @@ For loading from files or other sources, use the higher-level `@e-n-v/env` packa
 
 ```typescript
 import { parse, prompt } from "@e-n-v/env";
-import spec from "./env.spec.js";
+import modelSpec from "./env.spec.js";
 
 // Parse from process.env
-const env = parse({ source: process.env as Record<string, string>, spec });
+const env = parse(process.env as Record<string, string>, modelSpec);
 
 // Or use prompt for interactive setup with channels
-await prompt({ spec, path: ".env" });
+await prompt(modelSpec, { path: ".env" });
 ```
 
 ## API
 
-### `parse<T>(options: DirectEnvOptions): T`
+### `parse<T>(source: Record<string, string>, model: EnvModel<T>): T`
+
+### `parse<T>(source: Record<string, string>, options: ParseEnvOptions<T>): T`
 
 Load and validate environment variables.
 
+#### Overload 1: Using model instance
+
 **Parameters:**
 
-- `options`: `DirectEnvOptions` - Configuration object
-  - `source`: `Record<string, string>` - Source object containing environment variables
-  - `vars` or `spec`: Variable schemas or EnvSpec instance
-  - `preprocess`: Custom preprocessing functions (optional)
-  - `strict`: Throw on missing required vars (default: `true`)
+- `source`: `Record<string, string>` - Source object containing environment variables
+- `model`: `EnvModel<T>` - Environment model instance with schemas and preprocessing config
 
 **Returns:** `T` - Validated environment variables
 
-### `spec(options: EnvSpecOptions): EnvSpec`
+#### Overload 2: Using options object
+
+**Parameters:**
+
+- `source`: `Record<string, string>` - Source object containing environment variables  
+- `options`: `ParseEnvOptions<T>` - Configuration object
+  - `schemas`: Variable schemas
+  - `preprocess`: Preprocessing configuration (optional)
+
+**Returns:** `T` - Validated environment variables
+
+### `model(options: EnvModelOptions): EnvModel`
 
 Create an environment variable specification.
 
 **Parameters:**
 
-- `options`: `EnvSpecOptions`
+- `options`: `EnvModelOptions`
   - `schemas`: `Record<string, SupportedSchema>` - Variable schemas
   - `preprocess`: `true | false | Partial<Preprocessors>` - Preprocessing config
 
-**Returns:** `EnvSpec` instance with resolved schemas and preprocessor configuration
+**Returns:** `EnvModel` instance with resolved schemas and preprocessor configuration
 
 ## Error Handling
 
@@ -155,9 +171,9 @@ import { parse, EnvValidationAggregateError } from "@e-n-v/parse";
 import { schema } from "@e-n-v/core";
 
 try {
-  const env = parse({
-    source: process.env as Record<string, string>,
-    vars: {
+  const env = parse(process.env as Record<string, string>, {
+    
+    schemas: {
       PORT: schema.number(),
       DATABASE_URL: schema.string(),
       DEBUG: schema.boolean(),
@@ -200,11 +216,11 @@ if (error instanceof EnvValidationAggregateError) {
 Set `strict: false` to allow missing/invalid values without throwing:
 
 ```typescript
-const env = parse({
+const env = parse(process.env as Record<string, string>, {
   source: {
     /* ... */
   },
-  vars: { PORT: schema.number() },
+  schemas: { PORT: schema.number() },
   strict: false,
 });
 
@@ -214,7 +230,7 @@ const env = parse({
 ## Related Packages
 
 - **[@e-n-v/core](../core)**: Core types and schema definitions
-- **[@e-n-v/models](../models)**: Environment variable specifications
+- **[@e-n-v/models](../models)**: Environment variable models
 - **[@e-n-v/converters](../converters)**: Schema resolution and conversion
 - **[@e-n-v/env](../env)**: Higher-level API including channels and interactive setup
 

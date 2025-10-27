@@ -2,6 +2,8 @@ import type { EnvVarSchema, Preprocessors } from "@e-n-v/core";
 import { resolvePreprocessor } from "@e-n-v/core";
 import { EnvModel } from "@e-n-v/models";
 import type { InferEnvType, SupportedSchema } from "@e-n-v/models";
+import { resolveSchemas } from "@e-n-v/converters";
+import type { ParseEnvOptions } from "../ParseEnvOptions";
 import { MissingEnvVarError } from "./errors/MissingEnvVarError";
 import { ValidationError } from "./errors/ValidationError";
 import { EnvValidationAggregateError } from "./errors/EnvValidationAggregateError";
@@ -11,17 +13,66 @@ import { EnvValidationAggregateError } from "./errors/EnvValidationAggregateErro
  * Does NOT mutate process.env
  *
  * @param source - Source object containing raw environment variable values
- * @param spec - Environment variable specification (EnvModel instance)
+ * @param model - Environment variable model (EnvModel instance)
  * @returns Strongly typed validated environment variables
  * @throws EnvValidationAggregateError if any validation errors occur
  */
 export function parse<T extends Record<string, SupportedSchema>>(
   source: Record<string, string> | NodeJS.ProcessEnv,
-  spec: EnvModel<T>,
+  model: EnvModel<T>,
+): InferEnvType<T>;
+
+/**
+ * Parse and validate environment variables from a source object
+ * Does NOT mutate process.env
+ *
+ * @param source - Source object containing raw environment variable values
+ * @param options - Parse options containing schemas and preprocessing config
+ * @returns Strongly typed validated environment variables
+ * @throws EnvValidationAggregateError if any validation errors occur
+ */
+export function parse<T extends Record<string, SupportedSchema>>(
+  source: Record<string, string> | NodeJS.ProcessEnv,
+  options: ParseEnvOptions<T>,
+): InferEnvType<T>;
+
+/**
+ * Parse and validate environment variables from a source object
+ * Does NOT mutate process.env
+ */
+export function parse<T extends Record<string, SupportedSchema>>(
+  source: Record<string, string> | NodeJS.ProcessEnv,
+  modelOrOptions: EnvModel<T> | ParseEnvOptions<T>,
 ): InferEnvType<T> {
-  // Resolve schemas and preprocessing configuration
-  const resolvedSchemas = spec.schemas;
-  const preprocessConfig = spec.preprocess;
+  let resolvedSchemas: Record<string, EnvVarSchema>;
+  let preprocessConfig: Preprocessors;
+
+  // Determine which overload is being used
+  if (modelOrOptions instanceof EnvModel) {
+    // First overload: (source, model)
+    const model = modelOrOptions;
+    resolvedSchemas = model.schemas;
+    preprocessConfig = model.preprocess;
+  } else {
+    // Second overload: (source, options)
+    const options = modelOrOptions;
+    resolvedSchemas = resolveSchemas(options.schemas);
+    
+    // Resolve preprocessor configuration (same logic as EnvModel)
+    const config = options.preprocess;
+    if (config === false) {
+      preprocessConfig = {
+        string: null,
+        number: null,
+        bool: null,
+        enum: null,
+      };
+    } else if (config === true || config === undefined) {
+      preprocessConfig = {};
+    } else {
+      preprocessConfig = { ...config };
+    }
+  }
 
   // Result object and error collection
   const result: Record<string, any> = {};

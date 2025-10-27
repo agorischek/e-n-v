@@ -21,9 +21,9 @@ bun add @e-n-v/schemas
 
 ```typescript
 import { NODE_ENV, PORT, DATABASE_URL, OPENAI_API_KEY } from "@e-n-v/schemas";
-import { spec } from "@e-n-v/env";
+import { model } from "@e-n-v/env";
 
-export default spec({
+export default model({
   schemas: {
     NODE_ENV,
     PORT, 
@@ -190,7 +190,7 @@ Each schema includes:
 import { spec, parse } from "@e-n-v/env";
 import { NODE_ENV, DATABASE_URL, OPENAI_API_KEY } from "@e-n-v/schemas";
 
-const envSpec = spec({
+const envModel = model({
   schemas: { NODE_ENV, DATABASE_URL, OPENAI_API_KEY },
   preprocess: true,
 });

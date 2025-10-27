@@ -3,18 +3,18 @@ import type { EnvModelOptions } from "./EnvModelOptions";
 import type { SupportedSchema } from "./types";
 
 /**
- * Create an environment variable specification
+ * Create an environment variable model
  *
  * Sugar utility for creating EnvModel instances with full type inference
  *
- * @param options - Specification options
+ * @param options - Model options
  * @returns EnvModel instance with inferred types
  *
  * @example
  * ```typescript
- * import { spec, s } from "@e-n-v/models";
+ * import { model, s } from "@e-n-v/models";
  *
- * export default spec({
+ * export default model({
  *   schemas: {
  *     PORT: s.number({ default: 3000 }),
  *     DATABASE_URL: s.string(),
@@ -24,7 +24,7 @@ import type { SupportedSchema } from "./types";
  * });
  * ```
  */
-export function spec<T extends Record<string, SupportedSchema>>(
+export function model<T extends Record<string, SupportedSchema>>(
   options: EnvModelOptions<T>
 ): EnvModel<T> {
   return new EnvModel<T>(options);
