@@ -10,7 +10,7 @@ import {
   parse,
   schema,
   EnvValidationAggregateError,
-} from "./packages/e-n-v/src/index";
+} from "./packages/env/src/index";
 import { writeFile, unlink } from "node:fs/promises";
 
 console.log("🔍 Validating envcredible packages...\n");
@@ -132,9 +132,9 @@ OPTIONAL_VAR=
     console.log("\n📦 Packages validated:");
     console.log("   ✅ e-n-v");
     console.log("   ✅ shape-env");
-    console.log("   ✅ @envcredible/specification");
-    console.log("   ✅ @envcredible/core");
-    console.log("   ✅ @envcredible/schemata");
+    console.log("   ✅ @e-n-v/models");
+    console.log("   ✅ @e-n-v/core");
+    console.log("   ✅ @e-n-v/converters");
   } catch (error) {
     console.error("\n❌ Validation failed:");
     console.error(error);

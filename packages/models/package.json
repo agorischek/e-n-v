@@ -1,0 +1,26 @@
+{
+  "name": "@e-n-v/models",
+  "version": "0.1.0",
+  "description": "Environment variable specification definition for envcredible",
+  "module": "src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "@e-n-v/core": "workspace:*",
+    "@e-n-v/converters": "workspace:*"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "keywords": [
+    "env",
+    "environment",
+    "config",
+    "validation",
+    "specification",
+    "envcredible"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts",
+    "test": "bun test"
+  }
+}

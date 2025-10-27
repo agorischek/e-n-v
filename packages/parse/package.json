@@ -1,0 +1,14 @@
+{
+  "name": "@e-n-v/parse",
+  "module": "src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "@e-n-v/core": "workspace:*",
+    "@e-n-v/models": "workspace:*",
+    "@e-n-v/converters": "workspace:*",
+    "zod": "^4.1.12"
+  },
+  "scripts": {
+    "test": "bun test"
+  }
+}
