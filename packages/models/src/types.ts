@@ -4,12 +4,22 @@ import type {
   BooleanEnvVarSchema,
   EnumEnvVarSchema,
   EnvVarSchema,
+  EnvVarSchemaBase,
 } from "@e-n-v/core";
+import type { Schema } from "./schemas";
+import type { ZodTypeAny } from "zod";
+import type { $ZodType } from "zod/v4/core";
 
 /**
  * Supported schema types - local definition to avoid circular dependencies
  */
-export type SupportedSchema = EnvVarSchema | any; // Allow any external schema type
+export type SupportedSchema = Schema;
+
+type InferZodOutput<T> = T extends { _output: infer Output }
+  ? Output
+  : T extends { _type: infer LegacyOutput }
+  ? LegacyOutput
+  : never;
 
 /**
  * Infer the TypeScript type from an EnvVarSchema instance
@@ -40,6 +50,12 @@ export type InferSchemaType<T> = T extends {
   ? string
   : T extends BooleanEnvVarSchema
   ? boolean
+  : T extends EnvVarSchemaBase<infer U>
+  ? U
+  : T extends ZodTypeAny
+  ? InferZodOutput<T>
+  : T extends $ZodType
+  ? InferZodOutput<T>
   : unknown;
 
 /**

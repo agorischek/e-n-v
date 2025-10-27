@@ -1,7 +1,7 @@
 import { parse, s } from "../src/index";
 import { define } from "@e-n-v/env";
 
-const envModel = define({
+const model = define({
   schemas: {
     PORT: s.number({ default: 3000 }),
     NAME: s.string(),
@@ -17,7 +17,7 @@ const env = parse(
     DEBUG: "true",
     ENV: "development",
   },
-  envModel
+  model
 );
 
 // These should compile successfully if types are correct
