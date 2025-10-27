@@ -1,38 +1,27 @@
 import type { EnvVarSchema, Preprocessors } from "@e-n-v/core";
 import { resolvePreprocessor } from "@e-n-v/core";
-import { resolveSchemas } from "@e-n-v/converters";
-import type { DirectEnvOptions } from "./options/DirectEnvOptions";
+import { EnvModel } from "@e-n-v/models";
+import type { InferEnvType, SupportedSchema } from "@e-n-v/models";
 import { MissingEnvVarError } from "./errors/MissingEnvVarError";
 import { ValidationError } from "./errors/ValidationError";
 import { EnvValidationAggregateError } from "./errors/EnvValidationAggregateError";
 
 /**
- * Load and validate environment variables from a source object
+ * Parse and validate environment variables from a source object
  * Does NOT mutate process.env
  *
- * @param options - Loading options including source and vars/spec
- * @returns Validated environment variables
- * @throws EnvValidationAggregateError if any validation errors occur in strict mode
+ * @param source - Source object containing raw environment variable values
+ * @param spec - Environment variable specification (EnvModel instance)
+ * @returns Strongly typed validated environment variables
+ * @throws EnvValidationAggregateError if any validation errors occur
  */
-export function parse<T extends Record<string, any> = Record<string, any>>(
-  options: DirectEnvOptions,
-): T {
-  // Extract options
-  const { source, strict = true } = options;
-
-  // Support both legacy vars and new spec
-  let resolvedSchemas: Record<string, EnvVarSchema>;
-  let preprocessConfig: Preprocessors | undefined;
-
-  if (options.spec) {
-    resolvedSchemas = options.spec.schemas;
-    preprocessConfig = options.preprocess ?? options.spec.preprocess;
-  } else if (options.vars) {
-    resolvedSchemas = resolveSchemas(options.vars);
-    preprocessConfig = options.preprocess;
-  } else {
-    throw new Error("Either 'vars' or 'spec' must be provided");
-  }
+export function parse<T extends Record<string, SupportedSchema>>(
+  source: Record<string, string>,
+  spec: EnvModel<T>,
+): InferEnvType<T> {
+  // Resolve schemas and preprocessing configuration
+  const resolvedSchemas = spec.schemas;
+  const preprocessConfig = spec.preprocess;
 
   // Result object and error collection
   const result: Record<string, any> = {};
@@ -50,9 +39,7 @@ export function parse<T extends Record<string, any> = Record<string, any>>(
       }
 
       if (schema.required) {
-        if (strict) {
-          errors.push(new MissingEnvVarError(key));
-        }
+        errors.push(new MissingEnvVarError(key));
         result[key] = undefined;
         continue;
       }
@@ -79,7 +66,7 @@ export function parse<T extends Record<string, any> = Record<string, any>>(
       if (processedValue === undefined) {
         if (schema.default !== undefined) {
           result[key] = schema.default;
-        } else if (schema.required && strict) {
+        } else if (schema.required) {
           errors.push(new MissingEnvVarError(key));
           result[key] = undefined;
         } else {
@@ -90,17 +77,15 @@ export function parse<T extends Record<string, any> = Record<string, any>>(
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      if (strict) {
-        errors.push(new ValidationError(key, rawValue, message));
-      }
+      errors.push(new ValidationError(key, rawValue, message));
       result[key] = undefined;
     }
   }
 
-  // Throw aggregate error if there were any errors in strict mode
-  if (strict && errors.length > 0) {
+  // Throw aggregate error if there were any errors
+  if (errors.length > 0) {
     throw new EnvValidationAggregateError(errors);
   }
 
-  return result as T;
+  return result as InferEnvType<T>;
 }

@@ -1,4 +1,4 @@
-import type { SupportedSchema } from "@e-n-v/converters";
+import type { SupportedSchema } from "./types";
 
 /**
  * Custom preprocessing functions to preprocess values before submitting to schema processors.
@@ -31,12 +31,12 @@ export interface Preprocessors {
 /**
  * Options for creating an EnvModel instance
  */
-export interface EnvModelOptions {
+export interface EnvModelOptions<T extends Record<string, SupportedSchema> = Record<string, SupportedSchema>> {
   /**
    * Environment variable schemas
    * Map of variable names to their schema definitions
    */
-  schemas: Record<string, SupportedSchema>;
+  schemas: T;
 
   /**
    * Preprocessing configuration
