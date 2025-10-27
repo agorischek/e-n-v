@@ -1,7 +1,4 @@
-import {
-  NumberEnvVarSchema,
-  type NumberEnvVarSchemaInput,
-} from "@e-n-v/core";
+import { NumberEnvVarSchema, type NumberEnvVarSchemaInput } from "@e-n-v/core";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import {

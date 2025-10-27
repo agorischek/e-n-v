@@ -1,7 +1,4 @@
-import {
-  StringEnvVarSchema,
-  type StringEnvVarSchemaInput,
-} from "@e-n-v/core";
+import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
 import { createZodProcessor } from "../helpers/createZodProcesor";
 import { z } from "zod";
 import { constraints, descriptions, messages } from "../shared/oauth";
