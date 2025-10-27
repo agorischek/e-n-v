@@ -1,6 +1,5 @@
 <!-- markdownlint-disable-next-line -->
 <img src="./assets/env4.png" alt="e-n-v Logo" height="50"/>
-<br/><br/>
 
 > "Environments, niftily? Very!"
 
