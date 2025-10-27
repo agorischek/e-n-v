@@ -2,5 +2,6 @@
   "typescript.preferences.includePackageJsonAutoImports": "auto",
   "typescript.suggest.includePackageJsonAutoImports": "auto",
   "typescript.preferences.useAliasesForRenames": false,
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

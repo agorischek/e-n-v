@@ -77,6 +77,6 @@ console.log("- ALLOWED_ORIGINS: 'not-a-url' (invalid format)");
 console.log("");
 
 await prompt({
-  vars: joiSchemas,
+  schemas: joiSchemas,
   secrets: ["API_KEY"], // Mark API_KEY as secret for masked input
 });

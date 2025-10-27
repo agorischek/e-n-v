@@ -6,4 +6,4 @@ const DEMO = s.string({
   default: "hello",
 });
 
-await prompt({ vars: { DEMO } });
+await prompt({ schemas: { DEMO } });

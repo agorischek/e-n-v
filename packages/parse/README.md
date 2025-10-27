@@ -16,7 +16,9 @@ Direct environment variable loading and validation with runtime type safety.
 ## Installation
 
 ```bash
-bun add shape-env
+npm install @e-n-v/parse
+# or
+bun add @e-n-v/parse
 ```
 
 ## Usage
@@ -24,7 +26,8 @@ bun add shape-env
 ### Basic Example
 
 ```typescript
-import { parse, schema } from "shape-env";
+import { parse } from "@e-n-v/parse";
+import { schema } from "@e-n-v/core";
 
 const env = parse({
   source: process.env as Record<string, string>,
@@ -43,7 +46,8 @@ console.log(env.DEBUG); // boolean
 ### Using EnvSpec
 
 ```typescript
-import { spec, parse } from "shape-env";
+import { spec } from "@e-n-v/models";
+import { parse } from "@e-n-v/parse";
 import { z } from "zod";
 
 // Create reusable specification
@@ -65,7 +69,7 @@ const env = parse({
 ### With Zod Schemas
 
 ```typescript
-import { parse } from "shape-env";
+import { parse } from "@e-n-v/parse";
 import { z } from "zod";
 
 const env = parse({
@@ -81,7 +85,8 @@ const env = parse({
 ### With Custom Preprocessing
 
 ```typescript
-import { parse, schema } from "shape-env";
+import { parse } from "@e-n-v/parse";
+import { schema } from "@e-n-v/core";
 
 const env = parse({
   source: process.env as Record<string, string>,
@@ -98,10 +103,10 @@ const env = parse({
 
 ### Using Different Channels
 
-For loading from files or other sources, use the higher-level `e-n-v` package which provides channel support:
+For loading from files or other sources, use the higher-level `@e-n-v/env` package which provides channel support:
 
 ```typescript
-import { parse, prompt } from "e-n-v";
+import { parse, prompt } from "@e-n-v/env";
 import spec from "./env.spec.js";
 
 // Parse from process.env
@@ -143,10 +148,11 @@ Create an environment variable specification.
 
 ### Aggregate Errors
 
-By default, `shape-env` validates **all** environment variables and collects errors before throwing. This gives you a complete picture of what's wrong instead of failing on the first error.
+By default, `@e-n-v/parse` validates **all** environment variables and collects errors before throwing. This gives you a complete picture of what's wrong instead of failing on the first error.
 
 ```typescript
-import { parse, EnvValidationAggregateError } from "shape-env";
+import { parse, EnvValidationAggregateError } from "@e-n-v/parse";
+import { schema } from "@e-n-v/core";
 
 try {
   const env = parse({
@@ -176,7 +182,7 @@ try {
 The aggregate error contains individual error instances:
 
 ```typescript
-import { MissingEnvVarError, ValidationError } from "shape-env";
+import { MissingEnvVarError, ValidationError } from "@e-n-v/parse";
 
 if (error instanceof EnvValidationAggregateError) {
   error.errors.forEach((err) => {
@@ -194,7 +200,7 @@ if (error instanceof EnvValidationAggregateError) {
 Set `strict: false` to allow missing/invalid values without throwing:
 
 ```typescript
-const env = await parse({
+const env = parse({
   source: {
     /* ... */
   },
@@ -204,6 +210,13 @@ const env = await parse({
 
 // env.PORT will be undefined if missing or invalid
 ```
+
+## Related Packages
+
+- **[@e-n-v/core](../core)**: Core types and schema definitions
+- **[@e-n-v/models](../models)**: Environment variable specifications
+- **[@e-n-v/converters](../converters)**: Schema resolution and conversion
+- **[@e-n-v/env](../env)**: Higher-level API including channels and interactive setup
 
 ## License
 

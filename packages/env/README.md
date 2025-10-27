@@ -266,13 +266,13 @@ Works with multiple schema libraries:
 
 - **Zod** (v3 and v4)
 - **Joi**
-- **Native envcredible schemas**
+- **Native e·n·v schemas**
 
 ```typescript
-import { spec } from "e-n-v";
+import { spec } from "@e-n-v/env";
 import { z } from "zod";
 import Joi from "joi";
-import { schema } from "e-n-v";
+import { schema } from "@e-n-v/core";
 
 export default spec({
   schemas: {
@@ -297,9 +297,9 @@ A playful take on environment variable management that emphasizes:
 
 ## Related Packages
 
-- **[@envcredible/specification](../envcredible-specification)**: Core specification functionality
-- **[prompt-env](../prompt-env)**: Interactive environment variable setup
-- **[shape-env](../shape-env)**: Environment variable parsing and validation
+- **[@e-n-v/models](../models)**: Core specification functionality
+- **[@e-n-v/prompt](../prompt)**: Interactive environment variable setup
+- **[@e-n-v/parse](../parse)**: Environment variable parsing and validation
 
 ## License
 

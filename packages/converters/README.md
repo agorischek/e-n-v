@@ -1,15 +1,23 @@
 # e·n·v Converters
 
-This package provides converters that transform external schema libraries (like Zod and Joi) into envcredible's internal `EnvVarSchema` format.
+This package provides converters that transform external schema libraries (like Zod and Joi) into e·n·v's internal `EnvVarSchema` format.
+
+## Installation
+
+```bash
+npm install @e-n-v/converters
+# or
+bun add @e-n-v/converters
+```
 
 ## Quick Start
 
 ```typescript
-import { resolveSchema } from "@envcredible/schemata";
+import { resolveSchema } from "@e-n-v/converters";
 import { z } from "zod";
 import Joi from "joi";
 
-// Convert any supported schema to envcredible format
+// Convert any supported schema to e·n·v format
 const zodSchema = resolveSchema(z.string().optional());
 const joiSchema = resolveSchema(Joi.string().optional());
 
@@ -24,7 +32,7 @@ console.log(zodSchema.required); // false
 The primary entry point for converting schemas. Automatically detects the schema type and uses the appropriate converter.
 
 ```typescript
-import { resolveSchema } from "@envcredible/schemata";
+import { resolveSchema } from "@e-n-v/converters";
 import { z } from "zod";
 import Joi from "joi";
 
@@ -90,7 +98,7 @@ All schema modifier combinations are supported:
 To check if a value is an environment variable schema, use `instanceof` with the base class:
 
 ```typescript
-import { EnvVarSchema } from "@envcredible/core";
+import { EnvVarSchema } from "@e-n-v/core";
 
 // Type guard using instanceof
 if (value instanceof EnvVarSchema) {
@@ -98,3 +106,13 @@ if (value instanceof EnvVarSchema) {
   console.log(value.type, value.required);
 }
 ```
+
+## Related Packages
+
+- **[@e-n-v/core](../core)**: Core types and utilities
+- **[@e-n-v/models](../models)**: Environment variable model definitions
+- **[@e-n-v/schemas](../schemas)**: Pre-built schemas for common environment variables
+
+## License
+
+MIT

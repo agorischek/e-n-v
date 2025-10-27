@@ -1,27 +1,7 @@
-import { isEnvVarSchema, type EnvVarSchema } from "@e-n-v/core";
+import { type EnvVarSchema } from "@e-n-v/core";
 import type { EnvModelOptions, Preprocessors } from "./EnvModelOptions";
 import type { SupportedSchema } from "./types";
-
-/**
- * Simple local schema resolver - assumes schemas are already resolved EnvVarSchema instances
- * For external schemas (Zod, Joi), they should be resolved by the converters package before reaching this point
- */
-function resolveSchemas(schemas: Record<string, SupportedSchema>): Record<string, EnvVarSchema> {
-  const resolved: Record<string, EnvVarSchema> = {};
-  
-  for (const [key, schema] of Object.entries(schemas)) {
-    if (isEnvVarSchema(schema)) {
-      resolved[key] = schema;
-    } else {
-      throw new Error(
-        `Schema for "${key}" must be resolved to EnvVarSchema before creating EnvModel. ` +
-        `Use resolveSchemas from @e-n-v/converters package first.`
-      );
-    }
-  }
-  
-  return resolved;
-}
+import { resolveSchemas } from "./resolve";
 
 /**
  * Environment variable specification container

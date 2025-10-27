@@ -39,6 +39,6 @@ console.log(
 console.log("");
 
 await prompt({
-  vars: validationSchemas,
+  schemas: validationSchemas,
   secrets: ["API_KEY"],
 });

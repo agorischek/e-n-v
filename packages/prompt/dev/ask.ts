@@ -14,4 +14,4 @@ const vars = {
   MAX_CONNECTIONS: z.number().optional(),
 };
 
-await prompt({ vars, path: ".env", root: import.meta.url });
+await prompt({ schemas, path: ".env", root: import.meta.url });

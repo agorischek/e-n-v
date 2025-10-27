@@ -38,8 +38,8 @@ export async function prompt(options: PromptEnvOptions): Promise<void> {
   if (options.spec) {
     schemas = options.spec.schemas;
     preprocessConfig = options.preprocess ?? options.spec.preprocess;
-  } else if (options.vars) {
-    schemas = resolveSchemas(options.vars);
+  } else if (options.schemas) {
+    schemas = resolveSchemas(options.schemas);
     preprocessConfig = options.preprocess;
   } else {
     throw new Error("Either 'vars' or 'spec' must be provided");

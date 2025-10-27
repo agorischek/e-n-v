@@ -1,24 +1,24 @@
 # e·n·v Models
 
-Environment variable specification definition for envcredible.
+Environment variable specification definition for e·n·v.
 
 ## Overview
 
-`@envcredible/specification` provides a clean way to define your environment variable schemas and preprocessing configuration in one place. It's the foundation for type-safe environment variable management across your application.
+`@e-n-v/models` provides a clean way to define your environment variable schemas and preprocessing configuration in one place. It's the foundation for type-safe environment variable management across your application.
 
 ## Installation
 
 ```bash
-npm install @envcredible/specification
+npm install @e-n-v/models
 # or
-bun add @envcredible/specification
+bun add @e-n-v/models
 ```
 
 ## Quick Start
 
 ```typescript
 // env.spec.ts
-import { spec } from "@envcredible/specification";
+import { spec } from "@e-n-v/models";
 import { z } from "zod";
 
 export default spec({
@@ -45,7 +45,7 @@ Create an environment variable specification.
   Map of environment variable names to their schema definitions. Supports:
   - Zod schemas (v3 and v4)
   - Joi schemas
-  - Native envcredible schemas
+  - Native e·n·v schemas
 
 - **`preprocess`** (optional): `true | false | Partial<Preprocessors>`
   - `true` (default): Use default preprocessors for all types
@@ -80,7 +80,7 @@ The specification container with resolved schemas and preprocessor configuration
 ### Basic Specification
 
 ```typescript
-import { spec } from "@envcredible/specification";
+import { spec } from "@e-n-v/models";
 import { z } from "zod";
 
 export default spec({
@@ -95,7 +95,7 @@ export default spec({
 ### With Preprocessing Disabled
 
 ```typescript
-import { spec } from "@envcredible/specification";
+import { spec } from "@e-n-v/models";
 import { z } from "zod";
 
 // No value normalization - raw strings only
@@ -110,7 +110,7 @@ export default spec({
 ### Custom Preprocessors
 
 ```typescript
-import { spec } from "@envcredible/specification";
+import { spec } from "@e-n-v/models";
 import { z } from "zod";
 
 export default spec({
@@ -133,12 +133,12 @@ export default spec({
 });
 ```
 
-### Using with e-n-v
+### Using with @e-n-v/env
 
 ```typescript
 // env.spec.ts
-import { spec } from "e-n-v";
-import { NODE_ENV, OPENAI_API_KEY } from "e-n-v/schemas";
+import { spec } from "@e-n-v/models";
+import { NODE_ENV, OPENAI_API_KEY } from "@e-n-v/schemas";
 
 export default spec({
   schemas: { NODE_ENV, OPENAI_API_KEY },
@@ -149,20 +149,20 @@ export default spec({
 ```typescript
 // env.ts
 import spec from "./env.spec.js";
-import { parse } from "e-n-v";
+import { parse } from "@e-n-v/parse";
 
-export const { NODE_ENV, OPENAI_API_KEY } = parse(process.env, spec, {});
+export const env = parse({ source: process.env, spec });
 ```
 
 ```typescript
 // env.setup.ts
 import spec from "./env.spec.js";
-import { prompt, defaults } from "e-n-v";
-import dotenvx from "@dotenvx/dotenvx";
+import { prompt, defaults } from "@e-n-v/prompt";
 
-await prompt(spec, {
+await prompt({
+  spec,
   secrets: [...defaults.SECRET_PATTERNS, "key"],
-  channel: dotenvx,
+  path: ".env",
 });
 ```
 
@@ -170,7 +170,7 @@ await prompt(spec, {
 
 ```typescript
 // specs/database.spec.ts
-import { spec } from "@envcredible/specification";
+import { spec } from "@e-n-v/models";
 import { z } from "zod";
 
 export const databaseSpec = spec({
@@ -185,7 +185,7 @@ export const databaseSpec = spec({
 
 ```typescript
 // specs/api.spec.ts
-import { spec } from "@envcredible/specification";
+import { spec } from "@e-n-v/models";
 import { z } from "zod";
 
 export const apiSpec = spec({
@@ -200,7 +200,7 @@ export const apiSpec = spec({
 
 ```typescript
 // env.spec.ts
-import { spec } from "@envcredible/specification";
+import { spec } from "@e-n-v/models";
 import { databaseSpec } from "./specs/database.spec";
 import { apiSpec } from "./specs/api.spec";
 
@@ -219,7 +219,8 @@ export default spec({
 The specification is fully typed, ensuring type safety throughout your application:
 
 ```typescript
-import { spec } from "@envcredible/specification";
+```typescript
+import { spec } from "@e-n-v/models";
 import { z } from "zod";
 
 const mySpec = spec({
@@ -236,9 +237,9 @@ type SchemaKeys = keyof typeof mySpec.schemas; // "PORT" | "HOST"
 
 ## Related Packages
 
-- **[@envcredible/schemata](../envcredible-schemata)**: Schema resolution and conversion
-- **[@envcredible/core](../envcredible-core)**: Core types and utilities
-- **[e-n-v](../e-n-v)**: High-level environment variable management
+- **[@e-n-v/converters](../converters)**: Schema resolution and conversion
+- **[@e-n-v/core](../core)**: Core types and utilities
+- **[@e-n-v/env](../env)**: High-level environment variable management
 
 ## License
 

@@ -12,7 +12,7 @@ export type PromptEnvOptions = {
    * Environment variable schemas
    * Can be a Record of schemas or an EnvSpec instance
    */
-  vars?: Record<string, SupportedSchema>;
+  schemas?: Record<string, SupportedSchema>;
 
   /**
    * Environment variable specification

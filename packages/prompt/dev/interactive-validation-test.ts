@@ -13,7 +13,7 @@ const portSchema = Joi.number()
 console.log("Try entering '2' - it should be rejected for being too low\n");
 
 await prompt({
-  vars: {
+  schemas: {
     PORT: portSchema,
   },
 });

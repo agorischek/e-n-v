@@ -16,7 +16,7 @@ await Bun.write("dev/.env", "PORT=2\n");
 console.log("Starting ask-env...\n");
 
 await prompt({
-  vars: {
+  schemas: {
     PORT: portSchema,
   },
   path: "dev/.env",

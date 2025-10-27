@@ -67,7 +67,7 @@ console.log(
 );
 
 await prompt({
-  vars: schemas,
+  schemas: schemas,
   path: "dev/.env",
   secrets: ["API_KEY"],
 });

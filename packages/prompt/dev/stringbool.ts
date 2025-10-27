@@ -2,7 +2,7 @@ import { z } from "zod";
 import { prompt } from "../src";
 
 await prompt({
-  vars: {
+  schemas: {
     B: z.stringbool(),
   },
 });

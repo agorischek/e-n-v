@@ -64,13 +64,13 @@ const customizedSchemas = {
 console.log("\n=== Basic Schemas ===");
 console.log("Using schemas with their default configurations...");
 await prompt({
-  vars: basicSchemas,
+  schemas: basicSchemas,
   secrets: ["API_KEY", "JWT_SECRET"],
 });
 
 console.log("\n=== Customized Schemas ===");
 console.log("Using schemas with custom overrides...");
 await prompt({
-  vars: customizedSchemas,
+  schemas: customizedSchemas,
   secrets: ["API_KEY", "JWT_SECRET"],
 });

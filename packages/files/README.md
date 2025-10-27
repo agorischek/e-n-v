@@ -8,7 +8,7 @@ A read/write API for `.env` files.
 ## Usage
 
 ```ts
-import { source } from "envrw";
+import { source } from "@e-n-v/files";
 
 const env = source(".env");
 
@@ -50,7 +50,7 @@ The package also exposes pure helpers for working with `.env` text without files
 - `set(content, key, value)` / `set(content, record)` returns a new string with the requested updates applied.
 
 ```ts
-import { get, set } from "envrw";
+import { get, set } from "@e-n-v/files";
 
 const text = "FOO=1\nBAR=2\n";
 const record = get(text);
@@ -59,3 +59,20 @@ const record = get(text);
 const next = set(text, { BAR: "3", BAZ: "4" });
 // → 'FOO=1\nBAR=3\nBAZ=4\n'
 ```
+
+## Installation
+
+```bash
+npm install @e-n-v/files
+# or
+bun add @e-n-v/files
+```
+
+## Related Packages
+
+- **[@e-n-v/channels](../channels)**: Uses this package for file-based channels
+- **[@e-n-v/prompt](../prompt)**: Interactive environment variable setup
+
+## License
+
+MIT

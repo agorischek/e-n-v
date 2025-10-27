@@ -1,11 +1,10 @@
 <!-- markdownlint-disable-next-line -->
-<img src="./assets/env4.png" alt="e-n-v Logo" height="65"/>
-
-# e·n·v
+<img src="./assets/env4.png" alt="e-n-v Logo" height="50"/>
+<br/><br/>
 
 > "Environments, niftily? Very!"
 
-Nifty stuff for working with `.env` files. Goes great with [`dotenv`](https://www.npmjs.com/package/dotenv), [`dotenvx`](https://www.npmjs.com/package/@dotenvx/dotenvx), and [`znv`](https://www.npmjs.com/package/znv).
+e·n·v is a suite of nifty stuff for working with environment variables and `.env` files.
 
 ## Main Packages
 

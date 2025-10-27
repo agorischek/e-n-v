@@ -3,7 +3,7 @@ import { prompt } from "../src";
 import { defaults } from "../src";
 
 await prompt({
-  vars: {
+  schemas: {
     API_TOKEN: z.string().min(8, "API token must be at least 8 characters"),
     DATABASE_URL: z
       .string()

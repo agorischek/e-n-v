@@ -14,6 +14,6 @@ console.log("The default limit is 40 characters");
 console.log();
 
 await prompt({
-  vars: schemas,
+  schemas: schemas,
   path: ".env.demo-truncation",
 });

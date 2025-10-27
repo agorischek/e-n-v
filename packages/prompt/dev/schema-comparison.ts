@@ -31,12 +31,12 @@ const envcredibleSchemas = {
 
 console.log("\n=== Testing Zod-based schemas ===");
 await prompt({
-  vars: zodSchemas,
+  schemas: zodSchemas,
   secrets: ["API_KEY"],
 });
 
 console.log("\n=== Testing Envcredible schemas ===");
 await prompt({
-  vars: envcredibleSchemas,
+  schemas: envcredibleSchemas,
   secrets: ["API_KEY"],
 });

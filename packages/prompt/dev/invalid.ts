@@ -7,7 +7,7 @@ process.env.ENABLE_CACHE = "maybe";
 process.env.API_BASE_URL = "not_a_url";
 process.env.NODE_ENV = "staging"; // Invalid enum value
 
-const vars = {
+const schemas = {
   PORT: z
     .number()
     .int()
@@ -26,6 +26,6 @@ console.log(
 );
 
 await prompt({
-  vars,
+  schemas,
   channel: { process },
 });

@@ -14,7 +14,7 @@ const portSchema = Joi.number()
 console.log("Testing port validation with invalid value '2'...\n");
 
 await prompt({
-  vars: {
+  schemas: {
     PORT: portSchema,
   },
 });
