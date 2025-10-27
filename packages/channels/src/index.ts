@@ -10,3 +10,5 @@ export * from "./channels/dotenvx/DotEnvXChannelConfig";
 export * from "./channels/dotenvx/DotEnvXGetOptions";
 export * from "./channels/dotenvx/DotEnvXInstance";
 export * from "./channels/dotenvx/DotEnvXSetOptions";
+export * from "./channels/processenv/ProcessEnvChannel";
+export * from "./channels/processenv/ProcessEnvChannelConfig";

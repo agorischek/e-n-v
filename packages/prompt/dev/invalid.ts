@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { prompt } from "../src";
 
-// Set up invalid values in process.env
-process.env.PORT = "three";
-process.env.ENABLE_CACHE = "maybe";
-process.env.API_BASE_URL = "not-a-valid-url";
-process.env.NODE_ENV = "somewhere";
+// Set some invalid values in process.env to demonstrate validation
+process.env.PORT = "invalid_port";
+process.env.ENABLE_CACHE = "maybe"; 
+process.env.API_BASE_URL = "not_a_url";
+process.env.NODE_ENV = "staging"; // Invalid enum value
 
 const vars = {
   PORT: z
@@ -27,4 +27,5 @@ console.log(
 
 await prompt({
   vars,
+  channel: { process },
 });

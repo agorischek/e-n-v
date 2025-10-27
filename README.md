@@ -1,7 +1,7 @@
 <!-- markdownlint-disable-next-line -->
 <img src="./assets/envcredible-logo2.png" alt="e-n-v Logo" height="65"/>
 
-# e-n-v
+# e·n·v
 
 "Environments, niftily? Very!" - Elegant environment variable management for modern applications.
 

@@ -3,6 +3,7 @@ import type { EnvChannelOptions } from "./EnvChannelOptions";
 import type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
 import { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
 import { DotEnvXChannel } from "./channels/dotenvx/DotEnvXChannel";
+import { ProcessEnvChannel } from "./channels/processenv/ProcessEnvChannel";
 
 /**
  * Resolve channel options into an EnvChannel instance
@@ -19,6 +20,11 @@ export function resolveChannel(
     return new DefaultEnvChannel(defaultPath);
   }
 
+  // "processenv" string -> use process.env channel
+  if (options === "processenv") {
+    return new ProcessEnvChannel();
+  }
+
   // Check if it's a configuration object
   if (typeof options === "object" && options !== null) {
     // DotenvX channel
@@ -33,10 +39,21 @@ export function resolveChannel(
       return new DotEnvXChannel(dotenvx, defaultPath, getOptions, setOptions);
     }
 
-    // Named channels (default only at this point)
+    // Process channel with { process } notation
+    if ("process" in options) {
+      // Verify it's the actual process object (has env property)
+      if (options.process && typeof options.process === "object" && "env" in options.process) {
+        return new ProcessEnvChannel();
+      }
+      throw new Error("Invalid process object provided to channel config");
+    }
+
+    // Named channels
     if ("name" in options) {
       if (options.name === "default") {
         return new DefaultEnvChannel(defaultPath);
+      } else if (options.name === "processenv") {
+        return new ProcessEnvChannel();
       } else {
         throw new Error(
           `Unknown channel name: ${(options as { name: unknown }).name}`,
