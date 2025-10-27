@@ -10,7 +10,6 @@ import {
   cancelPrompt,
   toOutputString,
 } from "./helpers/promptTestUtils";
-import { S_RADIO_ACTIVE } from "../../visuals/symbols";
 
 type TestPromptOptions = Partial<Omit<EnvPromptOptions<boolean>, "current">> & {
   current?: boolean | string;

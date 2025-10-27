@@ -92,7 +92,7 @@ export class EnvBooleanPrompt extends EnvPrompt<boolean, BooleanEnvVarSchema> {
 
         return output;
       },
-      validate: (value: boolean | undefined) => {
+      validate: (_value: boolean | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;
         }

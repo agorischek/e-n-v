@@ -3,7 +3,7 @@ import type { Readable } from "node:stream";
 import * as color from "picocolors";
 import { createPrompt } from "../prompts/create/createPrompt";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
-import { isSecretKey, resolveShouldMask } from "../utils/secrets";
+import { resolveShouldMask } from "../utils/secrets";
 import { getDisplayEnvPath } from "../utils/getDisplayEnvPath";
 import { renderSetupHeader } from "../visuals/renderSetupHeader";
 import { S_BAR, S_BAR_END } from "../visuals/symbols";

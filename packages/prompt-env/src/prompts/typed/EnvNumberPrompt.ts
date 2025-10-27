@@ -145,7 +145,7 @@ export class EnvNumberPrompt extends EnvPrompt<number, NumberEnvVarSchema> {
 
         return output;
       },
-      validate: (value: number | undefined) => {
+      validate: (_value: number | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;
         }

@@ -1,4 +1,3 @@
-import type { SupportedSchema } from "@envcredible/schemata";
 import type { EnvVarSchema } from "@envcredible/core";
 import { stdin, stdout } from "node:process";
 import type { PromptEnvOptions } from "./options/PromptEnvOptions";

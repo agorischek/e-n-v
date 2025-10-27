@@ -144,7 +144,7 @@ export class EnvStringPrompt extends EnvPrompt<string, StringEnvVarSchema> {
         output += `${this.getBarEnd()}  ${this.renderFooter(this.getEntryHint())}`;
         return output;
       },
-      validate: (value: string | undefined) => {
+      validate: (_value: string | undefined) => {
         if (this.consumeSkipValidation()) {
           return undefined;
         }

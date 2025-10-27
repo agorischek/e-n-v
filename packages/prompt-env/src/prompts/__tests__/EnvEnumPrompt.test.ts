@@ -45,7 +45,8 @@ function createPrompt(options: TestPromptOptions = {}) {
   return { prompt, ...streams };
 }
 
-const STRIP_ANSI = /\u001b\[[0-?]*[ -\/]*[@-~]/g;
+// eslint-disable-next-line no-control-regex
+const STRIP_ANSI = /\x1b\[[0-?]*[ -/]*[@-~]/g;
 const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
 
 describe("EnvEnumPrompt", () => {
