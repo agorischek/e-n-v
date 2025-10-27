@@ -6,7 +6,9 @@
  */
 
 // Main exports
-export { spec } from "@envcredible/specification";
+import { spec } from "@envcredible/specification";
+export { spec };
+export { spec as model };
 export { parse } from "shape-env";
 export { prompt } from "prompt-env";
 export { defaults } from "./defaults";

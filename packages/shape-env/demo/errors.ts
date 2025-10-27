@@ -1,8 +1,4 @@
-import {
-  parse,
-  schema,
-  EnvValidationAggregateError,
-} from "../src/index";
+import { parse, schema, EnvValidationAggregateError } from "../src/index";
 
 console.log("🔍 Demo: Error Handling\n");
 

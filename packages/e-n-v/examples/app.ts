@@ -1,13 +1,6 @@
 // app.ts - Use validated environment variables in your application
 
-import spec from "./env.spec.js";
-import { parse } from "e-n-v";
-
-// Parse and validate environment variables
-export const env = parse({
-  source: process.env as Record<string, string>,
-  spec,
-});
+import { env } from "./env/env";
 
 // Use validated, type-safe env vars
 console.log(`Starting server on port ${env.PORT}`);
