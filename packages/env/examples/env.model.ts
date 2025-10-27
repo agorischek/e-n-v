@@ -9,7 +9,7 @@ export default model({
     DATABASE_URL: z.url(),
     PORT: z.number().min(1024).max(65535),
     API_KEY: z.string().min(32),
-    DEBUG: z.boolean().optional(),
+    DEBUG: z.boolean().default(false),
   },
   preprocess: true,
 });

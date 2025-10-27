@@ -1,7 +1,7 @@
 <!-- markdownlint-disable-next-line -->
 <img src="./assets/ask-env-logo2.png" alt="Ask Env Logo" height="75"/>
 
-# ask-env
+# e·n·v Prompt
 
 Interactive CLI for creating and editing `.env` files.
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { describe, test, expect } from "bun:test";
-import { resolveSchema } from "../resolve.js";
+import { resolveSchema } from "../../../models/src/resolve.js";
 
 describe("stringbool support", () => {
   test("z.stringbool() is recognized as boolean type", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { resolveSchema } from "../resolve";
+import { resolveSchema } from "../../../models/src/resolve";
 import { z } from "zod";
 
 describe("SchemaSource", () => {

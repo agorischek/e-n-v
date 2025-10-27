@@ -1,7 +1,7 @@
 import type { EnvVarSchema } from "@e-n-v/core";
 import { isEnvVarSchema } from "@e-n-v/core";
 import type { Schema } from "./schemas";
-import { converters } from "./converters";
+import { converters } from "../../converters/src/converters";
 
 /**
  * Resolve any supported schema to a EnvVarSchema.

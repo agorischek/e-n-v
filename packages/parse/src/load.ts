@@ -16,7 +16,7 @@ import { EnvValidationAggregateError } from "./errors/EnvValidationAggregateErro
  * @throws EnvValidationAggregateError if any validation errors occur
  */
 export function parse<T extends Record<string, SupportedSchema>>(
-  source: Record<string, string>,
+  source: Record<string, string> | NodeJS.ProcessEnv,
   spec: EnvModel<T>,
 ): InferEnvType<T> {
   // Resolve schemas and preprocessing configuration

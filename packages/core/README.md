@@ -1,4 +1,4 @@
-# @envcredible/types
+# e·n·v Core
 
 Shared TypeScript types for envcredible: `EnvChannel`, `EnvVarSchema`, etc.
 

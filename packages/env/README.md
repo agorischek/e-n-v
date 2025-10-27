@@ -1,7 +1,7 @@
 <!-- markdownlint-disable-next-line -->
 <img src="./assets/env-logo2.png" alt="e-n-v Logo" height="75"/>
 
-# e-n-v
+# e·n·v Env
 
 **"Environments, niftily? Very!"**
 

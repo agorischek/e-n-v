@@ -1,4 +1,4 @@
-# @envcredible/specification
+# e·n·v Models
 
 Environment variable specification definition for envcredible.
 
