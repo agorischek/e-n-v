@@ -52,9 +52,9 @@ import spec from "./env.spec.js";
 import { parse } from "e-n-v";
 
 // Parse and validate - fully type-safe!
-export const env = parse({ 
-  source: process.env as Record<string, string>, 
-  spec 
+export const env = parse({
+  source: process.env as Record<string, string>,
+  spec,
 });
 
 // Use validated environment
@@ -119,7 +119,7 @@ export default spec({
   preprocess: {
     // Custom number preprocessing
     number: (value) => value.replace(/,/g, "").trim(),
-    // Custom boolean preprocessing  
+    // Custom boolean preprocessing
     bool: (value) => {
       if (value === "1") return "true";
       if (value === "0") return "false";
@@ -135,7 +135,9 @@ export default spec({
 
 ```typescript
 export default spec({
-  schemas: { /* ... */ },
+  schemas: {
+    /* ... */
+  },
   preprocess: false, // No value normalization
 });
 ```
@@ -145,8 +147,8 @@ export default spec({
 Allow missing/invalid variables without throwing:
 
 ```typescript
-const env = parse({ 
-  source: process.env as Record<string, string>, 
+const env = parse({
+  source: process.env as Record<string, string>,
   spec,
   strict: false, // Returns undefined for missing/invalid vars
 });

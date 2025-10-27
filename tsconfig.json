@@ -21,8 +21,12 @@
       "@envcredible/schemata/*": ["./packages/envcredible-schemata/src/*"],
       "@envcredible/channels": ["./packages/envcredible-channels/src/index.ts"],
       "@envcredible/channels/*": ["./packages/envcredible-channels/src/*"],
-      "@envcredible/specification": ["./packages/envcredible-specification/src/index.ts"],
-      "@envcredible/specification/*": ["./packages/envcredible-specification/src/*"],
+      "@envcredible/specification": [
+        "./packages/envcredible-specification/src/index.ts"
+      ],
+      "@envcredible/specification/*": [
+        "./packages/envcredible-specification/src/*"
+      ],
       "env-var-schemas": ["./packages/env-var-schemas/src/index.ts"],
       "env-var-schemas/*": ["./packages/env-var-schemas/src/*"],
       "envrw": ["./packages/envrw/src/index.ts"],

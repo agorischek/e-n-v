@@ -59,7 +59,9 @@ OPTIONAL_VAR=
       },
       preprocess: true,
     });
-    console.log(`   Schemas: ${Object.keys(envSpec.schemas).length} variables\n`);
+    console.log(
+      `   Schemas: ${Object.keys(envSpec.schemas).length} variables\n`,
+    );
 
     console.log("✅ Step 2: Parse environment variables");
     const env = parse({ source, spec: envSpec });

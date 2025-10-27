@@ -7,24 +7,28 @@ Removed all legacy APIs in favor of the new spec-based approach.
 ## Removed APIs
 
 ### From `e-n-v`
+
 - ❌ `define()` function
-- ❌ `load()` function  
+- ❌ `load()` function
 - ❌ `setup()` function
 - ❌ `EnvMeta` class
 - ❌ `EnvMetaOptions` interface
 - ❌ `/define`, `/load`, `/setup` package exports
 
 ### From `shape-env`
+
 - ❌ `EnvDefinition` re-export
 - ❌ `EnvDefinitionOptions` re-export
 - ❌ `vars()` helper function re-export
 
 ### Removed Dependencies
+
 - ❌ `@envcredible/define` dependency from `shape-env`
 
 ## New APIs
 
 ### `e-n-v`
+
 - ✅ `spec()` - Create environment specifications
 - ✅ `parse()` - Parse and validate (from shape-env)
 - ✅ `prompt()` - Interactive setup (from prompt-env)
@@ -32,23 +36,25 @@ Removed all legacy APIs in favor of the new spec-based approach.
 - ✅ `EnvSpec` / `EnvSpecOptions` types
 
 ### `shape-env` & `prompt-env`
+
 - ✅ Accepts both `vars` (map of schemas) and `spec` (EnvSpec instance)
 - ✅ Re-exports `EnvSpec`, `spec()`, `EnvSpecOptions`
 
 ## Migration Guide
 
 ### Before (Legacy API)
+
 \`\`\`typescript
 // env.meta.ts
 import define from "e-n-v/define";
 import { z } from "zod";
 
 export const env = define({
-  path: ".env",
-  root: import.meta.url,
-  vars: {
-    PORT: z.number(),
-  },
+path: ".env",
+root: import.meta.url,
+vars: {
+PORT: z.number(),
+},
 });
 
 // env.ts
@@ -65,35 +71,36 @@ await setup(env, { secrets: ["API_KEY"] });
 \`\`\`
 
 ### After (New API)
+
 \`\`\`typescript
 // env.spec.ts
 import { spec } from "e-n-v";
 import { z } from "zod";
 
 export default spec({
-  schemas: {
-    PORT: z.number(),
-  },
-  preprocess: true,
+schemas: {
+PORT: z.number(),
+},
+preprocess: true,
 });
 
 // app.ts
 import spec from "./env.spec.js";
 import { parse } from "e-n-v";
 
-export const env = parse({ 
-  source: process.env as Record<string, string>, 
-  spec 
+export const env = parse({
+source: process.env as Record<string, string>,
+spec
 });
 
 // env.setup.ts
 import spec from "./env.spec.js";
 import { prompt, defaults } from "e-n-v";
 
-await prompt({ 
-  spec, 
-  secrets: [...defaults.SECRET_PATTERNS, "API_KEY"],
-  path: ".env",
+await prompt({
+spec,
+secrets: [...defaults.SECRET_PATTERNS, "API_KEY"],
+path: ".env",
 });
 \`\`\`
 

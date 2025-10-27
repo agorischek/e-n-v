@@ -33,4 +33,3 @@ export const defaults = {
    */
   path: ".env",
 } as const;
-

@@ -17,7 +17,7 @@ bun add e-n-v
 
 ## Quick Start
 
-```typescript
+````typescript
 import { prompt, schemas } from "prompt-env";
 import { z } from "zod";
 
@@ -38,7 +38,7 @@ await prompt({
   vars: { OPENAI_API_KEY },
   channel: { dotenvx },
 });
-```
+````
 
 ## Options
 
