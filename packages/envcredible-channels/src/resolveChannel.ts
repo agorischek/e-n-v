@@ -21,6 +21,7 @@ export function resolveChannel(
 
   // Check if it's a configuration object
   if (typeof options === "object" && options !== null) {
+    // DotenvX channel
     if ("dotenvx" in options) {
       const config = options as DotEnvXChannelConfig;
       const { dotenvx, get: getOptions = {}, set: setOptions = {} } = config;
@@ -30,7 +31,10 @@ export function resolveChannel(
       }
 
       return new DotEnvXChannel(dotenvx, defaultPath, getOptions, setOptions);
-    } else if ("name" in options) {
+    }
+
+    // Named channels (default only at this point)
+    if ("name" in options) {
       if (options.name === "default") {
         return new DefaultEnvChannel(defaultPath);
       } else {

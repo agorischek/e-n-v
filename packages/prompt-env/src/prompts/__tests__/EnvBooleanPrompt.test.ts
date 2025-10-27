@@ -1,0 +1,294 @@
+import { describe, expect, it } from "bun:test";
+import { EnvBooleanPrompt } from "../typed/EnvBooleanPrompt";
+import { BooleanEnvVarSchema } from "@envcredible/core";
+import type { EnvPromptOptions } from "../options/EnvPromptOptions";
+import {
+  createTestStreams,
+  waitForIO,
+  pressKey,
+  submitPrompt,
+  cancelPrompt,
+  toOutputString,
+} from "./helpers/promptTestUtils";
+
+type TestPromptOptions = Partial<Omit<EnvPromptOptions<boolean>, "current">> & {
+  current?: boolean | string;
+  key?: string;
+  description?: string;
+  required?: boolean;
+  default?: boolean;
+};
+
+const normalizeBooleanCurrent = (
+  value?: boolean | string,
+): string | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  return typeof value === "boolean" ? String(value) : value;
+};
+
+function createPrompt(options: TestPromptOptions = {}) {
+  const streams = createTestStreams();
+
+  const schema = new BooleanEnvVarSchema({
+    required: options.required ?? false,
+    default: options.default,
+    description: options.description,
+  });
+
+  const prompt = new EnvBooleanPrompt(schema, {
+    key: options.key ?? "BOOL_ENV",
+    current: normalizeBooleanCurrent(options.current),
+    theme: options.theme,
+    index: options.index,
+    total: options.total,
+    input: options.input ?? streams.input,
+    output: options.output ?? streams.output,
+    truncate: options.truncate,
+    secret: options.secret,
+  });
+
+  return { prompt, ...streams };
+}
+
+function createPromptWithSchema(
+  schema: BooleanEnvVarSchema,
+  options: Partial<TestPromptOptions> = {},
+) {
+  const streams = createTestStreams();
+
+  const prompt = new EnvBooleanPrompt(schema, {
+    key: options.key ?? "BOOL_ENV",
+    current: normalizeBooleanCurrent(options.current),
+    input: options.input ?? streams.input,
+    output: options.output ?? streams.output,
+  });
+
+  return { prompt, ...streams };
+}
+
+const ESC = String.fromCharCode(0x1b);
+const CSI = String.fromCharCode(0x9b);
+const STRIP_ANSI = new RegExp(
+  `[${ESC}${CSI}][[\\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]`,
+  "g",
+);
+const stripAnsi = (value: string) => value.replace(STRIP_ANSI, "");
+
+describe("EnvBooleanPrompt", () => {
+  it("initializes cursor from current before default and wraps with arrows", async () => {
+    const { prompt } = createPrompt({ current: false, default: true });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.value).toBe(false);
+
+    await pressKey(prompt, { name: "up" });
+    expect(prompt.cursor).toBe(0);
+    expect(prompt.value).toBe(true);
+
+    await pressKey(prompt, { name: "down" });
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.value).toBe(false);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
+  it("renders annotations for current and default values", async () => {
+    const { prompt, output } = createPrompt({
+      current: true,
+      default: true,
+      description: "Choose wisely",
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    const rendered = stripAnsi(toOutputString(output));
+    expect(rendered).toContain("(current, default)");
+    expect(rendered).toContain("Choose wisely");
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
+  it("renders distinct annotations when current and default differ", async () => {
+    const { prompt, output } = createPrompt({ current: true, default: false });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    const rendered = stripAnsi(toOutputString(output));
+    expect(rendered).toContain("(current)");
+    expect(rendered).toContain("(default)");
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
+  it("applies custom validation, handles navigation, and eventually succeeds", async () => {
+    const calls: Array<boolean | undefined> = [];
+    let allowTrue = false;
+
+    // Create a schema with custom validation logic
+    const schema = new BooleanEnvVarSchema({
+      process: (value: string) => {
+        const boolValue = value.toLowerCase() === "true";
+        calls.push(boolValue);
+
+        if (boolValue === false) {
+          throw new Error("false not allowed");
+        }
+        if (boolValue === true && !allowTrue) {
+          allowTrue = true;
+          throw new Error("true not allowed once");
+        }
+        return boolValue;
+      },
+    });
+
+    const { prompt, output } = createPromptWithSchema(schema, {
+      current: false,
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    const initialRender = toOutputString(output);
+    expect(initialRender).toContain("\u001b[9m");
+    const initialStrippedRender = stripAnsi(initialRender);
+    expect(initialStrippedRender).toContain("false");
+    expect(initialStrippedRender).not.toContain("(current, invalid)");
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.value).toBe(true);
+    expect(calls).toEqual([false]);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBe("true not allowed once");
+    expect(calls).toEqual([false, true]);
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    expect(prompt.state).toBe("active");
+    expect(prompt.cursor).toBe(2);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBe("false not allowed");
+    expect(calls).toEqual([false, true, false]);
+
+    await pressKey(prompt, { name: "up" });
+    await waitForIO(2);
+    expect(prompt.state).toBe("active");
+    expect(prompt.cursor).toBe(1);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    expect(prompt.state).toBe("submit");
+    expect(calls).toEqual([false, true, false, true]);
+    await promptPromise;
+  });
+
+  it("renders cancelled prompts", async () => {
+    const { prompt, output } = createPrompt({ current: true });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    cancelPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise.catch(() => undefined);
+
+    const rendered = stripAnsi(toOutputString(output));
+    expect(rendered).toContain("BOOL_ENV");
+    expect(rendered).toMatch(/✕/);
+  });
+
+  it("dims options while the toolbar picker is open", async () => {
+    const { prompt, output } = createPrompt();
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    await pressKey(prompt, { name: "tab" });
+    await waitForIO(2);
+
+    expect((prompt as any).mode.isToolbarOpen()).toBe(true);
+    const dimOutput = stripAnsi(toOutputString(output));
+    expect(dimOutput).toContain("Skip");
+
+    await pressKey(prompt, { name: "tab" });
+    await waitForIO(2);
+    expect((prompt as any).mode.isToolbarOpen()).toBe(false);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+  });
+
+  it("renders submitted values in ENV_KEY=value format", async () => {
+    const { prompt, output } = createPrompt({ current: true });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    await promptPromise;
+
+    const rendered = stripAnsi(toOutputString(output));
+    expect(rendered).toContain("BOOL_ENV");
+    expect(rendered).toContain("=true");
+  });
+
+  it("allows selecting an invalid current value but blocks submission", async () => {
+    const { prompt, output } = createPrompt({
+      current: "maybe",
+      default: true,
+    });
+    const promptPromise = prompt.prompt();
+    await waitForIO(2);
+
+    const initialRender = toOutputString(output);
+    expect(initialRender).toContain("\u001b[9m");
+    const initialStripped = stripAnsi(initialRender);
+    expect(initialStripped).toContain("maybe");
+    expect(initialStripped).not.toContain("(current, invalid)");
+
+    expect(prompt.cursor).toBe(1);
+    expect(prompt.value).toBe(true);
+
+    await pressKey(prompt, { name: "up" });
+    await waitForIO(2);
+
+    expect(prompt.cursor).toBe(0);
+    expect(prompt.value).toBe(true);
+
+    const focusedStripped = stripAnsi(toOutputString(output));
+    expect(focusedStripped).toContain("(current, invalid)");
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+
+    expect(prompt.state).toBe("error");
+    expect(prompt.error).toBeTruthy();
+
+    await pressKey(prompt, { name: "down" });
+    await waitForIO(2);
+
+    expect(prompt.state).toBe("active");
+    expect(prompt.cursor).toBe(1);
+
+    submitPrompt(prompt);
+    await waitForIO(2);
+    expect(prompt.state).toBe("submit");
+    await promptPromise;
+  });
+});

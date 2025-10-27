@@ -20,3 +20,5 @@ export const schema = {
   enum: <T extends string = string>(input: EnumEnvVarSchemaInput<T>) =>
     new EnumEnvVarSchema<T>(input),
 };
+
+export const s = schema;
