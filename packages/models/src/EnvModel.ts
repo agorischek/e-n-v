@@ -41,10 +41,10 @@ export class EnvModel<T extends Record<string, SupportedSchema> = Record<string,
     if (config === false) {
       // Explicitly disable all preprocessing
       return {
-        string: null,
-        number: null,
-        bool: null,
-        enum: null,
+        string: false,
+        number: false,
+        boolean: false,
+        enum: false,
       };
     }
 

@@ -11,7 +11,7 @@ describe("Core preprocessing integration", () => {
     const overrides: Preprocessors = {
       string: (value) => value.trim().toLowerCase(),
       number: (value) => value.replace(/,/g, ""),
-      bool: (value) => (value.toLowerCase() === "on" ? "true" : "false"),
+      boolean: (value) => (value.toLowerCase() === "on" ? "true" : "false"),
       enum: (value) => value.toLowerCase(),
     };
 
@@ -36,19 +36,40 @@ describe("Core preprocessing integration", () => {
     expect(numberPre?.("not-a-number")).toBe("not-a-number");
 
     const boolPre = resolvePreprocessor("boolean");
-    expect(boolPre?.("enabled")).toBe("true");
-    expect(boolPre?.("inactive")).toBe("false");
+    expect(boolPre?.("enabled")).toBe(true);
+    expect(boolPre?.("inactive")).toBe(false);
     expect(boolPre?.("maybe")).toBe("maybe");
 
     expect(resolvePreprocessor("string")).toBeUndefined();
     expect(resolvePreprocessor("enum")).toBeUndefined();
   });
 
-  test("null overrides disable defaults", () => {
-    const overrides: Preprocessors = { number: null, bool: null };
+  test("false overrides disable defaults", () => {
+    const overrides: Preprocessors = { number: false, boolean: false };
 
     expect(resolvePreprocessor("number", overrides)).toBeUndefined();
     expect(resolvePreprocessor("boolean", overrides)).toBeUndefined();
+  });
+
+  test("true overrides force built-in preprocessors", () => {
+    const overrides: Preprocessors = {
+      string: true,
+      number: true,
+      boolean: true,
+      enum: true,
+    };
+
+    const stringPre = resolvePreprocessor("string", overrides);
+    expect(stringPre?.(" value ")).toBe(" value ");
+
+    const numberPre = resolvePreprocessor("number", overrides);
+    expect(numberPre?.("1,234")).toBe("1234");
+
+    const booleanPre = resolvePreprocessor("boolean", overrides);
+    expect(booleanPre?.("enabled")).toBe(true);
+
+    const enumPre = resolvePreprocessor("enum", overrides);
+    expect(enumPre?.("DEV")).toBe("DEV");
   });
 
   test("processValue integrates preprocessing results", () => {
@@ -100,5 +121,19 @@ describe("Core preprocessing integration", () => {
     );
     expect(booleanResult.value).toBe(true);
     expect(typeof booleanResult.value).toBe("boolean");
+  });
+
+  test("boolean preprocessors accept options objects", () => {
+    const overrides: Preprocessors = {
+      boolean: {
+        true: ["affirmative", "absolutely"],
+        false: ["negative"],
+      },
+    };
+
+    const boolPre = resolvePreprocessor("boolean", overrides);
+    expect(boolPre?.("Affirmative")).toBe(true);
+    expect(boolPre?.("NEGATIVE")).toBe(false);
+    expect(boolPre?.("unknown")).toBe("unknown");
   });
 });

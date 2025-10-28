@@ -9,7 +9,7 @@ import {
   define,
   parse,
   schema,
-  EnvValidationAggregateError,
+  EnvParseError,
 } from "./packages/env/src/index";
 import { writeFile, unlink } from "node:fs/promises";
 
@@ -116,12 +116,12 @@ OPTIONAL_VAR=
       });
       console.log("   ❌ Should have thrown error\n");
     } catch (error) {
-      if (error instanceof EnvValidationAggregateError) {
+      if (error instanceof EnvParseError) {
         console.log(
-          `   ✅ Caught aggregate error with ${error.errors.length} errors`,
+          `   ✅ Caught parse error with ${error.issueCount} issues`,
         );
-        console.log(`      Missing: ${error.missingVars.join(", ")}`);
-        console.log(`      Invalid: ${error.invalidVars.join(", ")}\n`);
+        console.log(`      Missing: ${error.missing.join(", ")}`);
+        console.log(`      Invalid: ${error.invalid.join(", ")}`);
       }
     }
 

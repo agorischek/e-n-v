@@ -19,9 +19,11 @@ export type { SupportedSchema } from "@e-n-v/converters";
 
 // Re-export errors for convenience
 export {
-  MissingEnvVarError,
-  ValidationError,
-  EnvValidationAggregateError,
+  EnvParseError,
+  type EnvParseIssue,
+  type EnvParseIssueInvalid,
+  type EnvParseIssueMissing,
+  type EnvParseResult,
 } from "@e-n-v/parse";
 
 // Re-export schema builders

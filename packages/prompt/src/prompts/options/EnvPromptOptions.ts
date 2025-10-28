@@ -37,8 +37,10 @@ export interface EnvPromptOptions<T> {
   output?: Writable;
 
   /**
-   * Custom preprocessing function to transform values before schema validation.
-   * Set to null to disable preprocessing for this prompt.
+   * Custom preprocessing control applied before schema validation.
+   * - `false` disables preprocessing
+   * - `true` forces the built-in default preprocessor for the schema type
+   * - Function applies custom preprocessing logic
    */
-  preprocess?: Preprocessor<T> | null;
+  preprocess?: Preprocessor<T> | boolean;
 }

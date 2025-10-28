@@ -9,6 +9,7 @@ import type {
 import type { Schema } from "./schemas";
 import type { ZodTypeAny } from "zod";
 import type { $ZodType } from "zod/v4/core";
+import type { AnySchema } from "joi";
 
 /**
  * Supported schema types - local definition to avoid circular dependencies
@@ -20,6 +21,22 @@ type InferZodOutput<T> = T extends { _output: infer Output }
   : T extends { _type: infer LegacyOutput }
   ? LegacyOutput
   : never;
+
+type InferJoiOutput<T> = T extends {
+  validate: (...args: any[]) => infer Result;
+}
+  ? Result extends { value: infer Value }
+    ? Value
+    : Result extends Promise<infer AsyncResult>
+    ? AsyncResult extends { value: infer AsyncValue }
+      ? AsyncValue
+      : unknown
+    : unknown
+  : T extends {
+        validateAsync: (...args: any[]) => Promise<infer AsyncValue>;
+      }
+  ? AsyncValue
+  : unknown;
 
 /**
  * Infer the TypeScript type from an EnvVarSchema instance
@@ -52,6 +69,8 @@ export type InferSchemaType<T> = T extends {
   ? boolean
   : T extends EnvVarSchemaBase<infer U>
   ? U
+  : T extends AnySchema
+  ? InferJoiOutput<T>
   : T extends ZodTypeAny
   ? InferZodOutput<T>
   : T extends $ZodType

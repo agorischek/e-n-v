@@ -1,12 +1,20 @@
 import type { EnvVarType } from "../types/EnvVarType";
-import { booleanPreprocessor, numberPreprocessor } from "./preprocessors";
+import {
+  booleanPreprocessor,
+  enumPreprocessor,
+  numberPreprocessor,
+  stringPreprocessor,
+  type BooleanPreprocessorOptions,
+} from "./preprocessors";
 
 /**
  * Custom preprocessing functions to preprocess values before submitting to schema processors.
- * If null or undefined, the preprocessing step is skipped for that type.
- * These functions do not guarantee type casting and can be nullified to skip preprocessing.
+ * Provide `false` to skip preprocessing, `true` to use the built-in default, or a function/options object for custom logic.
+ * These functions do not guarantee type casting and can be bypassed to skip preprocessing entirely.
  */
 export type Preprocessor<T> = (value: string) => T | string;
+
+type PreprocessorToggle<T> = Preprocessor<T> | boolean | undefined;
 
 export interface Preprocessors {
   /**
@@ -15,7 +23,7 @@ export interface Preprocessors {
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string value
    */
-  string?: null | undefined | Preprocessor<string>;
+  string?: PreprocessorToggle<string>;
 
   /**
    * Custom number preprocessing function
@@ -23,7 +31,7 @@ export interface Preprocessors {
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string or number value
    */
-  number?: null | undefined | Preprocessor<number>;
+  number?: PreprocessorToggle<number>;
 
   /**
    * Custom boolean preprocessing function
@@ -31,7 +39,11 @@ export interface Preprocessors {
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string or boolean value
    */
-  bool?: null | undefined | Preprocessor<boolean>;
+  boolean?:
+    | boolean
+    | Preprocessor<boolean>
+    | BooleanPreprocessorOptions
+    | undefined;
 
   /**
    * Custom enum preprocessing function
@@ -39,13 +51,13 @@ export interface Preprocessors {
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string value
    */
-  enum?: null | undefined | Preprocessor<string>;
+  enum?: PreprocessorToggle<string>;
 }
 
 const optionKeyMap = {
   string: "string",
   number: "number",
-  boolean: "bool",
+  boolean: "boolean",
   enum: "enum",
 } as const;
 
@@ -54,6 +66,13 @@ type DefaultPreprocessor<T extends EnvVarType> = T extends "number"
   : T extends "boolean"
     ? Preprocessor<boolean>
     : Preprocessor<string>;
+
+const explicitPreprocessorFactories = {
+  string: stringPreprocessor,
+  number: numberPreprocessor,
+  boolean: booleanPreprocessor,
+  enum: enumPreprocessor,
+} as const;
 
 function createDefaultPreprocessor<T extends EnvVarType>(
   envVarType: T,
@@ -68,6 +87,18 @@ function createDefaultPreprocessor<T extends EnvVarType>(
   }
 }
 
+function createExplicitPreprocessor<T extends EnvVarType>(
+  envVarType: T,
+): DefaultPreprocessor<T> | undefined {
+  const factory = explicitPreprocessorFactories[envVarType];
+
+  if (!factory) {
+    return undefined;
+  }
+
+  return factory() as DefaultPreprocessor<T>;
+}
+
 /**
  * Resolve the effective preprocessor for a given environment variable type.
  * Respects custom overrides and falls back to built-in defaults (number, boolean).
@@ -76,16 +107,42 @@ export function resolvePreprocessor<T extends EnvVarType>(
   envVarType: T,
   preprocessorOptions?: Preprocessors,
 ): DefaultPreprocessor<T> | undefined {
+  if (envVarType === "boolean") {
+    const override = preprocessorOptions?.boolean;
+
+    if (override === undefined) {
+      return createDefaultPreprocessor(envVarType);
+    }
+
+    if (override === false) {
+      return undefined;
+    }
+
+    if (override === true) {
+      return createExplicitPreprocessor(envVarType);
+    }
+
+    if (typeof override === "function") {
+      return override as DefaultPreprocessor<T>;
+    }
+
+    return booleanPreprocessor(override) as DefaultPreprocessor<T>;
+  }
+
   const key = optionKeyMap[envVarType];
   const custom = preprocessorOptions?.[key];
 
-  if (custom === null) {
+  if (custom === undefined) {
+    return createDefaultPreprocessor(envVarType);
+  }
+
+  if (custom === false) {
     return undefined;
   }
 
-  if (custom !== undefined) {
-    return custom as DefaultPreprocessor<T>;
+  if (custom === true) {
+    return createExplicitPreprocessor(envVarType);
   }
 
-  return createDefaultPreprocessor(envVarType);
+  return custom as DefaultPreprocessor<T>;
 }

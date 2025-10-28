@@ -3,6 +3,7 @@
 
 # e·n·v Env
 
+<!-- markdownlint-disable-next-line MD036 -->
 **"Environments, niftily? Very!"**
 
 A unified, elegant API for environment variable management with type-safe schemas, interactive setup, and validation.
@@ -128,13 +129,13 @@ export default define({
     // Custom number preprocessing
     number: (value) => value.replace(/,/g, "").trim(),
     // Custom boolean preprocessing
-    bool: (value) => {
+    boolean: (value) => {
       if (value === "1") return "true";
       if (value === "0") return "false";
       return value;
     },
     // Disable string preprocessing
-    string: null,
+    string: false,
   },
 });
 ```
@@ -212,7 +213,7 @@ Load and validate environment variables.
 
 **Returns:** Validated environment variables object
 
-**Throws:** `EnvValidationAggregateError` in strict mode
+**Throws:** `EnvParseError` when validation fails
 
 ### `prompt(model: EnvModel, options?: PromptEnvInteractiveOptions): Promise<void>`
 
@@ -255,7 +256,7 @@ Default preprocessors normalize values before validation:
 
 - **`string`**: Pass-through (no transformation)
 - **`number`**: Strips commas and whitespace (`"1,000"` → `"1000"`)
-- **`bool`**: Normalizes common phrases:
+- **`boolean`**: Normalizes common phrases:
   - `"on"`, `"enabled"`, `"active"`, `"yes"` → `"true"`
   - `"off"`, `"disabled"`, `"inactive"`, `"no"` → `"false"`
 - **`enum`**: Pass-through (no transformation)
@@ -263,17 +264,16 @@ Default preprocessors normalize values before validation:
 ## Error Handling
 
 ```typescript
-import { parse, EnvValidationAggregateError } from "e-n-v";
+import { parse, EnvParseError } from "e-n-v";
 import modelSpec from "./env.spec.js";
 
 try {
   const env = parse({ source: process.env as Record<string, string>, model: modelSpec });
 } catch (error) {
-  if (error instanceof EnvValidationAggregateError) {
-    console.error(`${error.errors.length} validation errors:`);
-    console.error(`Missing: ${error.missingVars.join(", ")}`);
-    console.error(`Invalid: ${error.invalidVars.join(", ")}`);
-    console.error("\n" + error.message);
+  if (error instanceof EnvParseError) {
+    console.error(`${error.issueCount} validation issues:`);
+    console.error(error.formatIssues());
+    console.error("Partial result:", error.partial);
   }
 }
 ```

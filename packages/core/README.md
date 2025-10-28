@@ -32,11 +32,9 @@ This package is types-only and intended to be used as a dev/peer dependency.
 - `BooleanEnvVarSchema`
 - `EnumEnvVarSchema`
 
-### Error Types
+### Error Handling
 
-- `EnvValidationAggregateError`
-- `MissingEnvVarError`
-- `ValidationError`
+Runtime error types now live in `@e-n-v/parse`. Use `EnvParseError` from that package to inspect validation issues.
 
 ## Usage
 

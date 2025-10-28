@@ -1,7 +1,11 @@
-export { parse } from "./load";
-export { MissingEnvVarError } from "./errors/MissingEnvVarError";
-export { ValidationError } from "./errors/ValidationError";
-export { EnvValidationAggregateError } from "./errors/EnvValidationAggregateError";
+export { parse } from "./parse";
+export {
+	EnvParseError,
+	type EnvParseIssue,
+	type EnvParseIssueInvalid,
+	type EnvParseIssueMissing,
+	type EnvParseResult,
+} from "./errors/EnvParseError";
 
 // Export parse options
 export type { ParseEnvOptions } from "../ParseEnvOptions";

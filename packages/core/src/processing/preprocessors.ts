@@ -5,6 +5,16 @@
  */
 import type { Preprocessor } from "./Preprocessor";
 
+export interface BooleanPreprocessorOptions {
+  true: string[];
+  false: string[];
+}
+
+const defaultBooleanPreprocessorOptions: BooleanPreprocessorOptions = {
+  true: ["on", "enabled", "active", "yes"],
+  false: ["off", "disabled", "inactive", "no"],
+};
+
 /**
  * Create a string preprocessor - pass through unchanged
  */
@@ -28,31 +38,37 @@ export const numberPreprocessor = (): Preprocessor<number> => (value) => {
 /**
  * Create a boolean preprocessor that normalizes common truthy/falsy phrases
  */
-export const booleanPreprocessor = (): Preprocessor<boolean> => (value) => {
-  try {
-    const cleaned = value.toLowerCase().trim();
+export const booleanPreprocessor = (
+  options: BooleanPreprocessorOptions = defaultBooleanPreprocessorOptions,
+): Preprocessor<boolean> => {
+  const normalize = (candidate: string) => candidate.toLowerCase().trim();
+  const trueValues = new Set(options.true.map(normalize));
+  const falseValues = new Set(options.false.map(normalize));
 
-    if (
-      cleaned === "on" ||
-      cleaned === "enabled" ||
-      cleaned === "active" ||
-      cleaned === "yes"
-    ) {
-      return "true";
+  for (const candidate of trueValues) {
+    if (falseValues.has(candidate)) {
+      throw new Error(
+        `Boolean preprocessor option value "${candidate}" cannot map to both true and false`,
+      );
     }
-
-    if (
-      cleaned === "off" ||
-      cleaned === "disabled" ||
-      cleaned === "inactive" ||
-      cleaned === "no"
-    ) {
-      return "false";
-    }
-  } catch {
-    // Pass through on any error
   }
-  return value;
+
+  return (value) => {
+    try {
+      const cleaned = normalize(value);
+
+      if (trueValues.has(cleaned)) {
+        return true;
+      }
+
+      if (falseValues.has(cleaned)) {
+        return false;
+      }
+    } catch {
+      // Pass through on any error
+    }
+    return value;
+  };
 };
 
 /**

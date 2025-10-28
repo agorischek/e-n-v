@@ -1,4 +1,8 @@
-import type { EnvVarSchemaDetails, Preprocessor } from "@e-n-v/core";
+import type {
+  EnvVarSchemaDetails,
+  Preprocessor,
+  Preprocessors,
+} from "@e-n-v/core";
 import { resolvePreprocessor } from "@e-n-v/core";
 import type { ProcessingResult } from "./ProcessingResult";
 
@@ -11,7 +15,7 @@ export function processValue<T>(
   envKey: string,
   value: string | undefined,
   schema: EnvVarSchemaDetails<T>,
-  preprocess?: Preprocessor<T> | null,
+  preprocess?: Preprocessor<T> | boolean,
 ): ProcessingResult<T> {
   try {
     // Handle undefined/empty values early
@@ -20,10 +24,24 @@ export function processValue<T>(
     }
 
     // Apply preprocessing
-    const activePreprocessor =
-      preprocess === null
-        ? undefined
-        : (preprocess ?? resolvePreprocessor(schema.type));
+    const activePreprocessor = (() => {
+      if (preprocess === false) {
+        return undefined;
+      }
+
+      if (preprocess === true) {
+        return resolvePreprocessor(
+          schema.type,
+          { [schema.type]: true } as Preprocessors,
+        );
+      }
+
+      if (typeof preprocess === "function") {
+        return preprocess;
+      }
+
+      return resolvePreprocessor(schema.type);
+    })();
     const processedValue = activePreprocessor
       ? activePreprocessor(value)
       : value;

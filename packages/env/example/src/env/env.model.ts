@@ -4,6 +4,12 @@ import { define } from "@e-n-v/env";
 import { z } from "zod";
 
 export const model = define({
+  preprocess: {
+    boolean: {
+      true: ["1"],
+      false: ["0"],
+    },
+  },
   schemas: {
     NODE_ENV: z.enum(["development", "production", "test"]),
     DATABASE_URL: z.url(),
@@ -11,7 +17,6 @@ export const model = define({
     API_KEY: z.string().min(32),
     DEBUG: z.boolean().default(false),
   },
-  preprocess: true,
 });
 
 export default model;

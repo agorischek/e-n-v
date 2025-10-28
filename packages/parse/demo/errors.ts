@@ -1,4 +1,4 @@
-import { parse, schema, EnvValidationAggregateError } from "../src/index";
+import { parse, schema, EnvParseError } from "../src/index";
 
 console.log("🔍 Demo: Error Handling\n");
 
@@ -18,12 +18,10 @@ try {
     },
   });
 } catch (error) {
-  if (error instanceof EnvValidationAggregateError) {
-    console.log(
-      `  ❌ EnvValidationAggregateError: ${error.errors.length} errors`,
-    );
-    console.log(`     Missing vars: ${error.missingVars.join(", ")}`);
-    console.log(`     Invalid vars: ${error.invalidVars.join(", ")}`);
+  if (error instanceof EnvParseError) {
+    console.log(`  ❌ EnvParseError: ${error.issueCount} issues`);
+    console.log(`     Missing vars: ${error.missing.join(", ")}`);
+    console.log(`     Invalid vars: ${error.invalid.join(", ")}`);
     console.log(`\n     Full message:\n${error.message}\n`);
   }
 }
@@ -40,9 +38,9 @@ try {
     },
   });
 } catch (error) {
-  if (error instanceof EnvValidationAggregateError) {
-    console.log(`  ❌ Aggregate error with ${error.errors.length} error(s)`);
-    console.log(`     Missing: ${error.missingVars.join(", ")}\n`);
+  if (error instanceof EnvParseError) {
+    console.log(`  ❌ Parse error with ${error.issueCount} issue(s)`);
+    console.log(`     Missing: ${error.missing.join(", ")}\n`);
   }
 }
 
@@ -71,9 +69,9 @@ try {
     },
   });
 } catch (error) {
-  if (error instanceof EnvValidationAggregateError) {
+  if (error instanceof EnvParseError) {
     console.log(`  ❌ Detailed messages:`);
-    console.log(error.getDetailedMessage());
+    console.log(error.formatIssues());
     console.log();
   }
 }

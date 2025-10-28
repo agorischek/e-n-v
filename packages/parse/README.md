@@ -100,7 +100,7 @@ const env = parse(process.env as Record<string, string>, {
   },
   preprocess: {
     number: (value) => value.replace(/%$/, ""), // Strip % suffix
-    bool: (value) => (value === "on" ? "true" : value),
+    boolean: (value) => (value === "on" ? "true" : value),
   },
 });
 ```
@@ -162,17 +162,16 @@ Create an environment variable specification.
 
 ## Error Handling
 
-### Aggregate Errors
+### Structured Issues
 
-By default, `@e-n-v/parse` validates **all** environment variables and collects errors before throwing. This gives you a complete picture of what's wrong instead of failing on the first error.
+`@e-n-v/parse` validates **all** environment variables and reports every problem at once. When something goes wrong, it throws a single `EnvParseError` that captures each issue alongside the partial result that did validate.
 
 ```typescript
-import { parse, EnvValidationAggregateError } from "@e-n-v/parse";
+import { parse, EnvParseError } from "@e-n-v/parse";
 import { schema } from "@e-n-v/core";
 
 try {
   const env = parse(process.env as Record<string, string>, {
-    
     schemas: {
       PORT: schema.number(),
       DATABASE_URL: schema.string(),
@@ -181,50 +180,40 @@ try {
     },
   });
 } catch (error) {
-  if (error instanceof EnvValidationAggregateError) {
-    console.error(`Found ${error.errors.length} validation errors:`);
-    console.error(`Missing: ${error.missingVars.join(", ")}`);
-    console.error(`Invalid: ${error.invalidVars.join(", ")}`);
+  if (error instanceof EnvParseError) {
+    console.error(error.message);
+    console.error("\nIssues:");
+    console.error(error.formatIssues());
 
-    // Get detailed error messages
-    console.error("\nDetails:");
-    console.error(error.getDetailedMessage());
+    // Access specific groups if you need them
+    console.error(`Missing keys: ${error.missing.join(", ")}`);
+    console.error(`Invalid keys: ${error.invalid.join(", ")}`);
   }
 }
 ```
 
-### Individual Error Types
+### Inspecting Issue Data
 
-The aggregate error contains individual error instances:
+Each issue describes the problem in plain data so you can handle it however you like.
 
 ```typescript
-import { MissingEnvVarError, ValidationError } from "@e-n-v/parse";
-
-if (error instanceof EnvValidationAggregateError) {
-  error.errors.forEach((err) => {
-    if (err instanceof MissingEnvVarError) {
-      console.error(`Missing required: ${err.key}`);
-    } else if (err instanceof ValidationError) {
-      console.error(`Invalid ${err.key}: ${err.value} - ${err.originalError}`);
+try {
+  /* ... */
+} catch (error) {
+  if (error instanceof EnvParseError) {
+    for (const issue of error.issues) {
+      if (issue.type === "missing") {
+        console.warn(`Missing ${issue.key}`);
+      } else {
+        console.warn(`Invalid ${issue.key}: ${issue.message}`);
+        console.debug(`Raw value: ${issue.value}`);
+      }
     }
-  });
+
+    // A snapshot of the successfully parsed values
+    console.debug("Partial result", error.partial);
+  }
 }
-```
-
-### Non-Strict Mode
-
-Set `strict: false` to allow missing/invalid values without throwing:
-
-```typescript
-const env = parse(process.env as Record<string, string>, {
-  source: {
-    /* ... */
-  },
-  schemas: { PORT: schema.number() },
-  strict: false,
-});
-
-// env.PORT will be undefined if missing or invalid
 ```
 
 ## Related Packages

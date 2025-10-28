@@ -1,31 +1,35 @@
+import type {
+  BooleanPreprocessorOptions,
+  Preprocessor,
+} from "@e-n-v/core";
 import type { SupportedSchema } from "./types";
 
-/**
- * Custom preprocessing functions to preprocess values before submitting to schema processors.
- * If null or undefined, the preprocessing step is skipped for that type.
- */
-export type Preprocessor<T> = (value: string) => T | string;
+type PreprocessorToggle<T> = Preprocessor<T> | boolean | undefined;
 
 export interface Preprocessors {
   /**
    * Custom string preprocessing function
    */
-  string?: null | undefined | Preprocessor<string>;
+  string?: PreprocessorToggle<string>;
 
   /**
    * Custom number preprocessing function
    */
-  number?: null | undefined | Preprocessor<number>;
+  number?: PreprocessorToggle<number>;
 
   /**
    * Custom boolean preprocessing function
    */
-  bool?: null | undefined | Preprocessor<boolean>;
+  boolean?:
+    | boolean
+    | Preprocessor<boolean>
+    | BooleanPreprocessorOptions
+    | undefined;
 
   /**
    * Custom enum preprocessing function
    */
-  enum?: null | undefined | Preprocessor<string>;
+  enum?: PreprocessorToggle<string>;
 }
 
 /**

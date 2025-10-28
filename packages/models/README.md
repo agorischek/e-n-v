@@ -58,7 +58,7 @@ Preprocessors normalize values before validation:
 
 - **`string`**: Pass-through (no transformation)
 - **`number`**: Strips commas and whitespace (`"1,000"` → `"1000"`)
-- **`bool`**: Normalizes common phrases:
+- **`boolean`**: Normalizes common phrases:
   - `"on"`, `"enabled"`, `"active"`, `"yes"` → `"true"`
   - `"off"`, `"disabled"`, `"inactive"`, `"no"` → `"false"`
 - **`enum`**: Pass-through (no transformation)
@@ -122,13 +122,13 @@ export default define({
     // Keep default number preprocessing
     number: undefined,
     // Custom boolean preprocessing
-    bool: (value) => {
+    boolean: (value) => {
       if (value === "1") return "true";
       if (value === "0") return "false";
       return value;
     },
     // Disable string preprocessing
-    string: null,
+    string: false,
   },
 });
 ```
