@@ -1,7 +1,9 @@
 import type { EnvChannel } from "@e-n-v/core";
 import type { EnvChannelOptions } from "./EnvChannelOptions";
+import type { DotEnvChannelConfig } from "./channels/dotenv/DotEnvChannelConfig";
 import type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
 import { DefaultEnvChannel } from "./channels/default/DefaultEnvChannel";
+import { DotEnvChannel } from "./channels/dotenv/DotEnvChannel";
 import { DotEnvXChannel } from "./channels/dotenvx/DotEnvXChannel";
 import { ProcessEnvChannel } from "./channels/processenv/ProcessEnvChannel";
 
@@ -27,6 +29,30 @@ export function resolveChannel(
 
   // Check if it's a configuration object
   if (typeof options === "object" && options !== null) {
+    // Dotenv channel
+    if ("dotenv" in options) {
+      const config = options as DotEnvChannelConfig;
+      const { dotenv, get: getOptions = {}, parse: parseOptions = {}, path } =
+        config;
+
+      if (!dotenv) {
+        throw new Error("Dotenv instance is required for dotenv channel");
+      }
+
+      const resolvedPath = path ?? defaultPath;
+      const mergedGetOptions = { ...getOptions };
+      if (typeof mergedGetOptions.path !== "string") {
+        mergedGetOptions.path = resolvedPath;
+      }
+
+      return new DotEnvChannel(
+        dotenv,
+        resolvedPath,
+        mergedGetOptions,
+        parseOptions ?? {},
+      );
+    }
+
     // DotenvX channel
     if ("dotenvx" in options) {
       const config = options as DotEnvXChannelConfig;

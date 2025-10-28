@@ -65,6 +65,25 @@ const channel = resolveChannel("processenv");
 const channel = resolveChannel({ process });
 ```
 
+### Dotenv Channel
+
+Wraps a user-provided [`dotenv`](https://www.npmjs.com/package/dotenv) instance for reads while delegating writes to `@e-n-v/files`.
+
+```typescript
+import { resolveChannel } from "@e-n-v/channels";
+import dotenv from "dotenv";
+
+const channel = resolveChannel({ dotenv });
+
+// Provide custom options
+const channel = resolveChannel({
+  dotenv,
+  path: ".env.local",
+  get: { encoding: "latin1" },
+  parse: { debug: true },
+});
+```
+
 ### DotenvX Channel
 
 Integration with [dotenvx](https://www.npmjs.com/package/@dotenvx/dotenvx) for advanced .env file management.

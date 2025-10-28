@@ -5,6 +5,9 @@ export * from "./resolveChannel";
 // Channel implementations
 export * from "./channels/default/DefaultChannelConfig";
 export * from "./channels/default/DefaultEnvChannel";
+export * from "./channels/dotenv/DotEnvChannel";
+export * from "./channels/dotenv/DotEnvChannelConfig";
+export * from "./channels/dotenv/DotEnvInstance";
 export * from "./channels/dotenvx/DotEnvXChannel";
 export * from "./channels/dotenvx/DotEnvXChannelConfig";
 export * from "./channels/dotenvx/DotEnvXGetOptions";
