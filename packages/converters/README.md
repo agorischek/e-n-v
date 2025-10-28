@@ -1,4 +1,4 @@
-# e·n·v Converters
+# e·n·v converters
 
 This package provides converters that transform external schema libraries (like Zod and Joi) into e·n·v's internal `EnvVarSchema` format.
 

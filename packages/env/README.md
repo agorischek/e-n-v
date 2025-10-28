@@ -1,12 +1,12 @@
 <!-- markdownlint-disable-next-line -->
 <img src="./assets/env-logo2.png" alt="e-n-v Logo" height="75"/>
 
-# e·n·v Env
+# e·n·v
 
 <!-- markdownlint-disable-next-line MD036 -->
 **"Environments, niftily? Very!"**
 
-A unified, elegant API for environment variable management with type-safe schemas, interactive setup, and validation.
+A suite of stuff for authoring and validation environment variables.
 
 ## Philosophy
 

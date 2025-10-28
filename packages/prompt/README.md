@@ -1,4 +1,4 @@
-# e·n·v Prompt
+# e·n·v prompt
 
 Interactive CLI for creating and editing `.env` files with validation and smart defaults.
 

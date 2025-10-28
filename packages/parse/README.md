@@ -1,7 +1,4 @@
-<!-- markdownlint-disable-next-line -->
-<img src="./assets/direct-env-logo2.png" alt="Ask Env Logo" height="75"/>
-
-# e·n·v Parse
+# e·n·v parse
 
 Direct environment variable loading and validation with runtime type safety.
 

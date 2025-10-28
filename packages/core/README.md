@@ -1,4 +1,4 @@
-# e·n·v Core
+# e·n·v core
 
 Shared TypeScript types and utilities for e·n·v: `EnvChannel`, `EnvVarSchema`, etc.
 

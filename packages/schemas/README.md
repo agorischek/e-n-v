@@ -1,7 +1,4 @@
-<!-- markdownlint-disable-next-line -->
-<img src="./assets/env-var-schemas-logo2.png" alt="Ask Env Logo" height="50"/>
-
-# e·n·v Schemas
+# e·n·v schemas
 
 Pre-built, validated schemas for common environment variables with smart defaults and comprehensive validation.
 
