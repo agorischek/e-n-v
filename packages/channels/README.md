@@ -1,4 +1,7 @@
-# e·n·v Channels
+<!-- markdownlint-disable-next-line -->
+<img src="../../assets/env4.png" alt="e-n-v Logo" height="35"/>
+
+# e·n·v channels
 
 Channel abstraction for reading and writing environment variables from different sources.
 

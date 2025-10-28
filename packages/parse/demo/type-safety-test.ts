@@ -11,7 +11,7 @@ const env = parse(
     schemas: {
       PORT: s.number({ default: 3000 }),
       DEBUG: s.boolean({ default: false }),
-      NODE_ENV: s.enum({ values: ["development", "production", "test"] }),
+  NODE_ENV: s.enum({ values: ["development", "production", "test"] as const }),
     },
   })
 );

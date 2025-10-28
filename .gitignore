@@ -146,3 +146,4 @@ vite.config.ts.timestamp-*
 # stryker temp files
 .stryker-tmp
 reports/mutation
+.DS_Store

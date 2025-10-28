@@ -13,20 +13,9 @@ import {
   resolveEnvFilePath,
   resolveTheme,
 } from "./options/resolve";
+import { isEnvChannel } from "./utils/isEnvChannel";
 
-/**
- * Type guard to check if a value is an EnvChannel instance
- */
-function isEnvChannel(value: unknown): value is EnvChannel {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "get" in value &&
-    "set" in value &&
-    typeof value.get === "function" &&
-    typeof value.set === "function"
-  );
-}
+
 
 /**
  * Interactive CLI tool to generate .env files with schema validation

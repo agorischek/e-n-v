@@ -15,7 +15,7 @@ export * as schemas from "@e-n-v/schemas";
 
 export * as defaults from "./options/defaults";
 
-import { prompt } from "./ask";
+import { prompt } from "./prompt";
 export { prompt };
 
 export type { PromptEnvOptions } from "./options/PromptEnvOptions";

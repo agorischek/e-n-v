@@ -35,10 +35,19 @@ export function createPrompt({
   switch (schema.type) {
     case "boolean":
       const booleanOverride = preprocessors?.boolean;
-      const booleanPreprocess =
-        booleanOverride && typeof booleanOverride !== "function"
-          ? booleanPreprocessor(booleanOverride)
-          : booleanOverride;
+      let booleanPreprocess: boolean | ReturnType<typeof booleanPreprocessor> | undefined;
+
+      if (booleanOverride === undefined) {
+        booleanPreprocess = undefined;
+      } else if (booleanOverride === true) {
+        booleanPreprocess = booleanPreprocessor();
+      } else if (booleanOverride === false) {
+        booleanPreprocess = false;
+      } else if (typeof booleanOverride === "function") {
+        booleanPreprocess = booleanOverride;
+      } else {
+        booleanPreprocess = booleanPreprocessor(booleanOverride);
+      }
 
       return new EnvBooleanPrompt(schema, {
         ...baseOptions,

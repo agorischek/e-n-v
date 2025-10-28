@@ -22,6 +22,7 @@
     "typescript": "^5"
   },
   "scripts": {
+    "demo": "bun run ./demo/demo.ts",
     "format": "prettier --write .",
     "lint": "oxlint",
     "test": "bun test",

@@ -18,7 +18,7 @@ const env = parse(
       DEBUG: s.boolean({ default: false }),
       MAX_CONNECTIONS: s.number(),
       API_KEY: s.string(),
-      NODE_ENV: s.enum({ values: ["development", "production", "test"] }),
+  NODE_ENV: s.enum({ values: ["development", "production", "test"] as const }),
       OPTIONAL_VAR: s.string({ required: false, default: "fallback" }),
     },
   })

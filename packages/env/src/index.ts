@@ -28,3 +28,5 @@ export {
 
 // Re-export schema builders
 export { schema, s } from "@e-n-v/core";
+
+export * as schemas from "@e-n-v/schemas";
