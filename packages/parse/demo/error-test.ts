@@ -11,9 +11,3 @@ const env = parse(
     },
   })
 );
-
-// This should cause a TypeScript error
-// @ts-expect-error
-const wrongType: string = env.PORT;
-
-console.log("This shouldn't compile!");

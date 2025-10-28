@@ -1,8 +1,6 @@
 import type { Formatter } from "picocolors/types";
 import type { EnvChannelOptions } from "@e-n-v/channels/EnvChannelOptions";
-import type { EnvChannel, Preprocessors } from "@e-n-v/core";
-import type { SupportedSchema } from "@e-n-v/converters";
-import type { EnvModel, EnvModelOptions } from "@e-n-v/models";
+import type { EnvChannel } from "@e-n-v/core";
 
 /**
  * Configuration options for the prompt function

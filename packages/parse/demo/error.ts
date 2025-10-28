@@ -15,4 +15,4 @@ const model = define({
   },
 });
 
-const { PORT } = parse(env, model);
+parse(env, model);

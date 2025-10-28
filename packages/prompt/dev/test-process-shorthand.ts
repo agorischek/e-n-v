@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 // Test the { process } shorthand notation
 console.log("Testing { process } shorthand notation...\n");
 

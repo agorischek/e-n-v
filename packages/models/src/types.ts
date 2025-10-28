@@ -3,7 +3,6 @@ import type {
   NumberEnvVarSchema,
   BooleanEnvVarSchema,
   EnumEnvVarSchema,
-  EnvVarSchema,
   EnvVarSchemaBase,
 } from "@e-n-v/core";
 import type { Schema } from "./schemas";
