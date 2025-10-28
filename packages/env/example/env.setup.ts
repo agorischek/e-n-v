@@ -3,9 +3,7 @@
 import { model } from "./src/env/env.model.js";
 import { prompt, defaults } from "@e-n-v/env";
 
-// Interactive prompt to configure environment variables using model overload
 await prompt(model, {
+  root: import.meta.url,
   secrets: [...defaults.SECRET_PATTERNS, "key"],
 });
-
-console.log("Environment setup complete!");
