@@ -1,5 +1,5 @@
 import { parse, s } from "../src/index";
-import { define } from "@e-n-v/env";
+import { define } from "@e-n-v/models";
 
 // Let's test what TypeScript actually infers for individual schemas
 type NumberSchema = ReturnType<typeof s.number>;

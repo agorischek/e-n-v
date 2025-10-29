@@ -1,6 +1,6 @@
 {
   "name": "@e-n-v/env",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "https://github.com/agorischek/e-n-v",
   "repository": "https://agorischek@github.com/agorischek/e-n-v.git",
   "type": "module",
