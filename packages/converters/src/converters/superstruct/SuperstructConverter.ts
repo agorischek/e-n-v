@@ -19,9 +19,7 @@ type SuperstructLike = AnyStruct & {
 /**
  * Superstruct schema converter implementation
  */
-export class SuperstructConverter
-  implements SchemaConverter<AnyStruct>
-{
+export class SuperstructConverter implements SchemaConverter<AnyStruct> {
   applies(schema: unknown): schema is AnyStruct {
     return isSuperstructSchema(schema);
   }
@@ -60,7 +58,12 @@ export function convertFromSuperstruct(schema: AnyStruct): EnvVarSchema {
   if (resolvedType === "enum") {
     const values = extractEnumValues(schema);
     if (!values || values.length === 0) {
-      return createStringEnvVarSchema(schema, required, defaultValue, description);
+      return createStringEnvVarSchema(
+        schema,
+        required,
+        defaultValue,
+        description,
+      );
     }
 
     const readonlyValues = values as readonly string[];
@@ -76,7 +79,10 @@ export function convertFromSuperstruct(schema: AnyStruct): EnvVarSchema {
   }
 
   if (resolvedType === "boolean") {
-    const process = createSuperstructProcessFunction<boolean>(schema, "boolean");
+    const process = createSuperstructProcessFunction<boolean>(
+      schema,
+      "boolean",
+    );
 
     return new BooleanEnvVarSchema({
       process,

@@ -13,11 +13,11 @@ export type ZodV4Schema = $ZodType;
 export type SuperstructSchema = Struct<any, any>;
 
 export type Schema =
-	| ZodV3Schema
-	| ZodV4Schema
-	| JoiSchema
-	| SuperstructSchema
-	| EnvVarSchema;
+  | ZodV3Schema
+  | ZodV4Schema
+  | JoiSchema
+  | SuperstructSchema
+  | EnvVarSchema;
 
 export type SupportedSchema = Schema;
 

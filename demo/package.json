@@ -2,6 +2,8 @@
   "name": "@e-n-v/demo",
   "type": "module",
   "scripts": {
-    "env": "e-n-v setup ./env.model.js"
+    "env": "e-n-v setup ./env.model.js",
+    "record": "bun run reset && vhs demo.tape && bun run reset",
+    "reset": "rm -rf ./.env"
   }
 }

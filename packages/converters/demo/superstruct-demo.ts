@@ -42,7 +42,9 @@ for (const [key, struct] of Object.entries(schemas) as [
   console.log(`  • description: ${envSchema.description ?? "<none>"}`);
 
   if (envSchema.type === "enum") {
-    console.log(`  • values: ${(envSchema as any).values?.join(", ") ?? "<none>"}`);
+    console.log(
+      `  • values: ${(envSchema as any).values?.join(", ") ?? "<none>"}`,
+    );
   }
 
   const sample = sampleValues[key];
@@ -62,7 +64,9 @@ try {
 }
 
 try {
-  const enumSchema = resolveSchema(enums(["development", "production"] as const));
+  const enumSchema = resolveSchema(
+    enums(["development", "production"] as const),
+  );
   enumSchema.process("invalid-env");
 } catch (error) {
   console.log(`• Invalid enum: ${String(error)}`);

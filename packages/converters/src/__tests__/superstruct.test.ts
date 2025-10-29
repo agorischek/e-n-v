@@ -28,7 +28,7 @@ describe("SuperstructConverter", () => {
 
     expect(envSchema.type).toBe("string");
     expect(envSchema.required).toBe(false);
-  expect(envSchema.process("")).toBeUndefined();
+    expect(envSchema.process("")).toBeUndefined();
   });
 
   it("should resolve number structs", () => {

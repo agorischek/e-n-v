@@ -8,7 +8,7 @@ Set Width 900
 Set Height 600
 Sleep 1s
 Set TypingSpeed 50ms
-Type "e-n-v setup env.model.js"
+Type "e-n-v setup"
 Set TypingSpeed 100ms
 Enter
 Sleep 2s
