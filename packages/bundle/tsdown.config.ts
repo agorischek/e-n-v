@@ -5,5 +5,5 @@ export default defineConfig({
   noExternal: [/^@e-n-v\//],
   dts: true,
   outDir: "./dist",
-  format: ["esm", "cjs"]
+  format: ["esm", "cjs"],
 });

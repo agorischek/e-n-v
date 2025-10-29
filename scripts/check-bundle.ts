@@ -1,7 +1,7 @@
-import path from 'path';
-import process from 'process';
-import { fileURLToPath } from 'url';
-import { readdir } from 'fs/promises';
+import path from "path";
+import process from "process";
+import { fileURLToPath } from "url";
+import { readdir } from "fs/promises";
 
 interface PackageJson {
   name?: string;
@@ -22,7 +22,9 @@ async function readPackageJson(filePath: string): Promise<PackageJson> {
   try {
     return JSON.parse(raw) as PackageJson;
   } catch (error) {
-    throw new Error(`Failed to parse JSON at ${filePath}: ${(error as Error).message}`);
+    throw new Error(
+      `Failed to parse JSON at ${filePath}: ${(error as Error).message}`,
+    );
   }
 }
 
@@ -31,7 +33,9 @@ async function readConfig(filePath: string): Promise<CheckBundleConfig> {
   try {
     return Bun.YAML.parse(raw) as CheckBundleConfig;
   } catch (error) {
-    throw new Error(`Failed to parse YAML config at ${filePath}: ${(error as Error).message}`);
+    throw new Error(
+      `Failed to parse YAML config at ${filePath}: ${(error as Error).message}`,
+    );
   }
 }
 
@@ -42,7 +46,7 @@ function matchesPrefix(value: string, prefixes: string[]): boolean {
 async function main(): Promise<void> {
   const startedAt = performance.now();
   try {
-    const configRelativePath = path.join('check-bundle', 'config.yaml');
+    const configRelativePath = path.join("check-bundle", "config.yaml");
     const configPath = path.join(__dirname, configRelativePath);
     const config = await readConfig(configPath);
 
@@ -65,9 +69,11 @@ async function main(): Promise<void> {
       : [];
     const disallowBundleDependencyPrefixes = bundledPrefixes;
 
-    const entries = await readdir(packagesDir, { withFileTypes: true }).catch(() => {
-      throw new Error(`Failed to read packages directory at ${packagesDir}`);
-    });
+    const entries = await readdir(packagesDir, { withFileTypes: true }).catch(
+      () => {
+        throw new Error(`Failed to read packages directory at ${packagesDir}`);
+      },
+    );
 
     const problems: string[] = [];
     const packageJsonPaths: Array<{ name: string; path: string }> = [];
@@ -77,22 +83,34 @@ async function main(): Promise<void> {
         continue;
       }
 
-      const packageJsonPath = path.join(packagesDir, entry.name, 'package.json');
+      const packageJsonPath = path.join(
+        packagesDir,
+        entry.name,
+        "package.json",
+      );
       const packageJsonFile = Bun.file(packageJsonPath);
       if (await packageJsonFile.exists()) {
         packageJsonPaths.push({ name: entry.name, path: packageJsonPath });
       } else {
-        problems.push(`Missing package.json for package "${entry.name}" at ${packageJsonPath}`);
+        problems.push(
+          `Missing package.json for package "${entry.name}" at ${packageJsonPath}`,
+        );
       }
     }
 
     if (packageJsonPaths.length === 0) {
-      throw new Error('No package.json files found under packages/*/package.json');
+      throw new Error(
+        "No package.json files found under packages/*/package.json",
+      );
     }
 
-    const bundleEntry = packageJsonPaths.find((pkg) => pkg.name === bundlePackageName);
+    const bundleEntry = packageJsonPaths.find(
+      (pkg) => pkg.name === bundlePackageName,
+    );
     if (!bundleEntry) {
-      throw new Error(`Bundle package "${bundlePackageName}" not found under packages/*`);
+      throw new Error(
+        `Bundle package "${bundlePackageName}" not found under packages/*`,
+      );
     }
 
     const bundlePackage = await readPackageJson(bundleEntry.path);
@@ -100,7 +118,9 @@ async function main(): Promise<void> {
 
     for (const dep of Object.keys(bundleDependencies)) {
       if (matchesPrefix(dep, disallowBundleDependencyPrefixes)) {
-        problems.push(`Bundle package must not declare internal dependency "${dep}".`);
+        problems.push(
+          `Bundle package must not declare internal dependency "${dep}".`,
+        );
       }
     }
 
@@ -123,25 +143,29 @@ async function main(): Promise<void> {
         const bundleVersion = bundleDependencies[dep];
         if (bundleVersion === undefined) {
           problems.push(
-            `Dependency "${dep}" (version ${version}) required by "${pkg.name}" is missing from bundle package dependencies.`
+            `Dependency "${dep}" (version ${version}) required by "${pkg.name}" is missing from bundle package dependencies.`,
           );
           continue;
         }
 
         if (bundleVersion !== version) {
           problems.push(
-            `Dependency "${dep}" version mismatch: "${pkg.name}" requires ${version} but bundle declares ${bundleVersion}.`
+            `Dependency "${dep}" version mismatch: "${pkg.name}" requires ${version} but bundle declares ${bundleVersion}.`,
           );
         }
       }
     }
 
     if (problems.length > 0) {
-      const details = problems.map((problem, index) => `${index + 1}. ${problem}`).join('\n');
+      const details = problems
+        .map((problem, index) => `${index + 1}. ${problem}`)
+        .join("\n");
       throw new Error(`Bundle dependency check failed:\n${details}`);
     }
 
-    console.log('Bundle dependencies include all workspace dependencies with matching versions.');
+    console.log(
+      "Bundle dependencies include all workspace dependencies with matching versions.",
+    );
   } finally {
     const durationMs = performance.now() - startedAt;
     console.log(`Script completed in ${durationMs.toFixed(2)}ms`);

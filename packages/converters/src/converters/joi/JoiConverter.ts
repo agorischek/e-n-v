@@ -63,8 +63,10 @@ export function isJoiSchema(schema: unknown): schema is AnySchema {
   if (candidate.isJoi === true) return true;
 
   const hasAsyncVariant = typeof candidate.validateAsync === "function";
-  const hasRoot = typeof candidate.$_root === "object" && candidate.$_root !== null;
-  const hasFlags = typeof candidate._flags === "object" && candidate._flags !== null;
+  const hasRoot =
+    typeof candidate.$_root === "object" && candidate.$_root !== null;
+  const hasFlags =
+    typeof candidate._flags === "object" && candidate._flags !== null;
 
   return hasAsyncVariant || hasRoot || hasFlags;
 }

@@ -1,1 +1,1 @@
-export * from "../../env/src/index"
+export * from "../../env/src/index";

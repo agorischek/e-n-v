@@ -13,4 +13,3 @@ bundlePackageName: bundle
 # are also blocked from appearing in the bundle's own dependency list.
 bundledPrefixes:
   - "@e-n-v/"
-
