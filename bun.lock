@@ -19,6 +19,7 @@
         "tsdown": "^0.15.11",
         "tsup": "^8.5.0",
         "typescript": "^5",
+        "zod": "^4.1.12",
       },
       "peerDependencies": {
         "typescript": "^5",
@@ -28,7 +29,6 @@
       "name": "e-n-v",
       "dependencies": {
         "@clack/core": "1.0.0-alpha.6",
-        "@e-n-v/env": "workspace:*",
         "picocolors": "^1.1.1",
         "zod": "^4.0.0",
       },
