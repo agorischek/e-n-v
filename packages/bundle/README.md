@@ -14,7 +14,7 @@ An env model defines the structure of your environment variables, including name
 ```ts
 // env.model.js
 
-import { define, schemas } from "@e-n-v/env";
+import { define, schemas } from "e-n-v";
 
 const { NODE_ENV, DATABASE_URL, PORT } = schemas;
 
@@ -31,7 +31,7 @@ Add a setup script to interactively author your local `.env` file during develop
 // env.setup.js
 
 import dotenv from "dotenv";
-import { prompt } from "@e-n-v/env";
+import { prompt } from "e-n-v";
 import model from "./env.model";
 
 await prompt(model, {
@@ -47,7 +47,7 @@ In your app, load your environment variables as usual, parse them, and export th
 // env.vars.js
 
 import "dotenv/config";
-import { parse } from "@e-n-v/env";
+import { parse } from "e-n-v";
 import model from "./env.model";
 
 export const { NODE_ENV, PORT, DATABASE_URL } = parse(process.env, model);
