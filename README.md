@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-next-line -->
-<img src="./assets/repo-logo.png" alt="e-n-v Logo" height="55"/>
+<img src="./assets/env-logo.png" alt="e-n-v Logo" height="55"/>
 
 > "Environments, niftily? Very!"
 

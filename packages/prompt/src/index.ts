@@ -11,12 +11,9 @@ export type {
 } from "@e-n-v/channels/channels/processenv/ProcessEnvChannelConfig";
 export { resolveChannel } from "@e-n-v/channels/resolveChannel";
 
-
-
 export * as defaults from "./options/defaults";
 
 import { prompt } from "./prompt";
 export { prompt };
 
 export type { PromptEnvOptions } from "./options/PromptEnvOptions";
-

@@ -23,7 +23,7 @@ const env = parse(process.env, model);
 ```
 
 <!-- markdownlint-disable-next-line -->
-<img src="./assets/demo.gif" alt="Demo" width="500"/>
+<img src="https://vhs.charm.sh/vhs-5fQTwW2FbZA42LNteIXA38.gif" alt="Demo" width="500"/>
 
 ## Usage
 
