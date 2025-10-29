@@ -1,4 +1,4 @@
-import * as color from "picocolors";
+import color from "picocolors";
 
 /**
  * Default options for setup and other interactive features

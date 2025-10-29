@@ -1,6 +1,7 @@
 {
   "name": "@e-n-v/demo",
+  "type": "module",
   "scripts": {
-    "env": "node run env.setup.js"
+    "env": "e-n-v setup ./env.model.js"
   }
 }

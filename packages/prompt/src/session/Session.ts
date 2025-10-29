@@ -2,7 +2,7 @@ import { isCancel } from "@clack/core";
 import { resolve } from "node:path";
 import type { Readable } from "node:stream";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import * as color from "picocolors";
+import color from "picocolors";
 import { createPrompt } from "../prompts/create/createPrompt";
 import { clearConsoleLines } from "../utils/clearConsoleLines";
 import { resolveShouldMask } from "../utils/secrets";
@@ -172,9 +172,12 @@ export class Session {
       color.gray(this.displayEnvPath),
       envFileUrl,
     );
+    const variableCount = Object.keys(this.schemas).length;
+    const variableLabel =
+      variableCount === 1 ? "1 variable" : `${variableCount} variables`;
     const headerBody = [
       this.theme.bgPrimary(color.black(" Environment Variable Setup ")),
-      `${color.gray("│")}  ${clickableEnvPath}`,
+      `${color.gray("│")}  ${clickableEnvPath}${color.gray(` · ${variableLabel}`)}`,
       `${color.gray("│")}  `,
     ].join("\n");
 

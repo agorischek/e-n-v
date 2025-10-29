@@ -4,6 +4,9 @@
   "main": "./dist/bundle.cjs",
   "module": "./dist/bundle.js",
   "types": "./dist/bundle.d.ts",
+  "bin": {
+    "e-n-v": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/bundle.d.ts",
@@ -13,7 +16,9 @@
   },
   "dependencies": {
     "@clack/core": "1.0.0-alpha.6",
+    "commander": "^11.1.0",
     "picocolors": "^1.1.1",
+    "tsx": "^4.15.7",
     "zod": "^4.0.0"
   },
   "scripts": {

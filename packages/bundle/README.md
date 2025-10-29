@@ -3,7 +3,10 @@
 
 > Environments, niftily? Very!
 
-e·n·v is a suite of handy stuff for working with environment variables and `.env` files.
+e·n·v is a suite of handy stuff for working with environment variables and `.env` files, including interactive setup and runtime validation.
+
+<!-- markdownlint-disable-next-line -->
+<img src="./assets/demo.gif" alt="Demo" width="500"/>
 
 ## Usage
 
