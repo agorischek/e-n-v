@@ -9,7 +9,7 @@ interface PackageJson {
 }
 
 interface CheckBundleConfig {
-  repoRoot: string;
+  repoPackageName: string;
   packagesDir: string;
   bundlePackageName: string;
   bundledPrefixes?: string[];
@@ -35,6 +35,33 @@ async function readConfig(filePath: string): Promise<CheckBundleConfig> {
   }
 }
 
+async function findRepoRoot(startDir: string, targetPackageName: string): Promise<string> {
+  let currentDir = startDir;
+
+  while (true) {
+    const candidatePackageJsonPath = path.join(currentDir, 'package.json');
+    const candidateFile = Bun.file(candidatePackageJsonPath);
+
+    if (await candidateFile.exists()) {
+      const pkg = await readPackageJson(candidatePackageJsonPath);
+      if (pkg.name === targetPackageName) {
+        return currentDir;
+      }
+    }
+
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      break;
+    }
+
+    currentDir = parentDir;
+  }
+
+  throw new Error(
+    `Unable to locate repository root with package.json name "${targetPackageName}" starting from ${startDir}`
+  );
+}
+
 function matchesPrefix(value: string, prefixes: string[]): boolean {
   return prefixes.some((prefix) => value.startsWith(prefix));
 }
@@ -42,22 +69,22 @@ function matchesPrefix(value: string, prefixes: string[]): boolean {
 async function main(): Promise<void> {
   const startedAt = performance.now();
   try {
-    const configRelativePath = path.join('check-bundle', 'config.yaml');
-    const configPath = path.join(__dirname, configRelativePath);
+    const configFileName = 'config.yaml';
+    const configPath = path.join(__dirname, configFileName);
     const config = await readConfig(configPath);
 
-    if (!config.repoRoot) {
-      throw new Error(`Missing "repoRoot" in ${configRelativePath}`);
+    if (!config.repoPackageName) {
+      throw new Error(`Missing "repoPackageName" in ${configFileName}`);
     }
     if (!config.packagesDir) {
-      throw new Error(`Missing "packagesDir" in ${configRelativePath}`);
+      throw new Error(`Missing "packagesDir" in ${configFileName}`);
     }
 
     if (!config.bundlePackageName) {
-      throw new Error(`Missing "bundlePackageName" in ${configRelativePath}`);
+      throw new Error(`Missing "bundlePackageName" in ${configFileName}`);
     }
 
-    const repoRoot = path.resolve(__dirname, config.repoRoot);
+  const repoRoot = await findRepoRoot(__dirname, config.repoPackageName);
     const packagesDir = path.join(repoRoot, config.packagesDir);
     const bundlePackageName = config.bundlePackageName;
     const bundledPrefixes = Array.isArray(config.bundledPrefixes)

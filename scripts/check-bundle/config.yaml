@@ -1,3 +1,7 @@
+# Name of the package.json at the repository root. The script walks upward
+# until it finds a matching package name.
+repoPackageName: "@e-n-v/repo"
+
 # Root-relative path to the directory that hosts all publishable code.
 packagesDir: packages
 
