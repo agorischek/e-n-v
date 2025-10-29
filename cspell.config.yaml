@@ -9,6 +9,7 @@ words:
   - oxlint
   - RABBITMQ
   - Substate
+  - tsdown
   - tsgo
 ignoreWords: []
 import: []

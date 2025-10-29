@@ -15,28 +15,24 @@
     "noEmit": true,
 
     "paths": {
-      "@envcredible/core": ["./packages/envcredible-core/src/index.ts"],
-      "@envcredible/core/*": ["./packages/envcredible-core/src/*"],
-      "@envcredible/schemata": ["./packages/envcredible-schemata/src/index.ts"],
-      "@envcredible/schemata/*": ["./packages/envcredible-schemata/src/*"],
-      "@envcredible/channels": ["./packages/envcredible-channels/src/index.ts"],
-      "@envcredible/channels/*": ["./packages/envcredible-channels/src/*"],
-      "@envcredible/specification": [
-        "./packages/envcredible-specification/src/index.ts"
-      ],
-      "@envcredible/specification/*": [
-        "./packages/envcredible-specification/src/*"
-      ],
-      "env-var-schemas": ["./packages/env-var-schemas/src/index.ts"],
-      "env-var-schemas/*": ["./packages/env-var-schemas/src/*"],
-      "envrw": ["./packages/envrw/src/index.ts"],
-      "envrw/*": ["./packages/envrw/src/*"],
-      "shape-env": ["./packages/shape-env/src/index.ts"],
-      "shape-env/*": ["./packages/shape-env/src/*"],
-      "prompt-env": ["./packages/prompt-env/src/index.ts"],
-      "prompt-env/*": ["./packages/prompt-env/src/*"],
-      "e-n-v": ["./packages/e-n-v/src/index.ts"],
-      "e-n-v/*": ["./packages/e-n-v/src/*"]
+      "@e-n-v/core": ["./packages/core/src/index.ts"],
+      "@e-n-v/core/*": ["./packages/core/src/*"],
+      "@e-n-v/converters": ["./packages/converters/src/index.ts"],
+      "@e-n-v/converters/*": ["./packages/converters/src/*"],
+      "@e-n-v/channels": ["./packages/channels/src/index.ts"],
+      "@e-n-v/channels/*": ["./packages/channels/src/*"],
+      "@e-n-v/models": ["./packages/models/src/index.ts"],
+      "@e-n-v/models/*": ["./packages/models/src/*"],
+      "@e-n-v/schemas": ["./packages/schemas/src/index.ts"],
+      "@e-n-v/schemas/*": ["./packages/schemas/src/*"],
+      "@e-n-v/files": ["./packages/files/src/index.ts"],
+      "@e-n-v/files/*": ["./packages/files/src/*"],
+      "@e-n-v/parse": ["./packages/parse/src/index.ts"],
+      "@e-n-v/parse/*": ["./packages/parse/src/*"],
+      "@e-n-v/prompt": ["./packages/prompt/src/index.ts"],
+      "@e-n-v/prompt/*": ["./packages/prompt/src/*"],
+      "@e-n-v/env": ["./packages/env/src/index.ts"],
+      "@e-n-v/env/*": ["./packages/env/src/*"]
     },
 
     // Best practices

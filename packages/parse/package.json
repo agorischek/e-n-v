@@ -1,0 +1,13 @@
+{
+  "name": "@e-n-v/parse",
+  "module": "src/index.ts",
+  "dependencies": {
+    "@e-n-v/core": "workspace:*",
+    "@e-n-v/models": "workspace:*",
+    "@e-n-v/converters": "workspace:*"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
+  "type": "module"
+}

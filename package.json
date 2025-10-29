@@ -1,5 +1,5 @@
 {
-  "name": "envcredible",
+  "name": "@e-n-v/repo",
   "module": "index.ts",
   "type": "module",
   "workspaces": [
@@ -12,22 +12,27 @@
     "@stryker-mutator/core": "^9.2.0",
     "@types/bun": "latest",
     "@typescript/native-preview": "^7.0.0-dev.20251023.1",
-    "desm": "^1.3.1",
+    "joi": "^18.0.1",
     "oxlint": "^1.23.0",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
+    "tsdown": "^0.15.11",
     "tsup": "^8.5.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "zod": "^4.1.12"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "scripts": {
+    "bundle": "bun run check:bundle && bun run --filter e-n-v bundle",
+    "demo": "bun run ./demo/demo.ts",
     "format": "prettier --write .",
     "lint": "oxlint",
     "test": "bun test",
     "check:format": "prettier --check .",
-    "check:types": "tsgo"
+    "check:types": "tsgo",
+    "check:bundle": "bun scripts/check-bundle/run.ts"
   },
   "dependencies": {
     "bun-types": "^1.3.0"
