@@ -1,5 +1,5 @@
 {
-  "name": "@e-n-v/env",
+  "name": "@e-n-v/env-old",
   "version": "0.0.1",
   "description": "Environments, niftily? Very! - Elegant environment variable management",
   "module": "src/index.ts",

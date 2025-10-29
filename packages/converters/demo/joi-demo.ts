@@ -1,5 +1,5 @@
+import { resolveSchema } from "@e-n-v/models";
 import Joi from "joi";
-import { resolveSchema } from "../src/index";
 
 console.log("🔧 Joi Converter Demo\n");
 

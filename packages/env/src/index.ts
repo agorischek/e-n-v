@@ -15,7 +15,7 @@ export { defaults } from "./defaults";
 // Re-export types
 export type { EnvModel, EnvModelOptions } from "@e-n-v/models";
 export type { PromptEnvOptions } from "@e-n-v/prompt";
-export type { SupportedSchema } from "@e-n-v/converters";
+export type { SupportedSchema } from "@e-n-v/models";
 
 // Re-export errors for convenience
 export {

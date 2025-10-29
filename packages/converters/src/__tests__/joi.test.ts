@@ -1,5 +1,5 @@
+import { resolveSchema } from "@e-n-v/models";
 import { describe, it, expect } from "bun:test";
-import { resolveSchema } from "../index";
 import Joi from "joi";
 
 describe("JoiConverter", () => {

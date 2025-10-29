@@ -1,5 +1,4 @@
 import { describe, it, expect } from "bun:test";
-import { resolveSchema } from "../index";
 import type { EnumEnvVarSchema } from "@e-n-v/core";
 import {
   string,
@@ -11,6 +10,7 @@ import {
   literal,
   refine,
 } from "superstruct";
+import { resolveSchema } from "@e-n-v/models";
 
 describe("SuperstructConverter", () => {
   it("should resolve string structs", () => {

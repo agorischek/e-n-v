@@ -1,5 +1,5 @@
 {
-  "name": "e-n-v",
+  "name": "@e-n-v/env",
   "version": "0.0.1",
   "type": "module",
   "main": "./dist/bundle.cjs",

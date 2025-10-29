@@ -1,5 +1,5 @@
 import { prompt } from "../src";
-import { resolveSchema } from "@e-n-v/converters";
+import { resolveSchema } from "@e-n-v/models";
 
 // Import Zod schemas from the zod export
 import {

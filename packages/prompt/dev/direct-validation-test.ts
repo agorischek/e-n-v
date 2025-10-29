@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { resolveSchema } from "@e-n-v/converters";
+import { resolveSchema } from "@e-n-v/models";
 
 console.log("🔍 Direct Schema Validation Test\n");
 

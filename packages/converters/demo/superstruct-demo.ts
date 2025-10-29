@@ -1,3 +1,4 @@
+import { resolveSchema } from "@e-n-v/models";
 import {
   string,
   number,
@@ -6,7 +7,6 @@ import {
   defaulted,
   enums,
 } from "superstruct";
-import { resolveSchema } from "../src/index";
 
 /**
  * Demonstrates converting Superstruct definitions into envcredible schemas.
