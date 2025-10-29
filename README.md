@@ -3,11 +3,11 @@
 
 > "Environments, niftily? Very!"
 
-e·n·v is a suite of nifty stuff for working with environment variables and `.env` files.
+e·n·v is a suite of handy stuff for working with environment variables and `.env` files.
 
 ## Getting Started
 
-See [`@e-n-v/env`](./packages/env/README.md).
+See [`e-n-v`](./packages/bundle/README.md).
 
 ## Packages
 

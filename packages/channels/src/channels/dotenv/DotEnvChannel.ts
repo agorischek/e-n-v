@@ -77,6 +77,23 @@ export class DotEnvChannel implements EnvChannel {
 
   async set(values: Record<string, string>): Promise<void> {
     await this.envSource.write(values);
+
+    const parsed = await this.get();
+    const mismatches: string[] = [];
+    for (const [key, expected] of Object.entries(values)) {
+      const actual = parsed[key];
+      if (actual !== expected) {
+        mismatches.push(
+          `${key}=expected(${JSON.stringify(expected)}) actual(${JSON.stringify(actual)})`,
+        );
+      }
+    }
+
+    if (mismatches.length > 0) {
+      throw new Error(
+        `Failed to correctly write values to ${this.targetPath}: ${mismatches.join(", ")}`,
+      );
+    }
   }
 
   getPrimaryPath(): string {
