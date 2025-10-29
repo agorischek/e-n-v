@@ -1,0 +1,6 @@
+{
+  "name": "@e-n-v/demo",
+  "scripts": {
+    "env": "node run env.setup.js"
+  }
+}

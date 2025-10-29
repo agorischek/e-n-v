@@ -19,7 +19,8 @@
     "tsdown": "^0.15.11",
     "tsup": "^8.5.0",
     "typescript": "^5",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "superstruct": "^1.0.4"
   },
   "peerDependencies": {
     "typescript": "^5"

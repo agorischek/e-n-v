@@ -1,8 +1,8 @@
-import { prompt, schemas } from "../packages/env/src";
+import { prompt, schemas } from "../packages/bundle/dist/bundle.cjs";
 const { PORT, NODE_ENV, API_KEY } = schemas;
 
 await prompt({
-  path: ".env",
-  root: import.meta.url,
+  channel: { process },
   schemas: { PORT, NODE_ENV, API_KEY },
 });
+    
