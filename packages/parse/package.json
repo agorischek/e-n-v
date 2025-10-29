@@ -5,9 +5,7 @@
   "dependencies": {
     "@e-n-v/core": "workspace:*",
     "@e-n-v/models": "workspace:*",
-    "@e-n-v/converters": "workspace:*",
-    "joi": "^18.0.1",
-    "zod": "^4.1.12"
+    "@e-n-v/converters": "workspace:*"
   },
   "scripts": {
     "test": "bun test"

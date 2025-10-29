@@ -6,7 +6,7 @@ import {
   EnumEnvVarSchema,
 } from "@e-n-v/core";
 import type { SchemaConverter } from "../SchemaConverter";
-import Joi, { type AnySchema } from "joi";
+import type { AnySchema } from "joi";
 import type { JoiSchemaInternals } from "./JoiSchemaInternals";
 
 /**
@@ -42,7 +42,31 @@ export class JoiConverter implements SchemaConverter<AnySchema> {
  * Check if a schema is a Joi schema using the official API
  */
 export function isJoiSchema(schema: unknown): schema is AnySchema {
-  return Joi.isSchema(schema);
+  if (!schema || typeof schema !== "object") return false;
+
+  // Joi marks schema objects with an isJoi flag; fall back to duck typing if missing.
+  const candidate = schema as {
+    isJoi?: unknown;
+    describe?: unknown;
+    validate?: unknown;
+    validateAsync?: unknown;
+    $_root?: unknown;
+    _flags?: unknown;
+  };
+
+  const hasCoreMethods =
+    typeof candidate.describe === "function" &&
+    typeof candidate.validate === "function";
+
+  if (!hasCoreMethods) return false;
+
+  if (candidate.isJoi === true) return true;
+
+  const hasAsyncVariant = typeof candidate.validateAsync === "function";
+  const hasRoot = typeof candidate.$_root === "object" && candidate.$_root !== null;
+  const hasFlags = typeof candidate._flags === "object" && candidate._flags !== null;
+
+  return hasAsyncVariant || hasRoot || hasFlags;
 }
 
 /**

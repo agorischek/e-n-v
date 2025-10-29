@@ -1,8 +1,0 @@
-{
-  "name": "e-n-v",
-  "module": "src/index.ts",
-  "type": "module",
-  "dependencies": {
-    "@e-n-v/env": "workspace:*"
-  }
-}
