@@ -1,324 +1,65 @@
 <!-- markdownlint-disable-next-line -->
-<img src="./assets/env-logo2.png" alt="e-n-v Logo" height="75"/>
-
-# e·n·v
+<img src="./assets/env-logo.png" alt="e-n-v Logo" height="55"/>
 
 <!-- markdownlint-disable-next-line MD036 -->
-**"Environments, niftily? Very!"**
+> Environments, niftily? Very!
 
-A suite of stuff for authoring and validation environment variables.
+e·n·v is a suite of nifty stuff for working with environment variables and `.env` files.
 
-## Philosophy
+## Usage
 
-`e-n-v` provides three core functions for working with environment variables:
+### 1. Define your model
 
-1. **define()** - Define your environment schema once
-2. **parse()** - Load and validate at runtime
-3. **prompt()** - Interactive configuration for development
+An env model defines the structure of your environment variables, including names, schemas, and any preprocessing (e.g. converting `1`/`0` to boolean). This model is used both for development-time setup and runtime validation. e·n·v provides built-in schemas for common variables, and custom schemas can be authored using Zod.
 
-## Installation
+```ts
+// env.model.js
 
-```bash
-bun add e-n-v zod
-```
+import { define, schemas } from "@e-n-v/env";
 
-## Quick Start
-
-### 1. Define Your Model (env.model.ts)
-
-Create a reusable environment model:
-
-```typescript
-import { define } from "e-n-v";
-import { z } from "zod";
+const { NODE_ENV, DATABASE_URL, PORT } = schemas;
 
 export default define({
-  schemas: {
-    NODE_ENV: z.enum(["development", "production", "test"]),
-    DATABASE_URL: z.string().url(),
-    PORT: z.number().min(1024).max(65535),
-    API_KEY: z.string().min(32),
-    DEBUG: z.boolean().optional(),
-  },
-  preprocess: true,
+  schemas: { NODE_ENV, DATABASE_URL, PORT },
 });
 ```
 
-### 2. Parse at Runtime (app.ts)
+### 2. Set up for development
 
-Load and validate your environment variables:
+Add a setup script to interactively author your local `.env` file during development. Run this via your typical script runner (e.g. `node`, `tsx`, `bun`). You can also wrap this in a package script, e.g. `npm run env`.
 
-```typescript
-import modelSpec from "./env.model.js";
-import { parse } from "e-n-v";
+```ts
+// env.setup.js
 
-// Parse and validate - fully type-safe!
-export const env = parse({
-  source: process.env as Record<string, string>,
-  model: modelSpec,
-});
+import dotenv from "dotenv";
+import { prompt } from "@e-n-v/env";
+import model from "./env.model";
 
-// Use validated environment
-console.log(`Server on port ${env.PORT}`);
-console.log(`Environment: ${env.NODE_ENV}`);
-```
-
-### 3. Interactive Setup (env.setup.ts)
-
-Create an interactive setup script for development:
-
-```typescript
-import modelSpec from "./env.model.js";
-import { prompt, defaults } from "e-n-v";
-
-// Option 1: Using model overload (recommended)
-await prompt(modelSpec, {
-  secrets: [...defaults.SECRET_PATTERNS, "API_KEY"],
-  path: ".env",
-});
-
-// Option 2: Using combined options
-await prompt({
-  schemas: modelSpec.schemas,
-  preprocess: modelSpec.preprocess,
-  secrets: [...defaults.SECRET_PATTERNS, "API_KEY"],
-  path: ".env",
+await prompt(model, {
+  channel: { dotenv },
 });
 ```
 
-Run it to configure your environment:
+### 3. Parse at runtime
 
-```bash
-bun run env.setup.ts
+In your app, load your environment variables as usual, parse them, and export them for use. A combined error is thrown if any variables fail validation. Reference these exports throughout your code rather than using `process.env` directly.
+
+```ts
+// env.vars.js
+
+import "dotenv/config";
+import { parse } from "@e-n-v/env";
+import model from "./env.model";
+
+export const { NODE_ENV, PORT, DATABASE_URL } = parse(process.env, model);
 ```
 
-## Advanced Usage
+### 4. Customize
 
-### Using Predefined Schemas
+e·n·v provides a variety of customization options, including:
 
-Import commonly used schemas from `e-n-v/schemas`:
+1. Authoring custom variable schemas using Zod or built-in schema utilities.
+2. Reading and writing variables via other libraries, e.g. `dotenvx`.
+3. Changing the setup CLI behavior, such as what variables are treated as secrets.
 
-```typescript
-import { define } from "e-n-v";
-import { NODE_ENV, PORT, DATABASE_URL } from "env-var-schemas";
-
-export default define({
-  schemas: {
-    NODE_ENV,
-    PORT,
-    DATABASE_URL,
-  },
-  preprocess: true,
-});
-```
-
-### Custom Preprocessing
-
-Control how values are normalized before validation:
-
-```typescript
-import { define } from "e-n-v";
-import { z } from "zod";
-
-export default define({
-  schemas: {
-    PORT: z.number(),
-    DEBUG: z.boolean(),
-  },
-  preprocess: {
-    // Custom number preprocessing
-    number: (value) => value.replace(/,/g, "").trim(),
-    // Custom boolean preprocessing
-    boolean: (value) => {
-      if (value === "1") return "true";
-      if (value === "0") return "false";
-      return value;
-    },
-    // Disable string preprocessing
-    string: false,
-  },
-});
-```
-
-### Disable All Preprocessing
-
-```typescript
-export default define({
-  schemas: {
-    /* ... */
-  },
-  preprocess: false, // No value normalization
-});
-```
-
-### Non-Strict Mode
-
-Allow missing/invalid variables without throwing:
-
-```typescript
-const env = parse({
-  source: process.env as Record<string, string>,
-  model: modelSpec,
-  strict: false, // Returns undefined for missing/invalid vars
-});
-```
-
-### Using Native Schemas
-
-```typescript
-import { model, schema } from "e-n-v";
-
-export default define({
-  schemas: {
-    PORT: schema.number({ default: 3000 }),
-    DEBUG: schema.boolean({ default: false }),
-    API_URL: schema.string(),
-    LOG_LEVEL: schema.enum({
-      values: ["debug", "info", "warn", "error"] as const,
-    }),
-  },
-  preprocess: true,
-});
-```
-
-## API Reference
-
-### `define(options: EnvModelOptions): EnvModel`
-
-Create an environment variable model.
-
-**Options:**
-
-- `schemas` (required): `Record<string, SupportedSchema>` - Map of variable names to schemas
-- `preprocess` (optional): `true | false | Partial<Preprocessors>` - Preprocessing configuration
-  - `true` (default): Use default preprocessors
-  - `false`: Disable all preprocessing
-  - Partial object: Customize specific preprocessors
-
-**Returns:** `EnvModel` instance with:
-
-- `schemas`: Resolved environment variable schemas
-- `preprocess`: Resolved preprocessor configuration
-
-### `parse<T>(options: DirectEnvOptions): T`
-
-Load and validate environment variables.
-
-**Options:**
-
-- `source` (required): `Record<string, string>` - Source object (e.g., process.env)
-- `model` or `vars` (required): Model or schemas
-- `preprocess` (optional): Override preprocessing configuration
-- `strict` (optional): Throw on errors (default: true)
-
-**Returns:** Validated environment variables object
-
-**Throws:** `EnvParseError` when validation fails
-
-### `prompt(model: EnvModel, options?: PromptEnvInteractiveOptions): Promise<void>`
-
-### `prompt(options: PromptEnvOptions): Promise<void>`
-
-Interactive setup for environment variables.
-
-#### Overload 1: Using separate model and options
-
-- `model` (required): `EnvModel` instance with schemas and preprocessing config
-- `options` (optional): `PromptEnvInteractiveOptions` for interactive settings
-  - `path`: Path to .env file (default: ".env")
-  - `root`: Root directory for resolving paths
-  - `secrets`: Patterns for masking secret values
-  - `truncate`: Max display length (default: 40)
-  - `theme`: Color theme function
-  - `channel`: Channel for reading/writing vars
-
-#### Overload 2: Using combined options
-
-- `options` (required): `PromptEnvOptions` containing both model and interactive options
-  - `schemas`: Environment variable schemas
-  - `preprocess`: Preprocessing configuration
-  - All interactive options from above
-
-**Returns:** Promise that resolves when setup is complete
-
-### `defaults`
-
-Default configuration values:
-
-- `defaults.theme` - Default color theme (magenta)
-- `defaults.SECRET_PATTERNS` - Default secret patterns
-- `defaults.truncate` - Default truncation length (40)
-- `defaults.path` - Default env file path (".env")
-
-## Preprocessors
-
-Default preprocessors normalize values before validation:
-
-- **`string`**: Pass-through (no transformation)
-- **`number`**: Strips commas and whitespace (`"1,000"` → `"1000"`)
-- **`boolean`**: Normalizes common phrases:
-  - `"on"`, `"enabled"`, `"active"`, `"yes"` → `"true"`
-  - `"off"`, `"disabled"`, `"inactive"`, `"no"` → `"false"`
-- **`enum`**: Pass-through (no transformation)
-
-## Error Handling
-
-```typescript
-import { parse, EnvParseError } from "e-n-v";
-import modelSpec from "./env.spec.js";
-
-try {
-  const env = parse({ source: process.env as Record<string, string>, model: modelSpec });
-} catch (error) {
-  if (error instanceof EnvParseError) {
-    console.error(`${error.issueCount} validation issues:`);
-    console.error(error.formatIssues());
-    console.error("Partial result:", error.partial);
-  }
-}
-```
-
-## Schema Support
-
-Works with multiple schema libraries:
-
-- **Zod** (v3 and v4)
-- **Joi**
-- **Native e·n·v schemas**
-
-```typescript
-import { define } from "@e-n-v/env";
-import { z } from "zod";
-import Joi from "joi";
-import { schema } from "@e-n-v/core";
-
-export default define({
-  schemas: {
-    // Mix and match!
-    PORT: z.number(),
-    API_KEY: Joi.string().required(),
-    DEBUG: schema.boolean(),
-  },
-  preprocess: true,
-});
-```
-
-## Why "e-n-v"?
-
-"Environments, niftily? Very!"
-
-A playful take on environment variable management that emphasizes:
-
-- **Elegance** - Clean, intuitive API
-- **Nifty** - Smart features like preprocessing and aggregate errors
-- **Versatile** - Works with any schema library
-
-## Related Packages
-
-- **[@e-n-v/models](../models)**: Core model functionality
-- **[@e-n-v/prompt](../prompt)**: Interactive environment variable setup
-- **[@e-n-v/parse](../parse)**: Environment variable parsing and validation
-
-## License
-
-MIT
+Happy configuration!
