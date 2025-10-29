@@ -148,3 +148,5 @@ vite.config.ts.timestamp-*
 reports/mutation
 .DS_Store
 packages/.DS_Store
+packages/.DS_Store
+packages/.DS_Store

@@ -7,7 +7,7 @@ e·n·v is a suite of handy stuff for working with environment variables and `.e
 
 ## Getting Started
 
-See [`e-n-v`](./packages/bundle/README.md).
+See [`@e-n-v/env`](./packages/env/README.md).
 
 ## Packages
 

@@ -1,10 +1,15 @@
 {
   "name": "@e-n-v/env",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "homepage": "https://github.com/agorischek/e-n-v",
+  "repository": "https://agorischek@github.com/agorischek/e-n-v.git",
   "type": "module",
   "main": "./dist/bundle.cjs",
   "module": "./dist/bundle.js",
   "types": "./dist/bundle.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "e-n-v": "./dist/cli.js"
   },
