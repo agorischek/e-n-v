@@ -217,7 +217,6 @@ export async function run(
       },
     );
 
-  program.showHelpAfterError();
   program.showSuggestionAfterError();
 
   await program.parseAsync(argv);

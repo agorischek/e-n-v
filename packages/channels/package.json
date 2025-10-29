@@ -1,6 +1,6 @@
 {
   "name": "@e-n-v/channels",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Environment variable processing channels and processors for envcredible",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

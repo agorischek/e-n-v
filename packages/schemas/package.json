@@ -1,5 +1,6 @@
 {
   "name": "@e-n-v/schemas",
+  "version": "0.0.1",
   "module": "./src/index.ts",
   "exports": {
     ".": {

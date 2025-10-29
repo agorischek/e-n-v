@@ -1,5 +1,6 @@
 {
   "name": "@e-n-v/parse",
+  "version": "0.0.1",
   "module": "src/index.ts",
   "dependencies": {
     "@e-n-v/core": "workspace:*",

@@ -1,5 +1,6 @@
 {
   "name": "e-n-v",
+  "version": "0.0.1",
   "type": "module",
   "main": "./dist/bundle.cjs",
   "module": "./dist/bundle.js",
