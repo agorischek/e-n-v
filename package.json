@@ -27,7 +27,7 @@
     "typescript": "^5"
   },
   "scripts": {
-    "bundle": "bun run check:bundle && bun run --filter e-n-v bundle",
+    "bundle": "bun run check:bundle && bun run --filter @e-n-v/env bundle",
     "demo": "bun run ./demo/demo.ts",
     "format": "prettier --write .",
     "lint": "oxlint",
