@@ -7,7 +7,9 @@ import { resolveSchemas } from "./resolve";
  * Environment variable specification container
  * Encapsulates schemas and preprocessor configuration
  */
-export class EnvModel<T extends Record<string, SupportedSchema> = Record<string, SupportedSchema>> {
+export class EnvModel<
+  T extends Record<string, SupportedSchema> = Record<string, SupportedSchema>,
+> {
   /**
    * Resolved environment variable schemas
    */

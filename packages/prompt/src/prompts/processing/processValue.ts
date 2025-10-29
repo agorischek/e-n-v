@@ -30,10 +30,9 @@ export function processValue<T>(
       }
 
       if (preprocess === true) {
-        return resolvePreprocessor(
-          schema.type,
-          { [schema.type]: true } as Preprocessors,
-        );
+        return resolvePreprocessor(schema.type, {
+          [schema.type]: true,
+        } as Preprocessors);
       }
 
       if (typeof preprocess === "function") {

@@ -18,10 +18,12 @@ const env = parse(
       DEBUG: s.boolean({ default: false }),
       MAX_CONNECTIONS: s.number(),
       API_KEY: s.string(),
-  NODE_ENV: s.enum({ values: ["development", "production", "test"] as const }),
+      NODE_ENV: s.enum({
+        values: ["development", "production", "test"] as const,
+      }),
       OPTIONAL_VAR: s.string({ required: false, default: "fallback" }),
     },
-  })
+  }),
 );
 
 // These should all be properly typed now:
@@ -29,15 +31,15 @@ console.log("Type inference test:");
 
 // PORT should be number
 const port: number = env.PORT;
-console.log(`PORT is number: ${typeof port === 'number'}`);
+console.log(`PORT is number: ${typeof port === "number"}`);
 
-// DATABASE_URL should be string  
+// DATABASE_URL should be string
 const dbUrl: string = env.DATABASE_URL;
-console.log(`DATABASE_URL is string: ${typeof dbUrl === 'string'}`);
+console.log(`DATABASE_URL is string: ${typeof dbUrl === "string"}`);
 
 // DEBUG should be boolean
 const debug: boolean = env.DEBUG;
-console.log(`DEBUG is boolean: ${typeof debug === 'boolean'}`);
+console.log(`DEBUG is boolean: ${typeof debug === "boolean"}`);
 
 // NODE_ENV should be union type "development" | "production" | "test"
 const nodeEnv: "development" | "production" | "test" = env.NODE_ENV;

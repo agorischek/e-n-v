@@ -5,12 +5,7 @@
  * Run from workspace root: bun run validate.ts
  */
 
-import {
-  define,
-  parse,
-  schema,
-  EnvParseError,
-} from "./packages/env/src/index";
+import { define, parse, schema, EnvParseError } from "./packages/env/src/index";
 import { writeFile, unlink } from "node:fs/promises";
 
 console.log("🔍 Validating envcredible packages...\n");
@@ -117,9 +112,7 @@ OPTIONAL_VAR=
       console.log("   ❌ Should have thrown error\n");
     } catch (error) {
       if (error instanceof EnvParseError) {
-        console.log(
-          `   ✅ Caught parse error with ${error.issueCount} issues`,
-        );
+        console.log(`   ✅ Caught parse error with ${error.issueCount} issues`);
         console.log(`      Missing: ${error.missing.join(", ")}`);
         console.log(`      Invalid: ${error.invalid.join(", ")}`);
       }

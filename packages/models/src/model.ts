@@ -25,7 +25,7 @@ import type { SupportedSchema } from "./types";
  * ```
  */
 export function define<T extends Record<string, SupportedSchema>>(
-  options: EnvModelOptions<T>
+  options: EnvModelOptions<T>,
 ): EnvModel<T> {
   return new EnvModel<T>(options);
 }

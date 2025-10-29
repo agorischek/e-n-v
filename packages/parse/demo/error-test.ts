@@ -9,5 +9,7 @@ const env = parse(
     schemas: {
       PORT: s.number({ default: 3000 }),
     },
-  })
+  }),
 );
+
+console.log(env);

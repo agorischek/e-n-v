@@ -1,7 +1,4 @@
-import type {
-  BooleanPreprocessorOptions,
-  Preprocessor,
-} from "@e-n-v/core";
+import type { BooleanPreprocessorOptions, Preprocessor } from "@e-n-v/core";
 import type { SupportedSchema } from "./types";
 
 type PreprocessorToggle<T> = Preprocessor<T> | boolean | undefined;
@@ -35,7 +32,9 @@ export interface Preprocessors {
 /**
  * Options for creating an EnvModel instance
  */
-export interface EnvModelOptions<T extends Record<string, SupportedSchema> = Record<string, SupportedSchema>> {
+export interface EnvModelOptions<
+  T extends Record<string, SupportedSchema> = Record<string, SupportedSchema>,
+> {
   /**
    * Environment variable schemas
    * Map of variable names to their schema definitions

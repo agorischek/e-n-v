@@ -13,10 +13,10 @@ console.log("🧪 Testing prompt function overloads\n");
 // Overload 1: Using model instance and interactive options
 console.log("📦 Testing overload 1: prompt(model, options)");
 const envModel = define({ schemas, preprocess: true });
-await prompt(envModel, { 
+await prompt(envModel, {
   path: ".env.overload1",
   secrets: ["API_KEY"],
-  truncate: 20
+  truncate: 20,
 });
 
 console.log("✅ Overload 1 completed\n");
@@ -26,9 +26,9 @@ console.log("📦 Testing overload 2: prompt(options)");
 await prompt({
   schemas,
   preprocess: true,
-  path: ".env.overload2", 
+  path: ".env.overload2",
   secrets: ["API_KEY"],
-  truncate: 20
+  truncate: 20,
 });
 
 console.log("✅ Overload 2 completed\n");

@@ -1,7 +1,10 @@
 import type { DotEnvChannelConfig } from "./channels/dotenv/DotEnvChannelConfig";
 import type { DotEnvXChannelConfig } from "./channels/dotenvx/DotEnvXChannelConfig";
 import type { DefaultChannelConfig } from "./channels/default/DefaultChannelConfig";
-import type { ProcessEnvChannelConfig, ProcessChannelConfig } from "./channels/processenv/ProcessEnvChannelConfig";
+import type {
+  ProcessEnvChannelConfig,
+  ProcessChannelConfig,
+} from "./channels/processenv/ProcessEnvChannelConfig";
 
 /**
  * Channel options can be:

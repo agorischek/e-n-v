@@ -15,8 +15,6 @@ import {
 } from "./options/resolve";
 import { isEnvChannel } from "./utils/isEnvChannel";
 
-
-
 /**
  * Interactive CLI tool to generate .env files with schema validation
  * @param model - Environment model instance
@@ -24,7 +22,7 @@ import { isEnvChannel } from "./utils/isEnvChannel";
  */
 export async function prompt(
   model: EnvModel,
-  options?: PromptEnvInteractiveOptions
+  options?: PromptEnvInteractiveOptions,
 ): Promise<void>;
 
 /**
@@ -38,7 +36,7 @@ export async function prompt(options: PromptEnvOptions): Promise<void>;
  */
 export async function prompt(
   modelOrOptions: EnvModel | PromptEnvOptions,
-  interactiveOptions?: PromptEnvInteractiveOptions
+  interactiveOptions?: PromptEnvInteractiveOptions,
 ): Promise<void> {
   let schemas: Record<string, EnvVarSchema>;
   let preprocessConfig: any;
@@ -55,7 +53,7 @@ export async function prompt(
     // Second overload: (options)
     const options = modelOrOptions;
     finalOptions = options;
-    
+
     if (options.schemas) {
       schemas = resolveSchemas(options.schemas);
       preprocessConfig = options.preprocess;

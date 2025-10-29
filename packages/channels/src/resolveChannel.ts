@@ -32,8 +32,12 @@ export function resolveChannel(
     // Dotenv channel
     if ("dotenv" in options) {
       const config = options as DotEnvChannelConfig;
-      const { dotenv, get: getOptions = {}, parse: parseOptions = {}, path } =
-        config;
+      const {
+        dotenv,
+        get: getOptions = {},
+        parse: parseOptions = {},
+        path,
+      } = config;
 
       if (!dotenv) {
         throw new Error("Dotenv instance is required for dotenv channel");
@@ -68,7 +72,11 @@ export function resolveChannel(
     // Process channel with { process } notation
     if ("process" in options) {
       // Verify it's the actual process object (has env property)
-      if (options.process && typeof options.process === "object" && "env" in options.process) {
+      if (
+        options.process &&
+        typeof options.process === "object" &&
+        "env" in options.process
+      ) {
         return new ProcessEnvChannel();
       }
       throw new Error("Invalid process object provided to channel config");

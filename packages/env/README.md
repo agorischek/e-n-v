@@ -2,6 +2,7 @@
 <img src="./assets/env-logo.png" alt="e-n-v Logo" height="55"/>
 
 <!-- markdownlint-disable-next-line MD036 -->
+
 > Environments, niftily? Very!
 
 e·n·v is a suite of nifty stuff for working with environment variables and `.env` files.

@@ -23,7 +23,7 @@ import { define } from "@e-n-v/env";
 export default define({
   schemas: {
     NODE_ENV,
-    PORT, 
+    PORT,
     DATABASE_URL,
     OPENAI_API_KEY,
   },
@@ -46,13 +46,13 @@ import { NODE_ENV, PORT, LOG_LEVEL } from "@e-n-v/schemas";
 ### Database
 
 ```typescript
-import { 
-  DATABASE_URL, 
-  DATABASE_HOST, 
+import {
+  DATABASE_URL,
+  DATABASE_HOST,
   DATABASE_PORT,
   DATABASE_NAME,
   DATABASE_USERNAME,
-  DATABASE_PASSWORD
+  DATABASE_PASSWORD,
 } from "@e-n-v/schemas";
 ```
 
@@ -60,7 +60,7 @@ import {
 - `DATABASE_HOST` - Database hostname
 - `DATABASE_PORT` - Database port
 - `DATABASE_NAME` - Database name
-- `DATABASE_USERNAME` - Database username  
+- `DATABASE_USERNAME` - Database username
 - `DATABASE_PASSWORD` - Database password (marked as secret)
 - `DATABASE_SSL` - Enable SSL (boolean)
 - `DATABASE_POOL_SIZE` - Connection pool size
@@ -79,16 +79,16 @@ import { API_KEY, API_BASE_URL, API_TIMEOUT } from "@e-n-v/schemas";
 ### OpenAI
 
 ```typescript
-import { 
-  OPENAI_API_KEY, 
+import {
+  OPENAI_API_KEY,
   OPENAI_ORGANIZATION_ID,
-  OPENAI_MODEL 
+  OPENAI_MODEL,
 } from "@e-n-v/schemas";
 ```
 
 - `OPENAI_API_KEY` - OpenAI API key with format validation
 - `OPENAI_ORGANIZATION_ID` - OpenAI organization ID
-- `OPENAI_PROJECT_ID` - OpenAI project ID  
+- `OPENAI_PROJECT_ID` - OpenAI project ID
 - `OPENAI_BASE_URL` - Custom OpenAI API base URL
 - `OPENAI_MODEL` - Default model name
 - `OPENAI_TIMEOUT` - Request timeout
@@ -120,13 +120,21 @@ import { SENTRY_DSN, NEW_RELIC_LICENSE_KEY } from "@e-n-v/schemas";
 #### AWS
 
 ```typescript
-import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from "@e-n-v/schemas";
+import {
+  AWS_REGION,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+} from "@e-n-v/schemas";
 ```
 
 #### Azure
 
-```typescript  
-import { AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID } from "@e-n-v/schemas";
+```typescript
+import {
+  AZURE_CLIENT_ID,
+  AZURE_CLIENT_SECRET,
+  AZURE_TENANT_ID,
+} from "@e-n-v/schemas";
 ```
 
 ### Message Queues & Caching
@@ -163,7 +171,7 @@ const CUSTOM_PORT = port({ default: 8080 });
 const REQUIRED_DATABASE_URL = databaseUrl({ required: true });
 
 // Custom NODE_ENV with additional environments
-const CUSTOM_NODE_ENV = nodeEnv({ 
+const CUSTOM_NODE_ENV = nodeEnv({
   description: "Application environment with staging",
   // Add custom validation if needed
 });
@@ -230,7 +238,7 @@ import { NODE_ENV, PORT } from "@e-n-v/schemas/zod";
 ## Validation Features
 
 - **Format validation** (URLs, API keys, email addresses)
-- **Range constraints** (ports, timeouts, pool sizes)  
+- **Range constraints** (ports, timeouts, pool sizes)
 - **Pattern matching** (JWT durations, environment names)
 - **Protocol requirements** (HTTPS for webhooks)
 - **Length requirements** (minimum lengths for secrets)
@@ -242,9 +250,9 @@ Schemas provide clear, actionable error messages:
 
 ```typescript
 // Instead of generic "invalid value"
-PORT: "Port must be >= 1024 (avoid reserved ports)"
-JWT_SECRET: "JWT secret must be at least 32 characters long for security"  
-WEBHOOK_URL: "Webhook URLs should use HTTPS for security"
+PORT: "Port must be >= 1024 (avoid reserved ports)";
+JWT_SECRET: "JWT secret must be at least 32 characters long for security";
+WEBHOOK_URL: "Webhook URLs should use HTTPS for security";
 ```
 
 ## License

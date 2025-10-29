@@ -91,8 +91,12 @@ import dotenvx from "@dotenvx/dotenvx";
 
 const channel = resolveChannel({
   dotenvx,
-  get: { /* get options */ },
-  set: { /* set options */ },
+  get: {
+    /* get options */
+  },
+  set: {
+    /* set options */
+  },
 });
 ```
 
@@ -148,11 +152,11 @@ Sets multiple environment variables in the channel source.
 
 ```typescript
 {
-  name: "processenv"
+  name: "processenv";
 }
 // or
 {
-  process: typeof process // Node.js process object
+  process: typeof process; // Node.js process object
 }
 ```
 

@@ -55,7 +55,7 @@ export function parse<T extends Record<string, SupportedSchema>>(
     // Second overload: (source, options)
     const options = modelOrOptions;
     resolvedSchemas = resolveSchemas(options.schemas);
-    
+
     // Resolve preprocessor configuration (same logic as EnvModel)
     const config = options.preprocess;
     if (config === false) {

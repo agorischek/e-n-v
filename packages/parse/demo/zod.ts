@@ -4,23 +4,26 @@ import { z } from "zod";
 console.log("🔍 Parsing with Zod schemas...\n");
 
 // Parse and validate with Zod
-const env = parse({
-  PORT: "8080",
-  API_URL: "https://api.example.com",
-  DATABASE_URL: "postgres://user:pass@localhost:5432/db",
-  NODE_ENV: "production",
-  MAX_RETRIES: "3",
-  ENABLE_CACHE: "true",
-}, {
-  schemas: {
-    PORT: z.number().min(1024).max(65535),
-    API_URL: z.string().url(),
-    DATABASE_URL: z.string().url(),
-    NODE_ENV: z.enum(["development", "production", "test"]),
-    MAX_RETRIES: z.number().min(0).max(10),
-    ENABLE_CACHE: z.boolean(),
+const env = parse(
+  {
+    PORT: "8080",
+    API_URL: "https://api.example.com",
+    DATABASE_URL: "postgres://user:pass@localhost:5432/db",
+    NODE_ENV: "production",
+    MAX_RETRIES: "3",
+    ENABLE_CACHE: "true",
   },
-});
+  {
+    schemas: {
+      PORT: z.number().min(1024).max(65535),
+      API_URL: z.string().url(),
+      DATABASE_URL: z.string().url(),
+      NODE_ENV: z.enum(["development", "production", "test"]),
+      MAX_RETRIES: z.number().min(0).max(10),
+      ENABLE_CACHE: z.boolean(),
+    },
+  },
+);
 
 console.log("✅ Successfully validated with Zod:\n");
 console.log(`  PORT: ${env.PORT} (validated: 1024-65535)`);

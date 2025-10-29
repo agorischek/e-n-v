@@ -37,7 +37,7 @@ console.log("Testing ProcessEnvChannel with process.env values...\n");
 
 // Set some invalid values in process.env to demonstrate validation
 process.env.PORT = "invalid_port";
-process.env.ENABLE_CACHE = "maybe"; 
+process.env.ENABLE_CACHE = "maybe";
 process.env.API_BASE_URL = "not_a_url";
 process.env.NODE_ENV = "staging"; // Invalid enum value
 

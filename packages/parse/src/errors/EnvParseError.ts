@@ -41,14 +41,18 @@ export class EnvParseError<TValue = Record<string, unknown>> extends Error {
   /** Keys that were missing but required. */
   get missing(): string[] {
     return this.issues
-      .filter((issue): issue is EnvParseIssueMissing => issue.type === "missing")
+      .filter(
+        (issue): issue is EnvParseIssueMissing => issue.type === "missing",
+      )
       .map((issue) => issue.key);
   }
 
   /** Keys that were present but invalid. */
   get invalid(): string[] {
     return this.issues
-      .filter((issue): issue is EnvParseIssueInvalid => issue.type === "invalid")
+      .filter(
+        (issue): issue is EnvParseIssueInvalid => issue.type === "invalid",
+      )
       .map((issue) => issue.key);
   }
 

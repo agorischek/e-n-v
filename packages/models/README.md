@@ -218,7 +218,7 @@ export default define({
 
 The specification is fully typed, ensuring type safety throughout your application:
 
-```typescript
+````typescript
 ```typescript
 import { define } from "@e-n-v/models";
 import { z } from "zod";
@@ -233,7 +233,7 @@ const modelSpec = define({
 
 // TypeScript knows the shape of schemas
 type SchemaKeys = keyof typeof myModel.schemas; // "PORT" | "HOST"
-```
+````
 
 ## Related Packages
 

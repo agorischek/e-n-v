@@ -23,10 +23,10 @@ const testEnv = parse(
   {
     PORT: "3000",
     NAME: "test",
-    DEBUG: "true",  
+    DEBUG: "true",
     ENV: "dev",
   },
-  testModel
+  testModel,
 );
 
 // Let's see what type TypeScript infers for testEnv

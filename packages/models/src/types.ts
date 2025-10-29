@@ -18,8 +18,8 @@ export type SupportedSchema = Schema;
 type InferZodOutput<T> = T extends { _output: infer Output }
   ? Output
   : T extends { _type: infer LegacyOutput }
-  ? LegacyOutput
-  : never;
+    ? LegacyOutput
+    : never;
 
 type InferJoiOutput<T> = T extends {
   validate: (...args: any[]) => infer Result;
@@ -27,15 +27,15 @@ type InferJoiOutput<T> = T extends {
   ? Result extends { value: infer Value }
     ? Value
     : Result extends Promise<infer AsyncResult>
-    ? AsyncResult extends { value: infer AsyncValue }
-      ? AsyncValue
+      ? AsyncResult extends { value: infer AsyncValue }
+        ? AsyncValue
+        : unknown
       : unknown
-    : unknown
   : T extends {
         validateAsync: (...args: any[]) => Promise<infer AsyncValue>;
       }
-  ? AsyncValue
-  : unknown;
+    ? AsyncValue
+    : unknown;
 
 /**
  * Infer the TypeScript type from an EnvVarSchema instance
@@ -46,35 +46,35 @@ export type InferSchemaType<T> = T extends {
 }
   ? string
   : T extends {
-      readonly type: "number";
-    }
-  ? number
-  : T extends {
-      readonly type: "boolean";
-    }
-  ? boolean
-  : T extends {
-      readonly type: "enum";
-      readonly values: readonly (infer U)[];
-    }
-  ? U
-  : T extends EnumEnvVarSchema<infer U>
-  ? U
-  : T extends NumberEnvVarSchema
-  ? number
-  : T extends StringEnvVarSchema
-  ? string
-  : T extends BooleanEnvVarSchema
-  ? boolean
-  : T extends EnvVarSchemaBase<infer U>
-  ? U
-  : T extends AnySchema
-  ? InferJoiOutput<T>
-  : T extends ZodTypeAny
-  ? InferZodOutput<T>
-  : T extends $ZodType
-  ? InferZodOutput<T>
-  : unknown;
+        readonly type: "number";
+      }
+    ? number
+    : T extends {
+          readonly type: "boolean";
+        }
+      ? boolean
+      : T extends {
+            readonly type: "enum";
+            readonly values: readonly (infer U)[];
+          }
+        ? U
+        : T extends EnumEnvVarSchema<infer U>
+          ? U
+          : T extends NumberEnvVarSchema
+            ? number
+            : T extends StringEnvVarSchema
+              ? string
+              : T extends BooleanEnvVarSchema
+                ? boolean
+                : T extends EnvVarSchemaBase<infer U>
+                  ? U
+                  : T extends AnySchema
+                    ? InferJoiOutput<T>
+                    : T extends ZodTypeAny
+                      ? InferZodOutput<T>
+                      : T extends $ZodType
+                        ? InferZodOutput<T>
+                        : unknown;
 
 /**
  * Infer whether a schema field is optional based on its required property
@@ -82,10 +82,10 @@ export type InferSchemaType<T> = T extends {
 export type InferOptional<T> = T extends { required: false }
   ? true
   : T extends { required: true }
-  ? false
-  : T extends { required: boolean }
-  ? boolean
-  : false; // default is required
+    ? false
+    : T extends { required: boolean }
+      ? boolean
+      : false; // default is required
 
 /**
  * Utility type to flatten complex generic types for better IDE display

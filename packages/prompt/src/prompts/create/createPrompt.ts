@@ -35,7 +35,10 @@ export function createPrompt({
   switch (schema.type) {
     case "boolean":
       const booleanOverride = preprocessors?.boolean;
-      let booleanPreprocess: boolean | ReturnType<typeof booleanPreprocessor> | undefined;
+      let booleanPreprocess:
+        | boolean
+        | ReturnType<typeof booleanPreprocessor>
+        | undefined;
 
       if (booleanOverride === undefined) {
         booleanPreprocess = undefined;

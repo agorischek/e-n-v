@@ -5,7 +5,11 @@ console.log("Testing { process } shorthand notation...\n");
 function resolveChannel(options: any) {
   if (typeof options === "object" && options !== null) {
     if ("process" in options) {
-      if (options.process && typeof options.process === "object" && "env" in options.process) {
+      if (
+        options.process &&
+        typeof options.process === "object" &&
+        "env" in options.process
+      ) {
         console.log("✅ Detected valid process object with env property");
         return "ProcessEnvChannel would be created here";
       }

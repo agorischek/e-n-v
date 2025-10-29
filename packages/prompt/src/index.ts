@@ -5,7 +5,10 @@ export { ProcessEnvChannel } from "@e-n-v/channels/channels/processenv/ProcessEn
 export type { EnvChannelOptions } from "@e-n-v/channels/EnvChannelOptions";
 export type { DotEnvXChannelConfig } from "@e-n-v/channels/channels/dotenvx/DotEnvXChannelConfig";
 export type { DefaultChannelConfig } from "@e-n-v/channels/channels/default/DefaultChannelConfig";
-export type { ProcessEnvChannelConfig, ProcessChannelConfig } from "@e-n-v/channels/channels/processenv/ProcessEnvChannelConfig";
+export type {
+  ProcessEnvChannelConfig,
+  ProcessChannelConfig,
+} from "@e-n-v/channels/channels/processenv/ProcessEnvChannelConfig";
 export { resolveChannel } from "@e-n-v/channels/resolveChannel";
 
 import { schema } from "@e-n-v/core";

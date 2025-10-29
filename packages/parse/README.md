@@ -58,7 +58,7 @@ const envModel = define({
 // Overload 1: Use the model for parsing
 const env1 = parse(process.env as Record<string, string>, envModel);
 
-// Overload 2: Use options for parsing  
+// Overload 2: Use options for parsing
 const env2 = parse(process.env as Record<string, string>, {
   schemas: {
     API_KEY: z.string(),
@@ -90,7 +90,6 @@ import { parse } from "@e-n-v/parse";
 import { schema } from "@e-n-v/core";
 
 const env = parse(process.env as Record<string, string>, {
-  
   schemas: {
     PERCENTAGE: schema.number(),
     ENABLED: schema.boolean(),
@@ -138,7 +137,7 @@ Load and validate environment variables.
 
 **Parameters:**
 
-- `source`: `Record<string, string>` - Source object containing environment variables  
+- `source`: `Record<string, string>` - Source object containing environment variables
 - `options`: `ParseEnvOptions<T>` - Configuration object
   - `schemas`: Variable schemas
   - `preprocess`: Preprocessing configuration (optional)

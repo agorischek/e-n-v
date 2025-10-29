@@ -11,9 +11,11 @@ const env = parse(
     schemas: {
       PORT: s.number({ default: 3000 }),
       DEBUG: s.boolean({ default: false }),
-  NODE_ENV: s.enum({ values: ["development", "production", "test"] as const }),
+      NODE_ENV: s.enum({
+        values: ["development", "production", "test"] as const,
+      }),
     },
-  })
+  }),
 );
 
 // These should work fine with proper type inference:

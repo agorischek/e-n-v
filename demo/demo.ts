@@ -6,5 +6,5 @@ await prompt({
   path: ".env",
   root: import.meta.url,
   schemas: { PORT, NODE_ENV, API_KEY },
-  channel: {dotenv}
+  channel: { dotenv },
 });
