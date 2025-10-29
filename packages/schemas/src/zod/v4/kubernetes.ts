@@ -1,12 +1,12 @@
-import { z } from "zod";
 import {
   descriptions,
   messages,
   defaults,
   patterns,
 } from "../../shared/infrastructure";
+import type { ZodSingleton } from "./types";
 
-export const kubernetesNamespace = () =>
+export const kubernetesNamespace = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.kubernetesNamespace)
@@ -15,7 +15,7 @@ export const kubernetesNamespace = () =>
     })
     .default(defaults.kubernetesNamespace);
 
-export const kubernetesServiceAccount = () =>
+export const kubernetesServiceAccount = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.kubernetesServiceAccount)
@@ -23,6 +23,3 @@ export const kubernetesServiceAccount = () =>
       message: messages.kubernetesServiceAccountFormat,
     })
     .optional();
-
-export const KUBERNETES_NAMESPACE = kubernetesNamespace();
-export const KUBERNETES_SERVICE_ACCOUNT = kubernetesServiceAccount();

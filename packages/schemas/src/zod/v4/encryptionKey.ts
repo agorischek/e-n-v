@@ -1,12 +1,9 @@
-import { z } from "zod";
 import { descriptions, constraints, messages } from "../../shared/apiService";
+import type { ZodSingleton } from "./types";
 
-const encryptionKeySchema = z
+export const encryptionKey = (z: ZodSingleton) => z
   .string()
   .describe(descriptions.encryptionKey)
   .min(constraints.encryptionKeyMinLength, {
     error: messages.encryptionKeyMin,
   });
-
-export const encryptionKey = () => encryptionKeySchema;
-export const ENCRYPTION_KEY = encryptionKeySchema;
