@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-next-line -->
-<img src="./assets/repo-logo.png" alt="e-n-v Logo" height="55"/>
+<img src="./assets/env-logo.png" alt="e-n-v Logo" height="55"/>
 
 > "Environments, niftily? Very!"
 
@@ -7,7 +7,7 @@ e·n·v is a suite of handy stuff for working with environment variables and `.e
 
 ## Getting Started
 
-See [`e-n-v`](./packages/bundle/README.md).
+See [`@e-n-v/env`](./packages/env/README.md).
 
 ## Packages
 

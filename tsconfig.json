@@ -32,7 +32,9 @@
       "@e-n-v/prompt": ["./packages/prompt/src/index.ts"],
       "@e-n-v/prompt/*": ["./packages/prompt/src/*"],
       "@e-n-v/env": ["./packages/env/src/index.ts"],
-      "@e-n-v/env/*": ["./packages/env/src/*"]
+      "@e-n-v/env/*": ["./packages/env/src/*"],
+      "@e-n-v/cli": ["./packages/cli/src/index.ts"],
+      "@e-n-v/cli/*": ["./packages/cli/src/*"]
     },
 
     // Best practices

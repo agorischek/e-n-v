@@ -1,31 +1,33 @@
 {
   "name": "@e-n-v/env",
-  "version": "0.1.0",
-  "description": "Environments, niftily? Very! - Elegant environment variable management",
-  "module": "src/index.ts",
+  "version": "0.0.3",
+  "homepage": "https://github.com/agorischek/e-n-v",
+  "repository": "https://agorischek@github.com/agorischek/e-n-v.git",
   "type": "module",
+  "main": "./dist/bundle.cjs",
+  "module": "./dist/bundle.js",
+  "types": "./dist/bundle.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "e-n-v": "./dist/cli.js"
+  },
   "exports": {
-    ".": "./src/index.ts",
-    "./defaults": "./src/defaults.ts"
+    ".": {
+      "types": "./dist/bundle.d.ts",
+      "import": "./dist/bundle.js",
+      "require": "./dist/bundle.cjs"
+    }
   },
   "dependencies": {
-    "@e-n-v/prompt": "workspace:*",
-    "@e-n-v/models": "workspace:*",
-    "@e-n-v/parse": "workspace:*",
-    "picocolors": "^1.1.1"
+    "@clack/core": "1.0.0-alpha.6",
+    "commander": "^11.1.0",
+    "picocolors": "^1.1.1",
+    "tsx": "^4.15.7",
+    "zod": "^4.0.0"
   },
-  "keywords": [
-    "env",
-    "environment",
-    "config",
-    "validation",
-    "dotenv",
-    "envcredible"
-  ],
   "scripts": {
-    "test": "bun test"
-  },
-  "devDependencies": {
-    "zod": "^4.1.12"
+    "bundle": "tsdown"
   }
 }

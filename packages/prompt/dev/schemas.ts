@@ -1,4 +1,5 @@
-import { prompt, schemas, defaults } from "../src";
+import { prompt, defaults } from "../src";
+import * as schemas from "@e-n-v/schemas";
 const { NODE_ENV, PORT, OPENAI_API_KEY } = schemas;
 
 await prompt({

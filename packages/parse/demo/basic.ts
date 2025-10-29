@@ -1,5 +1,5 @@
 import { parse, s } from "../src/index";
-import { define } from "@e-n-v/env";
+import { define } from "@e-n-v/models";
 
 console.log("🔍 Parsing environment variables...\n");
 

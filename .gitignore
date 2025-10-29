@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 .stryker-tmp
 reports/mutation
 .DS_Store
+packages/.DS_Store
+packages/.DS_Store
+packages/.DS_Store

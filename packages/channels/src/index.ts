@@ -1,4 +1,3 @@
-export * from "./EnvChannel";
 export * from "./EnvChannelOptions";
 export * from "./resolveChannel";
 

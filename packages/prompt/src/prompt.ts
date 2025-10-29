@@ -7,7 +7,7 @@ import { EnvModel } from "@e-n-v/models";
 import * as defaults from "./options/defaults";
 import { resolveChannel } from "@e-n-v/channels/resolveChannel";
 import { Session } from "./session/Session";
-import { resolveSchemas } from "@e-n-v/converters";
+import { resolveSchemas } from "@e-n-v/models";
 import {
   resolveRootDirectory,
   resolveEnvFilePath,

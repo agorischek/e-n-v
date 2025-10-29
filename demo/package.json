@@ -1,0 +1,10 @@
+{
+  "name": "@e-n-v/demo",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "env": "e-n-v setup ./env.model.js",
+    "record": "bun run reset && vhs demo.tape && bun run reset",
+    "reset": "rm -rf ./.env"
+  }
+}

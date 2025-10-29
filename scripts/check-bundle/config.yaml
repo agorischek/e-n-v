@@ -6,7 +6,7 @@ repoPackageName: "@e-n-v/repo"
 packagesDir: packages
 
 # Name of the package inside packagesDir that acts as the distribution bundle.
-bundlePackageName: bundle
+bundlePackageName: env
 
 # Dependency name prefixes that we skip when checking for bundle coverage. Use
 # this to mark bundled packages that are not meant to ship. The same prefixes

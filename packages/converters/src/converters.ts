@@ -1,6 +1,7 @@
 import { ZodV3Converter } from "./converters/zod/ZodV3Converter";
 import { ZodV4Converter } from "./converters/zod/ZodV4Converter";
 import { JoiConverter } from "./converters/joi/JoiConverter";
+import { SuperstructConverter } from "./converters/superstruct/SuperstructConverter";
 import type { SchemaConverter } from "./converters/SchemaConverter";
 
 /**
@@ -10,4 +11,5 @@ export const converters: SchemaConverter[] = [
   new ZodV4Converter(),
   new ZodV3Converter(),
   new JoiConverter(),
+  new SuperstructConverter(),
 ];

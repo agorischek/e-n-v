@@ -28,7 +28,7 @@ export function resolveSchema(schema: Schema): EnvVarSchema {
   }
 
   throw new Error(
-    `No converter found for schema. Supported types: Zod v3, Zod v4, Joi, EnvVarSchema. ` +
+    `No converter found for schema. Supported types: Zod v3, Zod v4, Joi, Superstruct, EnvVarSchema. ` +
       `Received: ${typeof schema}`,
   );
 }

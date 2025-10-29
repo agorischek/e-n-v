@@ -2,7 +2,7 @@ import type { EnvVarSchema, Preprocessors } from "@e-n-v/core";
 import { resolvePreprocessor } from "@e-n-v/core";
 import { EnvModel } from "@e-n-v/models";
 import type { InferEnvType, SupportedSchema } from "@e-n-v/models";
-import { resolveSchemas } from "@e-n-v/converters";
+import { resolveSchemas } from "@e-n-v/models";
 import type { ParseEnvOptions } from "../ParseEnvOptions";
 import { EnvParseError, type EnvParseIssue } from "./errors/EnvParseError";
 
