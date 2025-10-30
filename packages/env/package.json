@@ -1,7 +1,11 @@
 {
   "name": "@e-n-v/env",
-  "version": "0.0.4",
+  "description": "Interactive setup and runtime validation for environment variables",
+  "version": "0.0.5",
   "license": "MIT",
+  "keywords": [
+    "environment"
+  ],
   "homepage": "https://github.com/agorischek/e-n-v",
   "repository": "https://agorischek@github.com/agorischek/e-n-v.git",
   "type": "module",

@@ -4,6 +4,9 @@
   "license": "MIT",
   "module": "index.ts",
   "type": "module",
+  "keywords": [
+    "environment"
+  ],
   "workspaces": [
     "packages/*"
   ],
