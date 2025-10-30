@@ -1,3 +1,5 @@
+import { toZodMessages } from "./zodMessages";
+
 export const descriptions = {
   url: "Redis connection string (redis:// or rediss://)",
   host: "Redis server host name or IP address",
@@ -40,3 +42,5 @@ export const patterns = {
   url: /^rediss?:\/\/(?:[^:@/\s]+(?::[^@/\s]*)?@)?[^:/\s]+(?::\d+)?(?:\/\d+)?(?:\?.*)?$/,
   host: /^[a-zA-Z0-9.-]+$/,
 } as const;
+
+export const messages = toZodMessages(traits);

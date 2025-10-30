@@ -1,4 +1,5 @@
 import { COMMON_MESSAGES } from "./messages";
+import { toZodMessages } from "./zodMessages";
 
 export const descriptions = {
   clientId: "The OAuth client ID",
@@ -20,3 +21,5 @@ export const constraints = {
   clientSecretMinLength: 8,
   scopeMinLength: 1,
 } as const;
+
+export const messages = toZodMessages(traits);

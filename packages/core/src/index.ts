@@ -12,7 +12,7 @@ export * from "./processing/types/Processor";
 export * from "./processing/types/Preprocessor";
 export * from "./processing/processors/processors";
 export * from "./processing/preprocessors/preprocessors";
-export * from "./processing/processors/resolvePreprocessor";
+export * from "./processing/preprocessors/resolvePreprocessor";
 export * from "./processing/options/BooleanMap";
 export type { PreprocessorOptions as Preprocessors } from "./processing/options/PreprocessorOptions";
 export type { BooleanMap as BooleanPreprocessorOptions } from "./processing/options/BooleanMap";

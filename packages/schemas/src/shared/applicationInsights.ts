@@ -1,3 +1,5 @@
+import { toZodMessages } from "./zodMessages";
+
 export const descriptions = {
   connectionString: "Azure Application Insights connection string",
   instrumentationKey: "Azure Application Insights instrumentation key (legacy)",
@@ -42,3 +44,5 @@ export const patterns = {
   connectionString:
     /^InstrumentationKey=[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12};IngestionEndpoint=https:\/\/[^;]+;LiveEndpoint=https:\/\/[^;]+$/,
 } as const;
+
+export const messages = toZodMessages(traits);

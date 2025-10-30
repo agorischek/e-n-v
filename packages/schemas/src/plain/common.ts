@@ -1,5 +1,5 @@
-import { NumberEnvVarSchema, type NumberEnvVarSchemaInput } from "@e-n-v/core";
-import { number, integer, between } from "@e-n-v/core";
+import { NumberEnvVarSchema, BooleanEnvVarSchema, type NumberEnvVarSchemaInput, type BooleanEnvVarSchemaInput } from "@e-n-v/core";
+import { number, integer, between, boolean } from "@e-n-v/core";
 import {
   constraints,
   defaults,
@@ -19,3 +19,13 @@ export const port = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   });
 
 export const PORT = port();
+
+export const debug = (input: Partial<BooleanEnvVarSchemaInput> = {}) =>
+  new BooleanEnvVarSchema({
+    description: "Enable debug mode",
+    default: false,
+    process: boolean(),
+    ...input,
+  });
+
+export const DEBUG = debug();

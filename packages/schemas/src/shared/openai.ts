@@ -1,3 +1,5 @@
+import { toZodMessages } from "./zodMessages";
+
 export const descriptions = {
   apiKey: "OpenAI API key for authenticating requests",
   organizationId: "OpenAI organization identifier (org-...)",
@@ -39,3 +41,5 @@ export const patterns = {
   organizationId: /^org-[A-Za-z0-9_-]{8,}$/,
   projectId: /^proj_[A-Za-z0-9_-]{8,}$/,
 } as const;
+
+export const messages = toZodMessages(traits);

@@ -1,3 +1,5 @@
+import { toZodMessages } from "./zodMessages";
+
 export const descriptions = {
   databaseUrl: "Database connection string",
   databaseUrlPostgresql: "PostgreSQL database connection string",
@@ -81,3 +83,5 @@ export const patterns = {
   databaseName: /^[a-zA-Z0-9_-]+$/,
   databaseSchema: /^[a-zA-Z0-9_]+$/,
 } as const;
+
+export const messages = toZodMessages(traits);

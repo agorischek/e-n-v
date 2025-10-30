@@ -6,6 +6,16 @@ Shared TypeScript types and utilities for e·n·v: `EnvChannel`, `EnvVarSchema`,
 
 This package provides the core types, interfaces, and utilities used across all e·n·v packages. It includes schema definitions, channel interfaces, error types, and preprocessing utilities.
 
+## Processing
+
+e·n·v has three types of processing functions, which serve related but distinct purposes.
+
+- **Preprocessors**: These perform a "best effort" to coerce environment variable strings to more specific types, and otherwise prepare them for variable-specific processing. This allows, for example, coercing boolean strings in a standard way. Preprocessors can return any type, including passing through the source string unchanged.
+- **Checks**: These determine whether some value possesses one or more traits, and then returns a list of strings indicating the necessary traits that they lack. These can be used to build processors.
+- **Processors**: These perform the strict, detailed, variable-specific verification, and throw if any requirements aren't satisfied.
+
+There is some amount of overlap between preprocessors and processors (e.g. both may have coercion logic), however, keeping them separate allows for easier use of external schema libraries.
+
 ## Installation
 
 ```bash

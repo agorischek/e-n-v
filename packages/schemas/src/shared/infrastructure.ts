@@ -1,4 +1,5 @@
 import { COMMON_MESSAGES } from "./messages";
+import { toZodMessages } from "./zodMessages";
 
 export const descriptions = {
   azureStorageConnectionString: "Azure Storage Account connection string",
@@ -97,3 +98,5 @@ export const patterns = {
   kubernetesName: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/,
   sentryDsn: /^https:\/\/[a-f0-9]+@[a-f0-9]+\.ingest\.sentry\.io\/\d+$/,
 } as const;
+
+export const messages = toZodMessages(traits);

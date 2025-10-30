@@ -1,4 +1,5 @@
 import { COMMON_MESSAGES } from "./messages";
+import { toZodMessages } from "./zodMessages";
 
 export const descriptions = {
   apiKey: "API key for external service",
@@ -90,3 +91,5 @@ export const patterns = {
   httpProtocol: /^https?:\/\//,
   httpsProtocol: /^https:\/\//,
 } as const;
+
+export const messages = toZodMessages(traits);
