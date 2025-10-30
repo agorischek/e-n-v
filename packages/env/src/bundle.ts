@@ -1,12 +1,17 @@
-export * from "../../channels/src/index";
-export * from "../../converters/src/index";
-export * from "../../core/src/index";
-export * from "../../files/src/index";
-export * from "../../models/src/index";
-export * from "../../parse/src/index";
-export * from "../../prompt/src/index";
-export * as schemas from "../../schemas/src/index";
+// Main exports
+import { parse } from "@e-n-v/parse";
+import { prompt } from "@e-n-v/prompt";
+import { define as model } from "@e-n-v/models";
+import vars from "./vars";
+import { schema, s } from "@e-n-v/core";
 
-// Export vars sugar helper
-export { default as vars } from "./vars";
-export * from "./vars";
+// Re-export for named exports
+export { parse, prompt, model, vars };
+export { schema, s };
+export * as schemas from "@e-n-v/schemas";
+
+// Export processors and preprocessors from core
+export { processors, preprocessors } from "@e-n-v/core";
+
+// Default export
+export default { parse, prompt, model };

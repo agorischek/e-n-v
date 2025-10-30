@@ -24,6 +24,46 @@
       "types": "./dist/vars.d.ts",
       "import": "./dist/vars.js",
       "require": "./dist/vars.cjs"
+    },
+    "./prompt": {
+      "types": "./dist/prompt.d.ts",
+      "import": "./dist/prompt.js",
+      "require": "./dist/prompt.cjs"
+    },
+    "./parse": {
+      "types": "./dist/parse.d.ts",
+      "import": "./dist/parse.js",
+      "require": "./dist/parse.cjs"
+    },
+    "./models": {
+      "types": "./dist/models.d.ts",
+      "import": "./dist/models.js",
+      "require": "./dist/models.cjs"
+    },
+    "./schemas": {
+      "types": "./dist/schemas.d.ts",
+      "import": "./dist/schemas.js",
+      "require": "./dist/schemas.cjs"
+    },
+    "./schemas/zod": {
+      "types": "./dist/schemas-zod.d.ts",
+      "import": "./dist/schemas-zod.js",
+      "require": "./dist/schemas-zod.cjs"
+    },
+    "./files": {
+      "types": "./dist/files.d.ts",
+      "import": "./dist/files.js",
+      "require": "./dist/files.cjs"
+    },
+    "./channels": {
+      "types": "./dist/channels.d.ts",
+      "import": "./dist/channels.js",
+      "require": "./dist/channels.cjs"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
     }
   },
   "dependencies": {
