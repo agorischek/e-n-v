@@ -4,23 +4,28 @@ import {
   type StringEnvVarSchemaInput,
   type NumberEnvVarSchemaInput,
 } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
 import {
+  string,
+  number,
+  minLength,
+  url,
+  pattern,
+  integer,
+  between,
+} from "../helpers/validators";
+import {
+  attributes,
   constraints,
   defaults,
   descriptions,
-  messages,
   patterns,
 } from "../shared/apiService";
 
 export const apiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiKey,
-    process: createZodProcessor(
-      z
-        .string()
-        .min(constraints.apiKeyMinLength, { message: messages.apiKeyMin }),
+    process: string(
+      minLength(constraints.apiKeyMinLength, attributes.apiKeyMin)
     ),
     ...input,
   });
@@ -28,13 +33,9 @@ export const apiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const apiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiBaseUrl,
-    process: createZodProcessor(
-      z
-        .string()
-        .url({ message: "Must be a valid URL" })
-        .refine((url) => patterns.httpProtocol.test(url), {
-          message: messages.httpProtocolRequired,
-        }),
+    process: string(
+      url(),
+      pattern(patterns.httpProtocol, attributes.httpProtocolRequired)
     ),
     ...input,
   });
@@ -43,12 +44,9 @@ export const apiTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.apiTimeout,
     default: defaults.apiTimeout,
-    process: createZodProcessor(
-      z.coerce
-        .number()
-        .int({ message: messages.apiTimeoutInt })
-        .min(constraints.apiTimeoutMin, { message: messages.apiTimeoutMin })
-        .max(constraints.apiTimeoutMax, { message: messages.apiTimeoutMax }),
+    process: number(
+      integer(attributes.apiTimeoutInt),
+      between(constraints.apiTimeoutMin, constraints.apiTimeoutMax)
     ),
     ...input,
   });

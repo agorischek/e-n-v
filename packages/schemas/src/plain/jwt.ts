@@ -1,21 +1,18 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
+import { string, minLength, pattern } from "../helpers/validators";
 import { patterns } from "../shared/apiService";
 import {
   constraints,
   defaults,
   descriptions,
-  messages,
+  attributes,
 } from "../shared/apiService";
 
 export const jwtSecret = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.jwtSecret,
-    process: createZodProcessor(
-      z.string().min(constraints.jwtSecretMinLength, {
-        message: messages.jwtSecretMin,
-      }),
+    process: string(
+      minLength(constraints.jwtSecretMinLength, attributes.jwtSecretMin)
     ),
     secret: true,
     ...input,
@@ -27,10 +24,8 @@ export const jwtAccessTokenExpiresIn = (
   new StringEnvVarSchema({
     description: descriptions.jwtAccessTokenExpiresIn,
     default: defaults.jwtAccessTokenExpiresIn,
-    process: createZodProcessor(
-      z.string().regex(patterns.jwtTokenDuration, {
-        message: messages.jwtDurationFormat,
-      }),
+    process: string(
+      pattern(patterns.jwtTokenDuration, attributes.jwtDurationFormat)
     ),
     ...input,
   });
@@ -41,10 +36,8 @@ export const jwtRefreshTokenExpiresIn = (
   new StringEnvVarSchema({
     description: descriptions.jwtRefreshTokenExpiresIn,
     default: defaults.jwtRefreshTokenExpiresIn,
-    process: createZodProcessor(
-      z.string().regex(patterns.jwtTokenDuration, {
-        message: messages.jwtDurationFormat,
-      }),
+    process: string(
+      pattern(patterns.jwtTokenDuration, attributes.jwtDurationFormat)
     ),
     ...input,
   });

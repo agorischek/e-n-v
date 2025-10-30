@@ -1,6 +1,7 @@
 {
   "name": "@e-n-v/files",
   "version": "0.0.1",
+  "license": "MIT",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {

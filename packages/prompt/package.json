@@ -1,6 +1,7 @@
 {
   "name": "@e-n-v/prompt",
   "version": "0.0.1",
+  "license": "MIT",
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {

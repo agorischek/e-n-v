@@ -6,3 +6,7 @@ export * from "../../models/src/index";
 export * from "../../parse/src/index";
 export * from "../../prompt/src/index";
 export * as schemas from "../../schemas/src/index";
+
+// Export vars sugar helper
+export { default as vars } from "./vars";
+export * from "./vars";

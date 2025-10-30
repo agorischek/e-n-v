@@ -1,6 +1,7 @@
 {
   "name": "@e-n-v/env",
   "version": "0.0.4",
+  "license": "MIT",
   "homepage": "https://github.com/agorischek/e-n-v",
   "repository": "https://agorischek@github.com/agorischek/e-n-v.git",
   "type": "module",
@@ -18,6 +19,11 @@
       "types": "./dist/bundle.d.ts",
       "import": "./dist/bundle.js",
       "require": "./dist/bundle.cjs"
+    },
+    "./vars": {
+      "types": "./dist/vars.d.ts",
+      "import": "./dist/vars.js",
+      "require": "./dist/vars.cjs"
     }
   },
   "dependencies": {

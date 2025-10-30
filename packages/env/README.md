@@ -7,19 +7,17 @@ e·n·v is a suite of handy stuff for working with environment variables and `.e
 
 ```ts
 // Define environment variables
-const model = define({
-  schemas: { NODE_ENV, DATABASE_URL, PORT },
-});
-```
-
-```ts
-// Set up during development
-await prompt(model); // or use `e-n-v setup`
+const model = vars({ PORT, NODE_ENV, API_KEY });
 ```
 
 ```ts
 // Validate at runtime
 const env = parse(process.env, model);
+```
+
+```ts
+// Set up during development
+await prompt(model); // or use `e-n-v setup`
 ```
 
 <!-- markdownlint-disable-next-line -->
@@ -34,13 +32,9 @@ An env model defines the structure of your environment variables, including name
 ```ts
 // env.model.js
 
-import { define, schemas } from "e-n-v";
+import vars, { NODE_ENV } from "@e-n-v/env/vars";
 
-const { NODE_ENV, DATABASE_URL, PORT } = schemas;
-
-export default define({
-  schemas: { NODE_ENV, DATABASE_URL, PORT },
-});
+export default vars({ NODE_ENV });
 ```
 
 ### 2. Set up for development
@@ -52,10 +46,10 @@ Run `e-n-v setup` to interactively author your local `.env` file during developm
 In your app, load your environment variables as usual, parse them, and export them for use. A combined error is thrown if any variables fail validation. Reference these exports throughout your code rather than using `process.env` directly.
 
 ```ts
-// env.vars.js
+// env.js
 
 import "dotenv/config";
-import { parse } from "e-n-v";
+import { parse } from "@e-n-v/env";
 import model from "./env.model";
 
 export const { NODE_ENV, PORT, DATABASE_URL } = parse(process.env, model);

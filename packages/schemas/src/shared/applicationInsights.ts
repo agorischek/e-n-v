@@ -13,14 +13,14 @@ export const descriptions = {
     "Enable automatic performance counter collection in Application Insights",
 } as const;
 
-export const messages = {
+export const attributes = {
   connectionStringFormat:
-    "Must be a valid Application Insights connection string format",
-  instrumentationKeyUuid: "Must be a valid UUID format for instrumentation key",
-  roleNameMin: "Role name cannot be empty",
-  roleNameMax: "Role name must be less than 256 characters",
-  samplingRateMin: "Sampling rate must be between 0 and 100",
-  samplingRateMax: "Sampling rate must be between 0 and 100",
+    "a valid Application Insights connection string format",
+  instrumentationKeyUuid: "a valid UUID format for instrumentation key",
+  roleNameMin: "role name cannot be empty",
+  roleNameMax: "less than 256 characters",
+  samplingRateMin: "between 0 and 100",
+  samplingRateMax: "between 0 and 100",
 } as const;
 
 export const constraints = {

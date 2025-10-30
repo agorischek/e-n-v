@@ -1,13 +1,12 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
+import { string, oneOf } from "../helpers/validators";
 import { defaults, descriptions, enumOptions } from "../shared/apiService";
 
 export const logLevel = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.logLevel,
     default: defaults.logLevel,
-    process: createZodProcessor(z.enum([...enumOptions.logLevel])),
+    process: string(oneOf(enumOptions.logLevel)),
     ...input,
   });
 

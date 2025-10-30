@@ -1,13 +1,12 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
-import { descriptions, messages } from "../shared/apiService";
+import { string, custom } from "../helpers/validators";
+import { attributes, descriptions } from "../shared/apiService";
 
 export const corsOrigin = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.corsOrigin,
-    process: createZodProcessor(
-      z.string().refine(
+    process: string(
+      custom(
         (val) => {
           if (val === "*") return true;
           const origins = val.split(",").map((origin) => origin.trim());
@@ -20,8 +19,8 @@ export const corsOrigin = (input: Partial<StringEnvVarSchemaInput> = {}) =>
             }
           });
         },
-        { message: messages.corsOriginInvalid },
-      ),
+        attributes.corsOriginInvalid
+      )
     ),
     ...input,
   });

@@ -6,21 +6,27 @@ import {
   type NumberEnvVarSchemaInput,
   type BooleanEnvVarSchemaInput,
 } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
+import {
+  string,
+  number,
+  pattern,
+  minLength,
+  integer,
+  between,
+} from "../helpers/validators";
 import {
   constraints,
   defaults,
   descriptions,
-  messages,
+  attributes,
   patterns,
 } from "../shared/redis";
 
 export const redisUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.url,
-    process: createZodProcessor(
-      z.string().regex(patterns.url, { message: messages.urlFormat }),
+    process: string(
+      pattern(patterns.url, attributes.urlFormat)
     ),
     ...input,
   });
@@ -28,11 +34,9 @@ export const redisUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const redisHost = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.host,
-    process: createZodProcessor(
-      z
-        .string()
-        .min(1, { message: messages.hostRequired })
-        .regex(patterns.host, { message: messages.hostFormat }),
+    process: string(
+      minLength(1, attributes.hostRequired),
+      pattern(patterns.host, attributes.hostFormat)
     ),
     required: false,
     ...input,
@@ -42,12 +46,9 @@ export const redisPort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.port,
     default: defaults.port,
-    process: createZodProcessor(
-      z.coerce
-        .number()
-        .int({ message: messages.portInteger })
-        .min(constraints.portMin, { message: messages.portMin })
-        .max(constraints.portMax, { message: messages.portMax }),
+    process: number(
+      integer(attributes.portInteger),
+      between(constraints.portMin, constraints.portMax)
     ),
     ...input,
   });
@@ -55,8 +56,8 @@ export const redisPort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
 export const redisPassword = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.password,
-    process: createZodProcessor(
-      z.string().min(1, { message: messages.passwordRequired }),
+    process: string(
+      minLength(1, attributes.passwordRequired)
     ),
     secret: true,
     required: false,
@@ -66,8 +67,8 @@ export const redisPassword = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const redisUsername = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.username,
-    process: createZodProcessor(
-      z.string().min(1, { message: messages.usernameRequired }),
+    process: string(
+      minLength(1, attributes.usernameRequired)
     ),
     required: false,
     ...input,
@@ -77,12 +78,9 @@ export const redisDb = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.db,
     default: defaults.db,
-    process: createZodProcessor(
-      z.coerce
-        .number()
-        .int({ message: messages.dbInteger })
-        .min(constraints.dbMin, { message: messages.dbRange })
-        .max(constraints.dbMax, { message: messages.dbRange }),
+    process: number(
+      integer(attributes.dbInteger),
+      between(constraints.dbMin, constraints.dbMax)
     ),
     ...input,
   });
@@ -99,8 +97,8 @@ export const redisTlsCaCertPath = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.tlsCaCertPath,
-    process: createZodProcessor(
-      z.string().min(1, { message: messages.tlsCaCertPathRequired }),
+    process: string(
+      minLength(1, attributes.tlsCaCertPathRequired)
     ),
     required: false,
     ...input,

@@ -1,15 +1,12 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
-import { constraints, descriptions, messages } from "../shared/oauth";
+import { string, minLength, url } from "../helpers/validators";
+import { attributes, constraints, descriptions } from "../shared/oauth";
 
 export const oauthClientId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.clientId,
-    process: createZodProcessor(
-      z.string().min(constraints.clientIdMinLength, {
-        message: messages.clientIdRequired,
-      }),
+    process: string(
+      minLength(constraints.clientIdMinLength, attributes.clientIdRequired)
     ),
     secret: true,
     ...input,
@@ -20,10 +17,8 @@ export const oauthClientSecret = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.clientSecret,
-    process: createZodProcessor(
-      z.string().min(constraints.clientSecretMinLength, {
-        message: messages.clientSecretMinLength,
-      }),
+    process: string(
+      minLength(constraints.clientSecretMinLength, attributes.clientSecretMinLength)
     ),
     secret: true,
     ...input,
@@ -34,19 +29,15 @@ export const oauthRedirectUri = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.redirectUri,
-    process: createZodProcessor(
-      z.string().url({ message: messages.redirectUriInvalid }),
-    ),
+    process: string(url(attributes.redirectUriInvalid)),
     ...input,
   });
 
 export const oauthScope = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.scope,
-    process: createZodProcessor(
-      z
-        .string()
-        .min(constraints.scopeMinLength, { message: messages.scopeRequired }),
+    process: string(
+      minLength(constraints.scopeMinLength, attributes.scopeRequired)
     ),
     ...input,
   });

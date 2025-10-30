@@ -7,10 +7,10 @@ export const descriptions = {
   scope: "OAuth scope (space-separated)",
 } as const;
 
-export const messages = {
+export const attributes = {
   clientIdRequired: "OAuth client ID is required",
   clientSecretMinLength:
-    "OAuth client secret must be at least 8 characters long",
+    "at least 8 characters long",
   redirectUriInvalid: COMMON_MESSAGES.MUST_BE_VALID_URL,
   scopeRequired: "OAuth scope is required",
 } as const;

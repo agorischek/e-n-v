@@ -1,6 +1,7 @@
 {
   "name": "@e-n-v/schemas",
   "version": "0.0.1",
+  "license": "MIT",
   "module": "./src/index.ts",
   "exports": {
     ".": {
@@ -22,9 +23,7 @@
     "./shared/*": "./src/shared/*"
   },
   "type": "module",
-  "dependencies": {
-    "zod": "^4.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/bun": "latest"
   }

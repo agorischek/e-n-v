@@ -1,6 +1,7 @@
 {
   "name": "@e-n-v/repo",
   "version": "0.0.1",
+  "license": "MIT",
   "module": "index.ts",
   "type": "module",
   "workspaces": [

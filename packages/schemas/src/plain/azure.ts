@@ -1,17 +1,17 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
-import { descriptions, messages, patterns } from "../shared/infrastructure";
+import { string, pattern, minLength } from "../helpers/validators";
+import { attributes, descriptions, patterns } from "../shared/infrastructure";
 
 export const azureStorageConnectionString = (
   input: Partial<StringEnvVarSchemaInput> = {},
 ) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageConnectionString,
-    process: createZodProcessor(
-      z.string().regex(patterns.azureStorageConnectionString, {
-        message: messages.azureStorageConnectionStringFormat,
-      }),
+    process: string(
+      pattern(
+        patterns.azureStorageConnectionString,
+        attributes.azureStorageConnectionStringFormat
+      )
     ),
     secret: true,
     ...input,
@@ -22,10 +22,11 @@ export const azureStorageAccountName = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageAccountName,
-    process: createZodProcessor(
-      z.string().regex(patterns.azureStorageAccountName, {
-        message: messages.azureStorageAccountNameFormat,
-      }),
+    process: string(
+      pattern(
+        patterns.azureStorageAccountName,
+        attributes.azureStorageAccountNameFormat
+      )
     ),
     ...input,
   });
@@ -35,9 +36,7 @@ export const azureStorageAccountKey = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageAccountKey,
-    process: createZodProcessor(
-      z.string().min(1, { message: messages.azureStorageAccountKeyRequired }),
-    ),
+    process: string(minLength(1, attributes.azureStorageAccountKeyRequired)),
     secret: true,
     ...input,
   });
@@ -47,10 +46,11 @@ export const azureServiceBusConnectionString = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.azureServiceBusConnectionString,
-    process: createZodProcessor(
-      z.string().regex(patterns.azureServiceBusConnectionString, {
-        message: messages.azureServiceBusConnectionStringFormat,
-      }),
+    process: string(
+      pattern(
+        patterns.azureServiceBusConnectionString,
+        attributes.azureServiceBusConnectionStringFormat
+      )
     ),
     secret: true,
     ...input,
@@ -61,10 +61,11 @@ export const azureEventHubConnectionString = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.azureEventHubConnectionString,
-    process: createZodProcessor(
-      z.string().regex(patterns.azureEventHubConnectionString, {
-        message: messages.azureEventHubConnectionStringFormat,
-      }),
+    process: string(
+      pattern(
+        patterns.azureEventHubConnectionString,
+        attributes.azureEventHubConnectionStringFormat
+      )
     ),
     secret: true,
     ...input,
