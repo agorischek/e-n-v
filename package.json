@@ -30,7 +30,7 @@
   },
   "scripts": {
     "bundle": "bun run check:bundle && bun run --filter @e-n-v/env bundle",
-    "ci": "bun scripts/ci/run.ts",
+    "check": "bun scripts/check/run.ts",
     "demo": "bun run ./demo/demo.ts",
     "format": "prettier --write .",
     "lint": "oxlint",
