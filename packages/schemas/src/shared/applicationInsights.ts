@@ -13,7 +13,7 @@ export const descriptions = {
     "Enable automatic performance counter collection in Application Insights",
 } as const;
 
-export const attributes = {
+export const traits = {
   connectionStringFormat:
     "a valid Application Insights connection string format",
   instrumentationKeyUuid: "a valid UUID format for instrumentation key",

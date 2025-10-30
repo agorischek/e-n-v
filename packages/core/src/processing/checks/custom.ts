@@ -2,15 +2,15 @@ import type { Check } from "../types/Check.js";
 
 /**
  * Custom check with user-defined validation function.
- * Can return multiple requirements.
+ * Can return multiple traits.
  */
 export function custom<T>(
   fn: (value: T) => boolean,
-  ...requirements: string[]
+  ...traits: string[]
 ): Check<T> {
   return (value: T) => {
     if (!fn(value)) {
-      return requirements;
+      return traits;
     }
     return [];
   };

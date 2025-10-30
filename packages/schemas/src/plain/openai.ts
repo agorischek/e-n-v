@@ -18,7 +18,7 @@ import {
   constraints,
   defaults,
   descriptions,
-  attributes,
+  traits,
   patterns,
 } from "../shared/openai";
 
@@ -26,8 +26,8 @@ export const openaiApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiKey,
     process: string(
-      minLength(constraints.apiKeyMinLength, attributes.apiKeyMinLength),
-      pattern(patterns.apiKey, attributes.apiKeyFormat)
+      minLength(constraints.apiKeyMinLength, traits.apiKeyMinLength),
+      pattern(patterns.apiKey, traits.apiKeyFormat)
     ),
     secret: true,
     ...input,
@@ -39,7 +39,7 @@ export const openaiOrganizationId = (
   new StringEnvVarSchema({
     description: descriptions.organizationId,
     process: string(
-      pattern(patterns.organizationId, attributes.organizationFormat)
+      pattern(patterns.organizationId, traits.organizationFormat)
     ),
     required: false,
     ...input,
@@ -49,7 +49,7 @@ export const openaiProjectId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.projectId,
     process: string(
-      pattern(patterns.projectId, attributes.projectFormat)
+      pattern(patterns.projectId, traits.projectFormat)
     ),
     required: false,
     ...input,
@@ -59,8 +59,8 @@ export const openaiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.baseUrl,
     process: string(
-      url(attributes.baseUrlInvalid),
-      custom((value) => value.startsWith("https://"), attributes.baseUrlProtocol)
+      url(traits.baseUrlInvalid),
+      custom((value) => value.startsWith("https://"), traits.baseUrlProtocol)
     ),
     required: false,
     ...input,
@@ -69,7 +69,7 @@ export const openaiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const openaiModel = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.model,
-    process: string(minLength(1, attributes.modelRequired)),
+    process: string(minLength(1, traits.modelRequired)),
     required: false,
     ...input,
   });
@@ -79,7 +79,7 @@ export const openaiTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.timeout,
     default: defaults.timeout,
     process: number(
-      integer(attributes.timeoutInteger),
+      integer(traits.timeoutInteger),
       between(constraints.timeoutMin, constraints.timeoutMax)
     ),
     ...input,

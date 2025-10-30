@@ -5,14 +5,14 @@ import {
   constraints,
   defaults,
   descriptions,
-  attributes,
+  traits,
 } from "../shared/apiService";
 
 export const jwtSecret = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.jwtSecret,
     process: string(
-      minLength(constraints.jwtSecretMinLength, attributes.jwtSecretMin)
+      minLength(constraints.jwtSecretMinLength, traits.jwtSecretMin)
     ),
     secret: true,
     ...input,
@@ -25,7 +25,7 @@ export const jwtAccessTokenExpiresIn = (
     description: descriptions.jwtAccessTokenExpiresIn,
     default: defaults.jwtAccessTokenExpiresIn,
     process: string(
-      pattern(patterns.jwtTokenDuration, attributes.jwtDurationFormat)
+      pattern(patterns.jwtTokenDuration, traits.jwtDurationFormat)
     ),
     ...input,
   });
@@ -37,7 +37,7 @@ export const jwtRefreshTokenExpiresIn = (
     description: descriptions.jwtRefreshTokenExpiresIn,
     default: defaults.jwtRefreshTokenExpiresIn,
     process: string(
-      pattern(patterns.jwtTokenDuration, attributes.jwtDurationFormat)
+      pattern(patterns.jwtTokenDuration, traits.jwtDurationFormat)
     ),
     ...input,
   });

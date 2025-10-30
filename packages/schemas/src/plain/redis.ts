@@ -18,7 +18,7 @@ import {
   constraints,
   defaults,
   descriptions,
-  attributes,
+  traits,
   patterns,
 } from "../shared/redis";
 
@@ -26,7 +26,7 @@ export const redisUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.url,
     process: string(
-      pattern(patterns.url, attributes.urlFormat)
+      pattern(patterns.url, traits.urlFormat)
     ),
     ...input,
   });
@@ -35,8 +35,8 @@ export const redisHost = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.host,
     process: string(
-      minLength(1, attributes.hostRequired),
-      pattern(patterns.host, attributes.hostFormat)
+      minLength(1, traits.hostRequired),
+      pattern(patterns.host, traits.hostFormat)
     ),
     required: false,
     ...input,
@@ -47,7 +47,7 @@ export const redisPort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.port,
     default: defaults.port,
     process: number(
-      integer(attributes.portInteger),
+      integer(traits.portInteger),
       between(constraints.portMin, constraints.portMax)
     ),
     ...input,
@@ -57,7 +57,7 @@ export const redisPassword = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.password,
     process: string(
-      minLength(1, attributes.passwordRequired)
+      minLength(1, traits.passwordRequired)
     ),
     secret: true,
     required: false,
@@ -68,7 +68,7 @@ export const redisUsername = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.username,
     process: string(
-      minLength(1, attributes.usernameRequired)
+      minLength(1, traits.usernameRequired)
     ),
     required: false,
     ...input,
@@ -79,7 +79,7 @@ export const redisDb = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.db,
     default: defaults.db,
     process: number(
-      integer(attributes.dbInteger),
+      integer(traits.dbInteger),
       between(constraints.dbMin, constraints.dbMax)
     ),
     ...input,
@@ -98,7 +98,7 @@ export const redisTlsCaCertPath = (
   new StringEnvVarSchema({
     description: descriptions.tlsCaCertPath,
     process: string(
-      minLength(1, attributes.tlsCaCertPathRequired)
+      minLength(1, traits.tlsCaCertPathRequired)
     ),
     required: false,
     ...input,

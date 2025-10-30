@@ -3,7 +3,7 @@ import { string, lengthBetween, minLength, pattern } from "@e-n-v/core";
 import {
   constraints,
   descriptions,
-  attributes,
+  traits,
   patterns,
 } from "../shared/infrastructure";
 
@@ -22,7 +22,7 @@ export const awsSecretAccessKey = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.awsSecretAccessKey,
-    process: string(minLength(1, attributes.awsSecretAccessKeyRequired)),
+    process: string(minLength(1, traits.awsSecretAccessKeyRequired)),
     secret: true,
     ...input,
   });
@@ -30,21 +30,21 @@ export const awsSecretAccessKey = (
 export const awsRegion = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsRegion,
-    process: string(pattern(patterns.awsRegion, attributes.awsRegionFormat)),
+    process: string(pattern(patterns.awsRegion, traits.awsRegionFormat)),
     ...input,
   });
 
 export const awsS3BucketName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsS3BucketName,
-    process: string(pattern(patterns.awsS3BucketName, attributes.awsS3BucketNameFormat)),
+    process: string(pattern(patterns.awsS3BucketName, traits.awsS3BucketNameFormat)),
     ...input,
   });
 
 export const awsSqsQueueUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsSqsQueueUrl,
-    process: string(pattern(patterns.awsSqsQueueUrl, attributes.awsSqsQueueUrlFormat)),
+    process: string(pattern(patterns.awsSqsQueueUrl, traits.awsSqsQueueUrlFormat)),
     ...input,
   });
 

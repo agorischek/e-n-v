@@ -9,12 +9,15 @@ export type { EnvVarSchema } from "./schemas/EnvVarSchema";
 export { isEnvVarSchema } from "./schemas/EnvVarSchema";
 export * from "./types/EnvVarType";
 export * from "./processing/types/Processor";
+export * from "./processing/types/Preprocessor";
 export * from "./processing/processors/processors";
 export * from "./processing/preprocessors/preprocessors";
-export * from "./processing/Preprocessor";
+export * from "./processing/processors/resolvePreprocessor";
 export * from "./processing/options/BooleanMap";
+export type { PreprocessorOptions as Preprocessors } from "./processing/options/PreprocessorOptions";
+export type { BooleanMap as BooleanPreprocessorOptions } from "./processing/options/BooleanMap";
 export * from "./types/EnvChannel";
 export * from "./processing";
 
-export { schema } from "./schema";
-export { s } from "./schema";
+export { schema } from "./schemas/schema";
+export { s } from "./schemas/schema";

@@ -1,4 +1,4 @@
-import type { Preprocessor } from "../types/Preprocessor";
+import type { Preprocessor } from "../../types/Preprocessor";
 
   /**
    * Create a string preprocessor - pass through unchanged

@@ -1,13 +1,13 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
 import { string, url } from "@e-n-v/core";
-import { attributes, descriptions } from "../shared/infrastructure";
+import { traits, descriptions } from "../shared/infrastructure";
 
 export const dockerRegistryUrl = (
   input: Partial<StringEnvVarSchemaInput> = {},
 ) =>
   new StringEnvVarSchema({
     description: descriptions.dockerRegistryUrl,
-    process: string(url(attributes.dockerRegistryUrlFormat)),
+    process: string(url(traits.dockerRegistryUrlFormat)),
     ...input,
   });
 

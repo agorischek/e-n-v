@@ -7,7 +7,7 @@ export const descriptions = {
   scope: "OAuth scope (space-separated)",
 } as const;
 
-export const attributes = {
+export const traits = {
   clientIdRequired: "OAuth client ID is required",
   clientSecretMinLength:
     "at least 8 characters long",

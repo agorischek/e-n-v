@@ -7,10 +7,10 @@
 export type { Check } from "./types/Check.js";
 
 // Type processors
-export { string } from "./processors/string.js";
-export { number } from "./processors/number.js";
-export { boolean } from "./processors/boolean.js";
-export { enumeration } from "./processors/enumeration.js";
+export { string } from "./processors/typed/string.js";
+export { number } from "./processors/typed/number.js";
+export { boolean } from "./processors/typed/boolean.js";
+export { enumeration } from "./processors/typed/enumeration.js";
 
 // String checks
 export { minLength } from "./checks/minLength.js";

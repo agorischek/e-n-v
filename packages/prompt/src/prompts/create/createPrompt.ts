@@ -1,4 +1,4 @@
-import { booleanPreprocessor } from "@e-n-v/core";
+import { preprocessors as corePreprocessors } from "@e-n-v/core";
 import { EnvBooleanPrompt } from "../typed/EnvBooleanPrompt";
 import { EnvEnumPrompt } from "../typed/EnvEnumPrompt";
 import { EnvNumberPrompt } from "../typed/EnvNumberPrompt";
@@ -37,19 +37,19 @@ export function createPrompt({
       const booleanOverride = preprocessors?.boolean;
       let booleanPreprocess:
         | boolean
-        | ReturnType<typeof booleanPreprocessor>
+        | ReturnType<typeof corePreprocessors.boolean>
         | undefined;
 
       if (booleanOverride === undefined) {
         booleanPreprocess = undefined;
       } else if (booleanOverride === true) {
-        booleanPreprocess = booleanPreprocessor();
+        booleanPreprocess = corePreprocessors.boolean();
       } else if (booleanOverride === false) {
         booleanPreprocess = false;
       } else if (typeof booleanOverride === "function") {
         booleanPreprocess = booleanOverride;
       } else {
-        booleanPreprocess = booleanPreprocessor(booleanOverride);
+        booleanPreprocess = corePreprocessors.boolean(booleanOverride);
       }
 
       return new EnvBooleanPrompt(schema, {

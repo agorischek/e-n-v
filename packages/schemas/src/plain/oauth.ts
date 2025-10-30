@@ -1,12 +1,12 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
 import { string, minLength, url } from "@e-n-v/core";
-import { attributes, constraints, descriptions } from "../shared/oauth";
+import { traits, constraints, descriptions } from "../shared/oauth";
 
 export const oauthClientId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.clientId,
     process: string(
-      minLength(constraints.clientIdMinLength, attributes.clientIdRequired)
+      minLength(constraints.clientIdMinLength, traits.clientIdRequired)
     ),
     secret: true,
     ...input,
@@ -18,7 +18,7 @@ export const oauthClientSecret = (
   new StringEnvVarSchema({
     description: descriptions.clientSecret,
     process: string(
-      minLength(constraints.clientSecretMinLength, attributes.clientSecretMinLength)
+      minLength(constraints.clientSecretMinLength, traits.clientSecretMinLength)
     ),
     secret: true,
     ...input,
@@ -29,7 +29,7 @@ export const oauthRedirectUri = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.redirectUri,
-    process: string(url(attributes.redirectUriInvalid)),
+    process: string(url(traits.redirectUriInvalid)),
     ...input,
   });
 
@@ -37,7 +37,7 @@ export const oauthScope = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.scope,
     process: string(
-      minLength(constraints.scopeMinLength, attributes.scopeRequired)
+      minLength(constraints.scopeMinLength, traits.scopeRequired)
     ),
     ...input,
   });

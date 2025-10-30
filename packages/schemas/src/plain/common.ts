@@ -4,7 +4,7 @@ import {
   constraints,
   defaults,
   descriptions,
-  attributes,
+  traits,
 } from "../shared/apiService";
 
 export const port = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
@@ -12,7 +12,7 @@ export const port = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.port,
     default: defaults.port,
     process: number(
-      integer(attributes.portInt),
+      integer(traits.portInt),
       between(constraints.portMin, constraints.portMax)
     ),
     ...input,

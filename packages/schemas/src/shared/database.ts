@@ -16,7 +16,7 @@ export const descriptions = {
   databaseSsl: "Enable SSL connection to database",
 } as const;
 
-export const attributes = {
+export const traits = {
   databaseUrlPostgresqlFormat:
     "a valid PostgreSQL connection string (postgresql://...)",
   databaseUrlMysqlFormat:

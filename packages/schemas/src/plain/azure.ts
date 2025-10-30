@@ -1,6 +1,6 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
 import { string, pattern, minLength } from "@e-n-v/core";
-import { attributes, descriptions, patterns } from "../shared/infrastructure";
+import { traits, descriptions, patterns } from "../shared/infrastructure";
 
 export const azureStorageConnectionString = (
   input: Partial<StringEnvVarSchemaInput> = {},
@@ -10,7 +10,7 @@ export const azureStorageConnectionString = (
     process: string(
       pattern(
         patterns.azureStorageConnectionString,
-        attributes.azureStorageConnectionStringFormat
+        traits.azureStorageConnectionStringFormat
       )
     ),
     secret: true,
@@ -25,7 +25,7 @@ export const azureStorageAccountName = (
     process: string(
       pattern(
         patterns.azureStorageAccountName,
-        attributes.azureStorageAccountNameFormat
+        traits.azureStorageAccountNameFormat
       )
     ),
     ...input,
@@ -36,7 +36,7 @@ export const azureStorageAccountKey = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.azureStorageAccountKey,
-    process: string(minLength(1, attributes.azureStorageAccountKeyRequired)),
+    process: string(minLength(1, traits.azureStorageAccountKeyRequired)),
     secret: true,
     ...input,
   });
@@ -49,7 +49,7 @@ export const azureServiceBusConnectionString = (
     process: string(
       pattern(
         patterns.azureServiceBusConnectionString,
-        attributes.azureServiceBusConnectionStringFormat
+        traits.azureServiceBusConnectionStringFormat
       )
     ),
     secret: true,
@@ -64,7 +64,7 @@ export const azureEventHubConnectionString = (
     process: string(
       pattern(
         patterns.azureEventHubConnectionString,
-        attributes.azureEventHubConnectionStringFormat
+        traits.azureEventHubConnectionStringFormat
       )
     ),
     secret: true,

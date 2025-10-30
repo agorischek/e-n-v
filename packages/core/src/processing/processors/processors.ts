@@ -1,7 +1,7 @@
-import { string } from "./string";
-import { number } from "./number";
-import { boolean } from "./boolean";
-import { enumeration } from "./enumeration";
+import { string } from "./typed/string";
+import { number } from "./typed/number";
+import { boolean } from "./typed/boolean";
+import { enumeration } from "./typed/enumeration";
 
 /**
  * Default processors for environment variable types.

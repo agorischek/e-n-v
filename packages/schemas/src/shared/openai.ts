@@ -7,7 +7,7 @@ export const descriptions = {
   timeout: "Request timeout in seconds for OpenAI API calls",
 } as const;
 
-export const attributes = {
+export const traits = {
   apiKeyMinLength: "at least 40 characters",
   // Pattern can return multiple requirements as array items
   apiKeyFormat: [

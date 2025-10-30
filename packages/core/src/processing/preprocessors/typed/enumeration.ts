@@ -1,4 +1,4 @@
-import type { Preprocessor } from "../types/Preprocessor";
+import type { Preprocessor } from "../../types/Preprocessor";
 
 /**
  * Create an enum preprocessor - pass through unchanged

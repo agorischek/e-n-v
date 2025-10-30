@@ -22,7 +22,7 @@ export const descriptions = {
   host: "Server host address",
 } as const;
 
-export const attributes = {
+export const traits = {
   apiKeyMin: "at least 8 characters long",
   jwtSecretMin: "at least 32 characters long for security",
   jwtDurationFormat: "in format like '15m', '1h', '7d'",

@@ -1,7 +1,7 @@
-import type { EnvVarType } from "../types/EnvVarType";
-import type { PreprocessorOptions } from "./options/PreprocessorOptions";
-import { preprocessors } from "./preprocessors/preprocessors";
-import type { Preprocessor } from "./types/Preprocessor";
+import type { EnvVarType } from "../../types/EnvVarType";
+import type { PreprocessorOptions } from "../options/PreprocessorOptions";
+import { preprocessors } from "../preprocessors/preprocessors";
+import type { Preprocessor } from "../types/Preprocessor";
 
 type DefaultPreprocessor<T extends EnvVarType> = T extends "number"
   ? Preprocessor<number>

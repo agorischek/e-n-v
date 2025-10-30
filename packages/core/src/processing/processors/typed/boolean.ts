@@ -1,6 +1,6 @@
-import { FALSE_STRINGS } from "../constants/FALSE_STRINGS.js";
-import { TRUE_STRINGS } from "../constants/TRUE_STRINGS.js";
-import type { Processor } from "../types/Processor.js";
+import { FALSE_STRINGS } from "../../constants/FALSE_STRINGS.js";
+import { TRUE_STRINGS } from "../../constants/TRUE_STRINGS.js";
+import type { Processor } from "../../types/Processor.js";
 
 /**
  * Boolean processor.

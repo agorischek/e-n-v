@@ -15,7 +15,7 @@ import {
   between,
 } from "@e-n-v/core";
 import {
-  attributes,
+  traits,
   constraints,
   defaults,
   descriptions,
@@ -26,7 +26,7 @@ export const databaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseUrl,
     process: string(
-      pattern(patterns.genericDatabaseUrl, attributes.genericDatabaseUrlFormat)
+      pattern(patterns.genericDatabaseUrl, traits.genericDatabaseUrlFormat)
     ),
     secret: true,
     ...input,
@@ -35,7 +35,7 @@ export const databaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const databaseHost = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseHost,
-    process: string(minLength(1, attributes.databaseHostRequired)),
+    process: string(minLength(1, traits.databaseHostRequired)),
     ...input,
   });
 
@@ -43,7 +43,7 @@ export const databasePort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.databasePort,
     process: number(
-      integer(attributes.databasePortInt),
+      integer(traits.databasePortInt),
       between(constraints.databasePortMin, constraints.databasePortMax)
     ),
     ...input,
@@ -52,7 +52,7 @@ export const databasePort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
 export const databaseName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseName,
-    process: string(minLength(1, attributes.databaseNameRequired)),
+    process: string(minLength(1, traits.databaseNameRequired)),
     ...input,
   });
 
@@ -61,7 +61,7 @@ export const databaseUsername = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.databaseUsername,
-    process: string(minLength(1, attributes.databaseUsernameRequired)),
+    process: string(minLength(1, traits.databaseUsernameRequired)),
     ...input,
   });
 
@@ -70,7 +70,7 @@ export const databasePassword = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.databasePassword,
-    process: string(minLength(1, attributes.databasePasswordRequired)),
+    process: string(minLength(1, traits.databasePasswordRequired)),
     secret: true,
     ...input,
   });
@@ -90,7 +90,7 @@ export const databasePoolSize = (
     description: descriptions.databasePoolSize,
     default: defaults.databasePoolSize,
     process: number(
-      integer(attributes.databasePoolSizeInt),
+      integer(traits.databasePoolSizeInt),
       between(constraints.databasePoolSizeMin, constraints.databasePoolSizeMax)
     ),
     ...input,
@@ -101,7 +101,7 @@ export const databaseTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.databaseTimeout,
     default: defaults.databaseTimeout,
     process: number(
-      integer(attributes.databaseTimeoutInt),
+      integer(traits.databaseTimeoutInt),
       between(constraints.databaseTimeoutMin, constraints.databaseTimeoutMax)
     ),
     ...input,

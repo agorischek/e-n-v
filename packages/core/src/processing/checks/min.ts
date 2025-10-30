@@ -3,11 +3,11 @@ import type { Check } from "../types/Check.js";
 /**
  * Number check: minimum value.
  */
-export function min(minimum: number, requirement?: string): Check<number> {
+export function min(minimum: number, trait?: string): Check<number> {
   return (value: number) => {
     if (value < minimum) {
-      return requirement 
-        ? [requirement]
+      return trait 
+        ? [trait]
         : [`at least ${minimum}`];
     }
     return [];

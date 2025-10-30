@@ -1,7 +1,7 @@
-import { FALSE_STRINGS } from "../constants/FALSE_STRINGS";
-import { TRUE_STRINGS } from "../constants/TRUE_STRINGS";
-import type { BooleanMap } from "../options/BooleanMap";
-import type { Preprocessor } from "../types/Preprocessor";
+import { FALSE_STRINGS } from "../../constants/FALSE_STRINGS";
+import { TRUE_STRINGS } from "../../constants/TRUE_STRINGS";
+import type { BooleanMap } from "../../options/BooleanMap";
+import type { Preprocessor } from "../../types/Preprocessor";
 
 export const boolean = (
   options: BooleanMap = {

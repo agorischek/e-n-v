@@ -1,6 +1,6 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
 import { string, url, pattern } from "@e-n-v/core";
-import { attributes, descriptions } from "../shared/infrastructure";
+import { traits, descriptions } from "../shared/infrastructure";
 import { patterns } from "../shared/apiService";
 
 export const elasticsearchUrl = (
@@ -9,8 +9,8 @@ export const elasticsearchUrl = (
   new StringEnvVarSchema({
     description: descriptions.elasticsearchUrl,
     process: string(
-      url(attributes.elasticsearchUrlFormat),
-      pattern(patterns.httpProtocol, attributes.elasticsearchUrlProtocol)
+      url(traits.elasticsearchUrlFormat),
+      pattern(patterns.httpProtocol, traits.elasticsearchUrlProtocol)
     ),
     ...input,
   });

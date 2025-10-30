@@ -30,7 +30,7 @@ export const descriptions = {
   sentryDsn: "Sentry DSN for error tracking",
 } as const;
 
-export const attributes = {
+export const traits = {
   azureStorageConnectionStringFormat:
     "a valid Azure Storage connection string",
   azureStorageAccountNameFormat:

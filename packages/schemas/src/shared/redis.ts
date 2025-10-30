@@ -9,7 +9,7 @@ export const descriptions = {
   tlsCaCertPath: "Path to CA certificate file for Redis TLS validation",
 } as const;
 
-export const attributes = {
+export const traits = {
   urlFormat: "start with redis:// or rediss://",
   hostRequired: "Redis host is required",
   hostFormat: "letters, numbers, dots, and hyphens",

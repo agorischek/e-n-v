@@ -14,7 +14,7 @@ import {
   between,
 } from "@e-n-v/core";
 import {
-  attributes,
+  traits,
   constraints,
   defaults,
   descriptions,
@@ -25,7 +25,7 @@ export const apiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiKey,
     process: string(
-      minLength(constraints.apiKeyMinLength, attributes.apiKeyMin)
+      minLength(constraints.apiKeyMinLength, traits.apiKeyMin)
     ),
     ...input,
   });
@@ -35,7 +35,7 @@ export const apiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
     description: descriptions.apiBaseUrl,
     process: string(
       url(),
-      pattern(patterns.httpProtocol, attributes.httpProtocolRequired)
+      pattern(patterns.httpProtocol, traits.httpProtocolRequired)
     ),
     ...input,
   });
@@ -45,7 +45,7 @@ export const apiTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.apiTimeout,
     default: defaults.apiTimeout,
     process: number(
-      integer(attributes.apiTimeoutInt),
+      integer(traits.apiTimeoutInt),
       between(constraints.apiTimeoutMin, constraints.apiTimeoutMax)
     ),
     ...input,

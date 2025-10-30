@@ -1,6 +1,6 @@
-import type { Processor } from "../types/Processor.js";
-import type { Check } from "../types/Check.js";
-import { validate } from "../helpers/validate.js";
+import type { Processor } from "../../types/Processor.js";
+import type { Check } from "../../types/Check.js";
+import { validate } from "../../helpers/validate.js";
 
 /**
  * Enum processor with optional validation checks.
