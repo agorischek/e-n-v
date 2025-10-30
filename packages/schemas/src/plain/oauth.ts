@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, minLength, url } from "../validation";
+import { string, minLength, url } from "@e-n-v/core";
 import { attributes, constraints, descriptions } from "../shared/oauth";
 
 export const oauthClientId = (input: Partial<StringEnvVarSchemaInput> = {}) =>

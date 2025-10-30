@@ -1,9 +1,9 @@
-import type { Validator } from "../Validator.js";
+import type { Check } from "../Check.js";
 
 /**
- * String validator: length within range.
+ * String check: length within range.
  */
-export function lengthBetween(min: number, max: number, requirement?: string): Validator<string> {
+export function lengthBetween(min: number, max: number, requirement?: string): Check<string> {
   return (value: string) => {
     if (value.length < min || value.length > max) {
       return requirement 

@@ -13,7 +13,7 @@ import {
   integer,
   between,
   custom,
-} from "../validation";
+} from "@e-n-v/core";
 import {
   constraints,
   defaults,

@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, pattern } from "../validation";
+import { string, pattern } from "@e-n-v/core";
 import { attributes, descriptions, patterns } from "../shared/infrastructure";
 
 export const rabbitmqUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>

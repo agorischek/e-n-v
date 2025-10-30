@@ -1,9 +1,9 @@
-import type { Validator } from "../Validator.js";
+import type { Check } from "../Check.js";
 
 /**
- * Number validator: maximum value.
+ * Number check: maximum value.
  */
-export function max(maximum: number, requirement?: string): Validator<number> {
+export function max(maximum: number, requirement?: string): Check<number> {
   return (value: number) => {
     if (value > maximum) {
       return requirement 

@@ -1,9 +1,9 @@
-import type { Validator } from "../Validator.js";
+import type { Check } from "../Check.js";
 
 /**
- * String validator: minimum length.
+ * String check: minimum length.
  */
-export function minLength(min: number, requirement?: string): Validator<string> {
+export function minLength(min: number, requirement?: string): Check<string> {
   return (value: string) => {
     if (value.length < min) {
       return requirement 

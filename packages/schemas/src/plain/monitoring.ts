@@ -12,7 +12,7 @@ import {
   url,
   integer,
   between,
-} from "../validation";
+} from "@e-n-v/core";
 import {
   descriptions,
   attributes,

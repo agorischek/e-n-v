@@ -13,7 +13,7 @@ import {
   minLength,
   integer,
   between,
-} from "../validation";
+} from "@e-n-v/core";
 import {
   attributes,
   constraints,

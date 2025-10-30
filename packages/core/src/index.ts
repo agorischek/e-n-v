@@ -13,6 +13,7 @@ export * from "./processing/processors";
 export * from "./processing/preprocessors";
 export * from "./processing/Preprocessor";
 export * from "./types/EnvChannel";
+export * from "./validation";
 
 export { schema } from "./schema";
 export { s } from "./schema";

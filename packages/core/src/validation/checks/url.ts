@@ -1,9 +1,9 @@
-import type { Validator } from "../Validator.js";
+import type { Check } from "../Check.js";
 
 /**
- * String validator: valid URL.
+ * String check: valid URL.
  */
-export function url(requirement?: string): Validator<string> {
+export function url(requirement?: string): Check<string> {
   return (value: string) => {
     try {
       new URL(value);

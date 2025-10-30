@@ -1,9 +1,9 @@
-import type { Validator } from "../Validator.js";
+import type { Check } from "../Check.js";
 
 /**
- * String validator: maximum length.
+ * String check: maximum length.
  */
-export function maxLength(max: number, requirement?: string): Validator<string> {
+export function maxLength(max: number, requirement?: string): Check<string> {
   return (value: string) => {
     if (value.length > max) {
       return requirement 

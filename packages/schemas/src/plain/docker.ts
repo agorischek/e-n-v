@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, url } from "../validation";
+import { string, url } from "@e-n-v/core";
 import { attributes, descriptions } from "../shared/infrastructure";
 
 export const dockerRegistryUrl = (

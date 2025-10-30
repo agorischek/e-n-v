@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, lengthBetween, minLength, pattern } from "../validation";
+import { string, lengthBetween, minLength, pattern } from "@e-n-v/core";
 import {
   constraints,
   descriptions,

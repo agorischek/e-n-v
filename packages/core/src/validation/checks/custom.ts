@@ -1,13 +1,13 @@
-import type { Validator } from "../Validator.js";
+import type { Check } from "../Check.js";
 
 /**
- * Custom validator with user-defined validation function.
+ * Custom check with user-defined validation function.
  * Can return multiple requirements.
  */
 export function custom<T>(
   fn: (value: T) => boolean,
   ...requirements: string[]
-): Validator<T> {
+): Check<T> {
   return (value: T) => {
     if (!fn(value)) {
       return requirements;

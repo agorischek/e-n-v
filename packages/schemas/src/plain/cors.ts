@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, custom } from "../validation";
+import { string, custom } from "@e-n-v/core";
 import { attributes, descriptions } from "../shared/apiService";
 
 export const corsOrigin = (input: Partial<StringEnvVarSchemaInput> = {}) =>

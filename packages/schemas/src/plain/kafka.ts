@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, pattern, minLength } from "../validation";
+import { string, pattern, minLength } from "@e-n-v/core";
 import { attributes, descriptions, patterns } from "../shared/infrastructure";
 
 export const kafkaBrokers = (input: Partial<StringEnvVarSchemaInput> = {}) =>

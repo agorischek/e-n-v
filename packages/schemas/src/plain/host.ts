@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string } from "../validation";
+import { string } from "@e-n-v/core";
 import { defaults, descriptions } from "../shared/apiService";
 
 export const host = (input: Partial<StringEnvVarSchemaInput> = {}) =>

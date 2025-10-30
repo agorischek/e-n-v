@@ -1,9 +1,9 @@
-import type { Validator } from "../Validator.js";
+import type { Check } from "../Check.js";
 
 /**
- * Number validator: must be an integer.
+ * Number check: must be an integer.
  */
-export function integer(requirement?: string): Validator<number> {
+export function integer(requirement?: string): Check<number> {
   return (value: number) => {
     if (!Number.isInteger(value)) {
       return requirement ? [requirement] : ["an integer"];
