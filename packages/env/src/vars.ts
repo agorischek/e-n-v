@@ -1,4 +1,3 @@
-import type { EnvVarSchema } from "@e-n-v/core";
 import { define } from "@e-n-v/models";
 export * from "@e-n-v/schemas";
 import type { SupportedSchema } from "@e-n-v/models";

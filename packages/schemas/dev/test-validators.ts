@@ -6,11 +6,7 @@
  */
 
 import { apiKey, apiBaseUrl, apiTimeout } from "../src/plain/api";
-import {
-  databaseUrl,
-  databasePort,
-  databasePoolSize,
-} from "../src/plain/database";
+import { databaseUrl, databasePoolSize } from "../src/plain/database";
 import { port } from "../src/plain/common";
 import { nodeEnv } from "../src/plain/node";
 import { awsRegion, awsS3BucketName, awsAccessKeyId } from "../src/plain/aws";

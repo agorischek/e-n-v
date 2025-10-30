@@ -1,4 +1,4 @@
-import { prompt, defaults } from "../src";
+import { prompt } from "../src";
 import {
   // String with multiple validators (length + pattern)
   OPENAI_API_KEY,
