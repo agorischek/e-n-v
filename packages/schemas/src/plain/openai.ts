@@ -27,7 +27,7 @@ export const openaiApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
     description: descriptions.apiKey,
     process: string(
       minLength(constraints.apiKeyMinLength, traits.apiKeyMinLength),
-      pattern(patterns.apiKey, traits.apiKeyFormat)
+      pattern(patterns.apiKey, traits.apiKeyFormat),
     ),
     secret: true,
     ...input,
@@ -39,7 +39,7 @@ export const openaiOrganizationId = (
   new StringEnvVarSchema({
     description: descriptions.organizationId,
     process: string(
-      pattern(patterns.organizationId, traits.organizationFormat)
+      pattern(patterns.organizationId, traits.organizationFormat),
     ),
     required: false,
     ...input,
@@ -48,9 +48,7 @@ export const openaiOrganizationId = (
 export const openaiProjectId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.projectId,
-    process: string(
-      pattern(patterns.projectId, traits.projectFormat)
-    ),
+    process: string(pattern(patterns.projectId, traits.projectFormat)),
     required: false,
     ...input,
   });
@@ -60,7 +58,7 @@ export const openaiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
     description: descriptions.baseUrl,
     process: string(
       url(traits.baseUrlInvalid),
-      custom((value) => value.startsWith("https://"), traits.baseUrlProtocol)
+      custom((value) => value.startsWith("https://"), traits.baseUrlProtocol),
     ),
     required: false,
     ...input,
@@ -80,7 +78,7 @@ export const openaiTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     default: defaults.timeout,
     process: number(
       integer(traits.timeoutInteger),
-      between(constraints.timeoutMin, constraints.timeoutMax)
+      between(constraints.timeoutMin, constraints.timeoutMax),
     ),
     ...input,
   });
@@ -91,4 +89,3 @@ export const OPENAI_PROJECT_ID = openaiProjectId();
 export const OPENAI_BASE_URL = openaiBaseUrl();
 export const OPENAI_MODEL = openaiModel();
 export const OPENAI_TIMEOUT = openaiTimeout();
-

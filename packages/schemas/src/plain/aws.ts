@@ -11,7 +11,10 @@ export const awsAccessKeyId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsAccessKeyId,
     process: string(
-      lengthBetween(constraints.awsAccessKeyIdMin, constraints.awsAccessKeyIdMax)
+      lengthBetween(
+        constraints.awsAccessKeyIdMin,
+        constraints.awsAccessKeyIdMax,
+      ),
     ),
     secret: true,
     ...input,
@@ -37,14 +40,18 @@ export const awsRegion = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const awsS3BucketName = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsS3BucketName,
-    process: string(pattern(patterns.awsS3BucketName, traits.awsS3BucketNameFormat)),
+    process: string(
+      pattern(patterns.awsS3BucketName, traits.awsS3BucketNameFormat),
+    ),
     ...input,
   });
 
 export const awsSqsQueueUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.awsSqsQueueUrl,
-    process: string(pattern(patterns.awsSqsQueueUrl, traits.awsSqsQueueUrlFormat)),
+    process: string(
+      pattern(patterns.awsSqsQueueUrl, traits.awsSqsQueueUrlFormat),
+    ),
     ...input,
   });
 

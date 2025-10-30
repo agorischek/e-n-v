@@ -7,11 +7,11 @@ import vars, { NODE_ENV, PORT, DEBUG, DATABASE_URL } from "@e-n-v/env/vars";
 export const simpleModel = vars({ NODE_ENV });
 
 // More comprehensive usage
-export const fullModel = vars({ 
-  NODE_ENV, 
-  PORT, 
-  DEBUG, 
-  DATABASE_URL 
+export const fullModel = vars({
+  NODE_ENV,
+  PORT,
+  DEBUG,
+  DATABASE_URL,
 });
 
 // You can also mix predefined schemas with custom ones
@@ -20,7 +20,7 @@ import { s } from "@e-n-v/core";
 export const mixedModel = vars({
   NODE_ENV,
   PORT,
-  CUSTOM_VAR: s.string({ default: "custom-value" })
+  CUSTOM_VAR: s.string({ default: "custom-value" }),
 });
 
 export default vars({ NODE_ENV });

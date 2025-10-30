@@ -10,8 +10,7 @@ export const descriptions = {
 
 export const traits = {
   clientIdRequired: "OAuth client ID is required",
-  clientSecretMinLength:
-    "at least 8 characters long",
+  clientSecretMinLength: "at least 8 characters long",
   redirectUriInvalid: COMMON_MESSAGES.MUST_BE_VALID_URL,
   scopeRequired: "OAuth scope is required",
 } as const;

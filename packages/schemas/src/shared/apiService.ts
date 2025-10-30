@@ -31,8 +31,7 @@ export const traits = {
   httpProtocolRequired: "start with http:// or https://",
   httpsProtocolRequired: "webhook URLs should use HTTPS for security",
   encryptionKeyMin: "at least 32 characters long",
-  sessionSecretMin:
-    "at least 32 characters long for security",
+  sessionSecretMin: "at least 32 characters long for security",
   corsOriginInvalid: "'*' or comma-separated valid URLs",
   rateLimitRpmInt: "an integer",
   rateLimitRpmMin: "at least 1",

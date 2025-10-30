@@ -26,7 +26,7 @@ export const databaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.databaseUrl,
     process: string(
-      pattern(patterns.genericDatabaseUrl, traits.genericDatabaseUrlFormat)
+      pattern(patterns.genericDatabaseUrl, traits.genericDatabaseUrlFormat),
     ),
     secret: true,
     ...input,
@@ -44,7 +44,7 @@ export const databasePort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     description: descriptions.databasePort,
     process: number(
       integer(traits.databasePortInt),
-      between(constraints.databasePortMin, constraints.databasePortMax)
+      between(constraints.databasePortMin, constraints.databasePortMax),
     ),
     ...input,
   });
@@ -91,7 +91,7 @@ export const databasePoolSize = (
     default: defaults.databasePoolSize,
     process: number(
       integer(traits.databasePoolSizeInt),
-      between(constraints.databasePoolSizeMin, constraints.databasePoolSizeMax)
+      between(constraints.databasePoolSizeMin, constraints.databasePoolSizeMax),
     ),
     ...input,
   });
@@ -102,7 +102,7 @@ export const databaseTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     default: defaults.databaseTimeout,
     process: number(
       integer(traits.databaseTimeoutInt),
-      between(constraints.databaseTimeoutMin, constraints.databaseTimeoutMax)
+      between(constraints.databaseTimeoutMin, constraints.databaseTimeoutMax),
     ),
     ...input,
   });

@@ -6,9 +6,7 @@ import type { Check } from "../types/Check.js";
 export function maxLength(max: number, trait?: string): Check<string> {
   return (value: string) => {
     if (value.length > max) {
-      return trait 
-        ? [trait]
-        : [`at most ${max} characters`];
+      return trait ? [trait] : [`at most ${max} characters`];
     }
     return [];
   };

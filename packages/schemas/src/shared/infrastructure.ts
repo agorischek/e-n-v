@@ -32,8 +32,7 @@ export const descriptions = {
 } as const;
 
 export const traits = {
-  azureStorageConnectionStringFormat:
-    "a valid Azure Storage connection string",
+  azureStorageConnectionStringFormat: "a valid Azure Storage connection string",
   azureStorageAccountNameFormat:
     "3-24 characters, lowercase letters and numbers only",
   azureStorageAccountKeyRequired: "storage account key is required",
@@ -56,14 +55,12 @@ export const traits = {
   kafkaClientIdRequired: "Kafka client ID is required",
   dockerRegistryUrlFormat: COMMON_MESSAGES.MUST_BE_VALID_URL,
   kubernetesNameFormat: "a valid Kubernetes namespace name",
-  kubernetesServiceAccountFormat:
-    "a valid Kubernetes service account name",
+  kubernetesServiceAccountFormat: "a valid Kubernetes service account name",
   prometheusPortInt: "an integer",
   prometheusPortMin: ">= 1024",
   prometheusPortMax: "<= 65535",
   jaegerEndpointFormat: COMMON_MESSAGES.MUST_BE_VALID_URL,
-  newRelicLicenseKeyLength:
-    "exactly 40 characters",
+  newRelicLicenseKeyLength: "exactly 40 characters",
   datadogApiKeyLength: "exactly 32 characters",
   sentryDsnFormat: "a valid Sentry DSN format",
 } as const;

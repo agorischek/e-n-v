@@ -6,9 +6,7 @@ import type { Check } from "../types/Check.js";
 export function min(minimum: number, trait?: string): Check<number> {
   return (value: number) => {
     if (value < minimum) {
-      return trait 
-        ? [trait]
-        : [`at least ${minimum}`];
+      return trait ? [trait] : [`at least ${minimum}`];
     }
     return [];
   };

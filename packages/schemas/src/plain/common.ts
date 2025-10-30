@@ -1,4 +1,9 @@
-import { NumberEnvVarSchema, BooleanEnvVarSchema, type NumberEnvVarSchemaInput, type BooleanEnvVarSchemaInput } from "@e-n-v/core";
+import {
+  NumberEnvVarSchema,
+  BooleanEnvVarSchema,
+  type NumberEnvVarSchemaInput,
+  type BooleanEnvVarSchemaInput,
+} from "@e-n-v/core";
 import { number, integer, between, boolean } from "@e-n-v/core";
 import {
   constraints,
@@ -13,7 +18,7 @@ export const port = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     default: defaults.port,
     process: number(
       integer(traits.portInt),
-      between(constraints.portMin, constraints.portMax)
+      between(constraints.portMin, constraints.portMax),
     ),
     ...input,
   });

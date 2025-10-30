@@ -29,8 +29,8 @@ export const newRelicLicenseKey = (
     process: string(
       exactLength(
         constraints.newRelicLicenseKeyLength,
-        traits.newRelicLicenseKeyLength
-      )
+        traits.newRelicLicenseKeyLength,
+      ),
     ),
     secret: true,
     required: false,
@@ -40,9 +40,7 @@ export const newRelicLicenseKey = (
 export const sentryDsn = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.sentryDsn,
-    process: string(
-      pattern(patterns.sentryDsn, traits.sentryDsnFormat)
-    ),
+    process: string(pattern(patterns.sentryDsn, traits.sentryDsnFormat)),
     secret: true,
     required: false,
     ...input,
@@ -62,7 +60,7 @@ export const prometheusPort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
     default: defaults.prometheusPort,
     process: number(
       integer(traits.prometheusPortInt),
-      between(constraints.prometheusPortMin, constraints.prometheusPortMax)
+      between(constraints.prometheusPortMin, constraints.prometheusPortMax),
     ),
     ...input,
   });
@@ -71,7 +69,7 @@ export const datadogApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.datadogApiKey,
     process: string(
-      exactLength(constraints.datadogApiKeyLength, traits.datadogApiKeyLength)
+      exactLength(constraints.datadogApiKeyLength, traits.datadogApiKeyLength),
     ),
     secret: true,
     required: false,

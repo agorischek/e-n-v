@@ -7,7 +7,7 @@ export const boolean = (
   options: BooleanMap = {
     true: TRUE_STRINGS,
     false: FALSE_STRINGS,
-  }
+  },
 ): Preprocessor<boolean> => {
   const normalize = (candidate: string) => candidate.toLowerCase().trim();
   const trueValues = new Set(options.true.map(normalize));
@@ -16,7 +16,7 @@ export const boolean = (
   for (const candidate of trueValues) {
     if (falseValues.has(candidate)) {
       throw new Error(
-        `Boolean preprocessor option value "${candidate}" cannot map to both true and false`
+        `Boolean preprocessor option value "${candidate}" cannot map to both true and false`,
       );
     }
   }

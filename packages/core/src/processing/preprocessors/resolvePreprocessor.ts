@@ -34,7 +34,7 @@ const explicitFactories: Record<EnvVarType, () => Preprocessor<unknown>> = {
  */
 export function resolvePreprocessor<T extends EnvVarType>(
   envVarType: T,
-  preprocessorOptions?: PreprocessorOptions
+  preprocessorOptions?: PreprocessorOptions,
 ): DefaultPreprocessor<T> | undefined {
   const override = preprocessorOptions?.[envVarType];
 

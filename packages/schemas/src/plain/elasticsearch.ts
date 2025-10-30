@@ -10,7 +10,7 @@ export const elasticsearchUrl = (
     description: descriptions.elasticsearchUrl,
     process: string(
       url(traits.elasticsearchUrlFormat),
-      pattern(patterns.httpProtocol, traits.elasticsearchUrlProtocol)
+      pattern(patterns.httpProtocol, traits.elasticsearchUrlProtocol),
     ),
     ...input,
   });
@@ -39,4 +39,3 @@ export const elasticsearchPassword = (
 export const ELASTICSEARCH_URL = elasticsearchUrl();
 export const ELASTICSEARCH_USERNAME = elasticsearchUsername();
 export const ELASTICSEARCH_PASSWORD = elasticsearchPassword();
-

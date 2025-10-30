@@ -5,9 +5,7 @@ import { traits, descriptions, patterns } from "../shared/infrastructure";
 export const rabbitmqUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.rabbitmqUrl,
-    process: string(
-      pattern(patterns.rabbitmqUrl, traits.rabbitmqUrlFormat)
-    ),
+    process: string(pattern(patterns.rabbitmqUrl, traits.rabbitmqUrlFormat)),
     secret: true,
     ...input,
   });

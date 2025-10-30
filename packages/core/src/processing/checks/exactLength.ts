@@ -6,9 +6,7 @@ import type { Check } from "../types/Check.js";
 export function exactLength(length: number, trait?: string): Check<string> {
   return (value: string) => {
     if (value.length !== length) {
-      return trait 
-        ? [trait]
-        : [`exactly ${length} characters`];
+      return trait ? [trait] : [`exactly ${length} characters`];
     }
     return [];
   };

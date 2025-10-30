@@ -26,7 +26,7 @@ export function number(...checks: Array<Check<number>>): Processor<number> {
     if (checks.length > 0) {
       return validate(parsed, checks);
     }
-    
+
     return parsed;
   };
 }

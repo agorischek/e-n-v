@@ -35,4 +35,3 @@ export const dockerRegistryPassword = (
 export const DOCKER_REGISTRY_URL = dockerRegistryUrl();
 export const DOCKER_REGISTRY_USERNAME = dockerRegistryUsername();
 export const DOCKER_REGISTRY_PASSWORD = dockerRegistryPassword();
-

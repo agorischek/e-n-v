@@ -9,9 +9,9 @@ import type { Processor } from "../../types/Processor.js";
 export function boolean(): Processor<boolean> {
   const trueValues = new Set(TRUE_STRINGS);
   const falseValues = new Set(FALSE_STRINGS);
-  
+
   return (input: string): boolean | undefined => {
-    if (typeof input !== "string") {  
+    if (typeof input !== "string") {
       throw new Error("Value must be a string");
     }
 

@@ -10,8 +10,8 @@ export const azureStorageConnectionString = (
     process: string(
       pattern(
         patterns.azureStorageConnectionString,
-        traits.azureStorageConnectionStringFormat
-      )
+        traits.azureStorageConnectionStringFormat,
+      ),
     ),
     secret: true,
     ...input,
@@ -25,8 +25,8 @@ export const azureStorageAccountName = (
     process: string(
       pattern(
         patterns.azureStorageAccountName,
-        traits.azureStorageAccountNameFormat
-      )
+        traits.azureStorageAccountNameFormat,
+      ),
     ),
     ...input,
   });
@@ -49,8 +49,8 @@ export const azureServiceBusConnectionString = (
     process: string(
       pattern(
         patterns.azureServiceBusConnectionString,
-        traits.azureServiceBusConnectionStringFormat
-      )
+        traits.azureServiceBusConnectionStringFormat,
+      ),
     ),
     secret: true,
     ...input,
@@ -64,8 +64,8 @@ export const azureEventHubConnectionString = (
     process: string(
       pattern(
         patterns.azureEventHubConnectionString,
-        traits.azureEventHubConnectionStringFormat
-      )
+        traits.azureEventHubConnectionStringFormat,
+      ),
     ),
     secret: true,
     ...input,
@@ -78,4 +78,3 @@ export const AZURE_SERVICE_BUS_CONNECTION_STRING =
   azureServiceBusConnectionString();
 export const AZURE_EVENT_HUB_CONNECTION_STRING =
   azureEventHubConnectionString();
-

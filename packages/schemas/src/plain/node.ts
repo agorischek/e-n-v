@@ -12,4 +12,3 @@ export const nodeEnv = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   });
 
 export const NODE_ENV = nodeEnv();
-

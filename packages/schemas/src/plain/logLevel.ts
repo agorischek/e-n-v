@@ -11,4 +11,3 @@ export const logLevel = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   });
 
 export const LOG_LEVEL = logLevel();
-

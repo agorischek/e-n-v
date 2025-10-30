@@ -35,9 +35,9 @@ export function toZodMessageArray(traits: readonly string[]): string {
  * @param traits - Object containing trait descriptions (strings or arrays)
  * @returns Object with the same keys but values converted to complete messages
  */
-export function toZodMessages<T extends Record<string, string | readonly string[]>>(
-  traits: T
-): { [K in keyof T]: string } {
+export function toZodMessages<
+  T extends Record<string, string | readonly string[]>,
+>(traits: T): { [K in keyof T]: string } {
   const messages: Record<string, string> = {};
   for (const [key, value] of Object.entries(traits)) {
     if (Array.isArray(value)) {

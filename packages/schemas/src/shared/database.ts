@@ -21,14 +21,12 @@ export const descriptions = {
 export const traits = {
   databaseUrlPostgresqlFormat:
     "a valid PostgreSQL connection string (postgresql://...)",
-  databaseUrlMysqlFormat:
-    "a valid MySQL connection string (mysql://...)",
+  databaseUrlMysqlFormat: "a valid MySQL connection string (mysql://...)",
   databaseUrlMongodbFormat:
     "a valid MongoDB connection string (mongodb:// or mongodb+srv://...)",
   databaseUrlSqlserverFormat:
     "a valid SQL Server connection string (sqlserver://... or Server=...;Database=...;...)",
-  redisUrlFormat:
-    "a valid Redis connection string (redis:// or rediss://...)",
+  redisUrlFormat: "a valid Redis connection string (redis:// or rediss://...)",
   genericDatabaseUrlFormat:
     "a valid database connection string with supported protocol",
   databaseHostRequired: "database host is required",

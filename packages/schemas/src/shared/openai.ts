@@ -12,10 +12,7 @@ export const descriptions = {
 export const traits = {
   apiKeyMinLength: "at least 40 characters",
   // Pattern can return multiple requirements as array items
-  apiKeyFormat: [
-    "start with 'sk-'",
-    "contain only letters and numbers"
-  ],
+  apiKeyFormat: ["start with 'sk-'", "contain only letters and numbers"],
   organizationFormat: "start with 'org-'",
   projectFormat: "start with 'proj_'",
   baseUrlInvalid: "a valid URL",

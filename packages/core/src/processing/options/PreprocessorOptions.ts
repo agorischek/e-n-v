@@ -1,7 +1,7 @@
-import type {  Preprocessor } from "../types/Preprocessor";
+import type { Preprocessor } from "../types/Preprocessor";
 import type { BooleanMap } from "./BooleanMap";
 
-export type PreprocessorOptions = Partial< {
+export type PreprocessorOptions = Partial<{
   /**
    * Custom string preprocessing function
    * Receives the string value and should return a string value
@@ -24,10 +24,7 @@ export type PreprocessorOptions = Partial< {
    * @param value - The raw string value from the environment variable
    * @returns Preprocessed string or boolean value
    */
-  boolean?:
-    | boolean
-    | Preprocessor<boolean>
-    | BooleanMap;
+  boolean?: boolean | Preprocessor<boolean> | BooleanMap;
 
   /**
    * Custom enum preprocessing function

@@ -16,12 +16,12 @@ export function string(...checks: Array<Check<string>>): Processor<string> {
     if (input === "") {
       return undefined;
     }
-    
+
     // Apply validation checks if any were provided
     if (checks.length > 0) {
       return validate(input, checks);
     }
-    
+
     return input;
   };
 }
