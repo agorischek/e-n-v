@@ -9,7 +9,7 @@ export default defineConfig({
     "./src/parse.ts",
     "./src/models.ts",
     "./src/schemas.ts",
-    "./src/schemas-zod.ts",
+    "./src/schemas/zod.ts",
     "./src/files.ts",
     "./src/channels.ts",
     "./src/core.ts",

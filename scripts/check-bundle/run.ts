@@ -13,6 +13,7 @@ interface CheckBundleConfig {
   packagesDir: string;
   bundlePackageName: string;
   bundledPrefixes?: string[];
+  bundleOnlyDependencies?: string[];
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -150,6 +151,47 @@ async function main(): Promise<void> {
       if (matchesPrefix(dep, disallowBundleDependencyPrefixes)) {
         problems.push(
           `Bundle package must not declare internal dependency "${dep}".`,
+        );
+      }
+    }
+
+    // Collect all dependencies from non-bundle packages
+    const allOtherDependencies = new Set<string>();
+    for (const pkg of packageJsonPaths) {
+      if (pkg.name === bundlePackageName) {
+        continue;
+      }
+
+      const packageJson = await readPackageJson(pkg.path);
+      const deps = packageJson.dependencies;
+
+      if (!deps || Object.keys(deps).length === 0) {
+        continue;
+      }
+
+      for (const dep of Object.keys(deps)) {
+        if (!matchesPrefix(dep, bundledPrefixes)) {
+          allOtherDependencies.add(dep);
+        }
+      }
+    }
+
+    // Check for bundle-only dependencies
+    const bundleOnlyDependencies = Array.isArray(config.bundleOnlyDependencies)
+      ? config.bundleOnlyDependencies
+      : [];
+
+    for (const dep of Object.keys(bundleDependencies)) {
+      if (matchesPrefix(dep, bundledPrefixes)) {
+        continue;
+      }
+
+      if (
+        !allOtherDependencies.has(dep) &&
+        !bundleOnlyDependencies.includes(dep)
+      ) {
+        problems.push(
+          `Bundle package has unique dependency "${dep}" that is not used by any other package and is not in bundleOnlyDependencies allowlist.`,
         );
       }
     }

@@ -46,9 +46,9 @@
       "require": "./dist/schemas.cjs"
     },
     "./schemas/zod": {
-      "types": "./dist/schemas-zod.d.ts",
-      "import": "./dist/schemas-zod.js",
-      "require": "./dist/schemas-zod.cjs"
+      "types": "./dist/schemas/zod.d.ts",
+      "import": "./dist/schemas/zod.js",
+      "require": "./dist/schemas/zod.cjs"
     },
     "./files": {
       "types": "./dist/files.d.ts",
@@ -70,8 +70,7 @@
     "@clack/core": "1.0.0-alpha.6",
     "commander": "^11.1.0",
     "picocolors": "^1.1.1",
-    "tsx": "^4.15.7",
-    "zod": "^4.0.0"
+    "tsx": "^4.15.7"
   },
   "scripts": {
     "bundle": "tsdown"
