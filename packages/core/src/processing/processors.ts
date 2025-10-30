@@ -2,7 +2,7 @@ import type { Processor } from "./types/Processor";
 import { string } from "./generators/string.js";
 import { number } from "./generators/number.js";
 import { boolean } from "./generators/boolean.js";
-import { enum_ } from "./generators/enum.js";
+import { enumeration } from "./generators/enumeration.js";
 
 /**
  * Default processors for environment variable types.
@@ -30,5 +30,5 @@ export const processors = {
   /**
    * Create an enum processor that validates values against allowed options
    */
-  enum: (allowedValues: readonly string[]): Processor<string> => enum_(allowedValues),
+  enum: (allowedValues: readonly string[]): Processor<string> => enumeration(allowedValues),
 } as const;

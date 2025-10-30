@@ -6,7 +6,7 @@ import { validate } from "../helpers/validate.js";
  * Enum processor with optional validation checks.
  * This is the primary enum processor - the base enumProcessor() calls this with no checks.
  */
-export function enum_(
+export function enumeration(
   allowedValues: readonly string[],
   ...checks: Array<Check<string>>
 ): Processor<string> {

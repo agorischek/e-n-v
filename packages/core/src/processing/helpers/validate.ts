@@ -1,4 +1,4 @@
-import type { Check } from "../Check.js";
+import type { Check } from "../types/Check.js";
 import { toList } from "./toList.js";
 
 /**

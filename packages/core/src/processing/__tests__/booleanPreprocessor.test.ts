@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
-import { booleanPreprocessor } from "../preprocessors";
+import { preprocessors } from "../preprocessors";
 
 describe("booleanPreprocessor", () => {
   it("normalizes default truthy and falsy phrases", () => {
-    const preprocess = booleanPreprocessor();
+    const preprocess = preprocessors.boolean();
 
     expect(preprocess("on")).toBe(true);
     expect(preprocess("ENABLED")).toBe(true);
@@ -13,7 +13,7 @@ describe("booleanPreprocessor", () => {
   });
 
   it("supports custom phrase mappings", () => {
-    const preprocess = booleanPreprocessor({
+    const preprocess = preprocessors.boolean({
       true: ["affirmative", "  absolutely  "],
       false: ["negative"],
     });
@@ -26,7 +26,7 @@ describe("booleanPreprocessor", () => {
 
   it("throws when a phrase maps to both true and false", () => {
     expect(() =>
-      booleanPreprocessor({
+      preprocessors.boolean({
         true: ["y"],
         false: ["Y"],
       }),

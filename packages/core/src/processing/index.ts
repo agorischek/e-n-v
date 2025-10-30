@@ -10,7 +10,7 @@ export type { Check } from "./types/Check.js";
 export { string } from "./generators/string.js";
 export { number } from "./generators/number.js";
 export { boolean } from "./generators/boolean.js";
-export { enum_ } from "./generators/enum.js";
+export { enumeration } from "./generators/enumeration.js";
 
 // String checks
 export { minLength } from "../checks/minLength.js";

@@ -1,4 +1,4 @@
-import type { Check } from "../Check.js";
+import type { Check } from "../processing/types/Check.js";
 
 /**
  * Number check: maximum value.
