@@ -1,16 +1,17 @@
-import type { Processor } from "../../processing/types/Processor.js";
-import { DEFAULT_BOOLEAN_VALUES } from "../../processing/options/booleanConfig.js";
+import { FALSE_STRINGS } from "../constants/FALSE_STRINGS.js";
+import { TRUE_STRINGS } from "../constants/TRUE_STRINGS.js";
+import type { Processor } from "../types/Processor.js";
 
 /**
  * Boolean processor.
  * This is the primary boolean processor - the base booleanProcessor() calls this.
  */
 export function boolean(): Processor<boolean> {
-  const trueValues = new Set(DEFAULT_BOOLEAN_VALUES.true);
-  const falseValues = new Set(DEFAULT_BOOLEAN_VALUES.false);
+  const trueValues = new Set(TRUE_STRINGS);
+  const falseValues = new Set(FALSE_STRINGS);
   
   return (input: string): boolean | undefined => {
-    if (typeof input !== "string") {
+    if (typeof input !== "string") {  
       throw new Error("Value must be a string");
     }
 
@@ -28,8 +29,8 @@ export function boolean(): Processor<boolean> {
       return false;
     }
 
-    const trueList = [...DEFAULT_BOOLEAN_VALUES.true].join("/");
-    const falseList = [...DEFAULT_BOOLEAN_VALUES.false].join("/");
+    const trueList = [...TRUE_STRINGS].join("/");
+    const falseList = [...FALSE_STRINGS].join("/");
     throw new Error(
       `"${input}" is not a valid boolean. Use: ${trueList} or ${falseList}`,
     );

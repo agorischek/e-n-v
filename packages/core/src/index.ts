@@ -14,7 +14,7 @@ export * from "./processing/preprocessors";
 export * from "./processing/Preprocessor";
 export * from "./processing/options/booleanConfig";
 export * from "./types/EnvChannel";
-export * from "./validation";
+export * from "./processing";
 
 export { schema } from "./schema";
 export { s } from "./schema";

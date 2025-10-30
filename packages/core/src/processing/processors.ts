@@ -1,8 +1,8 @@
 import type { Processor } from "./types/Processor";
-import { string } from "../validation/types/string.js";
-import { number } from "../validation/types/number.js";
-import { boolean } from "../validation/types/boolean.js";
-import { enum_ } from "../validation/types/enum.js";
+import { string } from "./generators/string.js";
+import { number } from "./generators/number.js";
+import { boolean } from "./generators/boolean.js";
+import { enum_ } from "./generators/enum.js";
 
 /**
  * Default processors for environment variable types.
