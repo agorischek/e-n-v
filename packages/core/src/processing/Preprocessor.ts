@@ -3,48 +3,30 @@ import type { PreprocessorOptions } from "./options/PreprocessorOptions";
 import { preprocessors } from "./preprocessors/preprocessors";
 import type { Preprocessor } from "./types/Preprocessor";
 
-const optionKeyMap = {
-  string: "string",
-  number: "number",
-  boolean: "boolean",
-  enum: "enum",
-} as const;
-
 type DefaultPreprocessor<T extends EnvVarType> = T extends "number"
   ? Preprocessor<number>
   : T extends "boolean"
     ? Preprocessor<boolean>
     : Preprocessor<string>;
 
-function createDefaultPreprocessor<T extends EnvVarType>(
-  envVarType: T
-): DefaultPreprocessor<T> | undefined {
-  switch (envVarType) {
-    case "number":
-      return preprocessors.number() as DefaultPreprocessor<T>;
-    case "boolean":
-      return preprocessors.boolean() as DefaultPreprocessor<T>;
-    default:
-      return undefined;
-  }
-}
+// Map of types to their factory functions for default preprocessors
+const defaultFactories: Record<
+  EnvVarType,
+  (() => Preprocessor<unknown>) | undefined
+> = {
+  number: preprocessors.number,
+  boolean: preprocessors.boolean,
+  string: undefined,
+  enum: undefined,
+};
 
-function createExplicitPreprocessor<T extends EnvVarType>(
-  envVarType: T
-): DefaultPreprocessor<T> | undefined {
-  switch (envVarType) {
-    case "number":
-      return preprocessors.number() as DefaultPreprocessor<T>;
-    case "boolean":
-      return preprocessors.boolean() as DefaultPreprocessor<T>;
-    case "enum":
-      return preprocessors.enum() as DefaultPreprocessor<T>;
-    case "string":
-      return preprocessors.string() as DefaultPreprocessor<T>;
-    default:
-      return undefined;
-  }
-}
+// Map of types to their factory functions for explicit preprocessors
+const explicitFactories: Record<EnvVarType, () => Preprocessor<unknown>> = {
+  number: preprocessors.number,
+  boolean: preprocessors.boolean,
+  string: preprocessors.string,
+  enum: preprocessors.enum,
+};
 
 /**
  * Resolve the effective preprocessor for a given environment variable type.
@@ -54,42 +36,29 @@ export function resolvePreprocessor<T extends EnvVarType>(
   envVarType: T,
   preprocessorOptions?: PreprocessorOptions
 ): DefaultPreprocessor<T> | undefined {
-  if (envVarType === "boolean") {
-    const override = preprocessorOptions?.boolean;
+  const override = preprocessorOptions?.[envVarType];
 
-    if (override === undefined) {
-      return createDefaultPreprocessor(envVarType);
-    }
-
-    if (override === false) {
-      return undefined;
-    }
-
-    if (override === true) {
-      return createExplicitPreprocessor(envVarType);
-    }
-
-    if (typeof override === "function") {
-      return override as DefaultPreprocessor<T>;
-    }
-
-    return preprocessors.boolean(override) as DefaultPreprocessor<T>;
+  // No override specified - use default if available
+  if (override === undefined) {
+    const factory = defaultFactories[envVarType];
+    return factory ? (factory() as DefaultPreprocessor<T>) : undefined;
   }
 
-  const key = optionKeyMap[envVarType];
-  const custom = preprocessorOptions?.[key];
-
-  if (custom === undefined) {
-    return createDefaultPreprocessor(envVarType);
-  }
-
-  if (custom === false) {
+  // Explicitly disabled
+  if (override === false) {
     return undefined;
   }
 
-  if (custom === true) {
-    return createExplicitPreprocessor(envVarType);
+  // Explicitly enabled - use built-in preprocessor
+  if (override === true) {
+    return explicitFactories[envVarType]() as DefaultPreprocessor<T>;
   }
 
-  return custom as DefaultPreprocessor<T>;
+  // Custom function provided
+  if (typeof override === "function") {
+    return override as DefaultPreprocessor<T>;
+  }
+
+  // Options object provided (only for boolean)
+  return preprocessors.boolean(override) as DefaultPreprocessor<T>;
 }

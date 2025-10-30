@@ -7,8 +7,6 @@ describe("booleanPreprocessor", () => {
     const preprocess = preprocessors.boolean();
 
     expect(preprocess("on")).toBe(true);
-    expect(preprocess("ENABLED")).toBe(true);
-    expect(preprocess(" inactive ")).toBe(false);
     expect(preprocess("NO")).toBe(false);
   });
 

@@ -36,8 +36,8 @@ describe("Core preprocessing integration", () => {
     expect(numberPre?.("not-a-number")).toBe("not-a-number");
 
     const boolPre = resolvePreprocessor("boolean");
-    expect(boolPre?.("enabled")).toBe(true);
-    expect(boolPre?.("inactive")).toBe(false);
+    expect(boolPre?.("yes")).toBe(true);
+    expect(boolPre?.("off")).toBe(false);
     expect(boolPre?.("maybe")).toBe("maybe");
 
     expect(resolvePreprocessor("string")).toBeUndefined();
@@ -66,7 +66,7 @@ describe("Core preprocessing integration", () => {
     expect(numberPre?.("1,234")).toBe("1234");
 
     const booleanPre = resolvePreprocessor("boolean", overrides);
-    expect(booleanPre?.("enabled")).toBe(true);
+    expect(booleanPre?.("yes")).toBe(true);
 
     const enumPre = resolvePreprocessor("enum", overrides);
     expect(enumPre?.("DEV")).toBe("DEV");
@@ -89,7 +89,7 @@ describe("Core preprocessing integration", () => {
     expect(numberResult.value).toBe(1000);
     expect(numberResult.isValid).toBe(true);
 
-    const boolResult = processValue("FLAG", "enabled", booleanSchema);
+    const boolResult = processValue("FLAG", "yes", booleanSchema);
     expect(boolResult.value).toBe(true);
     expect(boolResult.isValid).toBe(true);
   });

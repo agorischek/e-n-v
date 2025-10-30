@@ -45,22 +45,20 @@ export function processValue<T>(
       ? activePreprocessor(value)
       : value;
 
-    // If the preprocessing function returned the target type, use it directly
-    if (schema.type === "boolean" && typeof processedValue === "boolean") {
-      return { value: processedValue as T, rawValue: value, isValid: true };
-    }
-    if (schema.type === "number" && typeof processedValue === "number") {
-      return { value: processedValue as T, rawValue: value, isValid: true };
-    }
-
-    // If it's still a string, pass it through the schema processor
-    if (typeof processedValue === "string") {
-      const result = (schema as any).process(processedValue) as T | undefined;
-      return { value: result, rawValue: value, isValid: true };
+    // Convert processed value to string for schema processing
+    let stringValue: string;
+    if (typeof processedValue === "boolean") {
+      stringValue = String(processedValue);
+    } else if (typeof processedValue === "number") {
+      stringValue = String(processedValue);
+    } else if (typeof processedValue === "string") {
+      stringValue = processedValue;
+    } else {
+      stringValue = value;
     }
 
-    // Fallback to original schema processing
-    const result = (schema as any).process(value) as T | undefined;
+    // Always pass through the schema processor for validation
+    const result = (schema as any).process(stringValue) as T | undefined;
     return { value: result, rawValue: value, isValid: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
