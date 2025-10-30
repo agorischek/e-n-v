@@ -1,4 +1,4 @@
-import type { Check } from "../processing/types/Check.js";
+import type { Check } from "../types/Check.js";
 
 /**
  * String check: length within range.

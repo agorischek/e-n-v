@@ -1,4 +1,4 @@
-import type { Check } from "../processing/types/Check.js";
+import type { Check } from "../types/Check.js";
 
 /**
  * Custom check with user-defined validation function.

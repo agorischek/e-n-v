@@ -1,4 +1,4 @@
-import type { Check } from "../processing/types/Check.js";
+import type { Check } from "../types/Check.js";
 
 /**
  * String check: value must be one of allowed values.
