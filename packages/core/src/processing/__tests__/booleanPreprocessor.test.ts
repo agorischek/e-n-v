@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { preprocessors } from "../preprocessors";
+import { preprocessors } from "../preprocessors/preprocessors";
 
 describe("booleanPreprocessor", () => {
   it("normalizes default truthy and falsy phrases", () => {

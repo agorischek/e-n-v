@@ -1,49 +1,7 @@
 import type { EnvVarType } from "../types/EnvVarType";
-import {
-  preprocessors,
-  type BooleanPreprocessorOptions,
-} from "./preprocessors";
-import type { Preprocessor, PreprocessorToggle } from "./types/Preprocessor";
-
-
-
-export interface Preprocessors {
-  /**
-   * Custom string preprocessing function
-   * Receives the string value and should return a string value
-   * @param value - The raw string value from the environment variable
-   * @returns Preprocessed string value
-   */
-  string?: PreprocessorToggle<string>;
-
-  /**
-   * Custom number preprocessing function
-   * Receives the string value and should return a string or the target number type
-   * @param value - The raw string value from the environment variable
-   * @returns Preprocessed string or number value
-   */
-  number?: PreprocessorToggle<number>;
-
-  /**
-   * Custom boolean preprocessing function
-   * Receives the string value and should return a string or the target boolean type
-   * @param value - The raw string value from the environment variable
-   * @returns Preprocessed string or boolean value
-   */
-  boolean?:
-    | boolean
-    | Preprocessor<boolean>
-    | BooleanPreprocessorOptions
-    | undefined;
-
-  /**
-   * Custom enum preprocessing function
-   * Receives the string value and should return a string value
-   * @param value - The raw string value from the environment variable
-   * @returns Preprocessed string value
-   */
-  enum?: PreprocessorToggle<string>;
-}
+import type { PreprocessorOptions } from "./options/PreprocessorOptions";
+import { preprocessors } from "./preprocessors/preprocessors";
+import type { Preprocessor } from "./types/Preprocessor";
 
 const optionKeyMap = {
   string: "string",
@@ -59,7 +17,7 @@ type DefaultPreprocessor<T extends EnvVarType> = T extends "number"
     : Preprocessor<string>;
 
 function createDefaultPreprocessor<T extends EnvVarType>(
-  envVarType: T,
+  envVarType: T
 ): DefaultPreprocessor<T> | undefined {
   switch (envVarType) {
     case "number":
@@ -72,7 +30,7 @@ function createDefaultPreprocessor<T extends EnvVarType>(
 }
 
 function createExplicitPreprocessor<T extends EnvVarType>(
-  envVarType: T,
+  envVarType: T
 ): DefaultPreprocessor<T> | undefined {
   switch (envVarType) {
     case "number":
@@ -80,7 +38,7 @@ function createExplicitPreprocessor<T extends EnvVarType>(
     case "boolean":
       return preprocessors.boolean() as DefaultPreprocessor<T>;
     case "enum":
-      return preprocessors.enumeration() as DefaultPreprocessor<T>;
+      return preprocessors.enum() as DefaultPreprocessor<T>;
     case "string":
       return preprocessors.string() as DefaultPreprocessor<T>;
     default:
@@ -94,7 +52,7 @@ function createExplicitPreprocessor<T extends EnvVarType>(
  */
 export function resolvePreprocessor<T extends EnvVarType>(
   envVarType: T,
-  preprocessorOptions?: Preprocessors,
+  preprocessorOptions?: PreprocessorOptions
 ): DefaultPreprocessor<T> | undefined {
   if (envVarType === "boolean") {
     const override = preprocessorOptions?.boolean;

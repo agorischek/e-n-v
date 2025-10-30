@@ -3,7 +3,7 @@
  * These values are recognized as boolean strings across processors and preprocessors.
  */
 
-export interface BooleanCoercionConfig {
+export interface BooleanMap {
   /** Values that map to true */
   true: readonly string[];
   /** Values that map to false */

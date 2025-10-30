@@ -9,10 +9,10 @@ export type { EnvVarSchema } from "./schemas/EnvVarSchema";
 export { isEnvVarSchema } from "./schemas/EnvVarSchema";
 export * from "./types/EnvVarType";
 export * from "./processing/types/Processor";
-export * from "./processing/processors";
-export * from "./processing/preprocessors";
+export * from "./processing/processors/processors";
+export * from "./processing/preprocessors/preprocessors";
 export * from "./processing/Preprocessor";
-export * from "./processing/options/booleanConfig";
+export * from "./processing/options/BooleanMap";
 export * from "./types/EnvChannel";
 export * from "./processing";
 
