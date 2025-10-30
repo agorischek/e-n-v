@@ -1,12 +1,12 @@
 // Main exports
 import { parse } from "@e-n-v/parse";
 import { prompt } from "@e-n-v/prompt";
-import { define as model } from "@e-n-v/models";
+import { define } from "@e-n-v/models";
 import vars from "./vars";
 import { schema, s } from "@e-n-v/core";
 
 // Re-export for named exports
-export { parse, prompt, model, vars };
+export { parse, prompt, define, vars };
 export { schema, s };
 export * as schemas from "@e-n-v/schemas";
 
@@ -14,4 +14,4 @@ export * as schemas from "@e-n-v/schemas";
 export { processors, preprocessors } from "@e-n-v/core";
 
 // Default export
-export default { parse, prompt, model };
+export default { parse, prompt, define };
