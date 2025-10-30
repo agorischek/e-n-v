@@ -31,3 +31,6 @@ jobs:
 
       - name: check bundle
         run: bun run check:bundle
+
+      - name: bundle
+        run: bun run bundle
