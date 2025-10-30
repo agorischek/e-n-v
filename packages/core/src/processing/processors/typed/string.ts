@@ -7,7 +7,7 @@ import { validate } from "../../helpers/validate.js";
  * This is the primary string processor - the base stringProcessor() calls this with no checks.
  */
 export function string(...checks: Array<Check<string>>): Processor<string> {
-  return (input: string): string | undefined => {
+  return (input: unknown): string | undefined => {
     if (typeof input !== "string") {
       throw new Error("Value must be a string");
     }

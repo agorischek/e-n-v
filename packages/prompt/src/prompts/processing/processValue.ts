@@ -41,24 +41,21 @@ export function processValue<T>(
 
       return resolvePreprocessor(schema.type);
     })();
-    const processedValue = activePreprocessor
-      ? activePreprocessor(value)
-      : value;
-
-    // Convert processed value to string for schema processing
-    let stringValue: string;
-    if (typeof processedValue === "boolean") {
-      stringValue = String(processedValue);
-    } else if (typeof processedValue === "number") {
-      stringValue = String(processedValue);
-    } else if (typeof processedValue === "string") {
-      stringValue = processedValue;
-    } else {
-      stringValue = value;
+    
+    // Apply preprocessor, falling back to original value if it throws
+    let processedValue: string | boolean | number | T = value;
+    if (activePreprocessor) {
+      try {
+        processedValue = activePreprocessor(value);
+      } catch {
+        // Preprocessor failed - pass through original value
+        processedValue = value;
+      }
     }
 
     // Always pass through the schema processor for validation
-    const result = (schema as any).process(stringValue) as T | undefined;
+    // Processor receives the preprocessed value as-is (could be string, number, boolean, or T)
+    const result = (schema as any).process(processedValue) as T | undefined;
     return { value: result, rawValue: value, isValid: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

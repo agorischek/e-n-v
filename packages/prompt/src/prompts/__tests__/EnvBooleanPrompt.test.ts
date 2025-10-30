@@ -139,8 +139,9 @@ describe("EnvBooleanPrompt", () => {
 
     // Create a schema with custom validation logic
     const schema = new BooleanEnvVarSchema({
-      process: (value: string) => {
-        const boolValue = value.toLowerCase() === "true";
+      process: (value: unknown) => {
+        if (typeof value === "boolean") return value;
+        const boolValue = String(value).toLowerCase() === "true";
         calls.push(boolValue);
 
         if (boolValue === false) {

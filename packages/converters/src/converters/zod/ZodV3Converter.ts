@@ -202,8 +202,11 @@ function peelV3Schema(schema: ZodTypeAny): V3PeeledResult {
 function createV3ProcessFunction<T>(
   schema: ZodTypeAny,
   type: EnvVarType,
-): (value: string) => T | undefined {
-  return (value: string): T | undefined => {
+): (value: unknown) => T | undefined {
+  return (value: unknown): T | undefined => {
+    if (typeof value !== "string") {
+      throw new Error("Value must be a string");
+    }
     try {
       // For numbers and booleans, we need to handle string-to-type conversion
       let processSchema = schema;

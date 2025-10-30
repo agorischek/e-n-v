@@ -32,6 +32,7 @@
     "typescript": "^5"
   },
   "scripts": {
+    "build": "tsgo",
     "bundle": "bun run check:bundle && bun run --filter @e-n-v/env bundle",
     "check": "bun scripts/check/run.ts",
     "demo": "bun run ./demo/demo.ts",

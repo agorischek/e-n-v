@@ -76,13 +76,19 @@ describe("Core preprocessing integration", () => {
     const numberSchema: EnvVarSchemaDetails<number> = {
       type: "number",
       required: false,
-      process: (input: string) => Number(input),
+      process: (input: unknown) => {
+        if (typeof input === "number") return input;
+        return Number(input);
+      },
     };
 
     const booleanSchema: EnvVarSchemaDetails<boolean> = {
       type: "boolean",
       required: false,
-      process: (input: string) => input.toLowerCase() === "true",
+      process: (input: unknown) => {
+        if (typeof input === "boolean") return input;
+        return String(input).toLowerCase() === "true";
+      },
     };
 
     const numberResult = processValue("COUNT", "1,000", numberSchema);
@@ -98,13 +104,19 @@ describe("Core preprocessing integration", () => {
     const numberSchema: EnvVarSchemaDetails<number> = {
       type: "number",
       required: false,
-      process: (input: string) => Number(input),
+      process: (input: unknown) => {
+        if (typeof input === "number") return input;
+        return Number(input);
+      },
     };
 
     const booleanSchema: EnvVarSchemaDetails<boolean> = {
       type: "boolean",
       required: false,
-      process: (input: string) => input.toLowerCase() === "true",
+      process: (input: unknown) => {
+        if (typeof input === "boolean") return input;
+        return String(input).toLowerCase() === "true";
+      },
     };
 
     const numberResult = processValue("COUNT", "1,000", numberSchema, (raw) =>

@@ -7,9 +7,20 @@ import { validate } from "../../helpers/validate.js";
  * This is the primary number processor - the base numberProcessor() calls this with no checks.
  */
 export function number(...checks: Array<Check<number>>): Processor<number> {
-  return (input: string): number | undefined => {
+  return (input: unknown): number | undefined => {
+    // If already a number, validate and return it
+    if (typeof input === "number") {
+      if (isNaN(input)) {
+        throw new Error("Value is NaN");
+      }
+      if (checks.length > 0) {
+        return validate(input, checks);
+      }
+      return input;
+    }
+
     if (typeof input !== "string") {
-      throw new Error("Value must be a string");
+      throw new Error("Value must be a string or number");
     }
 
     const trimmed = input.trim();

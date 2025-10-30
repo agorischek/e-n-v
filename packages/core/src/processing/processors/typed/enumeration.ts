@@ -10,7 +10,7 @@ export function enumeration(
   allowedValues: readonly string[],
   ...checks: Array<Check<string>>
 ): Processor<string> {
-  return (input: string): string | undefined => {
+  return (input: unknown): string | undefined => {
     if (typeof input !== "string") {
       throw new Error("Value must be a string");
     }

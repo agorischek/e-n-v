@@ -10,9 +10,14 @@ export function boolean(): Processor<boolean> {
   const trueValues = new Set(TRUE_STRINGS);
   const falseValues = new Set(FALSE_STRINGS);
 
-  return (input: string): boolean | undefined => {
+  return (input: unknown): boolean | undefined => {
+    // If already a boolean, return it
+    if (typeof input === "boolean") {
+      return input;
+    }
+
     if (typeof input !== "string") {
-      throw new Error("Value must be a string");
+      throw new Error("Value must be a string or boolean");
     }
 
     const trimmed = input.trim().toLowerCase();
