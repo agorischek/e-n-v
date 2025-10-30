@@ -6,7 +6,7 @@ export const SECRET_PATTERNS: ReadonlyArray<RegExp | string> = Object.freeze([
   /password/i,
   /passphrase/i,
   /secret/i,
-  /token/i,
+  /(?<!expires[_-]?in[_-]?)token(?![_-]?(?:expires|expiry|expiration|ttl|lifetime|duration|age|max[_-]?age|validity))/i,
   /api[_-]?key/i,
   /client[_-]?secret/i,
   /private[_-]?key/i,
