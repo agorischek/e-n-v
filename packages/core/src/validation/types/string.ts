@@ -1,4 +1,4 @@
-import type { Processor } from "../../processing/Processor.js";
+import type { Processor } from "../../processing/types/Processor.js";
 import type { Check } from "../Check.js";
 import { validate } from "../helpers/validate.js";
 

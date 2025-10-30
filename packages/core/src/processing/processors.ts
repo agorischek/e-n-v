@@ -1,4 +1,4 @@
-import type { Processor } from "./Processor";
+import type { Processor } from "./types/Processor";
 import { string } from "../validation/types/string.js";
 import { number } from "../validation/types/number.js";
 import { boolean } from "../validation/types/boolean.js";

@@ -1,4 +1,4 @@
-import type { Processor } from "../processing/Processor";
+import type { Processor } from "../processing/types/Processor";
 import type { EnvVarType } from "../types/EnvVarType";
 
 export interface EnvVarSchemaDetails<T> {
