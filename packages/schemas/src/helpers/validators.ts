@@ -5,19 +5,35 @@ import type { Processor } from "@e-n-v/core";
  * These implement the Processor<T> interface and provide composable validation with clear error messages.
  */
 
-// Validator returns error string or null
-type Validator<T> = (value: T) => string | null;
+// Validator returns array of requirement strings (or null if valid)
+type Validator<T> = (value: T) => string[] | null;
+
+// Helper to convert array of items to natural language list
+function toList(items: string[]): string {
+  if (items.length === 0) {
+    return "";
+  }
+  if (items.length === 1) {
+    return items[0]!;
+  }
+  if (items.length === 2) {
+    return `${items[0]} and ${items[1]}`;
+  }
+  // 3+ items: use commas and "and" before the last item
+  const allButLast = items.slice(0, -1).join(", ");
+  return `${allButLast}, and ${items[items.length - 1]}`;
+}
 
 // Helper to run validators and aggregate errors
 function validate<T>(value: T, validators: Array<Validator<T>>): T {
-  const errors = validators
+  const allRequirements = validators
     .map(validator => validator(value))
-    .filter((error): error is string => error !== null);
+    .filter((requirements): requirements is string[] => requirements !== null)
+    .flat();
   
-  if (errors.length > 0) {
-    // Capitalize first letter of first error and join with "and"
-    const message = errors.join(" and ");
-    throw new Error(message.charAt(0).toUpperCase() + message.slice(1));
+  if (allRequirements.length > 0) {
+    const message = toList(allRequirements);
+    throw new Error(`Must be ${message}`);
   }
   
   return value;
@@ -72,13 +88,13 @@ export function boolean(): Processor<boolean> {
   };
 }
 
-// String validators - return error string or null
+// String validators - return array of requirement strings or null
 export function minLength(min: number, requirement?: string): Validator<string> {
   return (value: string) => {
     if (value.length < min) {
       return requirement 
-        ? `must be ${requirement}` 
-        : `must be at least ${min} characters`;
+        ? [requirement]
+        : [`at least ${min} characters`];
     }
     return null;
   };
@@ -88,8 +104,8 @@ export function maxLength(max: number, requirement?: string): Validator<string> 
   return (value: string) => {
     if (value.length > max) {
       return requirement 
-        ? `must be ${requirement}` 
-        : `must be at most ${max} characters`;
+        ? [requirement]
+        : [`at most ${max} characters`];
     }
     return null;
   };
@@ -99,8 +115,8 @@ export function lengthBetween(min: number, max: number, requirement?: string): V
   return (value: string) => {
     if (value.length < min || value.length > max) {
       return requirement 
-        ? `must be ${requirement}` 
-        : `must be between ${min} and ${max} characters`;
+        ? [requirement]
+        : [`between ${min} and ${max} characters`];
     }
     return null;
   };
@@ -110,17 +126,17 @@ export function exactLength(length: number, requirement?: string): Validator<str
   return (value: string) => {
     if (value.length !== length) {
       return requirement 
-        ? `must be ${requirement}` 
-        : `must be exactly ${length} characters`;
+        ? [requirement]
+        : [`exactly ${length} characters`];
     }
     return null;
   };
 }
 
-export function pattern(regex: RegExp, requirement: string): Validator<string> {
+export function pattern(regex: RegExp, requirement: string | string[]): Validator<string> {
   return (value: string) => {
     if (!regex.test(value)) {
-      return `must be ${requirement}`;
+      return Array.isArray(requirement) ? requirement : [requirement];
     }
     return null;
   };
@@ -132,7 +148,7 @@ export function url(requirement?: string): Validator<string> {
       new URL(value);
       return null;
     } catch {
-      return requirement ? `must be ${requirement}` : "must be a valid URL";
+      return requirement ? [requirement] : ["a valid URL"];
     }
   };
 }
@@ -141,18 +157,18 @@ export function oneOf<T extends string>(values: readonly T[], requirement?: stri
   return (value: string) => {
     if (!values.includes(value as T)) {
       return requirement 
-        ? `must be ${requirement}` 
-        : `must be one of: ${values.join(", ")}`;
+        ? [requirement]
+        : [`one of: ${values.join(", ")}`];
     }
     return null;
   };
 }
 
-// Number validators - return error string or null
+// Number validators - return array of requirement strings or null
 export function integer(requirement?: string): Validator<number> {
   return (value: number) => {
     if (!Number.isInteger(value)) {
-      return requirement ? `must be ${requirement}` : "must be an integer";
+      return requirement ? [requirement] : ["an integer"];
     }
     return null;
   };
@@ -162,8 +178,8 @@ export function min(minimum: number, requirement?: string): Validator<number> {
   return (value: number) => {
     if (value < minimum) {
       return requirement 
-        ? `must be ${requirement}` 
-        : `must be at least ${minimum}`;
+        ? [requirement]
+        : [`at least ${minimum}`];
     }
     return null;
   };
@@ -173,8 +189,8 @@ export function max(maximum: number, requirement?: string): Validator<number> {
   return (value: number) => {
     if (value > maximum) {
       return requirement 
-        ? `must be ${requirement}` 
-        : `must be at most ${maximum}`;
+        ? [requirement]
+        : [`at most ${maximum}`];
     }
     return null;
   };
@@ -184,21 +200,21 @@ export function between(minimum: number, maximum: number, requirement?: string):
   return (value: number) => {
     if (value < minimum || value > maximum) {
       return requirement 
-        ? `must be ${requirement}` 
-        : `must be between ${minimum} and ${maximum}`;
+        ? [requirement]
+        : [`between ${minimum} and ${maximum}`];
     }
     return null;
   };
 }
 
-// Custom validator - requirement is required since we can't infer it
+// Custom validator - can return multiple requirements
 export function custom<T>(
   fn: (value: T) => boolean,
-  requirement: string
+  ...requirements: string[]
 ): Validator<T> {
   return (value: T) => {
     if (!fn(value)) {
-      return `must be ${requirement}`;
+      return requirements;
     }
     return null;
   };
