@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, pattern, minLength } from "../helpers/validators";
+import { string, pattern, minLength } from "../validation";
 import { attributes, descriptions, patterns } from "../shared/infrastructure";
 
 export const kafkaBrokers = (input: Partial<StringEnvVarSchemaInput> = {}) =>
@@ -21,7 +21,3 @@ export const kafkaClientId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const KAFKA_BROKERS = kafkaBrokers();
 export const KAFKA_CLIENT_ID = kafkaClientId();
 
-export const kafka = {
-  KAFKA_BROKERS,
-  KAFKA_CLIENT_ID,
-} as const;

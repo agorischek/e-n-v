@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string } from "../helpers/validators";
+import { string } from "../validation";
 import { defaults, descriptions } from "../shared/apiService";
 
 export const host = (input: Partial<StringEnvVarSchemaInput> = {}) =>
@@ -11,7 +11,3 @@ export const host = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   });
 
 export const HOST = host();
-
-export const hostSchema = {
-  HOST,
-} as const;

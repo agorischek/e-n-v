@@ -1,5 +1,5 @@
 import { EnumEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, oneOf } from "../helpers/validators";
+import { string, oneOf } from "../validation";
 import { defaults, descriptions, enumOptions } from "../shared/apiService";
 
 export const nodeEnv = (input: Partial<StringEnvVarSchemaInput> = {}) =>
@@ -13,6 +13,3 @@ export const nodeEnv = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 
 export const NODE_ENV = nodeEnv();
 
-export const node = {
-  NODE_ENV,
-} as const;

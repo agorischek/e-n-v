@@ -13,7 +13,7 @@ import {
   minLength,
   integer,
   between,
-} from "../helpers/validators";
+} from "../validation";
 import {
   attributes,
   constraints,

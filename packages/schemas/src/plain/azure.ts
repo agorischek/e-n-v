@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, pattern, minLength } from "../helpers/validators";
+import { string, pattern, minLength } from "../validation";
 import { attributes, descriptions, patterns } from "../shared/infrastructure";
 
 export const azureStorageConnectionString = (
@@ -79,10 +79,3 @@ export const AZURE_SERVICE_BUS_CONNECTION_STRING =
 export const AZURE_EVENT_HUB_CONNECTION_STRING =
   azureEventHubConnectionString();
 
-export const azure = {
-  AZURE_STORAGE_CONNECTION_STRING,
-  AZURE_STORAGE_ACCOUNT_NAME,
-  AZURE_STORAGE_ACCOUNT_KEY,
-  AZURE_SERVICE_BUS_CONNECTION_STRING,
-  AZURE_EVENT_HUB_CONNECTION_STRING,
-} as const;

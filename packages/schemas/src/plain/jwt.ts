@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, minLength, pattern } from "../helpers/validators";
+import { string, minLength, pattern } from "../validation";
 import { patterns } from "../shared/apiService";
 import {
   constraints,
@@ -46,8 +46,3 @@ export const JWT_SECRET = jwtSecret();
 export const JWT_ACCESS_TOKEN_EXPIRES_IN = jwtAccessTokenExpiresIn();
 export const JWT_REFRESH_TOKEN_EXPIRES_IN = jwtRefreshTokenExpiresIn();
 
-export const jwt = {
-  JWT_SECRET,
-  JWT_ACCESS_TOKEN_EXPIRES_IN,
-  JWT_REFRESH_TOKEN_EXPIRES_IN,
-} as const;

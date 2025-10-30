@@ -1,5 +1,5 @@
 import { NumberEnvVarSchema, type NumberEnvVarSchemaInput } from "@e-n-v/core";
-import { number, integer, between } from "../helpers/validators";
+import { number, integer, between } from "../validation";
 import {
   constraints,
   defaults,

@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, url, pattern } from "../helpers/validators";
+import { string, url, pattern } from "../validation";
 import { attributes, descriptions } from "../shared/infrastructure";
 import { patterns } from "../shared/apiService";
 
@@ -40,8 +40,3 @@ export const ELASTICSEARCH_URL = elasticsearchUrl();
 export const ELASTICSEARCH_USERNAME = elasticsearchUsername();
 export const ELASTICSEARCH_PASSWORD = elasticsearchPassword();
 
-export const elasticsearch = {
-  ELASTICSEARCH_URL,
-  ELASTICSEARCH_USERNAME,
-  ELASTICSEARCH_PASSWORD,
-} as const;

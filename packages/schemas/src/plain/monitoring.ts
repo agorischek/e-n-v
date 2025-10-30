@@ -12,7 +12,7 @@ import {
   url,
   integer,
   between,
-} from "../helpers/validators";
+} from "../validation";
 import {
   descriptions,
   attributes,
@@ -83,11 +83,3 @@ export const SENTRY_DSN = sentryDsn();
 export const JAEGER_ENDPOINT = jaegerEndpoint();
 export const PROMETHEUS_PORT = prometheusPort();
 export const DATADOG_API_KEY = datadogApiKey();
-
-export const monitoring = {
-  NEW_RELIC_LICENSE_KEY,
-  SENTRY_DSN,
-  JAEGER_ENDPOINT,
-  PROMETHEUS_PORT,
-  DATADOG_API_KEY,
-} as const;

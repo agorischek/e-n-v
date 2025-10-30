@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, lengthBetween, minLength, pattern } from "../helpers/validators";
+import { string, lengthBetween, minLength, pattern } from "../validation";
 import {
   constraints,
   descriptions,
@@ -53,11 +53,3 @@ export const AWS_SECRET_ACCESS_KEY = awsSecretAccessKey();
 export const AWS_REGION = awsRegion();
 export const AWS_S3_BUCKET_NAME = awsS3BucketName();
 export const AWS_SQS_QUEUE_URL = awsSqsQueueUrl();
-
-export const aws = {
-  AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY,
-  AWS_REGION,
-  AWS_S3_BUCKET_NAME,
-  AWS_SQS_QUEUE_URL,
-} as const;

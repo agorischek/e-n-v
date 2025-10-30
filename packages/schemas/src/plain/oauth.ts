@@ -1,5 +1,5 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { string, minLength, url } from "../helpers/validators";
+import { string, minLength, url } from "../validation";
 import { attributes, constraints, descriptions } from "../shared/oauth";
 
 export const oauthClientId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
@@ -47,9 +47,3 @@ export const OAUTH_CLIENT_SECRET = oauthClientSecret();
 export const OAUTH_REDIRECT_URI = oauthRedirectUri();
 export const OAUTH_SCOPE = oauthScope();
 
-export const oauth = {
-  OAUTH_CLIENT_ID,
-  OAUTH_CLIENT_SECRET,
-  OAUTH_REDIRECT_URI,
-  OAUTH_SCOPE,
-} as const;

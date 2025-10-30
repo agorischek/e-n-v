@@ -13,7 +13,7 @@ import {
   minLength,
   integer,
   between,
-} from "../helpers/validators";
+} from "../validation";
 import {
   constraints,
   defaults,
@@ -113,13 +113,3 @@ export const REDIS_DB = redisDb();
 export const REDIS_TLS = redisTls();
 export const REDIS_TLS_CA_CERT_PATH = redisTlsCaCertPath();
 
-export const redis = {
-  REDIS_URL,
-  REDIS_HOST,
-  REDIS_PORT,
-  REDIS_PASSWORD,
-  REDIS_USERNAME,
-  REDIS_DB,
-  REDIS_TLS,
-  REDIS_TLS_CA_CERT_PATH,
-} as const;

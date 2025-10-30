@@ -13,7 +13,7 @@ import {
   integer,
   between,
   custom,
-} from "../helpers/validators";
+} from "../validation";
 import {
   constraints,
   defaults,
@@ -92,11 +92,3 @@ export const OPENAI_BASE_URL = openaiBaseUrl();
 export const OPENAI_MODEL = openaiModel();
 export const OPENAI_TIMEOUT = openaiTimeout();
 
-export const openai = {
-  OPENAI_API_KEY,
-  OPENAI_ORGANIZATION_ID,
-  OPENAI_PROJECT_ID,
-  OPENAI_BASE_URL,
-  OPENAI_MODEL,
-  OPENAI_TIMEOUT,
-} as const;
