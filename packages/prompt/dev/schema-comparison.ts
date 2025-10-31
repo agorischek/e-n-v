@@ -1,5 +1,6 @@
 import { prompt } from "../src";
 import { resolveSchema } from "@e-n-v/models";
+import { z } from "zod";
 
 // Import Zod schemas from the zod export
 import {
@@ -18,8 +19,8 @@ console.log("=== Comparing Zod vs Envcredible Schemas ===\n");
 // Method 1: Using Zod schemas (need conversion)
 console.log("1. Using Zod schemas (requires fromZodSchema conversion):");
 const zodSchemas = {
-  API_KEY: resolveSchema(zodApiKey()),
-  API_BASE_URL: resolveSchema(zodApiBaseUrl()),
+  API_KEY: resolveSchema(zodApiKey(z)),
+  API_BASE_URL: resolveSchema(zodApiBaseUrl(z)),
 };
 
 // Method 2: Using envcredible schemas (direct use)

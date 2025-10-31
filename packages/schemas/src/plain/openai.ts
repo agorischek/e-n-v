@@ -4,24 +4,30 @@ import {
   type StringEnvVarSchemaInput,
   type NumberEnvVarSchemaInput,
 } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
+import {
+  string,
+  number,
+  minLength,
+  pattern,
+  url,
+  integer,
+  between,
+  custom,
+} from "@e-n-v/core";
 import {
   constraints,
   defaults,
   descriptions,
-  messages,
+  traits,
   patterns,
 } from "../shared/openai";
 
 export const openaiApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.apiKey,
-    process: createZodProcessor(
-      z
-        .string()
-        .min(constraints.apiKeyMinLength, { message: messages.apiKeyMinLength })
-        .regex(patterns.apiKey, { message: messages.apiKeyFormat }),
+    process: string(
+      minLength(constraints.apiKeyMinLength, traits.apiKeyMinLength),
+      pattern(patterns.apiKey, traits.apiKeyFormat),
     ),
     secret: true,
     ...input,
@@ -32,10 +38,8 @@ export const openaiOrganizationId = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.organizationId,
-    process: createZodProcessor(
-      z.string().regex(patterns.organizationId, {
-        message: messages.organizationFormat,
-      }),
+    process: string(
+      pattern(patterns.organizationId, traits.organizationFormat),
     ),
     required: false,
     ...input,
@@ -44,9 +48,7 @@ export const openaiOrganizationId = (
 export const openaiProjectId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.projectId,
-    process: createZodProcessor(
-      z.string().regex(patterns.projectId, { message: messages.projectFormat }),
-    ),
+    process: string(pattern(patterns.projectId, traits.projectFormat)),
     required: false,
     ...input,
   });
@@ -54,13 +56,9 @@ export const openaiProjectId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const openaiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.baseUrl,
-    process: createZodProcessor(
-      z
-        .string()
-        .url({ message: messages.baseUrlInvalid })
-        .refine((value) => value.startsWith("https://"), {
-          message: messages.baseUrlProtocol,
-        }),
+    process: string(
+      url(traits.baseUrlInvalid),
+      custom((value) => value.startsWith("https://"), traits.baseUrlProtocol),
     ),
     required: false,
     ...input,
@@ -69,9 +67,7 @@ export const openaiBaseUrl = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const openaiModel = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.model,
-    process: createZodProcessor(
-      z.string().min(1, { message: messages.modelRequired }),
-    ),
+    process: string(minLength(1, traits.modelRequired)),
     required: false,
     ...input,
   });
@@ -80,12 +76,9 @@ export const openaiTimeout = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.timeout,
     default: defaults.timeout,
-    process: createZodProcessor(
-      z.coerce
-        .number()
-        .int({ message: messages.timeoutInteger })
-        .min(constraints.timeoutMin, { message: messages.timeoutMin })
-        .max(constraints.timeoutMax, { message: messages.timeoutMax }),
+    process: number(
+      integer(traits.timeoutInteger),
+      between(constraints.timeoutMin, constraints.timeoutMax),
     ),
     ...input,
   });
@@ -96,12 +89,3 @@ export const OPENAI_PROJECT_ID = openaiProjectId();
 export const OPENAI_BASE_URL = openaiBaseUrl();
 export const OPENAI_MODEL = openaiModel();
 export const OPENAI_TIMEOUT = openaiTimeout();
-
-export const openai = {
-  OPENAI_API_KEY,
-  OPENAI_ORGANIZATION_ID,
-  OPENAI_PROJECT_ID,
-  OPENAI_BASE_URL,
-  OPENAI_MODEL,
-  OPENAI_TIMEOUT,
-} as const;

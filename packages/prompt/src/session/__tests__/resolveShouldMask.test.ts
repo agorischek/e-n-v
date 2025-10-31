@@ -3,8 +3,14 @@ import { StringEnvVarSchema, NumberEnvVarSchema } from "@e-n-v/core";
 import { resolveShouldMask } from "../../utils/secrets";
 
 // Create simple processors for testing
-const stringProcessor = (value: string) => value;
-const numberProcessor = (value: string) => {
+const stringProcessor = (value: unknown): string | undefined => {
+  if (typeof value !== "string") {
+    throw new Error("Value must be a string");
+  }
+  return value;
+};
+const numberProcessor = (value: unknown): number | undefined => {
+  if (typeof value === "number") return value;
   const parsed = Number(value);
   if (isNaN(parsed)) throw new Error("Not a number");
   return parsed;

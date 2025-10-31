@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   constraints,
   defaults,
@@ -6,8 +5,9 @@ import {
   messages,
   patterns,
 } from "../../shared/applicationInsights";
+import type { ZodSingleton } from "./types";
 
-export const applicationInsightsConnectionString = () =>
+export const applicationInsightsConnectionString = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.connectionString)
@@ -15,19 +15,19 @@ export const applicationInsightsConnectionString = () =>
       error: messages.connectionStringFormat,
     });
 
-export const appInsightsInstrumentationKey = () =>
+export const appInsightsInstrumentationKey = (z: ZodSingleton) =>
   z
     .uuid({ message: messages.instrumentationKeyUuid })
     .describe(descriptions.instrumentationKey);
 
-export const appInsightsRoleName = () =>
+export const appInsightsRoleName = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.roleName)
     .min(constraints.roleNameMin, { error: messages.roleNameMin })
     .max(constraints.roleNameMax, { error: messages.roleNameMax });
 
-export const appInsightsSamplingRate = () =>
+export const appInsightsSamplingRate = (z: ZodSingleton) =>
   z
     .number()
     .describe(descriptions.samplingRate)
@@ -35,39 +35,26 @@ export const appInsightsSamplingRate = () =>
     .max(constraints.samplingRateMax, { error: messages.samplingRateMax })
     .default(defaults.samplingRate);
 
-export const appInsightsAutocollectDependencies = () =>
+export const appInsightsAutocollectDependencies = (z: ZodSingleton) =>
   z
     .boolean()
     .describe(descriptions.autoCollectDependencies)
     .default(defaults.autoCollectDependencies);
 
-export const appInsightsAutocollectExceptions = () =>
+export const appInsightsAutocollectExceptions = (z: ZodSingleton) =>
   z
     .boolean()
     .describe(descriptions.autoCollectExceptions)
     .default(defaults.autoCollectExceptions);
 
-export const appInsightsAutocollectConsole = () =>
+export const appInsightsAutocollectConsole = (z: ZodSingleton) =>
   z
     .boolean()
     .describe(descriptions.autoCollectConsole)
     .default(defaults.autoCollectConsole);
 
-export const appInsightsAutocollectPerformance = () =>
+export const appInsightsAutocollectPerformance = (z: ZodSingleton) =>
   z
     .boolean()
     .describe(descriptions.autoCollectPerformance)
     .default(defaults.autoCollectPerformance);
-
-export const APPLICATIONINSIGHTS_CONNECTION_STRING =
-  applicationInsightsConnectionString();
-export const APPINSIGHTS_INSTRUMENTATIONKEY = appInsightsInstrumentationKey();
-export const APPINSIGHTS_ROLE_NAME = appInsightsRoleName();
-export const APPINSIGHTS_SAMPLING_RATE = appInsightsSamplingRate();
-export const APPINSIGHTS_AUTOCOLLECT_DEPENDENCIES =
-  appInsightsAutocollectDependencies();
-export const APPINSIGHTS_AUTOCOLLECT_EXCEPTIONS =
-  appInsightsAutocollectExceptions();
-export const APPINSIGHTS_AUTOCOLLECT_CONSOLE = appInsightsAutocollectConsole();
-export const APPINSIGHTS_AUTOCOLLECT_PERFORMANCE =
-  appInsightsAutocollectPerformance();

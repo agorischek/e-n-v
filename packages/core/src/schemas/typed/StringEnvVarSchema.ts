@@ -1,6 +1,6 @@
 import { EnvVarSchemaBase } from "../EnvVarSchemaBase";
 import type { EnvVarSchemaInput } from "../EnvVarSchemaInput";
-import { processors } from "../../processing/processors";
+import { processors } from "../../processing/processors/processors";
 
 export interface StringEnvVarSchemaInput extends EnvVarSchemaInput<string> {
   secret?: boolean;

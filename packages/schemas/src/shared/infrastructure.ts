@@ -1,4 +1,5 @@
 import { COMMON_MESSAGES } from "./messages";
+import { toZodMessages } from "./zodMessages";
 
 export const descriptions = {
   azureStorageConnectionString: "Azure Storage Account connection string",
@@ -30,41 +31,38 @@ export const descriptions = {
   sentryDsn: "Sentry DSN for error tracking",
 } as const;
 
-export const messages = {
-  azureStorageConnectionStringFormat:
-    "Must be a valid Azure Storage connection string",
+export const traits = {
+  azureStorageConnectionStringFormat: "a valid Azure Storage connection string",
   azureStorageAccountNameFormat:
-    "Storage account name must be 3-24 characters, lowercase letters and numbers only",
-  azureStorageAccountKeyRequired: "Storage account key is required",
+    "3-24 characters, lowercase letters and numbers only",
+  azureStorageAccountKeyRequired: "storage account key is required",
   azureServiceBusConnectionStringFormat:
-    "Must be a valid Azure Service Bus connection string",
+    "a valid Azure Service Bus connection string",
   azureEventHubConnectionStringFormat:
-    "Must be a valid Azure Event Hub connection string",
-  awsSqsQueueUrlFormat: "Must be a valid AWS SQS queue URL",
-  awsRegionFormat: "Must be a valid AWS region format (e.g., us-east-1)",
-  awsAccessKeyIdMin: "AWS access key ID must be at least 16 characters",
-  awsAccessKeyIdMax: "AWS access key ID must be less than 128 characters",
+    "a valid Azure Event Hub connection string",
+  awsSqsQueueUrlFormat: "a valid AWS SQS queue URL",
+  awsRegionFormat: "a valid AWS region format (e.g., us-east-1)",
+  awsAccessKeyIdMin: "at least 16 characters",
+  awsAccessKeyIdMax: "less than 128 characters",
   awsSecretAccessKeyRequired: "AWS secret access key is required",
   awsS3BucketNameFormat:
-    "S3 bucket names must be 3-63 characters, lowercase letters, numbers, and hyphens only",
+    "3-63 characters, lowercase letters, numbers, and hyphens only",
   elasticsearchUrlFormat: COMMON_MESSAGES.MUST_BE_VALID_URL,
-  elasticsearchUrlProtocol: "Must start with http:// or https://",
-  rabbitmqUrlFormat: "Must be a valid RabbitMQ URL (amqp:// or amqps://...)",
+  elasticsearchUrlProtocol: "start with http:// or https://",
+  rabbitmqUrlFormat: "a valid RabbitMQ URL (amqp:// or amqps://...)",
   hostPortListFormat:
-    "Must be comma-separated list of host:port (e.g., localhost:9092,broker2:9092)",
+    "comma-separated list of host:port (e.g., localhost:9092,broker2:9092)",
   kafkaClientIdRequired: "Kafka client ID is required",
   dockerRegistryUrlFormat: COMMON_MESSAGES.MUST_BE_VALID_URL,
-  kubernetesNameFormat: "Must be a valid Kubernetes namespace name",
-  kubernetesServiceAccountFormat:
-    "Must be a valid Kubernetes service account name",
-  prometheusPortInt: "Port must be an integer",
-  prometheusPortMin: "Port must be >= 1024",
-  prometheusPortMax: "Port must be <= 65535",
+  kubernetesNameFormat: "a valid Kubernetes namespace name",
+  kubernetesServiceAccountFormat: "a valid Kubernetes service account name",
+  prometheusPortInt: "an integer",
+  prometheusPortMin: ">= 1024",
+  prometheusPortMax: "<= 65535",
   jaegerEndpointFormat: COMMON_MESSAGES.MUST_BE_VALID_URL,
-  newRelicLicenseKeyLength:
-    "New Relic license key must be exactly 40 characters",
-  datadogApiKeyLength: "Datadog API key must be exactly 32 characters",
-  sentryDsnFormat: "Must be a valid Sentry DSN format",
+  newRelicLicenseKeyLength: "exactly 40 characters",
+  datadogApiKeyLength: "exactly 32 characters",
+  sentryDsnFormat: "a valid Sentry DSN format",
 } as const;
 
 export const defaults = {
@@ -97,3 +95,5 @@ export const patterns = {
   kubernetesName: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/,
   sentryDsn: /^https:\/\/[a-f0-9]+@[a-f0-9]+\.ingest\.sentry\.io\/\d+$/,
 } as const;
+
+export const messages = toZodMessages(traits);

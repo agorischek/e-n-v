@@ -1,8 +1,8 @@
-import { z } from "zod";
 import { descriptions, messages } from "../../shared/infrastructure";
 import { patterns } from "../../shared/apiService";
+import type { ZodSingleton } from "./types";
 
-export const elasticsearchUrl = () =>
+export const elasticsearchUrl = (z: ZodSingleton) =>
   z
     .url({ message: messages.elasticsearchUrlFormat })
     .describe(descriptions.elasticsearchUrl)
@@ -10,12 +10,8 @@ export const elasticsearchUrl = () =>
       message: messages.elasticsearchUrlProtocol,
     });
 
-export const elasticsearchUsername = () =>
+export const elasticsearchUsername = (z: ZodSingleton) =>
   z.string().describe(descriptions.elasticsearchUsername).optional();
 
-export const elasticsearchPassword = () =>
+export const elasticsearchPassword = (z: ZodSingleton) =>
   z.string().describe(descriptions.elasticsearchPassword).optional();
-
-export const ELASTICSEARCH_URL = elasticsearchUrl();
-export const ELASTICSEARCH_USERNAME = elasticsearchUsername();
-export const ELASTICSEARCH_PASSWORD = elasticsearchPassword();

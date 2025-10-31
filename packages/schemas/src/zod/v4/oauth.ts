@@ -1,13 +1,13 @@
-import { z } from "zod";
 import { constraints, descriptions, messages } from "../../shared/oauth";
+import type { ZodSingleton } from "./types";
 
-export const oauthClientId = () =>
+export const oauthClientId = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.clientId)
     .min(constraints.clientIdMinLength, { error: messages.clientIdRequired });
 
-export const oauthClientSecret = () =>
+export const oauthClientSecret = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.clientSecret)
@@ -15,25 +15,13 @@ export const oauthClientSecret = () =>
       error: messages.clientSecretMinLength,
     });
 
-export const oauthRedirectUri = () =>
+export const oauthRedirectUri = (z: ZodSingleton) =>
   z
     .url({ message: messages.redirectUriInvalid })
     .describe(descriptions.redirectUri);
 
-export const oauthScope = () =>
+export const oauthScope = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.scope)
     .min(constraints.scopeMinLength, { error: messages.scopeRequired });
-
-export const OAUTH_CLIENT_ID = oauthClientId();
-export const OAUTH_CLIENT_SECRET = oauthClientSecret();
-export const OAUTH_REDIRECT_URI = oauthRedirectUri();
-export const OAUTH_SCOPE = oauthScope();
-
-export const oauth = {
-  OAUTH_CLIENT_ID,
-  OAUTH_CLIENT_SECRET,
-  OAUTH_REDIRECT_URI,
-  OAUTH_SCOPE,
-} as const;

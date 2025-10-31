@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   constraints,
   defaults,
@@ -6,21 +5,22 @@ import {
   messages,
   patterns,
 } from "../../shared/redis";
+import type { ZodSingleton } from "./types";
 
-export const redisUrl = () =>
+export const redisUrl = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.url)
     .regex(patterns.url, { message: messages.urlFormat });
 
-export const redisHost = () =>
+export const redisHost = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.host)
     .min(1, { message: messages.hostRequired })
     .regex(patterns.host, { message: messages.hostFormat });
 
-export const redisPort = () =>
+export const redisPort = (z: ZodSingleton) =>
   z
     .number()
     .describe(descriptions.port)
@@ -29,19 +29,19 @@ export const redisPort = () =>
     .max(constraints.portMax, { message: messages.portMax })
     .default(defaults.port);
 
-export const redisUsername = () =>
+export const redisUsername = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.username)
     .min(1, { message: messages.usernameRequired });
 
-export const redisPassword = () =>
+export const redisPassword = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.password)
     .min(1, { message: messages.passwordRequired });
 
-export const redisDb = () =>
+export const redisDb = (z: ZodSingleton) =>
   z
     .number()
     .describe(descriptions.db)
@@ -50,31 +50,11 @@ export const redisDb = () =>
     .max(constraints.dbMax, { message: messages.dbRange })
     .default(defaults.db);
 
-export const redisTls = () =>
+export const redisTls = (z: ZodSingleton) =>
   z.boolean().describe(descriptions.tls).default(defaults.tls);
 
-export const redisTlsCaCertPath = () =>
+export const redisTlsCaCertPath = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.tlsCaCertPath)
     .min(1, { message: messages.tlsCaCertPathRequired });
-
-export const REDIS_URL = redisUrl();
-export const REDIS_HOST = redisHost();
-export const REDIS_PORT = redisPort();
-export const REDIS_USERNAME = redisUsername();
-export const REDIS_PASSWORD = redisPassword();
-export const REDIS_DB = redisDb();
-export const REDIS_TLS = redisTls();
-export const REDIS_TLS_CA_CERT_PATH = redisTlsCaCertPath();
-
-export const redis = {
-  REDIS_URL,
-  REDIS_HOST,
-  REDIS_PORT,
-  REDIS_USERNAME,
-  REDIS_PASSWORD,
-  REDIS_DB,
-  REDIS_TLS,
-  REDIS_TLS_CA_CERT_PATH,
-} as const;

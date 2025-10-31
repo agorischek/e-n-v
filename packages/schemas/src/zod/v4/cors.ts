@@ -1,7 +1,7 @@
-import { z } from "zod";
 import { descriptions, messages } from "../../shared/apiService";
+import type { ZodSingleton } from "./types";
 
-export const cors = () =>
+export const cors = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.corsOrigin)
@@ -20,5 +20,3 @@ export const cors = () =>
       },
       { error: messages.corsOriginInvalid },
     );
-
-export const CORS_ORIGIN = cors();

@@ -41,26 +41,21 @@ export function processValue<T>(
 
       return resolvePreprocessor(schema.type);
     })();
-    const processedValue = activePreprocessor
-      ? activePreprocessor(value)
-      : value;
 
-    // If the preprocessing function returned the target type, use it directly
-    if (schema.type === "boolean" && typeof processedValue === "boolean") {
-      return { value: processedValue as T, rawValue: value, isValid: true };
-    }
-    if (schema.type === "number" && typeof processedValue === "number") {
-      return { value: processedValue as T, rawValue: value, isValid: true };
-    }
-
-    // If it's still a string, pass it through the schema processor
-    if (typeof processedValue === "string") {
-      const result = (schema as any).process(processedValue) as T | undefined;
-      return { value: result, rawValue: value, isValid: true };
+    // Apply preprocessor, falling back to original value if it throws
+    let processedValue: string | boolean | number | T = value;
+    if (activePreprocessor) {
+      try {
+        processedValue = activePreprocessor(value);
+      } catch {
+        // Preprocessor failed - pass through original value
+        processedValue = value;
+      }
     }
 
-    // Fallback to original schema processing
-    const result = (schema as any).process(value) as T | undefined;
+    // Always pass through the schema processor for validation
+    // Processor receives the preprocessed value as-is (could be string, number, boolean, or T)
+    const result = (schema as any).process(processedValue) as T | undefined;
     return { value: result, rawValue: value, isValid: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

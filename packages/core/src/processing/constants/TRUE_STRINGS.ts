@@ -1,0 +1,1 @@
+export const TRUE_STRINGS = ["true", "1", "yes", "on"];

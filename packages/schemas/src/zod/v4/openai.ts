@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   constraints,
   defaults,
@@ -6,29 +5,30 @@ import {
   messages,
   patterns,
 } from "../../shared/openai";
+import type { ZodSingleton } from "./types";
 
-export const openaiApiKey = () =>
+export const openaiApiKey = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.apiKey)
     .min(constraints.apiKeyMinLength, { error: messages.apiKeyMinLength })
     .regex(patterns.apiKey, { message: messages.apiKeyFormat });
 
-export const openaiOrganizationId = () =>
+export const openaiOrganizationId = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.organizationId)
     .regex(patterns.organizationId, { message: messages.organizationFormat })
     .optional();
 
-export const openaiProjectId = () =>
+export const openaiProjectId = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.projectId)
     .regex(patterns.projectId, { message: messages.projectFormat })
     .optional();
 
-export const openaiBaseUrl = () =>
+export const openaiBaseUrl = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.baseUrl)
@@ -38,14 +38,14 @@ export const openaiBaseUrl = () =>
     })
     .optional();
 
-export const openaiModel = () =>
+export const openaiModel = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.model)
     .min(1, { message: messages.modelRequired })
     .optional();
 
-export const openaiTimeout = () =>
+export const openaiTimeout = (z: ZodSingleton) =>
   z
     .number()
     .describe(descriptions.timeout)
@@ -53,19 +53,3 @@ export const openaiTimeout = () =>
     .min(constraints.timeoutMin, { message: messages.timeoutMin })
     .max(constraints.timeoutMax, { message: messages.timeoutMax })
     .default(defaults.timeout);
-
-export const OPENAI_API_KEY = openaiApiKey();
-export const OPENAI_ORGANIZATION_ID = openaiOrganizationId();
-export const OPENAI_PROJECT_ID = openaiProjectId();
-export const OPENAI_BASE_URL = openaiBaseUrl();
-export const OPENAI_MODEL = openaiModel();
-export const OPENAI_TIMEOUT = openaiTimeout();
-
-export const openai = {
-  OPENAI_API_KEY,
-  OPENAI_ORGANIZATION_ID,
-  OPENAI_PROJECT_ID,
-  OPENAI_BASE_URL,
-  OPENAI_MODEL,
-  OPENAI_TIMEOUT,
-} as const;

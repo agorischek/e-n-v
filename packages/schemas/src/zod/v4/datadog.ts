@@ -1,11 +1,11 @@
-import { z } from "zod";
 import {
   descriptions,
   messages,
   constraints,
 } from "../../shared/infrastructure";
+import type { ZodSingleton } from "./types";
 
-export const datadogApiKey = () =>
+export const datadogApiKey = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.datadogApiKey)
@@ -13,5 +13,3 @@ export const datadogApiKey = () =>
       message: messages.datadogApiKeyLength,
     })
     .optional();
-
-export const DATADOG_API_KEY = datadogApiKey();
