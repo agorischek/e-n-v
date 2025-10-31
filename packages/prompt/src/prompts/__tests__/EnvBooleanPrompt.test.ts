@@ -140,8 +140,13 @@ describe("EnvBooleanPrompt", () => {
     // Create a schema with custom validation logic
     const schema = new BooleanEnvVarSchema({
       process: (value: unknown) => {
-        if (typeof value === "boolean") return value;
-        const boolValue = String(value).toLowerCase() === "true";
+        // Convert to boolean first
+        let boolValue: boolean;
+        if (typeof value === "boolean") {
+          boolValue = value;
+        } else {
+          boolValue = String(value).toLowerCase() === "true";
+        }
         calls.push(boolValue);
 
         if (boolValue === false) {

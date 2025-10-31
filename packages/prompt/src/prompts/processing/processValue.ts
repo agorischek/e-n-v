@@ -41,7 +41,7 @@ export function processValue<T>(
 
       return resolvePreprocessor(schema.type);
     })();
-    
+
     // Apply preprocessor, falling back to original value if it throws
     let processedValue: string | boolean | number | T = value;
     if (activePreprocessor) {
