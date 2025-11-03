@@ -1,23 +1,37 @@
-import { Footer, Layout, Navbar } from 'nextra-theme-docs'
-import { Banner, Head } from 'nextra/components'
-import { getPageMap } from 'nextra/page-map'
-import 'nextra-theme-docs/style.css'
- 
-export const metadata = {
+import { Footer, Layout, Navbar } from "nextra-theme-docs";
+import { Banner, Head } from "nextra/components";
+import { getPageMap } from "nextra/page-map";
+import "nextra-theme-docs/style.css";
+// app/layout.tsx or app/page.tsx
+import { Host_Grotesk } from "next/font/google";
+import type { Metadata } from "next";
+import '../styles.css'
+
+
+const hostGrotesk = Host_Grotesk({
+  weight: ["400"], // Optional: specify weights
+  subsets: ["latin"], // Required
+});
+
+export const metadata: Metadata = {
   // Define your metadata here
   // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
-}
- 
-const banner = <Banner storageKey="some-key">Nextra 4.0 is released 🎉</Banner>
+};
+
+// const banner = <Banner storageKey="some-key">Nextra 4.0 is released 🎉</Banner>;
 const navbar = (
   <Navbar
-    logo={<b>Nextra</b>}
+    logo={<b>e·n·v</b>}
     // ... Your additional navbar options
   />
-)
-const footer = <Footer>MIT {new Date().getFullYear()} © Nextra.</Footer>
- 
-export default async function RootLayout({ children }) {
+);
+const footer = <Footer>MIT {new Date().getFullYear()} © Nextra.</Footer>;
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       // Not required, but good for SEO
@@ -32,9 +46,9 @@ export default async function RootLayout({ children }) {
       >
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
-      <body>
+      <body className={hostGrotesk.className}>
         <Layout
-          banner={banner}
+          // banner={banner}
           navbar={navbar}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
@@ -45,5 +59,5 @@ export default async function RootLayout({ children }) {
         </Layout>
       </body>
     </html>
-  )
+  );
 }

@@ -1,0 +1,19 @@
+:root {
+  --custom-bg: #E5F4F4; /* Light mode background */
+}
+
+.dark {
+  --custom-bg: #011212; /* Dark mode background */
+}
+
+body {
+  background-color: var(--custom-bg);
+  /* font-family:
+    'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', 'Arial',
+    sans-serif;
+  padding: 20px 20px 60px;
+  max-width: 680px;
+  margin: 0 auto; */
+  /* color: aliceblue;
+    background-color: #031c09; */
+}

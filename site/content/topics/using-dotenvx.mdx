@@ -1,0 +1,297 @@
+# Using dotenvx
+
+e·n·v provides built-in integration with [dotenvx](https://github.com/dotenvx/dotenvx), a powerful environment variable management tool that extends the classic dotenv functionality with features like encryption, multiple environments, and more sophisticated file handling.
+
+## Why use dotenvx with e·n·v?
+
+While e·n·v provides excellent tools for validation, parsing, and interactive setup of environment variables, dotenvx excels at:
+
+- **Encryption**: Securely encrypt sensitive environment variables
+- **Multiple environments**: Manage different configurations for dev, staging, and production
+- **Advanced file handling**: Support for cascading .env files and complex loading strategies
+- **Cross-platform compatibility**: Consistent behavior across different systems
+
+By combining e·n·v's validation and setup capabilities with dotenvx's file management features, you get the best of both worlds.
+
+## Installation
+
+First, install both e·n·v and dotenvx:
+
+```bash
+npm install @e-n-v/parse @e-n-v/prompt @dotenvx/dotenvx
+# or
+bun add @e-n-v/parse @e-n-v/prompt @dotenvx/dotenvx
+```
+
+## Basic Usage
+
+### 1. Define your environment model
+
+Create a model that defines your environment variables:
+
+```ts
+// env.model.js
+import { define, schemas } from "@e-n-v/models";
+import { z } from "zod";
+
+const { NODE_ENV, PORT } = schemas;
+
+export default define({
+  schemas: {
+    NODE_ENV,
+    PORT,
+    DATABASE_URL: z.string().url(),
+    API_KEY: z.string().min(20),
+    REDIS_HOST: z.string().default("localhost"),
+  },
+});
+```
+
+### 2. Use dotenvx for interactive setup
+
+Instead of using e·n·v's default file channel, use the dotenvx channel for enhanced file management:
+
+```ts
+// setup.js
+import { prompt } from "@e-n-v/prompt";
+import dotenvx from "@dotenvx/dotenvx";
+import envModel from "./env.model.js";
+
+await prompt(envModel, {
+  channel: { dotenvx },
+});
+```
+
+Run the setup script to interactively create your `.env` file:
+
+```bash
+node setup.js
+```
+
+### 3. Parse with dotenvx at runtime
+
+Load and validate your environment variables using dotenvx as the source:
+
+```ts
+// env.vars.js
+import { parse } from "@e-n-v/parse";
+import dotenvx from "@dotenvx/dotenvx";
+import envModel from "./env.model.js";
+
+// Load variables using dotenvx
+const loaded = dotenvx.config();
+
+// Parse and validate
+const env = parse(process.env, envModel);
+
+export default env;
+```
+
+## Advanced Configuration
+
+### Custom dotenvx options
+
+You can pass dotenvx-specific options through the channel configuration:
+
+```ts
+import { prompt } from "@e-n-v/prompt";
+import dotenvx from "@dotenvx/dotenvx";
+import envModel from "./env.model.js";
+
+await prompt(envModel, {
+  channel: {
+    dotenvx,
+    get: {
+      // Options for reading .env files
+      path: [".env", ".env.local"],
+    },
+    set: {
+      // Options for writing .env files
+      path: ".env.local",
+    },
+  },
+});
+```
+
+### Using with @e-n-v/channels
+
+The channels package provides a clean abstraction for working with different environment variable sources:
+
+```ts
+import { resolveChannel } from "@e-n-v/channels";
+import dotenvx from "@dotenvx/dotenvx";
+
+// Create a dotenvx channel
+const channel = resolveChannel({
+  dotenvx,
+  get: {
+    path: [".env", ".env.local"],
+  },
+  set: {
+    path: ".env.local",
+  },
+});
+
+// Read all variables
+const vars = await channel.get();
+console.log(vars);
+
+// Write variables
+await channel.set({
+  DATABASE_URL: "postgresql://localhost:5432/mydb",
+  API_KEY: "sk-1234567890",
+});
+```
+
+### Multiple environment support
+
+Leverage dotenvx's ability to handle multiple environment files:
+
+```ts
+// env.vars.js
+import { parse } from "@e-n-v/parse";
+import dotenvx from "@dotenvx/dotenvx";
+import envModel from "./env.model.js";
+
+// Load from multiple files with precedence
+dotenvx.config({
+  path: [
+    ".env.local", // Highest priority
+    `.env.${process.env.NODE_ENV}`, // Environment-specific
+    ".env", // Base configuration
+  ],
+});
+
+// Validate the combined result
+const env = parse(process.env, envModel);
+
+export default env;
+```
+
+## Encrypted environments
+
+One of dotenvx's most powerful features is built-in encryption support. Here's how to use it with e·n·v:
+
+### Setting up encryption
+
+```bash
+# Create an encrypted .env.vault file
+npx dotenvx encrypt
+```
+
+### Using encrypted values
+
+```ts
+// env.vars.js
+import { parse } from "@e-n-v/parse";
+import dotenvx from "@dotenvx/dotenvx";
+import envModel from "./env.model.js";
+
+// Load and decrypt
+dotenvx.config({
+  path: ".env.vault",
+});
+
+// Validate as usual
+const env = parse(process.env, envModel);
+
+export default env;
+```
+
+The beauty of this approach is that e·n·v handles validation while dotenvx handles the secure storage and decryption.
+
+## Complete example
+
+Here's a full example showing a production-ready setup:
+
+```ts
+// env.model.js
+import { define } from "@e-n-v/models";
+import { z } from "zod";
+
+export default define({
+  schemas: {
+    NODE_ENV: z.enum(["development", "production", "test"]),
+    PORT: z.number().min(1024).max(65535).default(3000),
+    DATABASE_URL: z.string().url(),
+    REDIS_URL: z.string().url(),
+    API_KEY: z.string().min(32),
+    LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+  },
+});
+```
+
+```ts
+// setup.js - Run during development
+import { prompt } from "@e-n-v/prompt";
+import dotenvx from "@dotenvx/dotenvx";
+import envModel from "./env.model.js";
+
+await prompt(envModel, {
+  channel: {
+    dotenvx,
+    set: { path: ".env.local" },
+  },
+});
+
+console.log("✓ Environment configured in .env.local");
+```
+
+```ts
+// env.vars.js - Import this in your application
+import { parse } from "@e-n-v/parse";
+import dotenvx from "@dotenvx/dotenvx";
+import envModel from "./env.model.js";
+
+// Load from multiple sources with dotenvx
+const result = dotenvx.config({
+  path: [".env.local", ".env"],
+  quiet: true,
+});
+
+if (result.error) {
+  console.warn("Warning: Could not load .env files:", result.error);
+}
+
+// Parse and validate with e·n·v
+const env = parse(process.env, envModel);
+
+export default env;
+```
+
+```ts
+// app.js - Your application code
+import env from "./env.vars.js";
+
+console.log(`Starting server on port ${env.PORT}`);
+console.log(`Database: ${env.DATABASE_URL}`);
+console.log(`Environment: ${env.NODE_ENV}`);
+
+// All values are type-safe and validated!
+```
+
+## Best practices
+
+1. **Separate concerns**: Use dotenvx for file management and encryption, e·n·v for validation and type safety
+2. **Layer your files**: Use `.env` for defaults, `.env.local` for local overrides, and `.env.vault` for encrypted production values
+3. **Validate everything**: Even though dotenvx loads the values, always validate with e·n·v's parse to ensure type safety
+4. **Interactive setup**: Use e·n·v's prompt during development to guide developers through required variables
+5. **Version control**: Commit `.env.example` and `.env.vault` (if encrypted), but never commit `.env` or `.env.local`
+
+## Comparison with other approaches
+
+| Feature | e·n·v alone | dotenvx alone | e·n·v + dotenvx |
+|---------|-------------|---------------|-----------------|
+| Type validation | ✅ | ❌ | ✅ |
+| Interactive setup | ✅ | ❌ | ✅ |
+| Encryption | ❌ | ✅ | ✅ |
+| Multiple files | ✅ | ✅ | ✅ |
+| Runtime safety | ✅ | ❌ | ✅ |
+| Advanced file handling | ❌ | ✅ | ✅ |
+
+## Learn more
+
+- [dotenvx documentation](https://dotenvx.com)
+- [e·n·v parse package](/packages/parse)
+- [e·n·v prompt package](/packages/prompt)
+- [e·n·v channels package](/packages/channels)
