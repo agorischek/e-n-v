@@ -157,13 +157,9 @@ export const env = parse({ source: process.env, spec });
 ```typescript
 // env.setup.ts
 import spec from "./env.model.js";
-import { prompt, defaults } from "@e-n-v/prompt";
+import { prompt } from "@e-n-v/prompt";
 
-await prompt({
-  spec,
-  secrets: [...defaults.SECRET_PATTERNS, "key"],
-  path: ".env",
-});
+await prompt(spec, { path: ".env" });
 ```
 
 ### Reusable Models
@@ -197,6 +193,25 @@ export const modelSpec = define({
   preprocess: true,
 });
 ```
+
+### Secret Patterns
+
+Envcredible detects secret variables automatically using a curated pattern list. Customize or extend the defaults through the model options:
+
+```typescript
+import { define, DEFAULT_SECRET_PATTERNS } from "@e-n-v/models";
+import { z } from "zod";
+
+export default define({
+  schemas: {
+    API_KEY: z.string().min(32),
+    CUSTOM_TOKEN: z.string(),
+  },
+  secrets: [...DEFAULT_SECRET_PATTERNS, /CUSTOM_TOKEN/i],
+});
+```
+
+The `secrets` configuration is shared across parsing, prompting, and error reporting, ensuring sensitive values stay masked everywhere.
 
 ```typescript
 // env.model.ts

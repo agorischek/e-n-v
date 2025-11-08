@@ -1,4 +1,5 @@
 import type { BooleanPreprocessorOptions, Preprocessor } from "@e-n-v/core";
+import type { SecretPattern } from "./secrets";
 import type { SupportedSchema } from "./types";
 
 type PreprocessorToggle<T> = Preprocessor<T> | boolean | undefined;
@@ -48,4 +49,11 @@ export interface EnvModelOptions<
    * - Partial object: Customize specific type preprocessors
    */
   preprocess?: true | false | Partial<Preprocessors>;
+
+  /**
+   * Patterns used to identify secret environment variables
+   * Secrets are masked in interactive prompts and sanitized in error messages
+   * Provide an empty array to disable automatic secret detection
+   */
+  secrets?: ReadonlyArray<SecretPattern>;
 }

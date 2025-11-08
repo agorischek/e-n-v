@@ -3,7 +3,7 @@ import { stdin, stdout } from "node:process";
 import type { PromptEnvOptions } from "./options/PromptEnvOptions";
 import type { PromptEnvInteractiveOptions } from "./options/PromptEnvInteractiveOptions";
 import type { EnvChannel } from "@e-n-v/core";
-import { EnvModel } from "@e-n-v/models";
+import { EnvModel, resolveSecretPatterns } from "@e-n-v/models";
 import * as defaults from "./options/defaults";
 import { resolveChannel } from "@e-n-v/channels/resolveChannel";
 import { Session } from "./session/Session";
@@ -40,6 +40,7 @@ export async function prompt(
 ): Promise<void> {
   let schemas: Record<string, EnvVarSchema>;
   let preprocessConfig: any;
+  let secretPatterns: ReadonlyArray<string | RegExp>;
   let finalOptions: PromptEnvInteractiveOptions;
 
   // Determine which overload is being used
@@ -49,6 +50,7 @@ export async function prompt(
     finalOptions = interactiveOptions || {};
     schemas = model.schemas;
     preprocessConfig = model.preprocess;
+    secretPatterns = model.secrets;
   } else {
     // Second overload: (options)
     const options = modelOrOptions;
@@ -60,6 +62,8 @@ export async function prompt(
     } else {
       throw new Error("Either provide a model or schemas in options");
     }
+
+    secretPatterns = resolveSecretPatterns(options.secrets);
   }
 
   const rootDirectory = resolveRootDirectory(finalOptions.root);
@@ -68,7 +72,6 @@ export async function prompt(
     rootDirectory,
   );
   const truncate = finalOptions.truncate ?? defaults.TRUNCATE_LENGTH;
-  const secrets = finalOptions.secrets ?? defaults.SECRET_PATTERNS;
 
   const input = stdin;
   const output = stdout;
@@ -86,7 +89,7 @@ export async function prompt(
   const session = new Session({
     schemas,
     channel,
-    secrets,
+    secrets: secretPatterns,
     truncate,
     theme,
     input,

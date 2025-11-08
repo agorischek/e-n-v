@@ -1,5 +1,6 @@
 import { type EnvVarSchema } from "@e-n-v/core";
 import type { EnvModelOptions, Preprocessors } from "./EnvModelOptions";
+import { resolveSecretPatterns, shouldTreatAsSecret, type SecretPatterns } from "./secrets";
 import type { SupportedSchema } from "./types";
 import { resolveSchemas } from "./resolve";
 
@@ -21,6 +22,11 @@ export class EnvModel<
   public readonly preprocess: Preprocessors;
 
   /**
+   * Patterns used to detect secret environment variables
+   */
+  public readonly secrets: SecretPatterns;
+
+  /**
    * Create an EnvModel instance from options
    * @param options - Specification options
    */
@@ -30,6 +36,9 @@ export class EnvModel<
 
     // Resolve preprocessor configuration
     this.preprocess = this.resolvePreprocessors(options.preprocess);
+
+    // Resolve secret patterns
+    this.secrets = resolveSecretPatterns(options.secrets);
   }
 
   /**
@@ -57,5 +66,19 @@ export class EnvModel<
 
     // Partial configuration - merge with defaults
     return { ...config };
+  }
+
+  /**
+   * Determine whether a given environment variable should be treated as secret.
+   * @param key - Environment variable name
+   * @param schema - Optional schema override; defaults to the schema registered on the model
+   */
+  public shouldTreatAsSecret(key: string, schema?: EnvVarSchema): boolean {
+    const resolvedSchema = schema ?? this.schemas[key];
+    if (!resolvedSchema) {
+      return false;
+    }
+
+    return shouldTreatAsSecret(key, resolvedSchema, this.secrets);
   }
 }

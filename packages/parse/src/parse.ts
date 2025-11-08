@@ -1,10 +1,34 @@
 import type { EnvVarSchema, Preprocessors } from "@e-n-v/core";
 import { resolvePreprocessor } from "@e-n-v/core";
-import { EnvModel } from "@e-n-v/models";
-import type { InferEnvType, SupportedSchema } from "@e-n-v/models";
-import { resolveSchemas } from "@e-n-v/models";
+import {
+  EnvModel,
+  resolveSchemas,
+  resolveSecretPatterns,
+  shouldTreatAsSecret,
+  type SecretPatterns,
+  type InferEnvType,
+  type SupportedSchema,
+} from "@e-n-v/models";
 import type { ParseEnvOptions } from "../ParseEnvOptions";
 import { EnvParseError, type EnvParseIssue } from "./errors/EnvParseError";
+
+const SECRET_PLACEHOLDER = "[secret]";
+
+function maskIfSecret(value: string, isSecret: boolean): string {
+  if (!isSecret) {
+    return value;
+  }
+
+  return SECRET_PLACEHOLDER;
+}
+
+function sanitizeDetail(detail: string, rawValue: string, isSecret: boolean): string {
+  if (!isSecret || rawValue === "") {
+    return detail;
+  }
+
+  return detail.split(rawValue).join(SECRET_PLACEHOLDER);
+}
 
 /**
  * Parse and validate environment variables from a source object
@@ -44,19 +68,17 @@ export function parse<T extends Record<string, SupportedSchema>>(
 ): InferEnvType<T> {
   let resolvedSchemas: Record<string, EnvVarSchema>;
   let preprocessConfig: Preprocessors;
+  let secretPatterns: SecretPatterns;
 
-  // Determine which overload is being used
   if (modelOrOptions instanceof EnvModel) {
-    // First overload: (source, model)
     const model = modelOrOptions;
     resolvedSchemas = model.schemas;
     preprocessConfig = model.preprocess;
+    secretPatterns = model.secrets;
   } else {
-    // Second overload: (source, options)
     const options = modelOrOptions;
     resolvedSchemas = resolveSchemas(options.schemas);
 
-    // Resolve preprocessor configuration (same logic as EnvModel)
     const config = options.preprocess;
     if (config === false) {
       preprocessConfig = {
@@ -70,17 +92,17 @@ export function parse<T extends Record<string, SupportedSchema>>(
     } else {
       preprocessConfig = { ...config };
     }
+
+    secretPatterns = resolveSecretPatterns(options.secrets);
   }
 
-  // Result object and error collection
   const result: Record<string, unknown> = {};
   const issues: EnvParseIssue[] = [];
 
-  // Process each schema
   for (const [key, schema] of Object.entries(resolvedSchemas)) {
     const rawValue = source[key];
+    const isSecret = shouldTreatAsSecret(key, schema, secretPatterns);
 
-    // Handle missing values
     if (rawValue === undefined || rawValue.trim() === "") {
       if (schema.default !== undefined) {
         result[key] = schema.default;
@@ -101,16 +123,12 @@ export function parse<T extends Record<string, SupportedSchema>>(
       continue;
     }
 
-    // Preprocess the value
     const preprocessor = resolvePreprocessor(schema.type, preprocessConfig);
     const preprocessedValue = preprocessor ? preprocessor(rawValue) : rawValue;
 
-    // Process through schema
-    // Processor receives the preprocessed value as-is (could be string, number, boolean, etc.)
     try {
       const processedValue = schema.process(preprocessedValue);
 
-      // Handle undefined result from processor
       if (processedValue === undefined) {
         if (schema.default !== undefined) {
           result[key] = schema.default;
@@ -129,18 +147,18 @@ export function parse<T extends Record<string, SupportedSchema>>(
       }
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
-      const message = `Environment variable "${key}" validation failed: ${detail}`;
+      const messageDetail = sanitizeDetail(detail, rawValue, isSecret);
+      const message = `Environment variable "${key}" validation failed: ${messageDetail}`;
       issues.push({
         type: "invalid",
         key,
-        value: rawValue,
+        value: maskIfSecret(rawValue, isSecret),
         message,
       });
       result[key] = undefined;
     }
   }
 
-  // Throw aggregate error if there were any errors
   if (issues.length > 0) {
     throw new EnvParseError({ issues, partial: { ...result } });
   }
