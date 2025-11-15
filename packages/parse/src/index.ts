@@ -8,7 +8,7 @@ export {
 } from "./errors/EnvParseError";
 
 // Export parse options
-export type { ParseEnvOptions } from "../ParseEnvOptions";
+export type { ParseEnvOptions, ParseOptions } from "../ParseEnvOptions";
 
 // Re-export EnvModel
 export { EnvModel, define } from "@e-n-v/models";
