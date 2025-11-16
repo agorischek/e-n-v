@@ -6,6 +6,18 @@ import { StringEnvVarSchema } from "./schemas/typed/StringEnvVarSchema";
 import { NumberEnvVarSchema } from "./schemas/typed/NumberEnvVarSchema";
 import { BooleanEnvVarSchema } from "./schemas/typed/BooleanEnvVarSchema";
 import { EnumEnvVarSchema } from "./schemas/typed/EnumEnvVarSchema";
+import type { EnvVarSchemaInput } from "./schemas/EnvVarSchemaInput";
+import { ArrayEnvVarSchema } from "./schemas/typed/ArrayEnvVarSchema";
+import { processors } from "./processing/processors";
+
+interface ArrayStringEnvVarSchemaInput
+  extends EnvVarSchemaInput<string[]> {}
+
+interface ArraySchemaBuilder {
+  string(
+    input?: ArrayStringEnvVarSchemaInput,
+  ): ArrayEnvVarSchema<string>;
+}
 
 export const schema = {
   string: (input: StringEnvVarSchemaInput = {}) =>
@@ -19,6 +31,20 @@ export const schema = {
 
   enum: <T extends string = string>(input: EnumEnvVarSchemaInput<T>) =>
     new EnumEnvVarSchema<T>(input),
+
+  array(delimiter: string = ","): ArraySchemaBuilder {
+    return {
+      string(
+        input: ArrayStringEnvVarSchemaInput = {},
+      ): ArrayEnvVarSchema<string> {
+        return new ArrayEnvVarSchema<string>({
+          ...input,
+          delimiter,
+          elementProcessor: processors.string(),
+        });
+      },
+    };
+  },
 };
 
 export const s = schema;

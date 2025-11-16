@@ -59,6 +59,7 @@ const optionKeyMap = {
   number: "number",
   boolean: "boolean",
   enum: "enum",
+  array: "string",
 } as const;
 
 type DefaultPreprocessor<T extends EnvVarType> = T extends "number"
@@ -90,7 +91,8 @@ function createDefaultPreprocessor<T extends EnvVarType>(
 function createExplicitPreprocessor<T extends EnvVarType>(
   envVarType: T,
 ): DefaultPreprocessor<T> | undefined {
-  const factory = explicitPreprocessorFactories[envVarType];
+  const key = envVarType === "array" ? "string" : envVarType;
+  const factory = explicitPreprocessorFactories[key];
 
   if (!factory) {
     return undefined;
