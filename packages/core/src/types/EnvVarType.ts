@@ -1,1 +1,6 @@
-export type EnvVarType = "string" | "number" | "boolean" | "enum";
+export type EnvVarType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "enum"
+  | "array";
