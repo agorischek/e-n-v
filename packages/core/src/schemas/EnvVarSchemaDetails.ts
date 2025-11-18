@@ -6,5 +6,6 @@ export interface EnvVarSchemaDetails<T> {
   required: boolean;
   default?: T;
   description?: string;
+  link?: string;
   process?: Processor<T>;
 }
