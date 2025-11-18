@@ -17,20 +17,5 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Lint
-        run: bun run lint
-
-      - name: Check types
-        run: bun run check:types
-
-      - name: Check formatting
-        run: bun run check:format
-
-      - name: Test
-        run: bun run test
-
-      - name: check bundle
-        run: bun run check:bundle
-
-      - name: bundle
-        run: bun run bundle
+      - name: Run checks
+        run: bun run check

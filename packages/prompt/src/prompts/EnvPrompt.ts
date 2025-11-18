@@ -16,6 +16,8 @@ import { EnvPromptMode } from "./state/EnvPromptMode";
 import { createInitialModeDetails } from "./state/EnvPromptModeDetails";
 import type { EnvPromptState } from "./state/EnvPromptModeDetails";
 import { processValue, type ProcessingResult } from "./processing/processValue";
+import { exec } from "node:child_process";
+import { platform } from "node:os";
 
 export type FooterState = "hint" | "warn" | "tools";
 
@@ -123,11 +125,13 @@ export abstract class EnvPrompt<
           ? "shown"
           : "hidden"
         : false,
+      link: this.schema.link,
       theme: this.theme,
       actions: {
         toggleSecret: () => this.handleToggleSecret(),
         skip: () => this.handleSkip(),
         previous: () => this.handlePrevious(),
+        openLink: () => this.handleOpenLink(),
       },
     });
 
@@ -361,6 +365,31 @@ export abstract class EnvPrompt<
     this.mode.intention = "previous";
     this.value = undefined as TVar;
     this.state = "submit";
+  }
+
+  private handleOpenLink(): void {
+    const link = this.schema.link;
+    if (!link) {
+      return;
+    }
+
+    // Consume the submit action (prevent form submission)
+    this.mode.suppressValidation();
+
+    // Open URL in the default browser
+    const command =
+      platform() === "win32"
+        ? `start "" "${link}"`
+        : platform() === "darwin"
+          ? `open "${link}"`
+          : `xdg-open "${link}"`;
+
+    exec(command, (error) => {
+      if (error) {
+        // Silently fail - user can manually open the link if needed
+        console.error(`Failed to open link: ${link}`);
+      }
+    });
   }
 
   protected consumeSkipValidation(): boolean {

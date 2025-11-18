@@ -34,7 +34,7 @@ export const defaults = {
 } as const;
 
 export const patterns = {
-  apiKey: /^sk-[A-Za-z0-9]{20,}$/,
+  apiKey: /^sk-[A-Za-z0-9_]{20,}$/,
   organizationId: /^org-[A-Za-z0-9_-]{8,}$/,
   projectId: /^proj_[A-Za-z0-9_-]{8,}$/,
 } as const;

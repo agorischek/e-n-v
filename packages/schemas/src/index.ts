@@ -7,6 +7,7 @@ export * from "./plain/cors";
 export * from "./plain/database";
 export * from "./plain/docker";
 export * from "./plain/elasticsearch";
+export * from "./plain/gel";
 export * from "./plain/host";
 export * from "./plain/jwt";
 export * from "./plain/kafka";

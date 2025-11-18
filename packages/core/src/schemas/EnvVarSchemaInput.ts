@@ -5,4 +5,5 @@ export interface EnvVarSchemaInput<T> {
   required?: boolean;
   default?: T;
   description?: string;
+  link?: string;
 }
