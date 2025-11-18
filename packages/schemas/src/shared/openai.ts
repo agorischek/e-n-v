@@ -10,7 +10,7 @@ export const descriptions = {
 export const messages = {
   apiKeyMinLength: "OpenAI API key must be at least 40 characters",
   apiKeyFormat:
-    "OpenAI API key must start with 'sk-' and contain only letters and numbers",
+    "OpenAI API key must start with 'sk-' and contain only letters, numbers, and underscores",
   organizationFormat: "OpenAI organization ID must start with 'org-'",
   projectFormat: "OpenAI project ID must start with 'proj_'",
   baseUrlInvalid: "OpenAI base URL must be a valid URL",
@@ -32,7 +32,7 @@ export const defaults = {
 } as const;
 
 export const patterns = {
-  apiKey: /^sk-[A-Za-z0-9]{20,}$/,
+  apiKey: /^sk-[A-Za-z0-9_]{20,}$/,
   organizationId: /^org-[A-Za-z0-9_-]{8,}$/,
   projectId: /^proj_[A-Za-z0-9_-]{8,}$/,
 } as const;
