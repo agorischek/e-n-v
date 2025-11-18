@@ -373,6 +373,9 @@ export abstract class EnvPrompt<
       return;
     }
 
+    // Consume the submit action (prevent form submission)
+    this.mode.suppressValidation();
+
     // Open URL in the default browser
     const command =
       platform() === "win32"
