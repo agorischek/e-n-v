@@ -9,6 +9,7 @@ export * from "./datadog";
 export * from "./docker";
 export * from "./elasticsearch";
 export * from "./encryptionKey";
+export * from "./gel";
 export * from "./host";
 export * from "./jwt";
 export * from "./kafka";
