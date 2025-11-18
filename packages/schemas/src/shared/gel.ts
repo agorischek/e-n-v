@@ -14,8 +14,7 @@ export const descriptions = {
 
 export const messages = {
   gelDsnFormat: "Must be a valid Gel DSN (gel://...)",
-  gelInstanceFormat:
-    "Must be in format org-name/instance-name",
+  gelInstanceFormat: "Must be in format org-name/instance-name",
   gelSecretKeyRequired: "Gel secret key is required",
   gelHostRequired: "Gel host is required",
   gelPortInt: "Port must be an integer",
@@ -49,4 +48,3 @@ export const patterns = {
   gelInstance: /^[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+$/,
   gelBranch: /^[a-zA-Z0-9_-]+$/,
 } as const;
-

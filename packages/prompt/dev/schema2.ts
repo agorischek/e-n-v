@@ -7,7 +7,7 @@ await prompt({
       default: "hello",
       required: true,
       description: "Demo variable",
-      link: "https://github.com"
+      link: "https://github.com",
     }),
   },
 });

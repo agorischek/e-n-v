@@ -8,20 +8,14 @@ import {
 } from "../../shared/gel";
 
 export const gelDsn = () =>
-  z
-    .string()
-    .describe(descriptions.gelDsn)
-    .regex(patterns.gelDsn, {
-      message: messages.gelDsnFormat,
-    });
+  z.string().describe(descriptions.gelDsn).regex(patterns.gelDsn, {
+    message: messages.gelDsnFormat,
+  });
 
 export const gelInstance = () =>
-  z
-    .string()
-    .describe(descriptions.gelInstance)
-    .regex(patterns.gelInstance, {
-      message: messages.gelInstanceFormat,
-    });
+  z.string().describe(descriptions.gelInstance).regex(patterns.gelInstance, {
+    message: messages.gelInstanceFormat,
+  });
 
 export const gelSecretKey = () =>
   z
@@ -98,4 +92,3 @@ export const GEL_BRANCH = gelBranch();
 export const GEL_TLS_CA_FILE = gelTlsCaFile();
 export const GEL_CLIENT_TLS_SECURITY = gelClientTlsSecurity();
 export const GEL_CREDENTIALS_FILE = gelCredentialsFile();
-

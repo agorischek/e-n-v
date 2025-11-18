@@ -118,7 +118,9 @@ export const gelTlsCaFile = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   });
 
 export const gelClientTlsSecurity = (
-  input: Partial<EnumEnvVarSchemaInput<"strict" | "no_host_verification" | "insecure">> = {},
+  input: Partial<
+    EnumEnvVarSchemaInput<"strict" | "no_host_verification" | "insecure">
+  > = {},
 ) =>
   new EnumEnvVarSchema({
     description: descriptions.gelClientTlsSecurity,
@@ -153,4 +155,3 @@ export const GEL_BRANCH = gelBranch();
 export const GEL_TLS_CA_FILE = gelTlsCaFile();
 export const GEL_CLIENT_TLS_SECURITY = gelClientTlsSecurity();
 export const GEL_CREDENTIALS_FILE = gelCredentialsFile();
-
