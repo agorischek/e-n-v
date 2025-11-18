@@ -35,7 +35,7 @@
   "scripts": {
     "build": "tsgo",
     "bundle": "bun run check:bundle && bun run --filter @e-n-v/env bundle",
-    "check": "bun scripts/check/run.ts",
+    "check": "checks",
     "check:bundle": "bun scripts/check-bundle/run.ts",
     "check:format": "prettier --check .",
     "check:types": "tsgo",

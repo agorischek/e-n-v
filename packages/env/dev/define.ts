@@ -5,6 +5,6 @@ const { NODE_ENV } = schemas;
 export default define({
   schemas: { NODE_ENV },
   preprocess: {
-    boolean: (value) => value === "true",
+    boolean: (value: string) => value === "true",
   },
 });
