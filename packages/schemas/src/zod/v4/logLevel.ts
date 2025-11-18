@@ -1,10 +1,8 @@
-import { z } from "zod";
 import { defaults, descriptions, enumOptions } from "../../shared/apiService";
+import type { ZodSingleton } from "./types";
 
-const schema = z
-  .enum([...enumOptions.logLevel])
-  .describe(descriptions.logLevel)
-  .default(defaults.logLevel);
-
-export const logLevelSchema = schema;
-export const LOG_LEVEL = logLevelSchema;
+export const logLevelSchema = (z: ZodSingleton) =>
+  z
+    .enum([...enumOptions.logLevel])
+    .describe(descriptions.logLevel)
+    .default(defaults.logLevel);

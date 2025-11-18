@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   descriptions,
   messages,
@@ -6,8 +5,9 @@ import {
   constraints,
   patterns,
 } from "../../shared/infrastructure";
+import type { ZodSingleton } from "./types";
 
-export const newRelicLicenseKey = () =>
+export const newRelicLicenseKey = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.newRelicLicenseKey)
@@ -16,7 +16,7 @@ export const newRelicLicenseKey = () =>
     })
     .optional();
 
-export const sentryDsn = () =>
+export const sentryDsn = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.sentryDsn)
@@ -25,14 +25,14 @@ export const sentryDsn = () =>
     })
     .optional();
 
-export const jaegerEndpoint = () =>
+export const jaegerEndpoint = (z: ZodSingleton) =>
   z
     .string()
     .url({ message: messages.jaegerEndpointFormat })
     .describe(descriptions.jaegerEndpoint)
     .optional();
 
-export const prometheusPort = () =>
+export const prometheusPort = (z: ZodSingleton) =>
   z
     .number()
     .describe(descriptions.prometheusPort)
@@ -40,8 +40,3 @@ export const prometheusPort = () =>
     .min(constraints.prometheusPortMin, { message: messages.prometheusPortMin })
     .max(constraints.prometheusPortMax, { message: messages.prometheusPortMax })
     .default(defaults.prometheusPort);
-
-export const NEW_RELIC_LICENSE_KEY = newRelicLicenseKey();
-export const SENTRY_DSN = sentryDsn();
-export const JAEGER_ENDPOINT = jaegerEndpoint();
-export const PROMETHEUS_PORT = prometheusPort();

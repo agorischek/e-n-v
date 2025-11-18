@@ -1,8 +1,12 @@
 {
   "name": "@e-n-v/repo",
   "version": "0.0.1",
+  "license": "MIT",
   "module": "index.ts",
   "type": "module",
+  "keywords": [
+    "environment"
+  ],
   "workspaces": [
     "packages/*"
   ],
@@ -29,15 +33,17 @@
     "typescript": "^5"
   },
   "scripts": {
+    "build": "tsgo",
     "bundle": "bun run check:bundle && bun run --filter @e-n-v/env bundle",
+    "check": "checks",
+    "check:bundle": "bun scripts/check-bundle/run.ts",
+    "check:format": "prettier --check .",
+    "check:types": "tsgo",
     "demo": "bun run ./demo/demo.ts",
     "format": "prettier --write .",
     "lint": "oxlint",
-    "test": "bun test",
-    "check:format": "prettier --check .",
-    "check:types": "tsgo",
-    "check:bundle": "bun scripts/check-bundle/run.ts",
-    "check": "checks"
+    "prepublishOnly": "bun run check && bun run bundle",
+    "test": "bun test"
   },
   "checks": {
     "runner": "bun",

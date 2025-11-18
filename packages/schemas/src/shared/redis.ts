@@ -1,3 +1,5 @@
+import { toZodMessages } from "./zodMessages";
+
 export const descriptions = {
   url: "Redis connection string (redis:// or rediss://)",
   host: "Redis server host name or IP address",
@@ -9,15 +11,15 @@ export const descriptions = {
   tlsCaCertPath: "Path to CA certificate file for Redis TLS validation",
 } as const;
 
-export const messages = {
-  urlFormat: "Redis URL must start with redis:// or rediss://",
+export const traits = {
+  urlFormat: "start with redis:// or rediss://",
   hostRequired: "Redis host is required",
-  hostFormat: "Redis host may contain letters, numbers, dots, and hyphens",
-  portInteger: "Redis port must be an integer",
-  portMin: "Redis port must be at least 1",
-  portMax: "Redis port must be 65535 or less",
-  dbInteger: "Redis database index must be an integer",
-  dbRange: "Redis database index must be between 0 and 15",
+  hostFormat: "letters, numbers, dots, and hyphens",
+  portInteger: "an integer",
+  portMin: "at least 1",
+  portMax: "65535 or less",
+  dbInteger: "an integer",
+  dbRange: "between 0 and 15",
   usernameRequired: "Redis username cannot be empty",
   passwordRequired: "Redis password cannot be empty",
   tlsCaCertPathRequired: "Redis TLS CA certificate path cannot be empty",
@@ -40,3 +42,5 @@ export const patterns = {
   url: /^rediss?:\/\/(?:[^:@/\s]+(?::[^@/\s]*)?@)?[^:/\s]+(?::\d+)?(?:\/\d+)?(?:\?.*)?$/,
   host: /^[a-zA-Z0-9.-]+$/,
 } as const;
+
+export const messages = toZodMessages(traits);

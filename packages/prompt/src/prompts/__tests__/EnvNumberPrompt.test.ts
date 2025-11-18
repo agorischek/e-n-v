@@ -229,8 +229,9 @@ describe("EnvNumberPrompt", () => {
     // Create a schema with custom validation logic
     const schema = new NumberEnvVarSchema({
       default: 2,
-      process: (value: string) => {
-        const numValue = parseInt(value, 10);
+      process: (value: unknown) => {
+        if (typeof value === "number") return value;
+        const numValue = parseInt(String(value), 10);
         calls.push(numValue);
 
         if (numValue === 1) {
@@ -287,11 +288,13 @@ describe("EnvNumberPrompt", () => {
   it("marks invalid current numbers and prevents submission", async () => {
     const schema = new NumberEnvVarSchema({
       required: false,
-      process: (value: string) => {
-        if (value === "not-a-number") {
+      process: (value: unknown) => {
+        if (typeof value === "number") return value;
+        const str = String(value);
+        if (str === "not-a-number") {
           throw new Error("invalid number");
         }
-        return Number(value);
+        return Number(str);
       },
     });
 
@@ -337,11 +340,13 @@ describe("EnvNumberPrompt", () => {
     const schema = new NumberEnvVarSchema({
       required: false,
       default: 5,
-      process: (value: string) => {
-        if (value === "bad") {
+      process: (value: unknown) => {
+        if (typeof value === "number") return value;
+        const str = String(value);
+        if (str === "bad") {
           throw new Error("invalid current");
         }
-        return Number(value);
+        return Number(str);
       },
     });
 

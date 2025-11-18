@@ -1,6 +1,5 @@
 import { EnumEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
+import { string, oneOf } from "@e-n-v/core";
 import { defaults, descriptions, enumOptions } from "../shared/apiService";
 
 export const nodeEnv = (input: Partial<StringEnvVarSchemaInput> = {}) =>
@@ -8,12 +7,8 @@ export const nodeEnv = (input: Partial<StringEnvVarSchemaInput> = {}) =>
     values: [...enumOptions.nodeEnv],
     description: descriptions.nodeEnv,
     default: defaults.nodeEnv,
-    process: createZodProcessor(z.enum([...enumOptions.nodeEnv])),
+    process: string(oneOf(enumOptions.nodeEnv)),
     ...input,
   });
 
 export const NODE_ENV = nodeEnv();
-
-export const node = {
-  NODE_ENV,
-} as const;

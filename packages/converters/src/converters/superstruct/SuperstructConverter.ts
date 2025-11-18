@@ -212,8 +212,8 @@ function getStructDescription(schema: AnyStruct): string | undefined {
 function createSuperstructProcessFunction<T>(
   schema: AnyStruct,
   type: EnvVarType,
-): (value: string) => T | undefined {
-  return (value: string): T | undefined => {
+): (value: unknown) => T | undefined {
+  return (value: unknown): T | undefined => {
     if (typeof value !== "string") {
       throw new Error("Value must be a string");
     }

@@ -196,8 +196,11 @@ function resolveJoiEnvVarType(schema: AnySchema): EnvVarType {
 function createJoiProcessFunction<T>(
   schema: AnySchema,
   type: EnvVarType,
-): (value: string) => T | undefined {
-  return (value: string): T | undefined => {
+): (value: unknown) => T | undefined {
+  return (value: unknown): T | undefined => {
+    if (typeof value !== "string") {
+      throw new Error("Value must be a string");
+    }
     try {
       let processValue: unknown = value;
 

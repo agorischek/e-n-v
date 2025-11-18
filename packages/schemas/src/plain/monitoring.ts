@@ -4,11 +4,18 @@ import {
   type StringEnvVarSchemaInput,
   type NumberEnvVarSchemaInput,
 } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
+import {
+  string,
+  number,
+  exactLength,
+  pattern,
+  url,
+  integer,
+  between,
+} from "@e-n-v/core";
 import {
   descriptions,
-  messages,
+  traits,
   defaults,
   constraints,
   patterns,
@@ -19,10 +26,11 @@ export const newRelicLicenseKey = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.newRelicLicenseKey,
-    process: createZodProcessor(
-      z.string().length(constraints.newRelicLicenseKeyLength, {
-        message: messages.newRelicLicenseKeyLength,
-      }),
+    process: string(
+      exactLength(
+        constraints.newRelicLicenseKeyLength,
+        traits.newRelicLicenseKeyLength,
+      ),
     ),
     secret: true,
     required: false,
@@ -32,11 +40,7 @@ export const newRelicLicenseKey = (
 export const sentryDsn = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.sentryDsn,
-    process: createZodProcessor(
-      z.string().regex(patterns.sentryDsn, {
-        message: messages.sentryDsnFormat,
-      }),
-    ),
+    process: string(pattern(patterns.sentryDsn, traits.sentryDsnFormat)),
     secret: true,
     required: false,
     ...input,
@@ -45,9 +49,7 @@ export const sentryDsn = (input: Partial<StringEnvVarSchemaInput> = {}) =>
 export const jaegerEndpoint = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.jaegerEndpoint,
-    process: createZodProcessor(
-      z.string().url({ message: messages.jaegerEndpointFormat }),
-    ),
+    process: string(url(traits.jaegerEndpointFormat)),
     required: false,
     ...input,
   });
@@ -56,16 +58,9 @@ export const prometheusPort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
   new NumberEnvVarSchema({
     description: descriptions.prometheusPort,
     default: defaults.prometheusPort,
-    process: createZodProcessor(
-      z.coerce
-        .number()
-        .int({ message: messages.prometheusPortInt })
-        .min(constraints.prometheusPortMin, {
-          message: messages.prometheusPortMin,
-        })
-        .max(constraints.prometheusPortMax, {
-          message: messages.prometheusPortMax,
-        }),
+    process: number(
+      integer(traits.prometheusPortInt),
+      between(constraints.prometheusPortMin, constraints.prometheusPortMax),
     ),
     ...input,
   });
@@ -73,10 +68,8 @@ export const prometheusPort = (input: Partial<NumberEnvVarSchemaInput> = {}) =>
 export const datadogApiKey = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.datadogApiKey,
-    process: createZodProcessor(
-      z.string().length(constraints.datadogApiKeyLength, {
-        message: messages.datadogApiKeyLength,
-      }),
+    process: string(
+      exactLength(constraints.datadogApiKeyLength, traits.datadogApiKeyLength),
     ),
     secret: true,
     required: false,
@@ -88,11 +81,3 @@ export const SENTRY_DSN = sentryDsn();
 export const JAEGER_ENDPOINT = jaegerEndpoint();
 export const PROMETHEUS_PORT = prometheusPort();
 export const DATADOG_API_KEY = datadogApiKey();
-
-export const monitoring = {
-  NEW_RELIC_LICENSE_KEY,
-  SENTRY_DSN,
-  JAEGER_ENDPOINT,
-  PROMETHEUS_PORT,
-  DATADOG_API_KEY,
-} as const;

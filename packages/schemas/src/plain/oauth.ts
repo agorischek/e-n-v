@@ -1,15 +1,12 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
-import { constraints, descriptions, messages } from "../shared/oauth";
+import { string, minLength, url } from "@e-n-v/core";
+import { traits, constraints, descriptions } from "../shared/oauth";
 
 export const oauthClientId = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.clientId,
-    process: createZodProcessor(
-      z.string().min(constraints.clientIdMinLength, {
-        message: messages.clientIdRequired,
-      }),
+    process: string(
+      minLength(constraints.clientIdMinLength, traits.clientIdRequired),
     ),
     secret: true,
     ...input,
@@ -20,10 +17,11 @@ export const oauthClientSecret = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.clientSecret,
-    process: createZodProcessor(
-      z.string().min(constraints.clientSecretMinLength, {
-        message: messages.clientSecretMinLength,
-      }),
+    process: string(
+      minLength(
+        constraints.clientSecretMinLength,
+        traits.clientSecretMinLength,
+      ),
     ),
     secret: true,
     ...input,
@@ -34,19 +32,15 @@ export const oauthRedirectUri = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.redirectUri,
-    process: createZodProcessor(
-      z.string().url({ message: messages.redirectUriInvalid }),
-    ),
+    process: string(url(traits.redirectUriInvalid)),
     ...input,
   });
 
 export const oauthScope = (input: Partial<StringEnvVarSchemaInput> = {}) =>
   new StringEnvVarSchema({
     description: descriptions.scope,
-    process: createZodProcessor(
-      z
-        .string()
-        .min(constraints.scopeMinLength, { message: messages.scopeRequired }),
+    process: string(
+      minLength(constraints.scopeMinLength, traits.scopeRequired),
     ),
     ...input,
   });
@@ -55,10 +49,3 @@ export const OAUTH_CLIENT_ID = oauthClientId();
 export const OAUTH_CLIENT_SECRET = oauthClientSecret();
 export const OAUTH_REDIRECT_URI = oauthRedirectUri();
 export const OAUTH_SCOPE = oauthScope();
-
-export const oauth = {
-  OAUTH_CLIENT_ID,
-  OAUTH_CLIENT_SECRET,
-  OAUTH_REDIRECT_URI,
-  OAUTH_SCOPE,
-} as const;

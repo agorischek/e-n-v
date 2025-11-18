@@ -1,4 +1,5 @@
 import { COMMON_MESSAGES } from "./messages";
+import { toZodMessages } from "./zodMessages";
 
 export const descriptions = {
   clientId: "The OAuth client ID",
@@ -7,10 +8,9 @@ export const descriptions = {
   scope: "OAuth scope (space-separated)",
 } as const;
 
-export const messages = {
+export const traits = {
   clientIdRequired: "OAuth client ID is required",
-  clientSecretMinLength:
-    "OAuth client secret must be at least 8 characters long",
+  clientSecretMinLength: "at least 8 characters long",
   redirectUriInvalid: COMMON_MESSAGES.MUST_BE_VALID_URL,
   scopeRequired: "OAuth scope is required",
 } as const;
@@ -20,3 +20,5 @@ export const constraints = {
   clientSecretMinLength: 8,
   scopeMinLength: 1,
 } as const;
+
+export const messages = toZodMessages(traits);

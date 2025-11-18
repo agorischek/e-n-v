@@ -1,12 +1,17 @@
 {
   "name": "@e-n-v/env",
-  "version": "0.0.3",
+  "description": "Interactive setup and runtime validation for environment variables",
+  "version": "0.0.5",
+  "license": "MIT",
+  "keywords": [
+    "environment"
+  ],
   "homepage": "https://github.com/agorischek/e-n-v",
   "repository": "https://agorischek@github.com/agorischek/e-n-v.git",
   "type": "module",
-  "main": "./dist/bundle.cjs",
-  "module": "./dist/bundle.js",
-  "types": "./dist/bundle.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
@@ -15,17 +20,61 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/bundle.d.ts",
-      "import": "./dist/bundle.js",
-      "require": "./dist/bundle.cjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./vars": {
+      "types": "./dist/vars.d.ts",
+      "import": "./dist/vars.js",
+      "require": "./dist/vars.cjs"
+    },
+    "./prompt": {
+      "types": "./dist/prompt.d.ts",
+      "import": "./dist/prompt.js",
+      "require": "./dist/prompt.cjs"
+    },
+    "./parse": {
+      "types": "./dist/parse.d.ts",
+      "import": "./dist/parse.js",
+      "require": "./dist/parse.cjs"
+    },
+    "./model": {
+      "types": "./dist/model.d.ts",
+      "import": "./dist/model.js",
+      "require": "./dist/model.cjs"
+    },
+    "./schemas": {
+      "types": "./dist/schemas.d.ts",
+      "import": "./dist/schemas.js",
+      "require": "./dist/schemas.cjs"
+    },
+    "./schemas/zod": {
+      "types": "./dist/schemas/zod.d.ts",
+      "import": "./dist/schemas/zod.js",
+      "require": "./dist/schemas/zod.cjs"
+    },
+    "./files": {
+      "types": "./dist/files.d.ts",
+      "import": "./dist/files.js",
+      "require": "./dist/files.cjs"
+    },
+    "./channels": {
+      "types": "./dist/channels.d.ts",
+      "import": "./dist/channels.js",
+      "require": "./dist/channels.cjs"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
     }
   },
   "dependencies": {
     "@clack/core": "1.0.0-alpha.6",
     "commander": "^11.1.0",
     "picocolors": "^1.1.1",
-    "tsx": "^4.15.7",
-    "zod": "^4.0.0"
+    "tsx": "^4.15.7"
   },
   "scripts": {
     "bundle": "tsdown"

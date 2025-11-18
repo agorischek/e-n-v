@@ -1,6 +1,8 @@
 {
   "name": "@e-n-v/converters",
+  "private": true,
   "version": "0.0.1",
+  "license": "MIT",
   "module": "src/index.ts",
   "type": "module",
   "dependencies": {
