@@ -39,14 +39,6 @@ export type PromptEnvInteractiveOptions = {
   truncate?: number;
 
   /**
-   * Array of patterns (strings or RegExp) used to identify secret environment variables
-   * Secret variables will be masked in prompts and can be toggled to reveal/hide
-   * @default DEFAULT_SECRET_PATTERNS (includes password, token, api_key, database_url, etc.)
-   * @example ["PASSWORD", /secret/i, "API_KEY"], [] (empty array disables masking)
-   */
-  secrets?: Array<RegExp | string>;
-
-  /**
    * Color theme function for styling the CLI interface
    * Uses picocolors formatter functions to customize the primary color scheme
    * @default color.magenta
