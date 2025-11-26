@@ -1,11 +1,19 @@
 import type { Formatter } from "picocolors/types";
 import type { EnvChannelOptions } from "@e-n-v/channels/EnvChannelOptions";
 import type { EnvChannel } from "@e-n-v/core";
+import type { SchemasFormat } from "@e-n-v/models";
 
 /**
  * Configuration options for the prompt function
  */
 export type PromptEnvInteractiveOptions = {
+  /**
+   * Format for schema definitions
+   * - "flat": Traditional flat schema format (default)
+   * - "client-server": Separate client and server schemas (for t3-oss/env-core compatibility)
+   * @default "flat"
+   */
+  format?: SchemasFormat;
   /**
    * Path to the .env file to read from and write to
    * @default ".env"
