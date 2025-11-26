@@ -3,7 +3,7 @@ import { stdin, stdout } from "node:process";
 import type { PromptEnvOptions } from "./options/PromptEnvOptions";
 import type { PromptEnvInteractiveOptions } from "./options/PromptEnvInteractiveOptions";
 import type { EnvChannel } from "@e-n-v/core";
-import { EnvModel } from "@e-n-v/models";
+import { EnvModel, type ClientServerSchemas } from "@e-n-v/models";
 import * as defaults from "./options/defaults";
 import { resolveChannel } from "@e-n-v/channels/resolveChannel";
 import { Session } from "./session/Session";
@@ -32,10 +32,20 @@ export async function prompt(
 export async function prompt(options: PromptEnvOptions): Promise<void>;
 
 /**
+ * Interactive CLI tool to generate .env files with schema validation (client-server format)
+ * @param schemas - Client and server schema definitions
+ * @param options - Interactive configuration options with format set to "client-server"
+ */
+export async function prompt(
+  schemas: ClientServerSchemas,
+  options: PromptEnvInteractiveOptions & { format: "client-server" },
+): Promise<void>;
+
+/**
  * Interactive CLI tool to generate .env files with schema validation
  */
 export async function prompt(
-  modelOrOptions: EnvModel | PromptEnvOptions,
+  modelOrOptionsOrSchemas: EnvModel | PromptEnvOptions | ClientServerSchemas,
   interactiveOptions?: PromptEnvInteractiveOptions,
 ): Promise<void> {
   let schemas: Record<string, EnvVarSchema>;
@@ -43,15 +53,43 @@ export async function prompt(
   let finalOptions: PromptEnvInteractiveOptions;
 
   // Determine which overload is being used
-  if (modelOrOptions instanceof EnvModel) {
+  if (modelOrOptionsOrSchemas instanceof EnvModel) {
     // First overload: (model, options?)
-    const model = modelOrOptions;
+    const model = modelOrOptionsOrSchemas;
     finalOptions = interactiveOptions || {};
     schemas = model.schemas;
     preprocessConfig = model.preprocess;
+  } else if (
+    typeof modelOrOptionsOrSchemas === "object" &&
+    "client" in modelOrOptionsOrSchemas &&
+    "server" in modelOrOptionsOrSchemas &&
+    interactiveOptions?.format === "client-server"
+  ) {
+    // Third overload: (ClientServerSchemas, options with format: "client-server")
+    const clientServerSchemas = modelOrOptionsOrSchemas as ClientServerSchemas;
+    finalOptions = interactiveOptions;
+
+    // Check for duplicate keys
+    const clientKeys = new Set(Object.keys(clientServerSchemas.client));
+    const serverKeys = new Set(Object.keys(clientServerSchemas.server));
+    const duplicates = [...clientKeys].filter((key) => serverKeys.has(key));
+
+    if (duplicates.length > 0) {
+      throw new Error(
+        `Duplicate keys found in client and server schemas: ${duplicates.join(", ")}`,
+      );
+    }
+
+    // Merge client and server schemas
+    const mergedSchemas = {
+      ...clientServerSchemas.client,
+      ...clientServerSchemas.server,
+    };
+    schemas = resolveSchemas(mergedSchemas);
+    preprocessConfig = undefined;
   } else {
     // Second overload: (options)
-    const options = modelOrOptions;
+    const options = modelOrOptionsOrSchemas as PromptEnvOptions;
     finalOptions = options;
 
     if (options.schemas) {
