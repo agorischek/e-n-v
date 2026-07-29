@@ -1,0 +1,56 @@
+version: 2
+
+updates:
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Los_Angeles
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    allow:
+      # Keep tooling current, including majors. Garden may merge these only
+      # after CI passes and the repository completes its onboarding canary.
+      - dependency-type: development
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+          - version-update:semver-patch
+      # Routine runtime updates stay within the package's existing compatible
+      # range. Dependabot security updates are not restricted by update-types.
+      - dependency-type: production
+        update-types:
+          - version-update:semver-patch
+    groups:
+      development-dependencies:
+        dependency-type: development
+        patterns:
+          - "*"
+      production-dependencies:
+        dependency-type: production
+        patterns:
+          - "*"
+    commit-message:
+      prefix: deps
+      prefix-development: deps-dev
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Los_Angeles
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: ci
+      include: scope
