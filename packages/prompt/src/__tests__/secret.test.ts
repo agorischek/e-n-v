@@ -59,6 +59,11 @@ describe("SECRET_PATTERNS", () => {
       ["ACCESS_TOKEN"],
       ["REFRESH_TOKEN"],
       ["JWT_ACCESS_TOKEN"],
+      ["STAGE_TOKEN"],
+      ["MESSAGE_TOKEN"],
+      ["STORAGE_TOKEN"],
+      ["PACKAGE_TOKEN"],
+      ["TOKEN_AGENCY"],
       // api key
       ["API_KEY"],
       ["APIKEY"],

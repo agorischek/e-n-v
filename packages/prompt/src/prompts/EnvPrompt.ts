@@ -390,12 +390,13 @@ export abstract class EnvPrompt<
     this.mode.suppressValidation();
 
     // Open URL in the default browser
-    const [executable, args] =
+    const command: readonly [string, readonly string[]] =
       platform() === "win32"
         ? ["rundll32.exe", ["url.dll,FileProtocolHandler", url.href]]
         : platform() === "darwin"
           ? ["open", [url.href]]
           : ["xdg-open", [url.href]];
+    const [executable, args] = command;
 
     execFile(executable, args, (error) => {
       if (error) {
