@@ -117,8 +117,7 @@ describe("EnvEnumPrompt", () => {
     prompt.value = "beta";
     prompt.state = "submit";
     const render = Reflect.get(prompt as any, "_render") as () =>
-      | string
-      | undefined;
+      string | undefined;
     const output = render();
 
     expect(typeof output).toBe("string");

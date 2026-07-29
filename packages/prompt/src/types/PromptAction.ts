@@ -3,10 +3,4 @@
  */
 
 export type PromptAction =
-  | "up"
-  | "down"
-  | "left"
-  | "right"
-  | "space"
-  | "enter"
-  | "cancel";
+  "up" | "down" | "left" | "right" | "space" | "enter" | "cancel";

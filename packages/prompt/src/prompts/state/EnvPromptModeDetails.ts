@@ -60,8 +60,7 @@ export interface EnvPromptComputedState {
  * Complete state including both core mode details and computed properties
  */
 export interface EnvPromptState
-  extends EnvPromptModeDetails,
-    EnvPromptComputedState {}
+  extends EnvPromptModeDetails, EnvPromptComputedState {}
 
 /**
  * Creates initial mode details for a prompt

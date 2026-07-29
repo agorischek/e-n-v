@@ -18,10 +18,7 @@ export interface Preprocessors {
    * Custom boolean preprocessing function
    */
   boolean?:
-    | boolean
-    | Preprocessor<boolean>
-    | BooleanPreprocessorOptions
-    | undefined;
+    boolean | Preprocessor<boolean> | BooleanPreprocessorOptions | undefined;
 
   /**
    * Custom enum preprocessing function

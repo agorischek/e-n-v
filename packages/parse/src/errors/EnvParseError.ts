@@ -14,8 +14,7 @@ export type EnvParseIssueInvalid = {
 export type EnvParseIssue = EnvParseIssueMissing | EnvParseIssueInvalid;
 
 export type EnvParseResult<TValue> =
-  | { ok: true; value: TValue }
-  | { ok: false; error: EnvParseError<TValue> };
+  { ok: true; value: TValue } | { ok: false; error: EnvParseError<TValue> };
 
 /**
  * Error thrown when parsing environment variables fails.

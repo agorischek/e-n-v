@@ -9,7 +9,7 @@ import type {
  * Minimal interface for dotenvx functionality used in ask-env.
  */
 export interface DotEnvXInstance {
-  get(key: string, options?: GetOptions): string;
-  set(key: string, value: string, options?: SetOptions): unknown;
+  get(key: string, options?: GetOptions): Promise<string>;
+  set(key: string, value: string, options?: SetOptions): Promise<unknown>;
   config(options?: DotenvConfigOptions): DotenvConfigOutput;
 }

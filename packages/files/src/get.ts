@@ -99,7 +99,7 @@ function iterateAssignments(
   lines: string[],
   callback: (assignment: ParsedAssignment) => boolean | void | undefined,
 ): void {
-  for (let i = lines.length - 1; i >= 0; ) {
+  for (let i = lines.length - 1; i >= 0;) {
     const parsed = parseAssignmentEndingAt(lines, i);
     if (!parsed) {
       i -= 1;
