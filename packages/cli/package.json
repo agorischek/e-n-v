@@ -8,7 +8,7 @@
   "dependencies": {
     "@e-n-v/models": "workspace:*",
     "@e-n-v/prompt": "workspace:*",
-    "commander": "^11.1.0",
+    "commander": "^14.0.3",
     "tsx": "^4.15.7"
   },
   "peerDependencies": {
