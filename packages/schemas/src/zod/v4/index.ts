@@ -77,6 +77,19 @@ import {
   elasticsearchPassword,
 } from "./elasticsearch";
 import { encryptionKey } from "./encryptionKey";
+import {
+  gelBranch,
+  gelClientTlsSecurity,
+  gelCredentialsFile,
+  gelDsn,
+  gelHost,
+  gelInstance,
+  gelPassword,
+  gelPort,
+  gelSecretKey,
+  gelTlsCaFile,
+  gelUser,
+} from "./gel";
 import { hostSchema } from "./host";
 import {
   jwtSecret,
@@ -185,6 +198,19 @@ export default (z: ZodSingleton) => ({
 
   // Security
   ENCRYPTION_KEY: encryptionKey(z),
+
+  // Gel
+  GEL_DSN: gelDsn(z),
+  GEL_INSTANCE: gelInstance(z),
+  GEL_SECRET_KEY: gelSecretKey(z),
+  GEL_HOST: gelHost(z),
+  GEL_PORT: gelPort(z),
+  GEL_USER: gelUser(z),
+  GEL_PASSWORD: gelPassword(z),
+  GEL_BRANCH: gelBranch(z),
+  GEL_TLS_CA_FILE: gelTlsCaFile(z),
+  GEL_CLIENT_TLS_SECURITY: gelClientTlsSecurity(z),
+  GEL_CREDENTIALS_FILE: gelCredentialsFile(z),
 
   // Infrastructure
   HOST: hostSchema(z),

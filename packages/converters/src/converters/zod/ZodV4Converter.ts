@@ -255,9 +255,6 @@ function createV4ProcessFunction<T>(
   originalSchema: $ZodType,
 ): (value: unknown) => T | undefined {
   return (value: unknown): T | undefined => {
-    if (typeof value !== "string") {
-      throw new Error("Value must be a string");
-    }
     try {
       let processSchema = schema;
 
@@ -266,18 +263,19 @@ function createV4ProcessFunction<T>(
       const typeName = getV4TypeName(def);
 
       if (
-        typeName === "stringbool" ||
-        (typeName === "pipe" &&
+        (typeof value === "string" && typeName === "stringbool") ||
+        (typeof value === "string" &&
+          typeName === "pipe" &&
           def.in &&
           def.out &&
           resolveV4EnvVarType(def.in) === "string" &&
           resolveV4EnvVarType(def.out) === "boolean")
       ) {
         processSchema = originalSchema;
-      } else if (type === "number") {
+      } else if (typeof value === "string" && type === "number") {
         // Use regular Zod coerce.number() which creates v4 schemas
         processSchema = z.coerce.number() as any;
-      } else if (type === "boolean") {
+      } else if (typeof value === "string" && type === "boolean") {
         // Use stringbool for v4 boolean conversion
         processSchema = z.stringbool() as any;
       }

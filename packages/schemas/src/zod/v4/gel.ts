@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   descriptions,
   messages,
@@ -6,31 +5,32 @@ import {
   constraints,
   patterns,
 } from "../../shared/gel";
+import type { ZodSingleton } from "./types";
 
-export const gelDsn = () =>
+export const gelDsn = (z: ZodSingleton) =>
   z.string().describe(descriptions.gelDsn).regex(patterns.gelDsn, {
     message: messages.gelDsnFormat,
   });
 
-export const gelInstance = () =>
+export const gelInstance = (z: ZodSingleton) =>
   z.string().describe(descriptions.gelInstance).regex(patterns.gelInstance, {
     message: messages.gelInstanceFormat,
   });
 
-export const gelSecretKey = () =>
+export const gelSecretKey = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.gelSecretKey)
     .min(1, { message: messages.gelSecretKeyRequired });
 
-export const gelHost = () =>
+export const gelHost = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.gelHost)
     .min(1, { message: messages.gelHostRequired })
     .default("localhost");
 
-export const gelPort = () =>
+export const gelPort = (z: ZodSingleton) =>
   z.coerce
     .number()
     .describe(descriptions.gelPort)
@@ -39,20 +39,20 @@ export const gelPort = () =>
     .max(constraints.gelPortMax, { message: messages.gelPortMax })
     .default(defaults.gelPort);
 
-export const gelUser = () =>
+export const gelUser = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.gelUser)
     .min(1, { message: messages.gelUserRequired })
     .default(defaults.gelUser);
 
-export const gelPassword = () =>
+export const gelPassword = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.gelPassword)
     .min(1, { message: messages.gelPasswordRequired });
 
-export const gelBranch = () =>
+export const gelBranch = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.gelBranch)
@@ -61,34 +61,22 @@ export const gelBranch = () =>
     })
     .default(defaults.gelBranch);
 
-export const gelTlsCaFile = () =>
+export const gelTlsCaFile = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.gelTlsCaFile)
     .min(1, { message: messages.gelTlsCaFileFormat })
     .optional();
 
-export const gelClientTlsSecurity = () =>
+export const gelClientTlsSecurity = (z: ZodSingleton) =>
   z
     .enum(["strict", "no_host_verification", "insecure"])
     .describe(descriptions.gelClientTlsSecurity)
     .default(defaults.gelClientTlsSecurity);
 
-export const gelCredentialsFile = () =>
+export const gelCredentialsFile = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.gelCredentialsFile)
     .min(1, { message: messages.gelCredentialsFileFormat })
     .optional();
-
-export const GEL_DSN = gelDsn();
-export const GEL_INSTANCE = gelInstance();
-export const GEL_SECRET_KEY = gelSecretKey();
-export const GEL_HOST = gelHost();
-export const GEL_PORT = gelPort();
-export const GEL_USER = gelUser();
-export const GEL_PASSWORD = gelPassword();
-export const GEL_BRANCH = gelBranch();
-export const GEL_TLS_CA_FILE = gelTlsCaFile();
-export const GEL_CLIENT_TLS_SECURITY = gelClientTlsSecurity();
-export const GEL_CREDENTIALS_FILE = gelCredentialsFile();

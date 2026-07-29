@@ -10,8 +10,8 @@ export function number(...checks: Array<Check<number>>): Processor<number> {
   return (input: unknown): number | undefined => {
     // If already a number, validate and return it
     if (typeof input === "number") {
-      if (isNaN(input)) {
-        throw new Error("Value is NaN");
+      if (!Number.isFinite(input)) {
+        throw new Error("Value must be a finite number");
       }
       if (checks.length > 0) {
         return validate(input, checks);
@@ -28,8 +28,8 @@ export function number(...checks: Array<Check<number>>): Processor<number> {
       return undefined;
     }
 
-    const parsed = parseFloat(trimmed);
-    if (isNaN(parsed)) {
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed)) {
       throw new Error(`"${input}" is not a valid number`);
     }
 

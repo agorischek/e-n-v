@@ -10,7 +10,7 @@ export function custom<T>(
 ): Check<T> {
   return (value: T) => {
     if (!fn(value)) {
-      return traits;
+      return traits.length > 0 ? [...traits] : ["a valid value"];
     }
     return [];
   };

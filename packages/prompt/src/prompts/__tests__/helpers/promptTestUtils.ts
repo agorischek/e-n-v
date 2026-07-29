@@ -74,6 +74,10 @@ export async function backspace(prompt: unknown, count: number): Promise<void> {
     rl?: { cursor: number; line: string };
   };
 
+  if (count <= 0) {
+    return;
+  }
+
   const nextInput = target.userInput.slice(0, -count);
   if (target.rl) {
     target.rl.line = nextInput;

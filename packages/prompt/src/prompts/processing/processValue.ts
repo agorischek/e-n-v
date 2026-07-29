@@ -54,8 +54,11 @@ export function processValue<T>(
     }
 
     // Always pass through the schema processor for validation
-    // Processor receives the preprocessed value as-is (could be string, number, boolean, or T)
-    const result = (schema as any).process(processedValue) as T | undefined;
+    // Processor receives the preprocessed value as-is (could be string, number, boolean, or T).
+    if (!schema.process) {
+      throw new Error(`No processor configured for ${envKey}`);
+    }
+    const result = schema.process(processedValue);
     return { value: result, rawValue: value, isValid: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

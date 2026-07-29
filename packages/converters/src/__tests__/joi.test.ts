@@ -81,6 +81,7 @@ describe("JoiConverter", () => {
 
     const result = envSchema.process("42");
     expect(result).toBe(42);
+    expect(envSchema.process(42)).toBe(42);
   });
 
   it("should process boolean values correctly", () => {
@@ -93,6 +94,8 @@ describe("JoiConverter", () => {
     expect(envSchema.process("0")).toBe(false);
     expect(envSchema.process("yes")).toBe(true);
     expect(envSchema.process("no")).toBe(false);
+    expect(envSchema.process(true)).toBe(true);
+    expect(envSchema.process(false)).toBe(false);
   });
 
   it("should process enum values correctly", () => {

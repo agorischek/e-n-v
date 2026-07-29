@@ -11,6 +11,7 @@ describe("Coercion for Environment Variables", () => {
       const result = schema.process("42");
       expect(result).toBe(42);
       expect(typeof result).toBe("number");
+      expect(schema.process(42)).toBe(42);
     });
 
     it("should coerce string decimals to numbers", () => {
@@ -35,6 +36,7 @@ describe("Coercion for Environment Variables", () => {
       const result = schema.process("true");
       expect(result).toBe(true);
       expect(typeof result).toBe("boolean");
+      expect(schema.process(true)).toBe(true);
     });
 
     it("should coerce 'false' string to boolean false", () => {

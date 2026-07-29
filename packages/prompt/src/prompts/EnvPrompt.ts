@@ -16,7 +16,7 @@ import { EnvPromptMode } from "./state/EnvPromptMode";
 import { createInitialModeDetails } from "./state/EnvPromptModeDetails";
 import type { EnvPromptState } from "./state/EnvPromptModeDetails";
 import { processValue, type ProcessingResult } from "./processing/processValue";
-import { exec } from "node:child_process";
+import { execFile } from "node:child_process";
 import { platform } from "node:os";
 
 export type FooterState = "hint" | "warn" | "tools";
@@ -373,21 +373,34 @@ export abstract class EnvPrompt<
       return;
     }
 
+    let url: URL;
+    try {
+      url = new URL(link);
+    } catch {
+      console.error("Failed to open link");
+      return;
+    }
+
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      console.error("Failed to open link");
+      return;
+    }
+
     // Consume the submit action (prevent form submission)
     this.mode.suppressValidation();
 
     // Open URL in the default browser
-    const command =
+    const [executable, args] =
       platform() === "win32"
-        ? `start "" "${link}"`
+        ? ["rundll32.exe", ["url.dll,FileProtocolHandler", url.href]]
         : platform() === "darwin"
-          ? `open "${link}"`
-          : `xdg-open "${link}"`;
+          ? ["open", [url.href]]
+          : ["xdg-open", [url.href]];
 
-    exec(command, (error) => {
+    execFile(executable, args, (error) => {
       if (error) {
         // Silently fail - user can manually open the link if needed
-        console.error(`Failed to open link: ${link}`);
+        console.error("Failed to open link");
       }
     });
   }

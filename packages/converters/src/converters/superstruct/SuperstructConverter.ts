@@ -214,13 +214,9 @@ function createSuperstructProcessFunction<T>(
   type: EnvVarType,
 ): (value: unknown) => T | undefined {
   return (value: unknown): T | undefined => {
-    if (typeof value !== "string") {
-      throw new Error("Value must be a string");
-    }
-
     let candidate: unknown = value;
 
-    if (type === "number") {
+    if (typeof value === "string" && type === "number") {
       const trimmed = value.trim();
       if (trimmed === "") {
         candidate = undefined;
@@ -231,7 +227,7 @@ function createSuperstructProcessFunction<T>(
         }
         candidate = parsed;
       }
-    } else if (type === "boolean") {
+    } else if (typeof value === "string" && type === "boolean") {
       const trimmed = value.trim().toLowerCase();
       if (trimmed === "") {
         candidate = undefined;

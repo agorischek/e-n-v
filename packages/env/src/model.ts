@@ -1,4 +1,4 @@
-// @e-n-v/env/models
+// @e-n-v/env/model
 import { define } from "@e-n-v/models";
 export default define;
 

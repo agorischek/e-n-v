@@ -1,6 +1,6 @@
 /**
  * Custom checks for environment variables.
- * These implement the Processor<T> interface and provide composable validation with clear error messages.
+ * These provide composable validation with clear error messages.
  */
 
 // Core types

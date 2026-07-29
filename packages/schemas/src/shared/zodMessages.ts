@@ -10,7 +10,14 @@
  * @returns A complete error message (e.g., "Must be at least 8 characters long")
  */
 export function toZodMessage(trait: string): string {
-  return `Must ${trait}`;
+  const normalized = trait.trim();
+  if (
+    /^must\b/i.test(normalized) ||
+    /(?:\bis required|\bcannot be empty)$/i.test(normalized)
+  ) {
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  }
+  return `Must ${normalized}`;
 }
 
 /**

@@ -3,12 +3,17 @@ import { NumberEnvVarSchema } from "@e-n-v/core";
 
 // Simple number processor
 const numberProcessor = (value: unknown) => {
-  if (typeof value === "number") return value;
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) {
+      throw new Error(`"${value}" is not a valid number`);
+    }
+    return value;
+  }
   if (typeof value !== "string") {
     throw new Error("Value must be a string or number");
   }
   const parsed = Number(value);
-  if (isNaN(parsed)) {
+  if (!Number.isFinite(parsed)) {
     throw new Error(`"${value}" is not a valid number`);
   }
   return parsed;

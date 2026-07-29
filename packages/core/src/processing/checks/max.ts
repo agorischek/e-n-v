@@ -5,7 +5,7 @@ import type { Check } from "../types/Check.js";
  */
 export function max(maximum: number, trait?: string): Check<number> {
   return (value: number) => {
-    if (value > maximum) {
+    if (Number.isNaN(value) || value > maximum) {
       return trait ? [trait] : [`at most ${maximum}`];
     }
     return [];

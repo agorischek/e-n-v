@@ -9,7 +9,7 @@ export function between(
   trait?: string,
 ): Check<number> {
   return (value: number) => {
-    if (value < minimum || value > maximum) {
+    if (Number.isNaN(value) || value < minimum || value > maximum) {
       return trait ? [trait] : [`between ${minimum} and ${maximum}`];
     }
     return [];

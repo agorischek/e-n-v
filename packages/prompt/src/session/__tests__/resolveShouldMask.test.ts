@@ -10,9 +10,12 @@ const stringProcessor = (value: unknown): string | undefined => {
   return value;
 };
 const numberProcessor = (value: unknown): number | undefined => {
-  if (typeof value === "number") return value;
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) throw new Error("Not a number");
+    return value;
+  }
   const parsed = Number(value);
-  if (isNaN(parsed)) throw new Error("Not a number");
+  if (!Number.isFinite(parsed)) throw new Error("Not a number");
   return parsed;
 };
 
