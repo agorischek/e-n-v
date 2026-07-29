@@ -1,7 +1,6 @@
 import { StringEnvVarSchema, type StringEnvVarSchemaInput } from "@e-n-v/core";
-import { createZodProcessor } from "../helpers/createZodProcesor";
-import { z } from "zod";
-import { descriptions, messages } from "../shared/infrastructure";
+import { string, url, pattern } from "@e-n-v/core";
+import { traits, descriptions } from "../shared/infrastructure";
 import { patterns } from "../shared/apiService";
 
 export const elasticsearchUrl = (
@@ -9,13 +8,9 @@ export const elasticsearchUrl = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchUrl,
-    process: createZodProcessor(
-      z
-        .string()
-        .url({ message: messages.elasticsearchUrlFormat })
-        .regex(patterns.httpProtocol, {
-          message: messages.elasticsearchUrlProtocol,
-        }),
+    process: string(
+      url(traits.elasticsearchUrlFormat),
+      pattern(patterns.httpProtocol, traits.elasticsearchUrlProtocol),
     ),
     ...input,
   });
@@ -25,7 +20,7 @@ export const elasticsearchUsername = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchUsername,
-    process: createZodProcessor(z.string()),
+    process: string(),
     required: false,
     ...input,
   });
@@ -35,7 +30,7 @@ export const elasticsearchPassword = (
 ) =>
   new StringEnvVarSchema({
     description: descriptions.elasticsearchPassword,
-    process: createZodProcessor(z.string()),
+    process: string(),
     secret: true,
     required: false,
     ...input,
@@ -44,9 +39,3 @@ export const elasticsearchPassword = (
 export const ELASTICSEARCH_URL = elasticsearchUrl();
 export const ELASTICSEARCH_USERNAME = elasticsearchUsername();
 export const ELASTICSEARCH_PASSWORD = elasticsearchPassword();
-
-export const elasticsearch = {
-  ELASTICSEARCH_URL,
-  ELASTICSEARCH_USERNAME,
-  ELASTICSEARCH_PASSWORD,
-} as const;

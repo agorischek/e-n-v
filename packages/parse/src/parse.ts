@@ -105,15 +105,10 @@ export function parse<T extends Record<string, SupportedSchema>>(
     const preprocessor = resolvePreprocessor(schema.type, preprocessConfig);
     const preprocessedValue = preprocessor ? preprocessor(rawValue) : rawValue;
 
-    // Convert to string if preprocessor returned native type
-    const stringValue =
-      typeof preprocessedValue === "string"
-        ? preprocessedValue
-        : String(preprocessedValue);
-
     // Process through schema
+    // Processor receives the preprocessed value as-is (could be string, number, boolean, etc.)
     try {
-      const processedValue = schema.process(stringValue);
+      const processedValue = schema.process(preprocessedValue);
 
       // Handle undefined result from processor
       if (processedValue === undefined) {

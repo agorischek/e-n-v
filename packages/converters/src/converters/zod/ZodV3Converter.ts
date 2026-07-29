@@ -202,15 +202,15 @@ function peelV3Schema(schema: ZodTypeAny): V3PeeledResult {
 function createV3ProcessFunction<T>(
   schema: ZodTypeAny,
   type: EnvVarType,
-): (value: string) => T | undefined {
-  return (value: string): T | undefined => {
+): (value: unknown) => T | undefined {
+  return (value: unknown): T | undefined => {
     try {
       // For numbers and booleans, we need to handle string-to-type conversion
       let processSchema = schema;
 
-      if (type === "number") {
+      if (typeof value === "string" && type === "number") {
         processSchema = z.coerce.number();
-      } else if (type === "boolean") {
+      } else if (typeof value === "string" && type === "boolean") {
         // Custom boolean parsing for environment variables
         processSchema = z.string().transform((val) => {
           const lower = val.toLowerCase().trim();

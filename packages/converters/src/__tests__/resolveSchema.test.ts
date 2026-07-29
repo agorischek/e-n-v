@@ -1,6 +1,7 @@
 import { describe, it, expect } from "bun:test";
 import { resolveSchema } from "@e-n-v/models";
 import { z } from "zod";
+import { z as z3 } from "zod/v3";
 
 describe("resolveSchema", () => {
   it("should resolve Zod v3 schemas", () => {
@@ -54,5 +55,13 @@ describe("resolveSchema", () => {
     expect(() => resolveSchema(unsupportedSchema)).toThrow(
       "No converter found for schema",
     );
+  });
+
+  it("passes native values through Zod v3 validation", () => {
+    const numberSchema = resolveSchema(z3.number() as any);
+    const booleanSchema = resolveSchema(z3.boolean() as any);
+
+    expect(numberSchema.process(42)).toBe(42);
+    expect(booleanSchema.process(true)).toBe(true);
   });
 });

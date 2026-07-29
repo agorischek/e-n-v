@@ -1,7 +1,7 @@
-import { z } from "zod";
 import { descriptions, messages, patterns } from "../../shared/infrastructure";
+import type { ZodSingleton } from "./types";
 
-export const azureStorageConnectionString = () =>
+export const azureStorageConnectionString = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.azureStorageConnectionString)
@@ -9,7 +9,7 @@ export const azureStorageConnectionString = () =>
       message: messages.azureStorageConnectionStringFormat,
     });
 
-export const azureStorageAccountName = () =>
+export const azureStorageAccountName = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.azureStorageAccountName)
@@ -17,13 +17,13 @@ export const azureStorageAccountName = () =>
       message: messages.azureStorageAccountNameFormat,
     });
 
-export const azureStorageAccountKey = () =>
+export const azureStorageAccountKey = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.azureStorageAccountKey)
     .min(1, { message: messages.azureStorageAccountKeyRequired });
 
-export const azureServiceBusConnectionString = () =>
+export const azureServiceBusConnectionString = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.azureServiceBusConnectionString)
@@ -31,18 +31,10 @@ export const azureServiceBusConnectionString = () =>
       message: messages.azureServiceBusConnectionStringFormat,
     });
 
-export const azureEventHubConnectionString = () =>
+export const azureEventHubConnectionString = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.azureEventHubConnectionString)
     .regex(patterns.azureEventHubConnectionString, {
       message: messages.azureEventHubConnectionStringFormat,
     });
-
-export const AZURE_STORAGE_CONNECTION_STRING = azureStorageConnectionString();
-export const AZURE_STORAGE_ACCOUNT_NAME = azureStorageAccountName();
-export const AZURE_STORAGE_ACCOUNT_KEY = azureStorageAccountKey();
-export const AZURE_SERVICE_BUS_CONNECTION_STRING =
-  azureServiceBusConnectionString();
-export const AZURE_EVENT_HUB_CONNECTION_STRING =
-  azureEventHubConnectionString();

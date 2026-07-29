@@ -1,8 +1,9 @@
-import type { Processor } from "../processing/Processor";
+import type { Processor } from "../processing/types/Processor";
 
 export interface EnvVarSchemaInput<T> {
   process?: Processor<T>;
   required?: boolean;
   default?: T;
   description?: string;
+  link?: string;
 }

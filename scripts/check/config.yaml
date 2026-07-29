@@ -1,0 +1,9 @@
+# Configuration for CI check script
+# Path to the CI YAML file (relative to project root)
+path: .github/workflows/ci.yml
+
+# Steps to skip (by name)
+skipSteps:
+  - "Checkout repository"
+  - "Setup Bun"
+  - "Install dependencies"

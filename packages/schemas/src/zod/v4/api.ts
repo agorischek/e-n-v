@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { patterns } from "../../shared/apiService";
 import {
   constraints,
@@ -6,20 +5,21 @@ import {
   descriptions,
   messages,
 } from "../../shared/apiService";
+import type { ZodSingleton } from "./types";
 
-export const apiKey = () =>
+export const apiKey = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.apiKey)
     .min(constraints.apiKeyMinLength, { error: messages.apiKeyMin });
 
-export const apiBaseUrl = () =>
+export const apiBaseUrl = (z: ZodSingleton) =>
   z
     .url()
     .describe(descriptions.apiBaseUrl)
     .regex(patterns.httpProtocol, { error: messages.httpProtocolRequired });
 
-export const apiTimeout = () =>
+export const apiTimeout = (z: ZodSingleton) =>
   z
     .number()
     .describe(descriptions.apiTimeout)
@@ -27,7 +27,3 @@ export const apiTimeout = () =>
     .min(constraints.apiTimeoutMin, { error: messages.apiTimeoutMin })
     .max(constraints.apiTimeoutMax, { error: messages.apiTimeoutMax })
     .default(defaults.apiTimeout);
-
-export const API_KEY = apiKey();
-export const API_BASE_URL = apiBaseUrl();
-export const API_TIMEOUT = apiTimeout();

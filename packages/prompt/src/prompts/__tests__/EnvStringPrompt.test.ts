@@ -279,7 +279,10 @@ describe("EnvStringPrompt", () => {
     const schema = new StringEnvVarSchemaClass({
       required: true,
       default: "def",
-      process: (value: string) => {
+      process: (value: unknown) => {
+        if (typeof value !== "string") {
+          throw new Error("Value must be a string");
+        }
         calls.push(value);
         if (!value || value.trim() === "") {
           throw new Error("missing");
@@ -382,7 +385,10 @@ describe("EnvStringPrompt", () => {
     const schema = new StringEnvVarSchemaClass({
       required: false,
       default: "def",
-      process: (value: string) => {
+      process: (value: unknown) => {
+        if (typeof value !== "string") {
+          throw new Error("Value must be a string");
+        }
         calls.push(value);
         if (value === "def") {
           throw new Error("blocked");
@@ -420,7 +426,10 @@ describe("EnvStringPrompt", () => {
     const schema = new StringEnvVarSchemaClass({
       required: false,
       default: "def",
-      process: (value: string) => {
+      process: (value: unknown) => {
+        if (typeof value !== "string") {
+          throw new Error("Value must be a string");
+        }
         calls.push(value);
         if (value === "warn") {
           throw new Error("warn");
@@ -468,7 +477,10 @@ describe("EnvStringPrompt", () => {
   it("indicates invalid current values before editing", async () => {
     const schema = new StringEnvVarSchemaClass({
       required: false,
-      process: (value: string) => {
+      process: (value: unknown) => {
+        if (typeof value !== "string") {
+          throw new Error("Value must be a string");
+        }
         if (value === "bad") {
           throw new Error("invalid current");
         }
@@ -515,7 +527,10 @@ describe("EnvStringPrompt", () => {
     const schema = new StringEnvVarSchemaClass({
       required: false,
       default: "ok",
-      process: (value: string) => {
+      process: (value: unknown) => {
+        if (typeof value !== "string") {
+          throw new Error("Value must be a string");
+        }
         if (value === "bad") {
           throw new Error("invalid current");
         }

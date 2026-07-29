@@ -2,11 +2,11 @@ import { z } from "zod";
 import { prompt } from "../src";
 import { define } from "@e-n-v/models";
 
-import { DATABASE_PASSWORD } from "@e-n-v/schemas";
+import { DATABASE_PASSWORD, RABBITMQ_URL } from "@e-n-v/schemas";
 
 const schemas = {
   DATABASE_PASSWORD,
-  // RABBITMQ_URL,
+  RABBITMQ_URL,
   // DATABASE_URL: z.string().describe("Database connection URL").default("hey"),
   // UNSET_STRING: z.string().optional(),
   // PORT: z.number().min(1024).max(65535).default(3000),

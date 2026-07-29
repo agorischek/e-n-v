@@ -38,6 +38,7 @@ describe("SuperstructConverter", () => {
     expect(envSchema.type).toBe("number");
     expect(envSchema.required).toBe(true);
     expect(envSchema.process("42")).toBe(42);
+    expect(envSchema.process(42)).toBe(42);
     expect(() => envSchema.process("abc")).toThrow();
   });
 
@@ -57,6 +58,7 @@ describe("SuperstructConverter", () => {
     expect(envSchema.type).toBe("boolean");
     expect(envSchema.process("true")).toBe(true);
     expect(envSchema.process("false")).toBe(false);
+    expect(envSchema.process(true)).toBe(true);
     expect(() => envSchema.process("maybe")).toThrow();
   });
 

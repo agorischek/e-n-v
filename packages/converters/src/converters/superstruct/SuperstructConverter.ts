@@ -212,15 +212,11 @@ function getStructDescription(schema: AnyStruct): string | undefined {
 function createSuperstructProcessFunction<T>(
   schema: AnyStruct,
   type: EnvVarType,
-): (value: string) => T | undefined {
-  return (value: string): T | undefined => {
-    if (typeof value !== "string") {
-      throw new Error("Value must be a string");
-    }
-
+): (value: unknown) => T | undefined {
+  return (value: unknown): T | undefined => {
     let candidate: unknown = value;
 
-    if (type === "number") {
+    if (typeof value === "string" && type === "number") {
       const trimmed = value.trim();
       if (trimmed === "") {
         candidate = undefined;
@@ -231,7 +227,7 @@ function createSuperstructProcessFunction<T>(
         }
         candidate = parsed;
       }
-    } else if (type === "boolean") {
+    } else if (typeof value === "string" && type === "boolean") {
       const trimmed = value.trim().toLowerCase();
       if (trimmed === "") {
         candidate = undefined;

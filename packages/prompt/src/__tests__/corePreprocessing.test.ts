@@ -36,8 +36,8 @@ describe("Core preprocessing integration", () => {
     expect(numberPre?.("not-a-number")).toBe("not-a-number");
 
     const boolPre = resolvePreprocessor("boolean");
-    expect(boolPre?.("enabled")).toBe(true);
-    expect(boolPre?.("inactive")).toBe(false);
+    expect(boolPre?.("yes")).toBe(true);
+    expect(boolPre?.("off")).toBe(false);
     expect(boolPre?.("maybe")).toBe("maybe");
 
     expect(resolvePreprocessor("string")).toBeUndefined();
@@ -66,7 +66,7 @@ describe("Core preprocessing integration", () => {
     expect(numberPre?.("1,234")).toBe("1234");
 
     const booleanPre = resolvePreprocessor("boolean", overrides);
-    expect(booleanPre?.("enabled")).toBe(true);
+    expect(booleanPre?.("yes")).toBe(true);
 
     const enumPre = resolvePreprocessor("enum", overrides);
     expect(enumPre?.("DEV")).toBe("DEV");
@@ -76,20 +76,26 @@ describe("Core preprocessing integration", () => {
     const numberSchema: EnvVarSchemaDetails<number> = {
       type: "number",
       required: false,
-      process: (input: string) => Number(input),
+      process: (input: unknown) => {
+        if (typeof input === "number") return input;
+        return Number(input);
+      },
     };
 
     const booleanSchema: EnvVarSchemaDetails<boolean> = {
       type: "boolean",
       required: false,
-      process: (input: string) => input.toLowerCase() === "true",
+      process: (input: unknown) => {
+        if (typeof input === "boolean") return input;
+        return String(input).toLowerCase() === "true";
+      },
     };
 
     const numberResult = processValue("COUNT", "1,000", numberSchema);
     expect(numberResult.value).toBe(1000);
     expect(numberResult.isValid).toBe(true);
 
-    const boolResult = processValue("FLAG", "enabled", booleanSchema);
+    const boolResult = processValue("FLAG", "yes", booleanSchema);
     expect(boolResult.value).toBe(true);
     expect(boolResult.isValid).toBe(true);
   });
@@ -98,13 +104,19 @@ describe("Core preprocessing integration", () => {
     const numberSchema: EnvVarSchemaDetails<number> = {
       type: "number",
       required: false,
-      process: (input: string) => Number(input),
+      process: (input: unknown) => {
+        if (typeof input === "number") return input;
+        return Number(input);
+      },
     };
 
     const booleanSchema: EnvVarSchemaDetails<boolean> = {
       type: "boolean",
       required: false,
-      process: (input: string) => input.toLowerCase() === "true",
+      process: (input: unknown) => {
+        if (typeof input === "boolean") return input;
+        return String(input).toLowerCase() === "true";
+      },
     };
 
     const numberResult = processValue("COUNT", "1,000", numberSchema, (raw) =>

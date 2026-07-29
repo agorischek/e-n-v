@@ -1,6 +1,8 @@
 {
   "name": "@e-n-v/models",
+  "private": true,
   "version": "0.0.1",
+  "license": "MIT",
   "description": "Environment variable model definition for envcredible",
   "module": "src/index.ts",
   "type": "module",

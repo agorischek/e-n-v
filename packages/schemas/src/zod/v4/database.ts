@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   descriptions,
   messages,
@@ -6,8 +5,9 @@ import {
   constraints,
 } from "../../shared/database";
 import { patterns } from "../../shared/database";
+import type { ZodSingleton } from "./types";
 
-export const databaseUrl = () =>
+export const databaseUrl = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.databaseUrl)
@@ -15,13 +15,13 @@ export const databaseUrl = () =>
       message: messages.genericDatabaseUrlFormat,
     });
 
-export const databaseHost = () =>
+export const databaseHost = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.databaseHost)
     .min(1, { message: messages.databaseHostRequired });
 
-export const databasePort = () =>
+export const databasePort = (z: ZodSingleton) =>
   z.coerce
     .number()
     .describe(descriptions.databasePort)
@@ -29,28 +29,28 @@ export const databasePort = () =>
     .min(constraints.databasePortMin, { message: messages.databasePortMin })
     .max(constraints.databasePortMax, { message: messages.databasePortMax });
 
-export const databaseName = () =>
+export const databaseName = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.databaseName)
     .min(1, { message: messages.databaseNameRequired });
 
-export const databaseUsername = () =>
+export const databaseUsername = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.databaseUsername)
     .min(1, { message: messages.databaseUsernameRequired });
 
-export const databasePassword = () =>
+export const databasePassword = (z: ZodSingleton) =>
   z
     .string()
     .describe(descriptions.databasePassword)
     .min(1, { message: messages.databasePasswordRequired });
 
-export const databaseSchema = () =>
+export const databaseSchema = (z: ZodSingleton) =>
   z.string().describe(descriptions.databaseSchema).optional();
 
-export const databasePoolSize = () =>
+export const databasePoolSize = (z: ZodSingleton) =>
   z.coerce
     .number()
     .describe(descriptions.databasePoolSize)
@@ -63,7 +63,7 @@ export const databasePoolSize = () =>
     })
     .default(defaults.databasePoolSize);
 
-export const databaseTimeout = () =>
+export const databaseTimeout = (z: ZodSingleton) =>
   z.coerce
     .number()
     .describe(descriptions.databaseTimeout)
@@ -76,16 +76,5 @@ export const databaseTimeout = () =>
     })
     .default(defaults.databaseTimeout);
 
-export const databaseSsl = () =>
+export const databaseSsl = (z: ZodSingleton) =>
   z.boolean().describe(descriptions.databaseSsl).default(defaults.databaseSsl);
-
-export const DATABASE_URL = databaseUrl();
-export const DATABASE_HOST = databaseHost();
-export const DATABASE_PORT = databasePort();
-export const DATABASE_NAME = databaseName();
-export const DATABASE_USERNAME = databaseUsername();
-export const DATABASE_PASSWORD = databasePassword();
-export const DATABASE_SCHEMA = databaseSchema();
-export const DATABASE_POOL_SIZE = databasePoolSize();
-export const DATABASE_TIMEOUT = databaseTimeout();
-export const DATABASE_SSL = databaseSsl();

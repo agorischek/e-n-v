@@ -196,19 +196,19 @@ function resolveJoiEnvVarType(schema: AnySchema): EnvVarType {
 function createJoiProcessFunction<T>(
   schema: AnySchema,
   type: EnvVarType,
-): (value: string) => T | undefined {
-  return (value: string): T | undefined => {
+): (value: unknown) => T | undefined {
+  return (value: unknown): T | undefined => {
     try {
       let processValue: unknown = value;
 
       // Pre-process based on expected type
-      if (type === "number") {
+      if (typeof value === "string" && type === "number") {
         const num = Number(value);
-        if (Number.isNaN(num)) {
+        if (!Number.isFinite(num)) {
           throw new Error(`Expected number, received "${value}"`);
         }
         processValue = num;
-      } else if (type === "boolean") {
+      } else if (typeof value === "string" && type === "boolean") {
         // Custom boolean parsing for environment variables
         const lower = value.toLowerCase().trim();
         if (["true", "1", "yes", "on", "enabled"].includes(lower)) {

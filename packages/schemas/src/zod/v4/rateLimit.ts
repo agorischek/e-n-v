@@ -1,12 +1,12 @@
-import { z } from "zod";
 import {
   constraints,
   defaults,
   descriptions,
   messages,
 } from "../../shared/apiService";
+import type { ZodSingleton } from "./types";
 
-export const rateLimitRpm = () =>
+export const rateLimitRpm = (z: ZodSingleton) =>
   z.coerce
     .number()
     .describe(descriptions.rateLimitRpm)
@@ -15,7 +15,7 @@ export const rateLimitRpm = () =>
     .max(constraints.rateLimitRpmMax, { error: messages.rateLimitRpmMax })
     .default(defaults.rateLimitRpm);
 
-export const rateLimitWindow = () =>
+export const rateLimitWindow = (z: ZodSingleton) =>
   z.coerce
     .number()
     .describe(descriptions.rateLimitWindow)
@@ -23,6 +23,3 @@ export const rateLimitWindow = () =>
     .min(constraints.rateLimitWindowMin, { error: messages.rateLimitWindowMin })
     .max(constraints.rateLimitWindowMax, { error: messages.rateLimitWindowMax })
     .default(defaults.rateLimitWindow);
-
-export const RATE_LIMIT_RPM = rateLimitRpm();
-export const RATE_LIMIT_WINDOW = rateLimitWindow();

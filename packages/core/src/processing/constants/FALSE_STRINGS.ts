@@ -1,0 +1,1 @@
+export const FALSE_STRINGS = ["false", "0", "no", "off"];

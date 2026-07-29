@@ -8,11 +8,13 @@ export class Toolbar {
   private _isOpen: boolean = false;
   private cursor: number = 0;
   private readonly previous: boolean;
+  private readonly link?: string;
   private readonly theme: Theme;
   private readonly actions: {
     toggleSecret: () => void;
     skip: () => void;
     previous: () => void;
+    openLink: () => void;
   };
 
   public secret: "shown" | "hidden" | false;
@@ -20,6 +22,7 @@ export class Toolbar {
   constructor(config: ToolbarConfig) {
     this.previous = config.previous;
     this.secret = config.secret;
+    this.link = config.link;
     this.theme = config.theme;
     this.actions = config.actions;
   }
@@ -169,6 +172,14 @@ export class Toolbar {
         key: "toggleSecret",
         label: this.secret === "shown" ? "Hide" : "Show",
         action: this.actions.toggleSecret,
+      });
+    }
+
+    if (this.link) {
+      options.push({
+        key: "openLink",
+        label: "Open link",
+        action: this.actions.openLink,
       });
     }
 
