@@ -68,9 +68,19 @@ export async function pressKey(
 }
 
 export async function backspace(prompt: unknown, count: number): Promise<void> {
-  for (let index = 0; index < count; index++) {
-    await pressKey(prompt, { name: "backspace" });
+  const target = prompt as {
+    userInput: string;
+    _setUserInput(value: string): void;
+    rl?: { cursor: number; line: string };
+  };
+
+  const nextInput = target.userInput.slice(0, -count);
+  if (target.rl) {
+    target.rl.line = nextInput;
+    target.rl.cursor = nextInput.length;
   }
+  target._setUserInput(nextInput);
+  await waitForIO();
 }
 
 export function submitPrompt(prompt: unknown): void {
