@@ -15,6 +15,22 @@ import type { AnySchema } from "joi";
  */
 export type SupportedSchema = Schema;
 
+/**
+ * Format for schema definitions
+ * - "flat": Traditional flat schema format (default)
+ * - "client-server": Separate client and server schemas (for t3-oss/env-core compatibility)
+ */
+export type SchemasFormat = "flat" | "client-server";
+
+/**
+ * Client-server schema format used by t3-oss/env-core
+ * Separates environment variables into client-side and server-side schemas
+ */
+export type ClientServerSchemas = {
+  client: Record<string, SupportedSchema>;
+  server: Record<string, SupportedSchema>;
+};
+
 type InferZodOutput<T> = T extends { _output: infer Output }
   ? Output
   : T extends { _type: infer LegacyOutput }
