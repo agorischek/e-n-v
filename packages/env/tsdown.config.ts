@@ -14,8 +14,17 @@ export default defineConfig({
     "./src/channels.ts",
     "./src/core.ts",
   ],
-  noExternal: [/^@e-n-v\//],
+  deps: {
+    alwaysBundle: [/^@e-n-v\//],
+    neverBundle: [/^(joi|superstruct|zod)(\/|$)/],
+    onlyBundle: false,
+  },
   dts: true,
   outDir: "./dist",
   format: ["esm", "cjs"],
+  outExtensions({ format }) {
+    return format === "es"
+      ? { dts: ".d.ts", js: ".js" }
+      : { dts: ".d.cts", js: ".cjs" };
+  },
 });

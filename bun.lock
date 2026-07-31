@@ -79,7 +79,7 @@
     },
     "packages/env": {
       "name": "@e-n-v/env",
-      "version": "0.0.5",
+      "version": "0.0.7",
       "bin": {
         "e-n-v": "./dist/cli.js",
       },
@@ -88,6 +88,7 @@
         "commander": "^11.1.0",
         "picocolors": "^1.1.1",
         "tsx": "^4.15.7",
+        "zod": "^4.4.3",
       },
     },
     "packages/files": {
