@@ -12,26 +12,26 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@clack/prompts": "^0.11.0",
-    "@dotenvx/dotenvx": "^1.51.0",
-    "@standard-schema/spec": "^1.0.0",
-    "@stryker-mutator/core": "^9.2.0",
+    "@clack/prompts": "^1.7.0",
+    "@dotenvx/dotenvx": "^2.17.1",
+    "@standard-schema/spec": "^1.1.0",
+    "@stryker-mutator/core": "^9.6.1",
     "@types/bun": "latest",
-    "@typescript/native-preview": "^7.0.0-dev.20251023.1",
-    "check-1-2": "^0.0.5",
+    "@typescript/native-preview": "^7.0.0-dev.20260707.2",
+    "check-1-2": "^0.0.7",
     "commander": "^14.0.2",
-    "joi": "^18.0.1",
-    "oxlint": "^1.23.0",
-    "prettier": "^3.6.2",
-    "superstruct": "^1.0.4",
+    "joi": "^18.2.3",
+    "oxlint": "^1.75.0",
+    "prettier": "^3.9.6",
+    "superstruct": "^2.0.2",
     "ts-node": "^10.9.2",
-    "tsdown": "^0.15.11",
-    "tsup": "^8.5.0",
-    "typescript": "^5",
-    "zod": "^4.1.12"
+    "tsdown": "^0.22.13",
+    "tsup": "^8.5.1",
+    "typescript": "^7",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^7"
   },
   "scripts": {
     "build": "tsgo",

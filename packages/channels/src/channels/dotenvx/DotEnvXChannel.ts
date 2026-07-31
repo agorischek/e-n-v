@@ -75,7 +75,7 @@ export class DotEnvXChannel implements EnvChannel {
 
       // Set each key-value pair
       for (const [key, value] of Object.entries(values)) {
-        this.dotenvx.set(key, value, options);
+        await this.dotenvx.set(key, value, options);
       }
     } catch (error) {
       throw new Error(`Failed to set environment variables: ${error}`);

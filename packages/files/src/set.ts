@@ -31,7 +31,7 @@ export function set(
   const replacements = new Map(entries);
   const touched = new Set<string>();
 
-  for (let i = lines.length - 1; i >= 0; ) {
+  for (let i = lines.length - 1; i >= 0;) {
     if (replacements.size === 0) {
       break;
     }

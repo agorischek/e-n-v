@@ -91,12 +91,8 @@ import dotenvx from "@dotenvx/dotenvx";
 
 const channel = resolveChannel({
   dotenvx,
-  get: {
-    /* get options */
-  },
-  set: {
-    /* set options */
-  },
+  get: {/* get options */},
+  set: {/* set options */},
 });
 ```
 

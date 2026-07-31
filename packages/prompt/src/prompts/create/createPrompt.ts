@@ -18,10 +18,7 @@ export function createPrompt({
   output,
   preprocessors,
 }: CreatePromptOptions):
-  | EnvBooleanPrompt
-  | EnvNumberPrompt
-  | EnvEnumPrompt
-  | EnvStringPrompt {
+  EnvBooleanPrompt | EnvNumberPrompt | EnvEnumPrompt | EnvStringPrompt {
   const baseOptions = {
     key,
     theme,
@@ -36,9 +33,7 @@ export function createPrompt({
     case "boolean":
       const booleanOverride = preprocessors?.boolean;
       let booleanPreprocess:
-        | boolean
-        | ReturnType<typeof corePreprocessors.boolean>
-        | undefined;
+        boolean | ReturnType<typeof corePreprocessors.boolean> | undefined;
 
       if (booleanOverride === undefined) {
         booleanPreprocess = undefined;

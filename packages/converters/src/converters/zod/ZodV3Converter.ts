@@ -44,8 +44,8 @@ export function isZodV3Schema(schema: unknown): schema is ZodTypeAny {
   const candidate = schema as any;
   return Boolean(
     candidate._def &&
-      !("_zod" in candidate) && // Not v4
-      (candidate._def.typeName || typeof candidate.parse === "function"),
+    !("_zod" in candidate) && // Not v4
+    (candidate._def.typeName || typeof candidate.parse === "function"),
   );
 }
 
