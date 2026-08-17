@@ -13,7 +13,7 @@
   ],
   "devDependencies": {
     "@clack/prompts": "^1.7.0",
-    "@dotenvx/dotenvx": "^2.19.1",
+    "@dotenvx/dotenvx": "^2.20.1",
     "@standard-schema/spec": "^1.1.0",
     "@stryker-mutator/core": "^9.6.1",
     "@types/bun": "latest",
@@ -21,7 +21,7 @@
     "check-1-2": "^0.0.7",
     "commander": "^14.0.2",
     "joi": "^18.2.3",
-    "oxlint": "^1.77.0",
+    "oxlint": "^1.78.0",
     "prettier": "^3.9.6",
     "superstruct": "^2.0.2",
     "ts-node": "^10.9.2",
