@@ -3,7 +3,7 @@ import { resolvePreprocessor } from "@e-n-v/core";
 import { EnvModel } from "@e-n-v/models";
 import type { InferEnvType, SupportedSchema } from "@e-n-v/models";
 import { resolveSchemas } from "@e-n-v/models";
-import type { ParseEnvOptions } from "../ParseEnvOptions";
+import type { ParseEnvOptions, ParseOptions } from "../ParseEnvOptions";
 import { EnvParseError, type EnvParseIssue } from "./errors/EnvParseError";
 
 /**
@@ -12,12 +12,14 @@ import { EnvParseError, type EnvParseIssue } from "./errors/EnvParseError";
  *
  * @param source - Source object containing raw environment variable values
  * @param model - Environment variable model (EnvModel instance)
+ * @param parseOptions - Optional parse options
  * @returns Strongly typed validated environment variables
  * @throws EnvParseError if any validation issues occur
  */
 export function parse<T extends Record<string, SupportedSchema>>(
   source: Record<string, string> | NodeJS.ProcessEnv,
   model: EnvModel<T>,
+  parseOptions?: ParseOptions,
 ): InferEnvType<T>;
 
 /**
@@ -26,12 +28,14 @@ export function parse<T extends Record<string, SupportedSchema>>(
  *
  * @param source - Source object containing raw environment variable values
  * @param options - Parse options containing schemas and preprocessing config
+ * @param parseOptions - Optional parse options
  * @returns Strongly typed validated environment variables
  * @throws EnvParseError if any validation issues occur
  */
 export function parse<T extends Record<string, SupportedSchema>>(
   source: Record<string, string> | NodeJS.ProcessEnv,
   options: ParseEnvOptions<T>,
+  parseOptions?: ParseOptions,
 ): InferEnvType<T>;
 
 /**
@@ -41,6 +45,7 @@ export function parse<T extends Record<string, SupportedSchema>>(
 export function parse<T extends Record<string, SupportedSchema>>(
   source: Record<string, string> | NodeJS.ProcessEnv,
   modelOrOptions: EnvModel<T> | ParseEnvOptions<T>,
+  parseOptions?: ParseOptions,
 ): InferEnvType<T> {
   let resolvedSchemas: Record<string, EnvVarSchema>;
   let preprocessConfig: Preprocessors;
@@ -69,6 +74,17 @@ export function parse<T extends Record<string, SupportedSchema>>(
       preprocessConfig = {};
     } else {
       preprocessConfig = { ...config };
+    }
+  }
+
+  // Handle clear option: set all vars defined in the model to undefined in source
+  const shouldClear = parseOptions?.clear === true;
+  if (shouldClear) {
+    // Create a copy of source to avoid mutating the original
+    source = { ...source };
+    // Set all model-defined vars to undefined
+    for (const key of Object.keys(resolvedSchemas)) {
+      source[key] = undefined as any;
     }
   }
 
