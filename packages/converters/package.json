@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@standard-schema/spec": "^1.1.0",
-    "joi": "^18.2.3",
+    "joi": "^18.2.5",
     "zod": "^4.4.3",
     "superstruct": "^2.0.2"
   },
