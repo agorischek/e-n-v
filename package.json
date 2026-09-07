@@ -13,7 +13,7 @@
   ],
   "devDependencies": {
     "@clack/prompts": "^1.7.0",
-    "@dotenvx/dotenvx": "^2.21.0",
+    "@dotenvx/dotenvx": "^2.23.0",
     "@standard-schema/spec": "^1.1.0",
     "@stryker-mutator/core": "^10.0.0",
     "@types/bun": "latest",
