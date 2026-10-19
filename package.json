@@ -13,7 +13,7 @@
   ],
   "devDependencies": {
     "@clack/prompts": "^1.8.1",
-    "@dotenvx/dotenvx": "^2.33.0",
+    "@dotenvx/dotenvx": "^2.34.2",
     "@standard-schema/spec": "^1.1.0",
     "@stryker-mutator/core": "^10.0.0",
     "@types/bun": "latest",
@@ -22,10 +22,10 @@
     "commander": "^14.0.2",
     "joi": "^18.2.9",
     "oxlint": "^1.87.0",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "superstruct": "^2.0.2",
     "ts-node": "^10.9.2",
-    "tsdown": "^0.23.0",
+    "tsdown": "^0.23.1",
     "tsup": "^8.5.1",
     "typescript": "^7",
     "zod": "^4.4.3"
